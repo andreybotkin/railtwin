@@ -1,0 +1,20 @@
+# PostgreSQL Service pointing to existing deployment
+# Assumes PostgreSQL with PostGIS is already running in the cluster
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: railway
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgresql
+  selector:
+    app: postgres  # Adjust selector to match your existing PostgreSQL deployment

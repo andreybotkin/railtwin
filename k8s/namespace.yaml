@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: railway
+  labels:
+    app.kubernetes.io/name: thailand-railway
+    app.kubernetes.io/part-of: digital-twin
