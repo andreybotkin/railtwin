@@ -244,6 +244,13 @@ def upgrade() -> None:
         ],
     }
     
+    # Average speeds by train type (km/h)
+    train_speeds = {
+        "special_express": 80,  # Express trains average ~80 km/h including stops
+        "rapid": 60,            # Rapid trains average ~60 km/h
+        "ordinary": 45,         # Ordinary trains average ~45 km/h
+    }
+    
     for train_id, route_idx in train_ids:
         route = ROUTES[route_idx]
         route_id = route_ids[route_idx]
@@ -252,12 +259,16 @@ def upgrade() -> None:
         # Get departure times for this train type
         times = base_times.get(train["train_type"], base_times["ordinary"])
         
+        # Calculate journey time based on route distance and train type
+        route_distance = route["distance_km"]
+        avg_speed = train_speeds.get(train["train_type"], 50)
+        total_minutes = int((route_distance / avg_speed) * 60)
+        
         for base_dep, _ in times[:1]:  # Use first departure time
             hour, minute = map(int, base_dep.split(":"))
             stations_on_route = route["stations"]
             
-            # Calculate time between stations (simplified)
-            total_minutes = 60 * 10  # Assume 10 hours for full journey
+            # Calculate time between stations based on actual journey time
             minutes_per_station = total_minutes // (len(stations_on_route) - 1) if len(stations_on_route) > 1 else 0
             
             for seq, code in enumerate(stations_on_route):

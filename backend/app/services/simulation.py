@@ -132,6 +132,69 @@ class TrainSimulationService:
         heading = math.degrees(math.atan2(dx, dy))
         return (heading + 360) % 360
 
+    def _calculate_segment_distance(
+        self,
+        coords: list[list[float]],
+        start_progress: float,
+        end_progress: float,
+    ) -> float:
+        """Calculate distance along route between two progress points.
+
+        Uses Haversine formula for accurate distance calculation.
+
+        Args:
+            coords: List of [lon, lat] coordinates.
+            start_progress: Starting progress (0.0 to 1.0).
+            end_progress: Ending progress (0.0 to 1.0).
+
+        Returns:
+            Distance in kilometers.
+        """
+        import math
+
+        def haversine_distance(
+            lon1: float, lat1: float, lon2: float, lat2: float
+        ) -> float:
+            """Calculate distance between two points using Haversine formula."""
+            R = 6371  # Earth's radius in kilometers
+
+            lat1_rad = math.radians(lat1)
+            lat2_rad = math.radians(lat2)
+            delta_lat = math.radians(lat2 - lat1)
+            delta_lon = math.radians(lon2 - lon1)
+
+            a = (
+                math.sin(delta_lat / 2) ** 2
+                + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
+            )
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+            return R * c
+
+        if not coords or len(coords) < 2:
+            return 0.0
+
+        # Calculate total length of route
+        total_length = 0.0
+        segment_lengths = []
+
+        for i in range(len(coords) - 1):
+            length = haversine_distance(
+                coords[i][0], coords[i][1],
+                coords[i + 1][0], coords[i + 1][1]
+            )
+            segment_lengths.append(length)
+            total_length += length
+
+        if total_length == 0:
+            return 0.0
+
+        # Calculate distance between progress points
+        start_distance = start_progress * total_length
+        end_distance = end_progress * total_length
+
+        return end_distance - start_distance
+
     async def get_train_position(
         self,
         train: Train,
@@ -226,9 +289,23 @@ class TrainSimulationService:
         # Estimate speed based on distance and time
         avg_speed = 60.0  # Default 60 km/h
         if route_coords and segment_duration > 0:
-            # Simple distance calculation
-            segment_distance_km = 50  # Placeholder
-            avg_speed = segment_distance_km / (segment_duration / 60)
+            # Calculate actual segment distance from route geometry
+            prev_idx = schedules.index(prev_stop)
+            next_idx = schedules.index(next_stop)
+            total_stops = len(schedules)
+            
+            # Calculate start and end progress for this segment
+            start_progress = prev_idx / (total_stops - 1) if total_stops > 1 else 0
+            end_progress = next_idx / (total_stops - 1) if total_stops > 1 else 1
+            
+            # Calculate distance for this segment using route coordinates
+            segment_distance_km = self._calculate_segment_distance(
+                route_coords, start_progress, end_progress
+            )
+            
+            # Calculate average speed for this segment
+            if segment_distance_km > 0:
+                avg_speed = segment_distance_km / (segment_duration / 60)
 
         status = "moving"
         if progress < 0.05 or progress > 0.95:

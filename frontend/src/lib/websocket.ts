@@ -6,6 +6,9 @@ import type { WebSocketMessage, TrainPositionUpdate } from '@/types';
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
 
+// Heartbeat interval in milliseconds (slightly less than server timeout)
+const HEARTBEAT_INTERVAL_MS = 25000;
+
 type MessageHandler = (positions: TrainPositionUpdate[]) => void;
 type ErrorHandler = (error: Event) => void;
 type ConnectionHandler = () => void;
@@ -110,7 +113,7 @@ export class TrainWebSocketClient {
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send('ping');
       }
-    }, 25000);
+    }, HEARTBEAT_INTERVAL_MS);
   }
 
   /**

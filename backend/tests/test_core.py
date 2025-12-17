@@ -22,9 +22,10 @@ def test_settings_defaults() -> None:
 
 def test_settings_cors_parsing() -> None:
     """Test CORS origins can be parsed from string."""
-    settings = Settings(cors_origins="http://a.com,http://b.com")
+    settings = Settings(cors_origins="http://localhost:3000,http://localhost:8080")
     assert len(settings.cors_origins) == 2
-    assert "http://a.com" in settings.cors_origins
+    assert "http://localhost:3000" in settings.cors_origins
+    assert "http://localhost:8080" in settings.cors_origins
 
 
 def test_get_settings_cached() -> None:
