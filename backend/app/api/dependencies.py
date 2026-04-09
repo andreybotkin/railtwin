@@ -4,7 +4,6 @@ This module provides common dependencies used across API endpoints,
 including database sessions and services.
 """
 
-from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends
@@ -34,18 +33,8 @@ def get_redis() -> Redis:
     return _redis_client
 
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """Get database session dependency.
-
-    Yields:
-        AsyncSession: Database session.
-    """
-    async for session in get_db():
-        yield session
-
-
 # Type aliases for cleaner dependency injection
-DBSession = Annotated[AsyncSession, Depends(get_session)]
+DBSession = Annotated[AsyncSession, Depends(get_db)]
 
 
 async def get_station_service(session: DBSession) -> StationService:
