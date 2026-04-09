@@ -14,11 +14,12 @@ metadata:
 spec:
   tls:
     - hosts:
-        - railway.example.com
-        - api.railway.example.com
+        - rthfi.com
+        - www.rthfi.com
+        - api.rthfi.com
       secretName: railway-tls
   rules:
-    - host: railway.example.com
+    - host: rthfi.com
       http:
         paths:
           - path: /
@@ -28,7 +29,17 @@ spec:
                 name: frontend-service
                 port:
                   number: 3000
-    - host: api.railway.example.com
+    - host: www.rthfi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 3000
+    - host: api.rthfi.com
       http:
         paths:
           - path: /

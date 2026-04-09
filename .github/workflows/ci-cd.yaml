@@ -26,7 +26,7 @@ jobs:
 
     services:
       postgres:
-        image: postgis/postgis:15-3.4
+        image: postgis/postgis:18-3.6
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -35,6 +35,15 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -75,6 +84,7 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
         run: |
           pytest --cov=app --cov-report=xml
 
@@ -211,28 +221,34 @@ jobs:
 
       - name: Deploy to K3s
         run: |
-          # Apply namespace
+          # Apply namespace and network policy
           kubectl apply -f k8s/namespace.yaml
-          
-          # Apply configs and secrets
+          kubectl apply -f k8s/network-policy.yaml
+
+          # Apply infrastructure (postgres, redis)
+          kubectl apply -f k8s/postgres/deployment.yaml
+          kubectl apply -f k8s/postgres/service.yaml
+          kubectl apply -f k8s/redis/deployment.yaml
+          kubectl apply -f k8s/redis/service.yaml
+
+          # Apply backend configs and secrets
           kubectl apply -f k8s/backend/configmap.yaml
           kubectl apply -f k8s/backend/secrets.yaml
-          
-          # Apply deployments
+
+          # Apply backend
           kubectl apply -f k8s/backend/deployment.yaml
           kubectl apply -f k8s/backend/service.yaml
           kubectl apply -f k8s/backend/hpa.yaml
+
+          # Apply frontend
           kubectl apply -f k8s/frontend/deployment.yaml
           kubectl apply -f k8s/frontend/service.yaml
           kubectl apply -f k8s/frontend/ingress.yaml
-          
-          # Apply network policy
-          kubectl apply -f k8s/network-policy.yaml
-          
+
           # Restart deployments to pick up new images
           kubectl rollout restart deployment/backend -n railway
           kubectl rollout restart deployment/frontend -n railway
-          
+
           # Wait for rollout
           kubectl rollout status deployment/backend -n railway --timeout=300s
           kubectl rollout status deployment/frontend -n railway --timeout=300s
