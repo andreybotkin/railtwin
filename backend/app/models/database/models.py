@@ -9,10 +9,10 @@ from typing import Any
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
+    JSON,
     DateTime,
     ForeignKey,
     Integer,
-    JSON,
     Numeric,
     String,
     Text,
