@@ -2,7 +2,7 @@ name: thailand-railway-digital-twin
 
 services:
   postgres:
-    image: postgis/postgis:15-3.4
+    image: postgis/postgis:18-3.6
     container_name: railway-postgres
     env_file:
       - .env
@@ -13,7 +13,7 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-railway_db}"]
       interval: 10s
@@ -23,7 +23,7 @@ services:
       - railway-network
 
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     container_name: railway-redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
@@ -53,7 +53,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-100}
-      WS_HEARTBEAT_INTERVAL: ${WS_HEARTBEAT_INTERVAL:-30}
+      WS_HEARTBEAT_INTERVAL: ${WS_HEARTBEAT_INTERVAL:-2}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:
@@ -63,7 +63,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     networks:
       - railway-network
 

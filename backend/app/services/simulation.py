@@ -4,19 +4,23 @@ This module provides real-time train position simulation based on
 actual schedules, calculating train positions along routes.
 """
 
-import asyncio
 import json
-import random
-from datetime import datetime, time, timezone
+from datetime import datetime, time, timezone, timedelta
 from typing import Any
 
+# Bangkok timezone offset (UTC+7)
+_BANGKOK_OFFSET = timedelta(hours=7)
+
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.logging import get_logger
-from app.models.database.models import Route, Schedule, Train
+from app.models.database.models import Schedule, Train
 from app.repositories.route import RouteRepository
 from app.repositories.schedule import ScheduleRepository
 from app.repositories.train import TrainRepository
+from app.services.tts_scraper import get_delays_from_redis
 
 logger = get_logger(__name__)
 
@@ -28,17 +32,20 @@ class TrainSimulationService:
     providing real-time position updates.
     """
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, redis_client: Redis | None = None) -> None:
         """Initialize simulation service.
 
         Args:
             session: Async database session.
+            redis_client: Optional Redis client for reading TTS delay data.
         """
         self.train_repo = TrainRepository(session)
         self.schedule_repo = ScheduleRepository(session)
         self.route_repo = RouteRepository(session)
         self.session = session
-        self._delays: dict[int, int] = {}  # train_id -> delay in minutes
+        self._redis = redis_client
+        # Cache of tts delays: {train_number: delay_minutes}
+        self._tts_delays: dict[str, int] = {}
 
     def _time_to_minutes(self, t: time) -> int:
         """Convert time to minutes since midnight.
@@ -51,14 +58,90 @@ class TrainSimulationService:
         """
         return t.hour * 60 + t.minute
 
-    def _get_current_time_minutes(self) -> int:
-        """Get current time as minutes since midnight.
+    def _get_current_time_minutes(self) -> float:
+        """Get current time as fractional minutes since midnight (Bangkok time, UTC+7).
 
-        Returns:
-            Current time in minutes since midnight.
+        Returns fractional minutes so positions update every second, not every minute.
         """
-        now = datetime.now()
-        return now.hour * 60 + now.minute
+        now = datetime.now(timezone.utc) + _BANGKOK_OFFSET
+        return now.hour * 60 + now.minute + now.second / 60.0
+
+    def _get_schedule_minutes(
+        self,
+        schedule: Schedule,
+        *,
+        prefer_departure: bool,
+    ) -> int | None:
+        """Return absolute schedule minutes including overnight day offsets."""
+        if prefer_departure:
+            if schedule.departure_time is not None:
+                return (
+                    self._time_to_minutes(schedule.departure_time)
+                    + schedule.departure_day_offset * 24 * 60
+                )
+            if schedule.arrival_time is not None:
+                return (
+                    self._time_to_minutes(schedule.arrival_time)
+                    + schedule.arrival_day_offset * 24 * 60
+                )
+            return None
+
+        if schedule.arrival_time is not None:
+            return (
+                self._time_to_minutes(schedule.arrival_time)
+                + schedule.arrival_day_offset * 24 * 60
+            )
+        if schedule.departure_time is not None:
+            return (
+                self._time_to_minutes(schedule.departure_time)
+                + schedule.departure_day_offset * 24 * 60
+            )
+        return None
+
+    def _get_candidate_current_minutes(
+        self,
+        schedules: list[Schedule],
+    ) -> float | None:
+        """Match current time against today or yesterday service start for overnight runs."""
+        first_departure = self._get_schedule_minutes(schedules[0], prefer_departure=True)
+        last_arrival = self._get_schedule_minutes(schedules[-1], prefer_departure=False)
+        if first_departure is None or last_arrival is None:
+            return None
+
+        current_minutes = self._get_current_time_minutes()
+        current_weekday = (datetime.now(timezone.utc) + _BANGKOK_OFFSET).weekday()
+        overnight = any(
+            schedule.arrival_day_offset > 0 or schedule.departure_day_offset > 0
+            for schedule in schedules
+        )
+        service_days = schedules[0].day_of_week
+
+        candidates = [(current_weekday, current_minutes)]
+        if overnight:
+            candidates.insert(0, ((current_weekday - 1) % 7, current_minutes + 24 * 60))
+
+        for service_weekday, absolute_minutes in candidates:
+            if service_days and service_weekday not in service_days:
+                continue
+            if first_departure <= absolute_minutes <= last_arrival:
+                return absolute_minutes
+        return None
+
+    def _get_stop_progress(
+        self,
+        schedule: Schedule,
+        index: int,
+        total_stops: int,
+        route_distance_km: float | None,
+    ) -> float:
+        """Resolve stop progress along the route using stored timetable metadata."""
+        if schedule.route_progress is not None:
+            return float(schedule.route_progress)
+        if schedule.distance_from_origin_km is not None and route_distance_km:
+            return min(1.0, max(0.0, float(schedule.distance_from_origin_km) / route_distance_km))
+        if total_stops <= 1:
+            return 0.0
+        return index / (total_stops - 1)
 
     def _interpolate_position(
         self,
@@ -200,6 +283,7 @@ class TrainSimulationService:
         train: Train,
         schedules: list[Schedule],
         route_coords: list[list[float]] | None,
+        route_distance_km: float | None = None,
     ) -> dict[str, Any] | None:
         """Calculate current position for a train.
 
@@ -214,23 +298,22 @@ class TrainSimulationService:
         if not schedules or len(schedules) < 2:
             return None
 
-        current_minutes = self._get_current_time_minutes()
+        current_minutes = self._get_candidate_current_minutes(schedules)
+        if current_minutes is None:
+            return None
 
-        # Add random delay if not already set
-        if train.id not in self._delays:
-            self._delays[train.id] = random.randint(0, 15)  # 0-15 min delay
-        delay = self._delays[train.id]
+        # Look up delay from TTS data or fall back to 0
+        delay = self._tts_delays.get(train.train_number, 0)
 
         # Find current segment (between which stations)
         prev_stop = None
         next_stop = None
 
         for i, schedule in enumerate(schedules):
-            dep_time = schedule.departure_time or schedule.arrival_time
-            if not dep_time:
+            dep_minutes = self._get_schedule_minutes(schedule, prefer_departure=True)
+            if dep_minutes is None:
                 continue
-
-            dep_minutes = self._time_to_minutes(dep_time) + delay
+            dep_minutes += delay
 
             if dep_minutes > current_minutes:
                 next_stop = schedule
@@ -249,18 +332,14 @@ class TrainSimulationService:
             return None
 
         # Calculate progress between stations
-        prev_dep = prev_stop.departure_time or prev_stop.arrival_time
-        next_arr = next_stop.arrival_time or next_stop.departure_time
+        prev_minutes = self._get_schedule_minutes(prev_stop, prefer_departure=True)
+        next_minutes = self._get_schedule_minutes(next_stop, prefer_departure=False)
 
-        if not prev_dep or not next_arr:
+        if prev_minutes is None or next_minutes is None:
             return None
 
-        prev_minutes = self._time_to_minutes(prev_dep) + delay
-        next_minutes = self._time_to_minutes(next_arr) + delay
-
-        # Handle overnight trains
-        if next_minutes < prev_minutes:
-            next_minutes += 24 * 60
+        prev_minutes += delay
+        next_minutes += delay
 
         segment_duration = next_minutes - prev_minutes
         if segment_duration <= 0:
@@ -271,15 +350,27 @@ class TrainSimulationService:
 
         # Calculate position based on route geometry or station coordinates
         if route_coords and len(route_coords) >= 2:
-            # Calculate overall progress along route
             total_stops = len(schedules)
             prev_index = schedules.index(prev_stop)
-            overall_progress = (prev_index + progress) / (total_stops - 1)
+            next_index = schedules.index(next_stop)
+            start_progress = self._get_stop_progress(
+                prev_stop,
+                prev_index,
+                total_stops,
+                route_distance_km,
+            )
+            end_progress = self._get_stop_progress(
+                next_stop,
+                next_index,
+                total_stops,
+                route_distance_km,
+            )
+            overall_progress = start_progress + ((end_progress - start_progress) * progress)
             lon, lat = self._interpolate_position(route_coords, overall_progress)
 
             # Calculate heading
-            next_progress = min(1.0, overall_progress + 0.01)
-            next_lon, next_lat = self._interpolate_position(route_coords, next_progress)
+            heading_progress = min(1.0, max(overall_progress + 0.01, end_progress))
+            next_lon, next_lat = self._interpolate_position(route_coords, heading_progress)
             heading = self._calculate_heading((lon, lat), (next_lon, next_lat))
         else:
             # Fallback: interpolate between station locations (if available)
@@ -289,21 +380,12 @@ class TrainSimulationService:
         # Estimate speed based on distance and time
         avg_speed = 60.0  # Default 60 km/h
         if route_coords and segment_duration > 0:
-            # Calculate actual segment distance from route geometry
-            prev_idx = schedules.index(prev_stop)
-            next_idx = schedules.index(next_stop)
-            total_stops = len(schedules)
-            
-            # Calculate start and end progress for this segment
-            start_progress = prev_idx / (total_stops - 1) if total_stops > 1 else 0
-            end_progress = next_idx / (total_stops - 1) if total_stops > 1 else 1
-            
-            # Calculate distance for this segment using route coordinates
             segment_distance_km = self._calculate_segment_distance(
-                route_coords, start_progress, end_progress
+                route_coords,
+                start_progress,
+                end_progress,
             )
-            
-            # Calculate average speed for this segment
+
             if segment_distance_km > 0:
                 avg_speed = segment_distance_km / (segment_duration / 60)
 
@@ -319,12 +401,12 @@ class TrainSimulationService:
                 "type": "Point",
                 "coordinates": [lon, lat],
             },
-            "speed": round(avg_speed * random.uniform(0.8, 1.2), 1),
+            "speed": round(avg_speed, 1),
             "heading": round(heading, 1),
             "status": status,
             "delay_minutes": delay,
-            "next_station": next_stop.station.name if next_stop.station else None,
-            "prev_station": prev_stop.station.name if prev_stop.station else None,
+            "next_station": next_stop.station.name if next_stop.station else next_stop.station_name,
+            "prev_station": prev_stop.station.name if prev_stop.station else prev_stop.station_name,
             "progress": round(progress * 100, 1),
         }
 
@@ -334,24 +416,25 @@ class TrainSimulationService:
         Returns:
             List of position data for active trains.
         """
-        # Get current day of week (0=Monday, 6=Sunday)
-        current_day = datetime.now().weekday()
+        # Load latest TTS delay corrections from Redis
+        if self._redis is not None:
+            try:
+                self._tts_delays = await get_delays_from_redis(self._redis)
+            except Exception as exc:
+                logger.warning("Could not load TTS delays from Redis", error=str(exc))
 
         # Get all trains with routes
         trains = await self.train_repo.get_all_with_route(skip=0, limit=100)
 
         positions = []
         for train in trains:
-            # Get schedule for this train
-            schedules = await self.schedule_repo.get_by_train(
-                train.id, day_of_week=current_day
-            )
+            schedules = await self.schedule_repo.get_by_train(train.id)
 
             if not schedules:
                 continue
 
-            # Get route geometry
             route_coords = None
+            route_distance_km = None
             if train.current_route_id:
                 route = await self.route_repo.get_by_id_with_geometry(
                     train.current_route_id
@@ -359,15 +442,20 @@ class TrainSimulationService:
                 if route and hasattr(route, "_geojson") and route._geojson:
                     geojson = json.loads(route._geojson)
                     route_coords = geojson.get("coordinates", [])
+                    route_distance_km = float(route.distance_km) if route.distance_km else None
 
-            # Calculate position
-            position = await self.get_train_position(train, schedules, route_coords)
+            position = await self.get_train_position(
+                train,
+                schedules,
+                route_coords,
+                route_distance_km=route_distance_km,
+            )
             if position:
                 positions.append(position)
 
         return positions
 
     def reset_delays(self) -> None:
-        """Reset all train delays (for testing or daily reset)."""
-        self._delays.clear()
+        """Reset cached TTS delay corrections."""
+        self._tts_delays.clear()
         logger.info("Train delays reset")

@@ -9,7 +9,6 @@ from typing import Any
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
-    ARRAY,
     DateTime,
     ForeignKey,
     Integer,
@@ -17,9 +16,10 @@ from sqlalchemy import (
     String,
     Text,
     Time,
+    UniqueConstraint,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.database import Base
@@ -79,6 +79,43 @@ class Station(Base):
         back_populates="station",
         lazy="selectin",
     )
+    aliases: Mapped[list["StationAlias"]] = relationship(
+        "StationAlias",
+        back_populates="station",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
+
+
+class StationAlias(Base):
+    """Alternative station names from external timetable sources.
+
+    Allows external schedules to be stored even when the provider naming does
+    not exactly match the canonical station record used by the map geometry.
+    """
+
+    __tablename__ = "station_aliases"
+    __table_args__ = (
+        UniqueConstraint("source", "alias", name="uq_station_alias_source_alias"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    station_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("stations.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    source: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    alias: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    # Relationships
+    station: Mapped["Station"] = relationship("Station", back_populates="aliases")
 
 
 class Route(Base):
@@ -166,6 +203,11 @@ class RouteStation(Base):
     # Relationships
     route: Mapped["Route"] = relationship("Route", back_populates="route_stations")
     station: Mapped["Station"] = relationship("Station", back_populates="route_stations")
+    schedules: Mapped[list["Schedule"]] = relationship(
+        "Schedule",
+        back_populates="route_station",
+        lazy="selectin",
+    )
 
 
 class Train(Base):
@@ -201,6 +243,9 @@ class Train(Base):
         nullable=False,
         default="State Railway of Thailand",
     )
+    source: Mapped[str] = mapped_column(String(50), nullable=False, default="manual")
+    source_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    service_notes: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
     current_route_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("routes.id", ondelete="SET NULL"),
@@ -254,24 +299,48 @@ class Schedule(Base):
         nullable=False,
         index=True,
     )
-    station_id: Mapped[int] = mapped_column(
+    station_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("stations.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
+    route_station_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("route_stations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    station_name: Mapped[str] = mapped_column(String(255), nullable=False)
     arrival_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     departure_time: Mapped[time | None] = mapped_column(Time, nullable=True)
+    arrival_day_offset: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    departure_day_offset: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     day_of_week: Mapped[list[int] | None] = mapped_column(
         ARRAY(Integer),
         nullable=True,
     )
     platform: Mapped[str | None] = mapped_column(String(10), nullable=True)
     sequence: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    distance_from_origin_km: Mapped[float | None] = mapped_column(
+        Numeric(10, 2),
+        nullable=True,
+    )
+    route_progress: Mapped[float | None] = mapped_column(
+        Numeric(8, 6),
+        nullable=True,
+    )
 
     # Relationships
     train: Mapped["Train"] = relationship("Train", back_populates="schedules")
-    station: Mapped["Station"] = relationship("Station", back_populates="schedules")
+    station: Mapped["Station | None"] = relationship(
+        "Station",
+        back_populates="schedules",
+    )
+    route_station: Mapped["RouteStation | None"] = relationship(
+        "RouteStation",
+        back_populates="schedules",
+    )
 
 
 class TrainPosition(Base):

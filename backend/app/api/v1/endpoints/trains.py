@@ -8,6 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query, status
 
 from app.api.dependencies import SimulationServiceDep, TrainServiceDep
+from app.api.v1.endpoints.websocket import get_cached_positions
 from app.schemas.train import (
     TrainCreate,
     TrainListResponse,
@@ -61,17 +62,14 @@ async def list_trains(
 async def get_all_positions(
     simulation_service: SimulationServiceDep,
 ) -> list[dict]:
-    """Get current positions for all active trains.
+    """Get current positions for all active trains (served from Redis cache).
 
-    This endpoint provides simulated real-time positions based on
-    the train schedules and route geometry.
-
-    Args:
-        simulation_service: Simulation service dependency.
-
-    Returns:
-        List of train positions with coordinates and status.
+    Falls back to live computation if cache is empty.
     """
+    cached = await get_cached_positions()
+    if cached:
+        return cached
+    # Cache not yet populated – compute on-demand
     return await simulation_service.get_all_active_trains()
 
 

@@ -55,7 +55,6 @@ def upgrade() -> None:
         sa.UniqueConstraint("code"),
     )
     op.create_index("idx_stations_code", "stations", ["code"])
-    op.create_index("idx_stations_location", "stations", ["location"], postgresql_using="gist")
 
     # Create routes table
     op.create_table(
@@ -79,7 +78,6 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("idx_routes_geometry", "routes", ["line_geometry"], postgresql_using="gist")
 
     # Create route_stations junction table
     op.create_table(
@@ -191,12 +189,6 @@ def upgrade() -> None:
     )
     op.create_index("idx_train_positions_train", "train_positions", ["train_id"])
     op.create_index("idx_train_positions_timestamp", "train_positions", ["timestamp"])
-    op.create_index(
-        "idx_train_positions_location",
-        "train_positions",
-        ["location"],
-        postgresql_using="gist",
-    )
 
 
 def downgrade() -> None:

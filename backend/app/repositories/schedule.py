@@ -28,6 +28,18 @@ class ScheduleRepository(BaseRepository[Schedule]):
         """
         super().__init__(Schedule, session)
 
+    async def get_by_id_with_relations(self, schedule_id: int) -> Schedule | None:
+        """Get a single schedule entry with related train and station data."""
+        result = await self.session.execute(
+            select(Schedule)
+            .options(
+                selectinload(Schedule.train),
+                selectinload(Schedule.station),
+            )
+            .where(Schedule.id == schedule_id)
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_train(
         self,
         train_id: int,

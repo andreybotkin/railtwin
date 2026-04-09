@@ -7,14 +7,30 @@ including database sessions and services.
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.models.database import get_db
 from app.services.route import RouteService
 from app.services.schedule import ScheduleService
 from app.services.simulation import TrainSimulationService
 from app.services.station import StationService
 from app.services.train import TrainService
+
+_redis_client: Redis | None = None
+
+
+def get_redis() -> Redis:
+    """Get the shared Redis client singleton.
+
+    Returns:
+        Redis async client.
+    """
+    global _redis_client
+    if _redis_client is None:
+        _redis_client = Redis.from_url(str(settings.redis_url), decode_responses=True)
+    return _redis_client
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
@@ -88,7 +104,7 @@ async def get_simulation_service(session: DBSession) -> TrainSimulationService:
     Returns:
         TrainSimulationService instance.
     """
-    return TrainSimulationService(session)
+    return TrainSimulationService(session, redis_client=get_redis())
 
 
 # Typed dependencies for use in endpoints

@@ -5,6 +5,7 @@ Revises: 001
 Create Date: 2024-01-01 00:01:00.000000
 """
 
+from datetime import time
 from typing import Sequence, Union
 
 from alembic import op
@@ -288,8 +289,8 @@ def upgrade() -> None:
                     {
                         "train_id": train_id,
                         "station_id": station_ids[code],
-                        "arrival": f"{arr_hour:02d}:{arr_min:02d}:00" if seq > 0 else None,
-                        "departure": f"{dep_hour:02d}:{dep_min:02d}:00" if seq < len(stations_on_route) - 1 else None,
+                        "arrival": time(arr_hour, arr_min) if seq > 0 else None,
+                        "departure": time(dep_hour, dep_min) if seq < len(stations_on_route) - 1 else None,
                         "days": [0, 1, 2, 3, 4, 5, 6],  # All days
                         "platform": str((seq % 4) + 1),
                         "seq": seq,

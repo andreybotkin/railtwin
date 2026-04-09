@@ -19,6 +19,7 @@ from app.models.database.models import (  # noqa: F401 - Import models for metad
     RouteStation,
     Schedule,
     Station,
+    StationAlias,
     Train,
     TrainPosition,
 )
@@ -27,7 +28,7 @@ from app.models.database.models import (  # noqa: F401 - Import models for metad
 config = context.config
 
 # Override sqlalchemy.url from settings
-config.set_main_option("sqlalchemy.url", settings.database_url_sync)
+config.set_main_option("sqlalchemy.url", str(settings.database_url))
 
 # Configure Python logging from alembic.ini
 if config.config_file_name is not None:
@@ -80,9 +81,7 @@ async def run_async_migrations() -> None:
     Creates an async engine and runs migrations within a connection.
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = str(settings.database_url).replace(
-        "+asyncpg", ""
-    )
+    configuration["sqlalchemy.url"] = str(settings.database_url)
 
     connectable = async_engine_from_config(
         configuration,

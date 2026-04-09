@@ -75,6 +75,7 @@ export default function MapContent({ className }: MapContentProps) {
         center={THAILAND_CENTER}
         zoom={INITIAL_ZOOM}
         className="h-full w-full"
+        attributionControl={false}
         zoomControl={true}
         scrollWheelZoom={true}
       >
@@ -82,7 +83,7 @@ export default function MapContent({ className }: MapContentProps) {
         
         {/* Base map tile layer */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution=""
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 

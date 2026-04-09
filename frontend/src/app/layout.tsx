@@ -2,7 +2,7 @@
  * Root layout for the application.
  */
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import '@/styles/globals.css';
@@ -16,10 +16,14 @@ export const metadata: Metadata = {
     'Real-time visualization of Thailand railway network with train tracking',
   keywords: ['Thailand', 'Railway', 'Digital Twin', 'Train Tracking', 'SRT'],
   authors: [{ name: 'Thailand Railway Team' }],
-  viewport: 'width=device-width, initial-scale=1',
   icons: {
     icon: '/favicon.ico',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

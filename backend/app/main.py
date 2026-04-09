@@ -4,6 +4,7 @@ This is the main entry point for the backend application, configuring
 FastAPI with all middleware, routes, and event handlers.
 """
 
+import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -14,10 +15,12 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
+from app.api.dependencies import get_redis
 from app.api.v1.router import api_router
-from app.api.v1.endpoints.websocket import router as websocket_router
+from app.api.v1.endpoints.websocket import router as websocket_router, broadcaster
 from app.core.config import settings
 from app.core.logging import get_logger, setup_logging
+from app.services.tts_scraper import tts_scraper_loop
 
 # Initialize logging
 setup_logging()
@@ -46,9 +49,26 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         environment=settings.environment,
     )
 
+    redis_client = get_redis()
+    scraper_task = asyncio.create_task(
+        tts_scraper_loop(redis_client, interval_seconds=3600),
+        name="tts_scraper",
+    )
+    logger.info("TTS scraper background task started")
+
+    # Start the position broadcaster (single shared DB query for all WS clients)
+    broadcaster.start()
+
     yield
 
     # Shutdown
+    broadcaster.stop()
+    scraper_task.cancel()
+    try:
+        await scraper_task
+    except asyncio.CancelledError:
+        pass
+    await redis_client.aclose()
     logger.info("Shutting down Thailand Railway Digital Twin API")
 
 

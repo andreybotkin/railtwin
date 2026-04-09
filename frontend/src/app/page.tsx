@@ -5,9 +5,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Train, Map, Menu, X, Moon, Sun, Info } from 'lucide-react';
+import { Train, Moon, Sun, Info } from 'lucide-react';
 
-import { MapContainer } from '@/components/Map';
+import MapContainer from '@/components/Map/MapContainer';
 import { TrainInfoPanel } from '@/components/TrainInfo';
 import { SchedulePanel } from '@/components/Schedule';
 import { Button } from '@/components/ui';

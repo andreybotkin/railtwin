@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import get_logger
 from app.models.database.models import Schedule
 from app.repositories.schedule import ScheduleRepository
+from app.repositories.station import StationRepository
 from app.schemas.schedule import (
     ScheduleCreate,
     ScheduleListResponse,
@@ -40,7 +41,24 @@ class ScheduleService:
             session: Async database session.
         """
         self.repository = ScheduleRepository(session)
+        self.station_repository = StationRepository(session)
         self.session = session
+
+    async def _resolve_station_name(
+        self,
+        station_id: int | None,
+        station_name: str | None,
+    ) -> str | None:
+        """Resolve a canonical station name when only station_id is provided."""
+        if station_name:
+            return station_name
+        if station_id is None:
+            return None
+
+        station = await self.station_repository.get_by_id(station_id)
+        if station:
+            return station.name
+        return None
 
     def _schedule_to_response(self, schedule: Schedule) -> ScheduleResponse:
         """Convert schedule model to response schema.
@@ -72,11 +90,21 @@ class ScheduleService:
             id=schedule.id,
             train_id=schedule.train_id,
             station_id=schedule.station_id,
+            station_name=schedule.station_name,
             arrival_time=schedule.arrival_time,
             departure_time=schedule.departure_time,
+            arrival_day_offset=schedule.arrival_day_offset,
+            departure_day_offset=schedule.departure_day_offset,
             day_of_week=schedule.day_of_week,
             platform=schedule.platform,
             sequence=schedule.sequence,
+            route_station_id=schedule.route_station_id,
+            distance_from_origin_km=float(schedule.distance_from_origin_km)
+            if schedule.distance_from_origin_km is not None
+            else None,
+            route_progress=float(schedule.route_progress)
+            if schedule.route_progress is not None
+            else None,
             train=train,
             station=station,
         )
@@ -90,7 +118,7 @@ class ScheduleService:
         Returns:
             ScheduleResponse or None if not found.
         """
-        schedule = await self.repository.get_by_id(schedule_id)
+        schedule = await self.repository.get_by_id_with_relations(schedule_id)
         if not schedule:
             return None
         return self._schedule_to_response(schedule)
@@ -143,17 +171,17 @@ class ScheduleService:
             Created ScheduleResponse.
         """
         schedule_data = data.model_dump()
+        resolved_station_name = await self._resolve_station_name(
+            data.station_id,
+            data.station_name,
+        )
+        if resolved_station_name:
+            schedule_data["station_name"] = resolved_station_name
+
         schedule = await self.repository.create(schedule_data)
         await self.session.commit()
 
-        # Reload with relations
-        schedules = await self.repository.get_all_with_relations(
-            train_id=schedule.train_id,
-            station_id=schedule.station_id,
-            limit=1,
-        )
-        if schedules:
-            schedule = schedules[0]
+        schedule = await self.repository.get_by_id_with_relations(schedule.id)
 
         logger.info(
             "Schedule created",
@@ -181,17 +209,18 @@ class ScheduleService:
             return None
 
         update_data = data.model_dump(exclude_unset=True)
+        if "station_id" in update_data or "station_name" in update_data:
+            resolved_station_name = await self._resolve_station_name(
+                update_data.get("station_id", schedule.station_id),
+                update_data.get("station_name"),
+            )
+            if resolved_station_name:
+                update_data["station_name"] = resolved_station_name
+
         await self.repository.update(schedule, update_data)
         await self.session.commit()
 
-        # Reload with relations
-        schedules = await self.repository.get_all_with_relations(
-            train_id=schedule.train_id,
-            station_id=schedule.station_id,
-            limit=1,
-        )
-        if schedules:
-            schedule = schedules[0]
+        schedule = await self.repository.get_by_id_with_relations(schedule_id)
 
         logger.info("Schedule updated", schedule_id=schedule_id)
         return self._schedule_to_response(schedule)

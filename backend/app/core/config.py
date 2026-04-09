@@ -4,11 +4,12 @@ This module defines all configuration settings for the Thailand Railway Digital 
 backend application using Pydantic Settings for environment variable management.
 """
 
+import json
 from functools import lru_cache
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import PostgresDsn, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -50,14 +51,27 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
 
     # CORS settings
-    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
+    cors_origins: Annotated[list[str], NoDecode] = [
+        "http://localhost:3000",
+        "http://localhost:8000",
+    ]
 
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: Any) -> list[str]:
         """Parse CORS origins from string or list."""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
+            value = v.strip()
+
+            if not value:
+                return []
+
+            if value.startswith("["):
+                parsed = json.loads(value)
+                if isinstance(parsed, list):
+                    return [str(origin).strip() for origin in parsed if str(origin).strip()]
+
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
         return v
 
     # Database settings
@@ -81,7 +95,7 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 100
 
     # WebSocket settings
-    ws_heartbeat_interval: int = 30  # seconds
+    ws_heartbeat_interval: int = 2  # seconds
 
 
 @lru_cache

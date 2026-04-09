@@ -1,40 +1,73 @@
 /**
- * Train marker component for the map.
+ * Train marker component for the map with smooth position animation.
  */
 
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { Train } from 'lucide-react';
-import { renderToStaticMarkup } from 'react-dom/server';
 
 import type { TrainPositionUpdate } from '@/types';
 import {
-  getRouteColor,
   formatSpeed,
   formatDelay,
   getTrainTypeName,
-  getStatusColor,
 } from '@/lib/utils';
 import { Badge } from '@/components/ui';
+
+// Animation duration should match the WebSocket update interval (2s)
+const ANIM_DURATION_MS = 1900;
 
 interface TrainMarkerProps {
   position: TrainPositionUpdate;
 }
 
 export default function TrainMarker({ position }: TrainMarkerProps) {
-  // Create custom icon for train marker
+  const markerRef = useRef<L.Marker>(null);
+  // Current displayed position (lat, lon) — updated by rAF, not React state
+  const displayPosRef = useRef<[number, number]>([
+    position.location.coordinates[1],
+    position.location.coordinates[0],
+  ]);
+  const animRef = useRef<number>(0);
+
+  // Smoothly animate marker from current displayed position to new target via rAF + setLatLng.
+  // Using setLatLng (not CSS transforms) keeps Leaflet's internal state correct so that
+  // map panning, popups, and hit-testing always work at the right coordinates.
+  useEffect(() => {
+    const targetLat = position.location.coordinates[1];
+    const targetLon = position.location.coordinates[0];
+    const [startLat, startLon] = displayPosRef.current;
+    const startTime = performance.now();
+
+    cancelAnimationFrame(animRef.current);
+
+    function step(now: number) {
+      const t = Math.min((now - startTime) / ANIM_DURATION_MS, 1);
+      const lat = startLat + (targetLat - startLat) * t;
+      const lon = startLon + (targetLon - startLon) * t;
+      displayPosRef.current = [lat, lon];
+      markerRef.current?.setLatLng([lat, lon]);
+      if (t < 1) {
+        animRef.current = requestAnimationFrame(step);
+      }
+    }
+
+    animRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [position.location.coordinates[0], position.location.coordinates[1]]);
+
+  // Create custom icon (only re-created when type/status/heading changes)
   const icon = useMemo(() => {
-    const color = position.train_type === 'special_express' 
-      ? '#E53935' 
+    const color = position.train_type === 'special_express'
+      ? '#E53935'
       : position.train_type === 'rapid'
       ? '#1E88E5'
       : '#43A047';
 
     const iconHtml = `
-      <div class="train-icon ${position.status === 'moving' ? 'moving' : ''}" 
+      <div class="train-icon ${position.status === 'moving' ? 'moving' : ''}"
            style="background-color: ${color}; transform: rotate(${position.heading || 0}deg)">
         🚂
       </div>
@@ -49,19 +82,14 @@ export default function TrainMarker({ position }: TrainMarkerProps) {
     });
   }, [position.train_type, position.status, position.heading]);
 
-  // Convert [lon, lat] to [lat, lon] for Leaflet
-  const markerPosition: [number, number] = [
-    position.location.coordinates[1],
-    position.location.coordinates[0],
-  ];
-
-  const statusBadgeVariant = 
+  const statusBadgeVariant =
     position.status === 'moving' ? 'success' :
     position.status === 'delayed' ? 'destructive' :
     position.status === 'at_station' ? 'info' : 'secondary';
 
   return (
-    <Marker position={markerPosition} icon={icon}>
+    // position is set once on mount; all updates go through setLatLng in the effect above
+    <Marker ref={markerRef} position={displayPosRef.current} icon={icon}>
       <Popup>
         <div className="min-w-[200px] space-y-2">
           <div className="flex items-center justify-between">
@@ -70,12 +98,12 @@ export default function TrainMarker({ position }: TrainMarkerProps) {
               {position.status.replace('_', ' ')}
             </Badge>
           </div>
-          
+
           <div className="text-sm space-y-1">
             <p className="text-muted-foreground">
               {getTrainTypeName(position.train_type)}
             </p>
-            
+
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="text-muted-foreground">Speed:</span>
@@ -103,7 +131,7 @@ export default function TrainMarker({ position }: TrainMarkerProps) {
                   <span>{position.progress}%</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden mt-1">
-                  <div 
+                  <div
                     className="h-full bg-primary transition-all"
                     style={{ width: `${position.progress}%` }}
                   />

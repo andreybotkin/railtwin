@@ -6,7 +6,7 @@ API endpoints with proper validation and serialization.
 
 from datetime import time
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.schemas.station import StationSummary
 from app.schemas.train import TrainSummary
@@ -23,14 +23,20 @@ class ScheduleBase(BaseModel):
         sequence: Order of stop in train's schedule.
     """
 
+    station_name: str | None = Field(None, max_length=255)
     arrival_time: time | None = None
     departure_time: time | None = None
+    arrival_day_offset: int = Field(default=0, ge=0)
+    departure_day_offset: int = Field(default=0, ge=0)
     day_of_week: list[int] | None = Field(
         default=[0, 1, 2, 3, 4, 5, 6],
         description="Days when active: 0=Monday, 6=Sunday",
     )
     platform: str | None = Field(None, max_length=10)
     sequence: int = Field(default=0, ge=0)
+    route_station_id: int | None = Field(None, ge=1)
+    distance_from_origin_km: float | None = Field(None, ge=0)
+    route_progress: float | None = Field(None, ge=0, le=1)
 
     @field_validator("day_of_week", mode="before")
     @classmethod
@@ -43,6 +49,15 @@ class ScheduleBase(BaseModel):
                 raise ValueError("day_of_week values must be between 0 and 6")
         return v
 
+    @model_validator(mode="after")
+    def validate_day_offsets(self) -> "ScheduleBase":
+        """Ensure departure offset cannot precede arrival offset."""
+        if self.departure_day_offset < self.arrival_day_offset:
+            raise ValueError(
+                "departure_day_offset must be greater than or equal to arrival_day_offset"
+            )
+        return self
+
 
 class ScheduleCreate(ScheduleBase):
     """Schema for creating a new schedule.
@@ -53,7 +68,14 @@ class ScheduleCreate(ScheduleBase):
     """
 
     train_id: int
-    station_id: int
+    station_id: int | None = None
+
+    @model_validator(mode="after")
+    def validate_station_reference(self) -> "ScheduleCreate":
+        """Require either canonical station mapping or raw station name."""
+        if self.station_id is None and not self.station_name:
+            raise ValueError("station_id or station_name is required")
+        return self
 
 
 class ScheduleUpdate(BaseModel):
@@ -62,11 +84,18 @@ class ScheduleUpdate(BaseModel):
     All fields are optional for partial updates.
     """
 
+    station_id: int | None = None
+    station_name: str | None = Field(None, max_length=255)
     arrival_time: time | None = None
     departure_time: time | None = None
+    arrival_day_offset: int | None = Field(None, ge=0)
+    departure_day_offset: int | None = Field(None, ge=0)
     day_of_week: list[int] | None = None
     platform: str | None = None
     sequence: int | None = None
+    route_station_id: int | None = Field(None, ge=1)
+    distance_from_origin_km: float | None = Field(None, ge=0)
+    route_progress: float | None = Field(None, ge=0, le=1)
 
 
 class ScheduleResponse(ScheduleBase):
@@ -86,7 +115,7 @@ class ScheduleResponse(ScheduleBase):
 
     id: int
     train_id: int
-    station_id: int
+    station_id: int | None
     train: TrainSummary | None = None
     station: StationSummary | None = None
 
