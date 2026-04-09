@@ -123,7 +123,9 @@ class TrainService:
         skip = (page - 1) * size
 
         if train_type:
-            trains = await self.repository.get_by_type(train_type, skip=skip, limit=size)
+            trains = await self.repository.get_by_type(
+                train_type, skip=skip, limit=size
+            )
         elif route_id:
             trains = await self.repository.get_by_route(route_id, skip=skip, limit=size)
         else:
@@ -245,20 +247,22 @@ class TrainService:
             position = p["position"]
             train = p["train"]
 
-            results.append({
-                "train_id": train.id,
-                "train_number": train.train_number,
-                "train_type": train.train_type,
-                "location": {
-                    "type": "Point",
-                    "coordinates": geojson_data["coordinates"],
-                },
-                "speed": float(position.speed) if position.speed else None,
-                "heading": float(position.heading) if position.heading else None,
-                "status": position.status,
-                "delay_minutes": position.delay_minutes,
-                "timestamp": position.timestamp.isoformat(),
-            })
+            results.append(
+                {
+                    "train_id": train.id,
+                    "train_number": train.train_number,
+                    "train_type": train.train_type,
+                    "location": {
+                        "type": "Point",
+                        "coordinates": geojson_data["coordinates"],
+                    },
+                    "speed": float(position.speed) if position.speed else None,
+                    "heading": float(position.heading) if position.heading else None,
+                    "status": position.status,
+                    "delay_minutes": position.delay_minutes,
+                    "timestamp": position.timestamp.isoformat(),
+                }
+            )
 
         return results
 

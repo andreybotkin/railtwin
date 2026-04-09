@@ -48,7 +48,9 @@ class RouteRepository(BaseRepository[Route]):
                 Route,
                 ST_AsGeoJSON(Route.line_geometry).label("geojson"),
             )
-            .options(selectinload(Route.route_stations).selectinload(RouteStation.station))
+            .options(
+                selectinload(Route.route_stations).selectinload(RouteStation.station)
+            )
             .offset(skip)
             .limit(limit)
         )
@@ -73,7 +75,9 @@ class RouteRepository(BaseRepository[Route]):
                 Route,
                 ST_AsGeoJSON(Route.line_geometry).label("geojson"),
             )
-            .options(selectinload(Route.route_stations).selectinload(RouteStation.station))
+            .options(
+                selectinload(Route.route_stations).selectinload(RouteStation.station)
+            )
             .where(Route.id == route_id)
         )
         row = result.first()

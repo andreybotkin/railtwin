@@ -81,7 +81,7 @@ def create_access_token(
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta  # noqa: UP017
     else:
-        expire = datetime.now(timezone.utc) + timedelta(   # noqa: UP017
+        expire = datetime.now(timezone.utc) + timedelta(  # noqa: UP017
             minutes=settings.access_token_expire_minutes
         )  # noqa: UP017
 

@@ -76,7 +76,9 @@ async def find_nearby_stations(
     service: StationServiceDep,
     longitude: Annotated[float, Query(ge=-180, le=180, description="Longitude")],
     latitude: Annotated[float, Query(ge=-90, le=90, description="Latitude")],
-    radius_km: Annotated[float, Query(ge=0.1, le=100, description="Radius in km")] = 10.0,
+    radius_km: Annotated[
+        float, Query(ge=0.1, le=100, description="Radius in km")
+    ] = 10.0,
     limit: Annotated[int, Query(ge=1, le=50, description="Max results")] = 10,
 ) -> list[dict]:
     """Find stations near a location.

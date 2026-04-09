@@ -48,7 +48,9 @@ class Station(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     name_th: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    code: Mapped[str] = mapped_column(String(10), unique=True, nullable=False, index=True)
+    code: Mapped[str] = mapped_column(
+        String(10), unique=True, nullable=False, index=True
+    )
     location: Mapped[Any] = mapped_column(
         Geometry("POINT", srid=4326),
         nullable=False,
@@ -202,7 +204,9 @@ class RouteStation(Base):
 
     # Relationships
     route: Mapped["Route"] = relationship("Route", back_populates="route_stations")
-    station: Mapped["Station"] = relationship("Station", back_populates="route_stations")
+    station: Mapped["Station"] = relationship(
+        "Station", back_populates="route_stations"
+    )
     schedules: Mapped[list["Schedule"]] = relationship(
         "Schedule",
         back_populates="route_station",
@@ -315,7 +319,9 @@ class Schedule(Base):
     arrival_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     departure_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     arrival_day_offset: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    departure_day_offset: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    departure_day_offset: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0
+    )
     day_of_week: Mapped[list[int] | None] = mapped_column(
         ARRAY(Integer),
         nullable=True,
@@ -392,6 +398,10 @@ class TrainPosition(Base):
 
 
 # Create spatial indexes
-Station.__table__.append_constraint(
-    type("", (), {"__visit_name__": "index", "name": "idx_stations_location"})
-) if False else None
+(
+    Station.__table__.append_constraint(
+        type("", (), {"__visit_name__": "index", "name": "idx_stations_location"})
+    )
+    if False
+    else None
+)

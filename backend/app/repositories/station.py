@@ -37,9 +37,7 @@ class StationRepository(BaseRepository[Station]):
         Returns:
             Station or None if not found.
         """
-        result = await self.session.execute(
-            select(Station).where(Station.code == code)
-        )
+        result = await self.session.execute(select(Station).where(Station.code == code))
         return result.scalar_one_or_none()
 
     async def get_all_with_location(

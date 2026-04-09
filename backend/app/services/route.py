@@ -71,9 +71,11 @@ class RouteService:
                             name=rs.station.name,
                             code=rs.station.code,
                             sequence=rs.sequence,
-                            distance_from_start=float(rs.distance_from_start)
-                            if rs.distance_from_start
-                            else None,
+                            distance_from_start=(
+                                float(rs.distance_from_start)
+                                if rs.distance_from_start
+                                else None
+                            ),
                         )
                     )
 
@@ -122,7 +124,9 @@ class RouteService:
         skip = (page - 1) * size
 
         if route_type:
-            routes = await self.repository.get_by_type(route_type, skip=skip, limit=size)
+            routes = await self.repository.get_by_type(
+                route_type, skip=skip, limit=size
+            )
         else:
             routes = await self.repository.get_all_with_geometry(skip=skip, limit=size)
 

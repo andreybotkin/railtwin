@@ -183,11 +183,13 @@ class TrainRepository(BaseRepository[Train]):
 
         positions = []
         for row in result.all():
-            positions.append({
-                "position": row[0],
-                "geojson": row[1],
-                "train": row[0].train,
-            })
+            positions.append(
+                {
+                    "position": row[0],
+                    "geojson": row[1],
+                    "train": row[0].train,
+                }
+            )
         return positions
 
     async def create_position(

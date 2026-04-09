@@ -31,7 +31,9 @@ class TrainSimulationService:
     providing real-time position updates.
     """
 
-    def __init__(self, session: AsyncSession, redis_client: Redis | None = None) -> None:
+    def __init__(
+        self, session: AsyncSession, redis_client: Redis | None = None
+    ) -> None:
         """Initialize simulation service.
 
         Args:
@@ -102,13 +104,17 @@ class TrainSimulationService:
         schedules: list[Schedule],
     ) -> float | None:
         """Match current time against today or yesterday service start for overnight runs."""
-        first_departure = self._get_schedule_minutes(schedules[0], prefer_departure=True)
+        first_departure = self._get_schedule_minutes(
+            schedules[0], prefer_departure=True
+        )
         last_arrival = self._get_schedule_minutes(schedules[-1], prefer_departure=False)
         if first_departure is None or last_arrival is None:
             return None
 
         current_minutes = self._get_current_time_minutes()
-        current_weekday = (datetime.now(timezone.utc) + _BANGKOK_OFFSET).weekday()  # noqa: UP017
+        current_weekday = (
+            datetime.now(timezone.utc) + _BANGKOK_OFFSET  # noqa: UP017
+        ).weekday()
         overnight = any(
             schedule.arrival_day_offset > 0 or schedule.departure_day_offset > 0
             for schedule in schedules
@@ -137,7 +143,10 @@ class TrainSimulationService:
         if schedule.route_progress is not None:
             return float(schedule.route_progress)
         if schedule.distance_from_origin_km is not None and route_distance_km:
-            return min(1.0, max(0.0, float(schedule.distance_from_origin_km) / route_distance_km))
+            return min(
+                1.0,
+                max(0.0, float(schedule.distance_from_origin_km) / route_distance_km),
+            )
         if total_stops <= 1:
             return 0.0
         return index / (total_stops - 1)
@@ -181,9 +190,15 @@ class TrainSimulationService:
         for i, length in enumerate(segment_lengths):
             if current_distance + length >= target_distance:
                 # Found the segment - interpolate within it
-                segment_progress = (target_distance - current_distance) / length if length > 0 else 0
-                lon = coords[i][0] + segment_progress * (coords[i + 1][0] - coords[i][0])
-                lat = coords[i][1] + segment_progress * (coords[i + 1][1] - coords[i][1])
+                segment_progress = (
+                    (target_distance - current_distance) / length if length > 0 else 0
+                )
+                lon = coords[i][0] + segment_progress * (
+                    coords[i + 1][0] - coords[i][0]
+                )
+                lat = coords[i][1] + segment_progress * (
+                    coords[i + 1][1] - coords[i][1]
+                )
                 return (lon, lat)
             current_distance += length
 
@@ -262,8 +277,7 @@ class TrainSimulationService:
 
         for i in range(len(coords) - 1):
             length = haversine_distance(
-                coords[i][0], coords[i][1],
-                coords[i + 1][0], coords[i + 1][1]
+                coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1]
             )
             segment_lengths.append(length)
             total_length += length
@@ -364,12 +378,16 @@ class TrainSimulationService:
                 total_stops,
                 route_distance_km,
             )
-            overall_progress = start_progress + ((end_progress - start_progress) * progress)
+            overall_progress = start_progress + (
+                (end_progress - start_progress) * progress
+            )
             lon, lat = self._interpolate_position(route_coords, overall_progress)
 
             # Calculate heading
             heading_progress = min(1.0, max(overall_progress + 0.01, end_progress))
-            next_lon, next_lat = self._interpolate_position(route_coords, heading_progress)
+            next_lon, next_lat = self._interpolate_position(
+                route_coords, heading_progress
+            )
             heading = self._calculate_heading((lon, lat), (next_lon, next_lat))
         else:
             # Fallback: interpolate between station locations (if available)
@@ -404,8 +422,12 @@ class TrainSimulationService:
             "heading": round(heading, 1),
             "status": status,
             "delay_minutes": delay,
-            "next_station": next_stop.station.name if next_stop.station else next_stop.station_name,
-            "prev_station": prev_stop.station.name if prev_stop.station else prev_stop.station_name,
+            "next_station": (
+                next_stop.station.name if next_stop.station else next_stop.station_name
+            ),
+            "prev_station": (
+                prev_stop.station.name if prev_stop.station else prev_stop.station_name
+            ),
             "progress": round(progress * 100, 1),
         }
 
@@ -441,7 +463,9 @@ class TrainSimulationService:
                 if route and hasattr(route, "_geojson") and route._geojson:
                     geojson = json.loads(route._geojson)
                     route_coords = geojson.get("coordinates", [])
-                    route_distance_km = float(route.distance_km) if route.distance_km else None
+                    route_distance_km = (
+                        float(route.distance_km) if route.distance_km else None
+                    )
 
             position = await self.get_train_position(
                 train,

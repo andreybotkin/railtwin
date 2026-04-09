@@ -113,4 +113,6 @@ StationServiceDep = Annotated[StationService, Depends(get_station_service)]
 RouteServiceDep = Annotated[RouteService, Depends(get_route_service)]
 TrainServiceDep = Annotated[TrainService, Depends(get_train_service)]
 ScheduleServiceDep = Annotated[ScheduleService, Depends(get_schedule_service)]
-SimulationServiceDep = Annotated[TrainSimulationService, Depends(get_simulation_service)]
+SimulationServiceDep = Annotated[
+    TrainSimulationService, Depends(get_simulation_service)
+]

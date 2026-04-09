@@ -99,12 +99,16 @@ class ScheduleService:
             platform=schedule.platform,
             sequence=schedule.sequence,
             route_station_id=schedule.route_station_id,
-            distance_from_origin_km=float(schedule.distance_from_origin_km)
-            if schedule.distance_from_origin_km is not None
-            else None,
-            route_progress=float(schedule.route_progress)
-            if schedule.route_progress is not None
-            else None,
+            distance_from_origin_km=(
+                float(schedule.distance_from_origin_km)
+                if schedule.distance_from_origin_km is not None
+                else None
+            ),
+            route_progress=(
+                float(schedule.route_progress)
+                if schedule.route_progress is not None
+                else None
+            ),
             train=train,
             station=station,
         )

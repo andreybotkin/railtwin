@@ -29,7 +29,9 @@ def test_schedule_create_requires_station_reference() -> None:
 
 
 @pytest.mark.asyncio
-async def test_simulation_handles_overnight_day_offsets(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_simulation_handles_overnight_day_offsets(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Overnight services should remain visible on the map after midnight."""
     service = TrainSimulationService(session=None)  # type: ignore[arg-type]
     monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 30)
@@ -84,7 +86,9 @@ async def test_simulation_handles_overnight_day_offsets(monkeypatch: pytest.Monk
 
 
 @pytest.mark.asyncio
-async def test_simulation_prefers_route_progress(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_simulation_prefers_route_progress(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Stored route progress should override equal-stop interpolation."""
     service = TrainSimulationService(session=None)  # type: ignore[arg-type]
     monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 11 * 60)

@@ -169,7 +169,9 @@ async def add_station_to_route(
     route_id: int,
     station_id: int,
     sequence: Annotated[int, Query(ge=0, description="Station sequence on route")],
-    distance_from_start: Annotated[float | None, Query(description="Distance from start in km")] = None,
+    distance_from_start: Annotated[
+        float | None, Query(description="Distance from start in km")
+    ] = None,
 ) -> RouteResponse:
     """Add a station to a route.
 

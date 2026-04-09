@@ -36,6 +36,7 @@ REDIS_POSITIONS_TTL = 30  # seconds – expire if broadcaster dies
 # Position broadcaster
 # ---------------------------------------------------------------------------
 
+
 class PositionBroadcaster:
     """Computes train positions every N seconds, caches in Redis, notifies WS clients."""
 
@@ -87,8 +88,9 @@ class PositionBroadcaster:
     def start(self) -> None:
         if self._task is None or self._task.done():
             self._task = asyncio.create_task(self._run(), name="position_broadcaster")
-            logger.info("PositionBroadcaster started",
-                        interval=settings.ws_heartbeat_interval)
+            logger.info(
+                "PositionBroadcaster started", interval=settings.ws_heartbeat_interval
+            )
 
     def stop(self) -> None:
         if self._task and not self._task.done():
@@ -103,6 +105,7 @@ broadcaster = PositionBroadcaster()
 # Helper – read cached positions from Redis
 # ---------------------------------------------------------------------------
 
+
 async def get_cached_positions() -> list[dict]:
     """Return latest positions from Redis cache (empty list if not yet populated)."""
     redis = get_redis()
@@ -115,6 +118,7 @@ async def get_cached_positions() -> list[dict]:
 # ---------------------------------------------------------------------------
 # Connection manager (tracks active sockets for logging)
 # ---------------------------------------------------------------------------
+
 
 class ConnectionManager:
     def __init__(self) -> None:
@@ -138,6 +142,7 @@ manager = ConnectionManager()
 # Endpoints
 # ---------------------------------------------------------------------------
 
+
 @router.websocket("/trains")
 async def websocket_trains(websocket: WebSocket) -> None:
     """WebSocket endpoint – instant delivery from Redis cache + push on every tick."""
@@ -148,11 +153,13 @@ async def websocket_trains(websocket: WebSocket) -> None:
     try:
         # Serve cached data immediately so client doesn't wait for the next tick
         cached = await get_cached_positions()
-        await websocket.send_json({
-            "type": "positions",
-            "data": cached,
-            "timestamp": asyncio.get_running_loop().time(),
-        })
+        await websocket.send_json(
+            {
+                "type": "positions",
+                "data": cached,
+                "timestamp": asyncio.get_running_loop().time(),
+            }
+        )
 
         while True:
             # Race: next broadcaster payload OR a client message
@@ -188,12 +195,14 @@ async def websocket_single_train(websocket: WebSocket, train_id: int) -> None:
 
     async def _send_positions(positions: list[dict], timestamp: float) -> None:
         train_pos = next((p for p in positions if p["train_id"] == train_id), None)
-        await websocket.send_json({
-            "type": "position",
-            "train_id": train_id,
-            "data": train_pos,
-            "timestamp": timestamp,
-        })
+        await websocket.send_json(
+            {
+                "type": "position",
+                "train_id": train_id,
+                "data": train_pos,
+                "timestamp": timestamp,
+            }
+        )
 
     try:
         cached = await get_cached_positions()
@@ -221,5 +230,3 @@ async def websocket_single_train(websocket: WebSocket, train_id: int) -> None:
     finally:
         broadcaster.unsubscribe(q)
         logger.info("Single train WebSocket disconnected", train_id=train_id)
-
-

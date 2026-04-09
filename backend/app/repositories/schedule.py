@@ -120,12 +120,9 @@ class ScheduleRepository(BaseRepository[Schedule]):
         Returns:
             List of schedules with train and station info.
         """
-        query = (
-            select(Schedule)
-            .options(
-                selectinload(Schedule.train),
-                selectinload(Schedule.station),
-            )
+        query = select(Schedule).options(
+            selectinload(Schedule.train),
+            selectinload(Schedule.station),
         )
 
         filters = []
@@ -197,8 +194,7 @@ class ScheduleRepository(BaseRepository[Schedule]):
             Dict with departure and arrival schedules or None.
         """
         from_schedule = await self.session.execute(
-            select(Schedule)
-            .where(
+            select(Schedule).where(
                 and_(
                     Schedule.train_id == train_id,
                     Schedule.station_id == from_station_id,
@@ -206,8 +202,7 @@ class ScheduleRepository(BaseRepository[Schedule]):
             )
         )
         to_schedule = await self.session.execute(
-            select(Schedule)
-            .where(
+            select(Schedule).where(
                 and_(
                     Schedule.train_id == train_id,
                     Schedule.station_id == to_station_id,

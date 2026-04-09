@@ -69,7 +69,9 @@ class Settings(BaseSettings):
             if value.startswith("["):
                 parsed = json.loads(value)
                 if isinstance(parsed, list):
-                    return [str(origin).strip() for origin in parsed if str(origin).strip()]
+                    return [
+                        str(origin).strip() for origin in parsed if str(origin).strip()
+                    ]
 
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return v

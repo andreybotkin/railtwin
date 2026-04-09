@@ -34,7 +34,9 @@ def setup_logging() -> None:
     else:
         # Pretty output for development
         shared_processors.append(
-            structlog.dev.ConsoleRenderer(colors=True, exception_formatter=structlog.dev.plain_traceback)
+            structlog.dev.ConsoleRenderer(
+                colors=True, exception_formatter=structlog.dev.plain_traceback
+            )
         )
 
     structlog.configure(

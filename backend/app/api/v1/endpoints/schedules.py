@@ -33,7 +33,9 @@ async def list_schedules(
     size: Annotated[int, Query(ge=1, le=100, description="Items per page")] = 50,
     train_id: Annotated[int | None, Query(description="Filter by train ID")] = None,
     station_id: Annotated[int | None, Query(description="Filter by station ID")] = None,
-    day_of_week: Annotated[int | None, Query(ge=0, le=6, description="Filter by day (0=Mon, 6=Sun)")] = None,
+    day_of_week: Annotated[
+        int | None, Query(ge=0, le=6, description="Filter by day (0=Mon, 6=Sun)")
+    ] = None,
 ) -> ScheduleListResponse:
     """List all schedules with pagination and filtering.
 
@@ -66,7 +68,9 @@ async def list_schedules(
 async def get_train_schedule(
     service: ScheduleServiceDep,
     train_id: int,
-    day_of_week: Annotated[int | None, Query(ge=0, le=6, description="Filter by day")] = None,
+    day_of_week: Annotated[
+        int | None, Query(ge=0, le=6, description="Filter by day")
+    ] = None,
 ) -> TrainScheduleResponse:
     """Get complete schedule for a train.
 
@@ -99,7 +103,9 @@ async def get_train_schedule(
 async def get_station_schedule(
     service: ScheduleServiceDep,
     station_id: int,
-    day_of_week: Annotated[int | None, Query(ge=0, le=6, description="Filter by day")] = None,
+    day_of_week: Annotated[
+        int | None, Query(ge=0, le=6, description="Filter by day")
+    ] = None,
 ) -> StationScheduleResponse:
     """Get all arrivals/departures for a station.
 
