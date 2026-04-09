@@ -19,7 +19,7 @@ A real-time digital twin visualization of Thailand's railway network, featuring 
 ## Tech Stack
 
 ### Backend
-- **Framework**: FastAPI (Python 3.11+)
+- **Framework**: FastAPI (Python 3.14+)
 - **Database**: PostgreSQL 15+ with PostGIS
 - **ORM**: SQLAlchemy 2.0 (async)
 - **Migrations**: Alembic
@@ -45,7 +45,7 @@ A real-time digital twin visualization of Thailand's railway network, featuring 
 
 - Docker and Docker Compose
 - Node.js 20+ (for local frontend development)
-- Python 3.11+ (for local backend development)
+- Python 3.14+ (for local backend development)
 
 ### Local Development with Docker
 

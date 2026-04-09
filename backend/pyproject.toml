@@ -3,7 +3,7 @@ name = "thailand-railway-backend"
 version = "1.0.0"
 description = "Thailand Railway Digital Twin - Backend API"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = "MIT"
 authors = [{ name = "Thailand Railway Team" }]
 dependencies = [
@@ -87,7 +87,7 @@ ignore = ["E501", "B008", "C901", "W191"]
 "__init__.py" = ["F401"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.14"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true

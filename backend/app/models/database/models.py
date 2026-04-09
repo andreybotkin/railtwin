@@ -44,6 +44,7 @@ class Station(Base):
     """
 
     __tablename__ = "stations"
+    __allow_unmapped__ = True
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -55,6 +56,7 @@ class Station(Base):
         Geometry("POINT", srid=4326),
         nullable=False,
     )
+    _geojson: str | None = None
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     province: Mapped[str | None] = mapped_column(String(100), nullable=True)
     facilities: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
@@ -137,6 +139,7 @@ class Route(Base):
     """
 
     __tablename__ = "routes"
+    __allow_unmapped__ = True
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -145,6 +148,7 @@ class Route(Base):
         Geometry("LINESTRING", srid=4326),
         nullable=True,
     )
+    _geojson: str | None = None
     distance_km: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     route_type: Mapped[str] = mapped_column(String(50), nullable=False)
     color: Mapped[str | None] = mapped_column(String(7), nullable=True)

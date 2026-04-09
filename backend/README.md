@@ -14,7 +14,7 @@ FastAPI backend for the Thailand Railway Digital Twin application.
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.14+
 - PostgreSQL 15+ with PostGIS extension
 - Redis (optional, for caching)
 
