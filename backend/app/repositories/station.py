@@ -4,7 +4,7 @@ This module provides repository methods for Station model operations
 including geospatial queries using PostGIS.
 """
 
-from typing import Any
+from typing import Any, cast
 
 from geoalchemy2.functions import ST_AsGeoJSON, ST_Distance, ST_MakePoint
 from sqlalchemy import func, select
@@ -38,13 +38,13 @@ class StationRepository(BaseRepository[Station]):
             Station or None if not found.
         """
         result = await self.session.execute(select(Station).where(Station.code == code))
-        return result.scalar_one_or_none()
+        return cast("Station | None", result.scalar_one_or_none())
 
     async def get_all_with_location(
         self,
         skip: int = 0,
         limit: int = 100,
-    ) -> list[dict[str, Any]]:
+    ) -> list[Station]:
         """Get all stations with GeoJSON location.
 
         Args:
@@ -62,9 +62,9 @@ class StationRepository(BaseRepository[Station]):
             .offset(skip)
             .limit(limit)
         )
-        stations = []
+        stations: list[Station] = []
         for row in result.all():
-            station = row[0]
+            station: Station = row[0]
             station._geojson = row[1]
             stations.append(station)
         return stations
@@ -86,7 +86,7 @@ class StationRepository(BaseRepository[Station]):
         )
         row = result.first()
         if row:
-            station = row[0]
+            station: Station = row[0]
             station._geojson = row[1]
             return station
         return None

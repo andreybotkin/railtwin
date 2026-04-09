@@ -4,7 +4,7 @@ This module provides a generic base repository class that implements
 common database operations using SQLAlchemy async sessions.
 """
 
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, cast
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -42,9 +42,9 @@ class BaseRepository(Generic[ModelType]):
             Model instance or None if not found.
         """
         result = await self.session.execute(
-            select(self.model).where(self.model.id == id)
+            select(self.model).where(self.model.id == id)  # type: ignore[attr-defined]
         )
-        return result.scalar_one_or_none()
+        return cast("ModelType | None", result.scalar_one_or_none())
 
     async def get_all(
         self,
@@ -74,7 +74,7 @@ class BaseRepository(Generic[ModelType]):
         result = await self.session.execute(
             select(func.count()).select_from(self.model)
         )
-        return result.scalar_one()
+        return cast(int, result.scalar_one())
 
     async def create(self, obj_in: dict[str, Any]) -> ModelType:
         """Create a new record.

@@ -78,24 +78,24 @@ class TrainSimulationService:
             if schedule.departure_time is not None:
                 return (
                     self._time_to_minutes(schedule.departure_time)
-                    + schedule.departure_day_offset * 24 * 60
+                    + int(schedule.departure_day_offset) * 24 * 60
                 )
             if schedule.arrival_time is not None:
                 return (
                     self._time_to_minutes(schedule.arrival_time)
-                    + schedule.arrival_day_offset * 24 * 60
+                    + int(schedule.arrival_day_offset) * 24 * 60
                 )
             return None
 
         if schedule.arrival_time is not None:
             return (
                 self._time_to_minutes(schedule.arrival_time)
-                + schedule.arrival_day_offset * 24 * 60
+                + int(schedule.arrival_day_offset) * 24 * 60
             )
         if schedule.departure_time is not None:
             return (
                 self._time_to_minutes(schedule.departure_time)
-                + schedule.departure_day_offset * 24 * 60
+                + int(schedule.departure_day_offset) * 24 * 60
             )
         return None
 
@@ -166,9 +166,9 @@ class TrainSimulationService:
             Tuple of (longitude, latitude).
         """
         if not coords or progress <= 0:
-            return coords[0] if coords else (0, 0)
+            return (coords[0][0], coords[0][1]) if coords else (0.0, 0.0)
         if progress >= 1:
-            return coords[-1] if coords else (0, 0)
+            return (coords[-1][0], coords[-1][1]) if coords else (0.0, 0.0)
 
         # Calculate total length and find segment
         total_length = 0.0
@@ -182,7 +182,7 @@ class TrainSimulationService:
             total_length += length
 
         if total_length == 0:
-            return tuple(coords[0])
+            return (coords[0][0], coords[0][1])
 
         target_distance = progress * total_length
         current_distance = 0.0
@@ -202,7 +202,7 @@ class TrainSimulationService:
                 return (lon, lat)
             current_distance += length
 
-        return tuple(coords[-1])
+        return (coords[-1][0], coords[-1][1])
 
     def _calculate_heading(
         self,
@@ -336,12 +336,7 @@ class TrainSimulationService:
             prev_stop = schedule
 
         # Handle cases where train hasn't started or has finished
-        if not prev_stop and next_stop:
-            # Train hasn't started yet
-            return None
-
-        if prev_stop and not next_stop:
-            # Train has finished for today
+        if prev_stop is None or next_stop is None:
             return None
 
         # Calculate progress between stations

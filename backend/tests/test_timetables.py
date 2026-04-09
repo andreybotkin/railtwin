@@ -37,7 +37,7 @@ async def test_simulation_handles_overnight_day_offsets(
     monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 30)
 
     train = Train(id=1, train_number="13", train_type="special_express")
-    service._delays[train.id] = 0
+    service._tts_delays[train.train_number] = 0
     schedules = [
         Schedule(
             train_id=1,
@@ -94,7 +94,7 @@ async def test_simulation_prefers_route_progress(
     monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 11 * 60)
 
     train = Train(id=2, train_number="109", train_type="rapid")
-    service._delays[train.id] = 0
+    service._tts_delays[train.train_number] = 0
     schedules = [
         Schedule(
             train_id=2,

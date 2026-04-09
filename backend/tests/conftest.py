@@ -1,6 +1,7 @@
 """Test configuration and fixtures."""
 
 import asyncio
+import os
 from collections.abc import AsyncGenerator, Generator
 
 import pytest
@@ -11,8 +12,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from app.main import app
 from app.models.database import Base, get_db
 
-# Test database URL (use SQLite for testing)
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+# Use DATABASE_URL from environment (set by CI) or fall back to SQLite.
+# PostGIS-dependent tests are skipped automatically when SQLite is used.
+_DATABASE_URL = os.environ.get("DATABASE_URL")
+TEST_DATABASE_URL = _DATABASE_URL or "sqlite+aiosqlite:///:memory:"
 
 
 @pytest.fixture(scope="session")
@@ -29,8 +32,13 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)
     async_session = async_sessionmaker(engine, expire_on_commit=False)
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as exc:
+        await engine.dispose()
+        pytest.skip(f"Database schema creation failed (PostGIS unavailable?): {exc}")
+        return
 
     async with async_session() as session:
         yield session

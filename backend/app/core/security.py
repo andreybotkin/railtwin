@@ -50,7 +50,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: True if password matches, False otherwise.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return bool(pwd_context.verify(plain_password, hashed_password))
 
 
 def get_password_hash(password: str) -> str:
@@ -62,7 +62,7 @@ def get_password_hash(password: str) -> str:
     Returns:
         str: The hashed password.
     """
-    return pwd_context.hash(password)
+    return str(pwd_context.hash(password))
 
 
 def create_access_token(
@@ -91,7 +91,7 @@ def create_access_token(
         settings.secret_key,
         algorithm=settings.algorithm,
     )
-    return encoded_jwt
+    return str(encoded_jwt)
 
 
 def decode_access_token(token: str) -> TokenPayload | None:

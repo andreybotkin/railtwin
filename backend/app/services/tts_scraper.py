@@ -159,7 +159,8 @@ async def get_delays_from_redis(redis_client: Redis) -> dict[str, int]:
     try:
         raw = await redis_client.get(REDIS_DELAYS_KEY)
         if raw:
-            return json.loads(raw)
+            data: dict[str, int] = json.loads(raw)
+            return data
     except Exception as exc:
         logger.warning("Failed to read TTS delays from Redis", error=str(exc))
     return {}

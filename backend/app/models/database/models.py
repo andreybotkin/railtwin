@@ -12,6 +12,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    JSON,
     Numeric,
     String,
     Text,
@@ -19,7 +20,6 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.database import Base
@@ -57,7 +57,7 @@ class Station(Base):
     )
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     province: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    facilities: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    facilities: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -249,7 +249,7 @@ class Train(Base):
     )
     source: Mapped[str] = mapped_column(String(50), nullable=False, default="manual")
     source_url: Mapped[str | None] = mapped_column(Text, nullable=True)
-    service_notes: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    service_notes: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     current_route_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("routes.id", ondelete="SET NULL"),
@@ -323,7 +323,7 @@ class Schedule(Base):
         Integer, nullable=False, default=0
     )
     day_of_week: Mapped[list[int] | None] = mapped_column(
-        ARRAY(Integer),
+        JSON,
         nullable=True,
     )
     platform: Mapped[str | None] = mapped_column(String(10), nullable=True)

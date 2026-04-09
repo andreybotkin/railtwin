@@ -5,7 +5,7 @@ model operations including geospatial queries using PostGIS.
 """
 
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, cast
 
 from geoalchemy2.functions import ST_AsGeoJSON
 from sqlalchemy import select
@@ -44,7 +44,7 @@ class TrainRepository(BaseRepository[Train]):
             .options(selectinload(Train.current_route))
             .where(Train.train_number == train_number)
         )
-        return result.scalar_one_or_none()
+        return cast("Train | None", result.scalar_one_or_none())
 
     async def get_all_with_route(
         self,

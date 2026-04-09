@@ -4,7 +4,7 @@ This module provides repository methods for Schedule model operations.
 """
 
 from datetime import time
-from typing import Any
+from typing import Any, cast
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -38,7 +38,7 @@ class ScheduleRepository(BaseRepository[Schedule]):
             )
             .where(Schedule.id == schedule_id)
         )
-        return result.scalar_one_or_none()
+        return cast("Schedule | None", result.scalar_one_or_none())
 
     async def get_by_train(
         self,

@@ -4,8 +4,6 @@ This module provides repository methods for Route model operations
 including geospatial queries using PostGIS.
 """
 
-from typing import Any
-
 from geoalchemy2.functions import ST_AsGeoJSON
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -82,7 +80,7 @@ class RouteRepository(BaseRepository[Route]):
         )
         row = result.first()
         if row:
-            route = row[0]
+            route: Route = row[0]
             route._geojson = row[1]
             return route
         return None
@@ -147,7 +145,7 @@ class RouteRepository(BaseRepository[Route]):
         await self.session.flush()
         return route_station
 
-    async def get_route_stations(self, route_id: int) -> list[dict[str, Any]]:
+    async def get_route_stations(self, route_id: int) -> list[RouteStation]:
         """Get all stations for a route in order.
 
         Args:

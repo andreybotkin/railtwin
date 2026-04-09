@@ -57,7 +57,7 @@ class ScheduleService:
 
         station = await self.station_repository.get_by_id(station_id)
         if station:
-            return station.name
+            return str(station.name)
         return None
 
     def _schedule_to_response(self, schedule: Schedule) -> ScheduleResponse:
@@ -185,14 +185,15 @@ class ScheduleService:
         schedule = await self.repository.create(schedule_data)
         await self.session.commit()
 
-        schedule = await self.repository.get_by_id_with_relations(schedule.id)
+        created = await self.repository.get_by_id_with_relations(schedule.id)
+        assert created is not None
 
         logger.info(
             "Schedule created",
-            schedule_id=schedule.id,
-            train_id=schedule.train_id,
+            schedule_id=created.id,
+            train_id=created.train_id,
         )
-        return self._schedule_to_response(schedule)
+        return self._schedule_to_response(created)
 
     async def update_schedule(
         self,
@@ -224,10 +225,11 @@ class ScheduleService:
         await self.repository.update(schedule, update_data)
         await self.session.commit()
 
-        schedule = await self.repository.get_by_id_with_relations(schedule_id)
+        updated = await self.repository.get_by_id_with_relations(schedule_id)
+        assert updated is not None
 
         logger.info("Schedule updated", schedule_id=schedule_id)
-        return self._schedule_to_response(schedule)
+        return self._schedule_to_response(updated)
 
     async def delete_schedule(self, schedule_id: int) -> bool:
         """Delete a schedule.

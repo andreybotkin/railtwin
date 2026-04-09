@@ -16,6 +16,7 @@ from app.repositories.station import StationRepository
 from app.schemas.station import (
     GeoJSONPoint,
     StationCreate,
+    StationFacilities,
     StationListResponse,
     StationResponse,
     StationUpdate,
@@ -67,7 +68,11 @@ class StationService:
             code=station.code,
             city=station.city,
             province=station.province,
-            facilities=station.facilities,
+            facilities=(
+                StationFacilities.model_validate(station.facilities)
+                if station.facilities
+                else None
+            ),
             location=location,
             created_at=station.created_at,
             updated_at=station.updated_at,
@@ -100,8 +105,10 @@ class StationService:
         if not station:
             return None
         # Need to fetch with location
-        station = await self.repository.get_by_id_with_location(station.id)
-        return self._station_to_response(station)
+        fetched = await self.repository.get_by_id_with_location(station.id)
+        if not fetched:
+            return None
+        return self._station_to_response(fetched)
 
     async def list_stations(
         self,
@@ -149,9 +156,14 @@ class StationService:
         await self.session.commit()
 
         # Fetch with location for response
-        station = await self.repository.get_by_id_with_location(station.id)
-        logger.info("Station created", station_id=station.id, code=station.code)
-        return self._station_to_response(station)
+        station_with_loc = await self.repository.get_by_id_with_location(station.id)
+        assert station_with_loc is not None
+        logger.info(
+            "Station created",
+            station_id=station_with_loc.id,
+            code=station_with_loc.code,
+        )
+        return self._station_to_response(station_with_loc)
 
     async def update_station(
         self,
@@ -182,9 +194,9 @@ class StationService:
         await self.repository.update(station, update_data)
         await self.session.commit()
 
-        station = await self.repository.get_by_id_with_location(station_id)
+        station_with_loc = await self.repository.get_by_id_with_location(station_id)
         logger.info("Station updated", station_id=station_id)
-        return self._station_to_response(station)
+        return self._station_to_response(station_with_loc) if station_with_loc else None
 
     async def delete_station(self, station_id: int) -> bool:
         """Delete a station.

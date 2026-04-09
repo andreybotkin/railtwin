@@ -74,7 +74,7 @@ class Settings(BaseSettings):
                     ]
 
             return [origin.strip() for origin in value.split(",") if origin.strip()]
-        return v
+        return list(v)
 
     # Database settings
     database_url: PostgresDsn = PostgresDsn(

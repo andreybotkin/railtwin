@@ -111,7 +111,8 @@ async def get_cached_positions() -> list[dict]:
     redis = get_redis()
     raw = await redis.get(REDIS_POSITIONS_KEY)
     if raw:
-        return json.loads(raw)
+        data: list[dict[str, Any]] = json.loads(raw)
+        return data
     return []
 
 

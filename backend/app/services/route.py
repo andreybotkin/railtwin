@@ -161,9 +161,10 @@ class RouteService:
         route = await self.repository.create(route_data)
         await self.session.commit()
 
-        route = await self.repository.get_by_id_with_geometry(route.id)
-        logger.info("Route created", route_id=route.id, name=route.name)
-        return self._route_to_response(route)
+        created = await self.repository.get_by_id_with_geometry(route.id)
+        assert created is not None
+        logger.info("Route created", route_id=created.id, name=created.name)
+        return self._route_to_response(created)
 
     async def update_route(
         self,
@@ -194,9 +195,9 @@ class RouteService:
         await self.repository.update(route, update_data)
         await self.session.commit()
 
-        route = await self.repository.get_by_id_with_geometry(route_id)
+        updated = await self.repository.get_by_id_with_geometry(route_id)
         logger.info("Route updated", route_id=route_id)
-        return self._route_to_response(route)
+        return self._route_to_response(updated) if updated else None
 
     async def delete_route(self, route_id: int) -> bool:
         """Delete a route.
@@ -250,4 +251,4 @@ class RouteService:
             station_id=station_id,
             sequence=sequence,
         )
-        return self._route_to_response(route)
+        return self._route_to_response(route) if route else None

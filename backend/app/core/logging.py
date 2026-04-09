@@ -6,7 +6,7 @@ and parseable log output throughout the application.
 
 import logging
 import sys
-from typing import Any
+from typing import Any, cast
 
 import structlog
 from structlog.types import Processor
@@ -67,7 +67,7 @@ def get_logger(name: str | None = None, **kwargs: Any) -> structlog.BoundLogger:
     Returns:
         structlog.BoundLogger: Configured logger instance.
     """
-    logger = structlog.get_logger(name)
+    logger = cast(structlog.BoundLogger, structlog.get_logger(name))
     if kwargs:
-        logger = logger.bind(**kwargs)
+        logger = cast(structlog.BoundLogger, logger.bind(**kwargs))
     return logger
