@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Thailand Railway Digital Twin - Backend API"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "MIT"
 authors = [{ name = "Thailand Railway Team" }]
 dependencies = [
     "fastapi>=0.109.0",
@@ -44,6 +44,9 @@ dev = [
 [build-system]
 requires = ["setuptools>=69.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
 
 [tool.black]
 line-length = 88
