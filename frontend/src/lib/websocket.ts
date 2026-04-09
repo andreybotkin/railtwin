@@ -12,6 +12,7 @@ const HEARTBEAT_INTERVAL_MS = 25000;
 type MessageHandler = (positions: TrainPositionUpdate[]) => void;
 type ErrorHandler = (error: Event) => void;
 type ConnectionHandler = () => void;
+type Unsubscribe = () => void;
 
 /**
  * WebSocket client for train position updates.
@@ -21,12 +22,13 @@ export class TrainWebSocketClient {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
+  private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+  private shouldReconnect = true;
 
-  private onMessageHandlers: MessageHandler[] = [];
-  private onErrorHandlers: ErrorHandler[] = [];
-  private onConnectHandlers: ConnectionHandler[] = [];
-  private onDisconnectHandlers: ConnectionHandler[] = [];
+  private onMessageHandlers = new Set<MessageHandler>();
+  private onErrorHandlers = new Set<ErrorHandler>();
+  private onConnectHandlers = new Set<ConnectionHandler>();
+  private onDisconnectHandlers = new Set<ConnectionHandler>();
 
   /**
    * Connect to the WebSocket server.
@@ -36,6 +38,8 @@ export class TrainWebSocketClient {
       return;
     }
 
+    this.shouldReconnect = true;
+
     try {
       this.ws = new WebSocket(`${WS_BASE_URL}/ws/trains`);
 
@@ -43,16 +47,18 @@ export class TrainWebSocketClient {
         console.log('WebSocket connected');
         this.reconnectAttempts = 0;
         this.startHeartbeat();
-        this.onConnectHandlers.forEach((handler) => handler());
+        this.onConnectHandlers.forEach((handler) => {
+          handler();
+        });
       };
 
       this.ws.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
           if (message.type === 'positions' && Array.isArray(message.data)) {
-            this.onMessageHandlers.forEach((handler) =>
-              handler(message.data as TrainPositionUpdate[])
-            );
+            this.onMessageHandlers.forEach((handler) => {
+              handler(message.data as TrainPositionUpdate[]);
+            });
           }
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
@@ -61,14 +67,21 @@ export class TrainWebSocketClient {
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        this.onErrorHandlers.forEach((handler) => handler(error));
+        this.onErrorHandlers.forEach((handler) => {
+          handler(error);
+        });
       };
 
       this.ws.onclose = () => {
         console.log('WebSocket disconnected');
         this.stopHeartbeat();
-        this.onDisconnectHandlers.forEach((handler) => handler());
-        this.attemptReconnect();
+        this.onDisconnectHandlers.forEach((handler) => {
+          handler();
+        });
+
+        if (this.shouldReconnect) {
+          this.attemptReconnect();
+        }
       };
     } catch (error) {
       console.error('Failed to create WebSocket:', error);
@@ -79,6 +92,7 @@ export class TrainWebSocketClient {
    * Disconnect from the WebSocket server.
    */
   disconnect(): void {
+    this.shouldReconnect = false;
     this.stopHeartbeat();
     if (this.ws) {
       this.ws.close();
@@ -129,29 +143,41 @@ export class TrainWebSocketClient {
   /**
    * Register message handler.
    */
-  onMessage(handler: MessageHandler): void {
-    this.onMessageHandlers.push(handler);
+  onMessage(handler: MessageHandler): Unsubscribe {
+    this.onMessageHandlers.add(handler);
+    return () => {
+      this.onMessageHandlers.delete(handler);
+    };
   }
 
   /**
    * Register error handler.
    */
-  onError(handler: ErrorHandler): void {
-    this.onErrorHandlers.push(handler);
+  onError(handler: ErrorHandler): Unsubscribe {
+    this.onErrorHandlers.add(handler);
+    return () => {
+      this.onErrorHandlers.delete(handler);
+    };
   }
 
   /**
    * Register connect handler.
    */
-  onConnect(handler: ConnectionHandler): void {
-    this.onConnectHandlers.push(handler);
+  onConnect(handler: ConnectionHandler): Unsubscribe {
+    this.onConnectHandlers.add(handler);
+    return () => {
+      this.onConnectHandlers.delete(handler);
+    };
   }
 
   /**
    * Register disconnect handler.
    */
-  onDisconnect(handler: ConnectionHandler): void {
-    this.onDisconnectHandlers.push(handler);
+  onDisconnect(handler: ConnectionHandler): Unsubscribe {
+    this.onDisconnectHandlers.add(handler);
+    return () => {
+      this.onDisconnectHandlers.delete(handler);
+    };
   }
 
   /**

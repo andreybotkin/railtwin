@@ -9,16 +9,13 @@ spec:
     - Ingress
     - Egress
   ingress:
-    # Allow ingress from traefik ingress controller
     - from:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: kube-system
-    # Allow internal communication within namespace
     - from:
         - podSelector: {}
   egress:
-    # Allow DNS resolution
     - to:
         - namespaceSelector: {}
       ports:
@@ -26,18 +23,24 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
-    # Allow internal communication within namespace
     - to:
         - podSelector: {}
-    # Allow access to PostgreSQL
     - to:
         - podSelector:
             matchLabels:
-              app: postgres
+              app.kubernetes.io/name: postgres
+              app.kubernetes.io/component: database
       ports:
         - protocol: TCP
           port: 5432
-    # Allow external HTTPS (for any external API calls)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+              app.kubernetes.io/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0

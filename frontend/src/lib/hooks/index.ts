@@ -16,6 +16,8 @@ import type {
   Route,
   Train,
   Schedule,
+  TrainSchedule,
+  StationSchedule,
   TrainPositionUpdate,
   PaginatedResponse,
 } from '@/types';
@@ -58,7 +60,7 @@ export function useTrains(): UseQueryResult<PaginatedResponse<Train>> {
  */
 export function useTrainSchedule(
   trainId: number | null
-): UseQueryResult<{ train: Train; stops: Schedule[] } | null> {
+): UseQueryResult<TrainSchedule | null> {
   return useQuery({
     queryKey: ['train-schedule', trainId],
     queryFn: () => (trainId ? scheduleApi.getTrainSchedule(trainId) : null),
@@ -72,7 +74,7 @@ export function useTrainSchedule(
  */
 export function useStationSchedule(
   stationId: number | null
-): UseQueryResult<{ station: Station; schedules: Schedule[] } | null> {
+): UseQueryResult<StationSchedule | null> {
   return useQuery({
     queryKey: ['station-schedule', stationId],
     queryFn: () => (stationId ? scheduleApi.getStationSchedule(stationId) : null),
@@ -101,26 +103,30 @@ export function useTrainPositions(): {
     const client = getWebSocketClient();
     wsClientRef.current = client;
 
-    client.onConnect(() => {
+    const unsubscribeConnect = client.onConnect(() => {
       setIsConnected(true);
       setError(null);
     });
 
-    client.onDisconnect(() => {
+    const unsubscribeDisconnect = client.onDisconnect(() => {
       setIsConnected(false);
     });
 
-    client.onMessage((newPositions) => {
+    const unsubscribeMessage = client.onMessage((newPositions) => {
       setPositions(newPositions);
     });
 
-    client.onError(() => {
+    const unsubscribeError = client.onError(() => {
       setError('Connection error');
     });
 
     client.connect();
 
     return () => {
+      unsubscribeConnect();
+      unsubscribeDisconnect();
+      unsubscribeMessage();
+      unsubscribeError();
       client.disconnect();
     };
   }, []);

@@ -57,12 +57,13 @@ cd digital-twin
 
 2. Start all services:
 ```bash
-docker-compose up -d
+cp .env.sample .env
+docker compose up -d
 ```
 
 3. Run database migrations:
 ```bash
-docker-compose exec backend alembic upgrade head
+docker compose exec backend alembic upgrade head
 ```
 
 4. Access the application:
@@ -100,7 +101,7 @@ thailand-railway-digital-twin/
 │   └── public/            # Static assets
 ├── k8s/                   # Kubernetes manifests
 ├── docs/                  # Documentation
-├── docker-compose.yml     # Local development
+├── docker-compose.yaml    # Local development
 └── .github/workflows/     # CI/CD pipelines
 ```
 
@@ -132,6 +133,8 @@ See full API documentation at `/docs` when running the backend.
 1. Apply Kubernetes manifests:
 ```bash
 kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/postgres/
+kubectl apply -f k8s/redis/
 kubectl apply -f k8s/backend/
 kubectl apply -f k8s/frontend/
 ```

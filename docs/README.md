@@ -28,8 +28,9 @@ When the backend is running, access the interactive API documentation:
 ### Setting Up Local Environment
 
 1. Install Docker and Docker Compose
-2. Run `docker-compose up -d`
-3. Access frontend at http://localhost:3000
+2. Copy environment template: `cp .env.sample .env`
+3. Run `docker compose up -d`
+4. Access frontend at http://localhost:3000
 
 ### Running Tests
 
