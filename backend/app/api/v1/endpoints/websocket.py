@@ -11,6 +11,7 @@ Architecture:
 """
 
 import asyncio
+import contextlib
 import json
 from typing import Any
 
@@ -74,10 +75,8 @@ class PositionBroadcaster:
 
                 # Push to all WebSocket subscriber queues
                 for q in list(self._subscribers):
-                    try:
+                    with contextlib.suppress(asyncio.QueueFull):
                         q.put_nowait(payload)
-                    except asyncio.QueueFull:
-                        pass  # slow client – silently drop
 
             except Exception as exc:
                 logger.error("PositionBroadcaster error", error=str(exc))

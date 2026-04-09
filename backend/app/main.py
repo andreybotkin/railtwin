@@ -5,8 +5,9 @@ FastAPI with all middleware, routes, and event handlers.
 """
 
 import asyncio
+import contextlib
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,8 +17,9 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.api.dependencies import get_redis
+from app.api.v1.endpoints.websocket import broadcaster
+from app.api.v1.endpoints.websocket import router as websocket_router
 from app.api.v1.router import api_router
-from app.api.v1.endpoints.websocket import router as websocket_router, broadcaster
 from app.core.config import settings
 from app.core.logging import get_logger, setup_logging
 from app.services.tts_scraper import tts_scraper_loop
@@ -31,7 +33,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager.
 
     Handles startup and shutdown events for the application.
@@ -64,10 +66,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Shutdown
     broadcaster.stop()
     scraper_task.cancel()
-    try:
+    with contextlib.suppress(asyncio.CancelledError):
         await scraper_task
-    except asyncio.CancelledError:
-        pass
     await redis_client.aclose()
     logger.info("Shutting down Thailand Railway Digital Twin API")
 
@@ -76,19 +76,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title=settings.app_name,
     description="""
-    Thailand Railway Digital Twin API provides real-time tracking and 
+    Thailand Railway Digital Twin API provides real-time tracking and
     information about the Thai railway network.
-    
+
     ## Features
-    
+
     * **Stations**: Browse and search railway stations
     * **Routes**: View railway routes with geographic data
     * **Trains**: Track trains and their current positions
     * **Schedules**: Access train schedules and timetables
     * **Real-time Updates**: WebSocket connections for live train positions
-    
+
     ## WebSocket Endpoints
-    
+
     * `/ws/trains` - Stream all train positions
     * `/ws/trains/{train_id}` - Stream a single train's position
     """,

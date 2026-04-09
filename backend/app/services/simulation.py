@@ -5,22 +5,21 @@ actual schedules, calculating train positions along routes.
 """
 
 import json
-from datetime import datetime, time, timezone, timedelta
+from datetime import datetime, time, timedelta, timezone
 from typing import Any
-
-# Bangkok timezone offset (UTC+7)
-_BANGKOK_OFFSET = timedelta(hours=7)
 
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.logging import get_logger
 from app.models.database.models import Schedule, Train
 from app.repositories.route import RouteRepository
 from app.repositories.schedule import ScheduleRepository
 from app.repositories.train import TrainRepository
 from app.services.tts_scraper import get_delays_from_redis
+
+# Bangkok timezone offset (UTC+7)
+_BANGKOK_OFFSET = timedelta(hours=7)
 
 logger = get_logger(__name__)
 
@@ -63,7 +62,7 @@ class TrainSimulationService:
 
         Returns fractional minutes so positions update every second, not every minute.
         """
-        now = datetime.now(timezone.utc) + _BANGKOK_OFFSET
+        now = datetime.now(timezone.utc) + _BANGKOK_OFFSET  # noqa: UP017
         return now.hour * 60 + now.minute + now.second / 60.0
 
     def _get_schedule_minutes(
@@ -109,7 +108,7 @@ class TrainSimulationService:
             return None
 
         current_minutes = self._get_current_time_minutes()
-        current_weekday = (datetime.now(timezone.utc) + _BANGKOK_OFFSET).weekday()
+        current_weekday = (datetime.now(timezone.utc) + _BANGKOK_OFFSET).weekday()  # noqa: UP017
         overnight = any(
             schedule.arrival_day_offset > 0 or schedule.departure_day_offset > 0
             for schedule in schedules

@@ -4,7 +4,7 @@ This module provides repository methods for Train and TrainPosition
 model operations including geospatial queries using PostGIS.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from geoalchemy2.functions import ST_AsGeoJSON
@@ -155,7 +155,7 @@ class TrainRepository(BaseRepository[Train]):
         Returns:
             List of train positions with GeoJSON.
         """
-        cutoff_time = datetime.utcnow() - timedelta(minutes=5)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=5)  # noqa: UP017
 
         # Subquery for latest position per train
         subq = (

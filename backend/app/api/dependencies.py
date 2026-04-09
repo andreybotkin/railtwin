@@ -4,7 +4,8 @@ This module provides common dependencies used across API endpoints,
 including database sessions and services.
 """
 
-from typing import Annotated, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
 from fastapi import Depends
 from redis.asyncio import Redis

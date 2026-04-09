@@ -1,6 +1,5 @@
 """Tests for core configuration and utilities."""
 
-import pytest
 from datetime import timedelta
 
 from app.core.config import Settings, get_settings

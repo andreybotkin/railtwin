@@ -6,13 +6,13 @@ delay corrections in Redis for use by the simulation service.
 """
 
 import asyncio
+import contextlib
 import json
 from typing import Any
 
 import socketio
 from redis.asyncio import Redis
 
-from app.core.config import settings
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -73,15 +73,13 @@ async def fetch_tts_delays() -> dict[str, int] | None:
             wait_timeout=15,
         )
         await asyncio.wait_for(done_event.wait(), timeout=40)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("TTS Socket.IO timed out")
     except Exception as exc:
         logger.warning("TTS Socket.IO error", error=str(exc))
     finally:
-        try:
+        with contextlib.suppress(Exception):
             await sio.disconnect()
-        except Exception:
-            pass
 
     return result
 
