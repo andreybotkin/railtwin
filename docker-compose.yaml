@@ -53,7 +53,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-100}
-      WS_HEARTBEAT_INTERVAL: ${WS_HEARTBEAT_INTERVAL:-2}
+      WS_HEARTBEAT_INTERVAL: ${WS_HEARTBEAT_INTERVAL:-5}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:

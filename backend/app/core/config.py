@@ -97,7 +97,7 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 100
 
     # WebSocket settings
-    ws_heartbeat_interval: int = 2  # seconds
+    ws_heartbeat_interval: int = 5  # seconds
 
 
 @lru_cache
