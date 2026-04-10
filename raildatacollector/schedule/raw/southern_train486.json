@@ -1,0 +1,100 @@
+{
+  "name": "Local No. 486",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=486&lang=eng",
+  "notes": [
+    "Local service between Nam Tok and Kanchanaburi.",
+    "Stops at all stations along the route."
+  ],
+  "timetable": [
+    {
+      "station": "Nam Tok",
+      "arrival": "-",
+      "departure": "15:30"
+    },
+    {
+      "station": "Ban Pu Pong",
+      "arrival": "15:34",
+      "departure": "15:35"
+    },
+    {
+      "station": "Wang Yai",
+      "arrival": "15:38",
+      "departure": "15:39"
+    },
+    {
+      "station": "Chong Khaep",
+      "arrival": "15:44",
+      "departure": "15:45"
+    },
+    {
+      "station": "Ko Maha Mongkol",
+      "arrival": "15:48",
+      "departure": "15:49"
+    },
+    {
+      "station": "Wang Pho",
+      "arrival": "15:55",
+      "departure": "15:56"
+    },
+    {
+      "station": "Lumsum",
+      "arrival": "16:05",
+      "departure": "16:06"
+    },
+    {
+      "station": "Wang Sing",
+      "arrival": "16:13",
+      "departure": "16:14"
+    },
+    {
+      "station": "Tha Kilen",
+      "arrival": "16:20",
+      "departure": "16:21"
+    },
+    {
+      "station": "Tha Ta Sua",
+      "arrival": "16:27",
+      "departure": "16:28"
+    },
+    {
+      "station": "Ban Kao",
+      "arrival": "16:34",
+      "departure": "16:35"
+    },
+    {
+      "station": "Ban Pong Sieo",
+      "arrival": "16:40",
+      "departure": "16:41"
+    },
+    {
+      "station": "Wang Takhian",
+      "arrival": "16:46",
+      "departure": "16:47"
+    },
+    {
+      "station": "Wang Yen",
+      "arrival": "16:53",
+      "departure": "16:54"
+    },
+    {
+      "station": "Na Kan",
+      "arrival": "16:59",
+      "departure": "17:00"
+    },
+    {
+      "station": "Wang Lan",
+      "arrival": "17:05",
+      "departure": "17:06"
+    },
+    {
+      "station": "Khao Pun",
+      "arrival": "17:15",
+      "departure": "17:16"
+    },
+    {
+      "station": "Kanchanaburi",
+      "arrival": "17:26",
+      "departure": "-"
+    }
+  ]
+}

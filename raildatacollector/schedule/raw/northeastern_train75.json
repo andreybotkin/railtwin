@@ -1,0 +1,141 @@
+{
+  "name": "Express No. 75",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=75&lang=eng",
+  "notes": [
+    "Daytime Express service with air-conditioned cars.",
+    "Advance booking is recommended.",
+    "Runs Bangkok (Krung Thep Aphiwat) to Nong Khai."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "08:45"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "09:00",
+      "departure": "09:02"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "09:12",
+      "departure": "09:13"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "09:41",
+      "departure": "09:42"
+    },
+    {
+      "station": "Ban Phachi Junction",
+      "arrival": "09:58",
+      "departure": "09:59"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "10:17",
+      "departure": "10:18"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "10:28",
+      "departure": "10:30"
+    },
+    {
+      "station": "Kaeng Sue Ten",
+      "arrival": "10:57",
+      "departure": "10:58"
+    },
+    {
+      "station": "Khok Salung",
+      "arrival": "11:12",
+      "departure": "11:13"
+    },
+    {
+      "station": "Lam Narai",
+      "arrival": "11:41",
+      "departure": "11:44"
+    },
+    {
+      "station": "Ban Wa Tabaek (Thep Sa Thit)",
+      "arrival": "12:33",
+      "departure": "12:34"
+    },
+    {
+      "station": "Bamnet Narong",
+      "arrival": "13:01",
+      "departure": "13:02"
+    },
+    {
+      "station": "Chatturat",
+      "arrival": "13:14",
+      "departure": "13:15"
+    },
+    {
+      "station": "Ban Luam",
+      "arrival": "13:37",
+      "departure": "13:38"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "14:04",
+      "departure": "14:14"
+    },
+    {
+      "station": "Nong Bua Lai",
+      "arrival": "14:23",
+      "departure": "14:24"
+    },
+    {
+      "station": "Muang Phon",
+      "arrival": "14:39",
+      "departure": "14:40"
+    },
+    {
+      "station": "Ban Phai",
+      "arrival": "15:00",
+      "departure": "15:02"
+    },
+    {
+      "station": "Khon Kaen",
+      "arrival": "15:30",
+      "departure": "15:32"
+    },
+    {
+      "station": "Nam Phong",
+      "arrival": "15:55",
+      "departure": "15:56"
+    },
+    {
+      "station": "Khao Suan Kwang",
+      "arrival": "16:05",
+      "departure": "16:06"
+    },
+    {
+      "station": "Non Sa-at",
+      "arrival": "16:15",
+      "departure": "16:16"
+    },
+    {
+      "station": "Kumphawapi",
+      "arrival": "16:28",
+      "departure": "16:29"
+    },
+    {
+      "station": "Huai Sam Phat",
+      "arrival": "16:36",
+      "departure": "16:37"
+    },
+    {
+      "station": "Udon Thani",
+      "arrival": "16:55",
+      "departure": "16:58"
+    },
+    {
+      "station": "Nong Khai",
+      "arrival": "17:30",
+      "departure": "-"
+    }
+  ]
+}

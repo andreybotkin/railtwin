@@ -1,0 +1,211 @@
+{
+  "name": "Ordinary No. 259",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=259&lang=eng",
+  "notes": [
+    "Ordinary service with non-air-conditioned cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Thon Buri to Nam Tok."
+  ],
+  "timetable": [
+    {
+      "station": "Thon Buri",
+      "arrival": "-",
+      "departure": "13:55"
+    },
+    {
+      "station": "Jaran Sanitwong",
+      "arrival": "13:58",
+      "departure": "13:59"
+    },
+    {
+      "station": "Bang Ramat",
+      "arrival": "14:04",
+      "departure": "14:05"
+    },
+    {
+      "station": "Taling Chan Junction",
+      "arrival": "14:08",
+      "departure": "14:09"
+    },
+    {
+      "station": "Banchimphli",
+      "arrival": "14:12",
+      "departure": "14:13"
+    },
+    {
+      "station": "Sala Thammasop",
+      "arrival": "14:19",
+      "departure": "14:20"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "14:27",
+      "departure": "14:28"
+    },
+    {
+      "station": "Wat Suwan",
+      "arrival": "14:32",
+      "departure": "14:33"
+    },
+    {
+      "station": "Khlong Maha Sawat",
+      "arrival": "14:37",
+      "departure": "14:38"
+    },
+    {
+      "station": "Wat Ngiu Rai",
+      "arrival": "14:42",
+      "departure": "14:43"
+    },
+    {
+      "station": "Nakhon Chaisi",
+      "arrival": "14:47",
+      "departure": "14:48"
+    },
+    {
+      "station": "Tha Chalaep",
+      "arrival": "14:52",
+      "departure": "14:53"
+    },
+    {
+      "station": "Ton Samrong",
+      "arrival": "14:57",
+      "departure": "14:58"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "15:02",
+      "departure": "15:03"
+    },
+    {
+      "station": "Phrong Madua",
+      "arrival": "15:10",
+      "departure": "15:11"
+    },
+    {
+      "station": "Khlong Bang Tan",
+      "arrival": "15:15",
+      "departure": "15:16"
+    },
+    {
+      "station": "Nong Pla Duk Junction",
+      "arrival": "15:21",
+      "departure": "15:22"
+    },
+    {
+      "station": "Tanon Songpol",
+      "arrival": "15:26",
+      "departure": "15:27"
+    },
+    {
+      "station": "Sa Kosi Narai",
+      "arrival": "15:33",
+      "departure": "15:34"
+    },
+    {
+      "station": "Luk Kae",
+      "arrival": "15:39",
+      "departure": "15:40"
+    },
+    {
+      "station": "Tha Rua Noi",
+      "arrival": "15:51",
+      "departure": "15:52"
+    },
+    {
+      "station": "Thung Thong",
+      "arrival": "16:05",
+      "departure": "16:06"
+    },
+    {
+      "station": "Kanchanaburi",
+      "arrival": "16:19",
+      "departure": "16:21"
+    },
+    {
+      "station": "Saphan Kwae Yai",
+      "arrival": "16:25",
+      "departure": "16:26"
+    },
+    {
+      "station": "Wang Lan",
+      "arrival": "16:39",
+      "departure": "16:40"
+    },
+    {
+      "station": "Na Kan",
+      "arrival": "16:45",
+      "departure": "16:46"
+    },
+    {
+      "station": "Wang Yen",
+      "arrival": "16:51",
+      "departure": "16:55"
+    },
+    {
+      "station": "Wang Takhian",
+      "arrival": "17:00",
+      "departure": "17:01"
+    },
+    {
+      "station": "Ban Pong Sieo",
+      "arrival": "17:06",
+      "departure": "17:07"
+    },
+    {
+      "station": "Ban Kao",
+      "arrival": "17:12",
+      "departure": "17:13"
+    },
+    {
+      "station": "Tha Ta Sua",
+      "arrival": "17:19",
+      "departure": "17:20"
+    },
+    {
+      "station": "Tha Kilen",
+      "arrival": "17:26",
+      "departure": "17:27"
+    },
+    {
+      "station": "Wang Sing",
+      "arrival": "17:33",
+      "departure": "17:34"
+    },
+    {
+      "station": "Lumsum",
+      "arrival": "17:40",
+      "departure": "17:41"
+    },
+    {
+      "station": "Saphan Tam Krasae",
+      "arrival": "17:44",
+      "departure": "17:45"
+    },
+    {
+      "station": "Wang Pho",
+      "arrival": "17:51",
+      "departure": "17:52"
+    },
+    {
+      "station": "Ko Maha Mongkol",
+      "arrival": "17:58",
+      "departure": "17:59"
+    },
+    {
+      "station": "Chong Khaep",
+      "arrival": "18:02",
+      "departure": "18:03"
+    },
+    {
+      "station": "Wang Yai",
+      "arrival": "18:07",
+      "departure": "18:08"
+    },
+    {
+      "station": "Nam Tok",
+      "arrival": "18:15",
+      "departure": "-"
+    }
+  ]
+}

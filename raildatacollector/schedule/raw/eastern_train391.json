@@ -1,0 +1,107 @@
+{
+  "name": "Commuter No. 391",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=391&lang=eng",
+  "notes": "This train is one of five pairs of commuter trains that go between Bangkok and Chachoengsao. It is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. The return journey the next day is done by No. 390 train.",
+  "timetable": [
+    {
+      "station": "Bangkok",
+      "arrival": "-",
+      "departure": "16:55"
+    },
+    {
+      "station": "Urupong",
+      "arrival": "17:03",
+      "departure": "17:04"
+    },
+    {
+      "station": "Phayathai",
+      "arrival": "17:06",
+      "departure": "17:07"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "17:11",
+      "departure": "17:13"
+    },
+    {
+      "station": "Asoke",
+      "arrival": "17:16",
+      "departure": "17:17"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "17:20",
+      "departure": "17:21"
+    },
+    {
+      "station": "Sukhumvit 71",
+      "arrival": "17:23",
+      "departure": "17:24"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "17:29",
+      "departure": "17:30"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "arrival": "17:35",
+      "departure": "17:36"
+    },
+    {
+      "station": "Soi Wat Lan Boon",
+      "arrival": "17:39",
+      "departure": "17:40"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "17:44",
+      "departure": "17:45"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "arrival": "17:48",
+      "departure": "17:49"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "17:51",
+      "departure": "17:53"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "arrival": "18:00",
+      "departure": "18:01"
+    },
+    {
+      "station": "Khlong Udom Chonlajorn",
+      "arrival": "18:04",
+      "departure": "18:05"
+    },
+    {
+      "station": "Preng",
+      "arrival": "18:08",
+      "departure": "18:09"
+    },
+    {
+      "station": "Khlong Kwaeng Klan",
+      "arrival": "18:12",
+      "departure": "18:13"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "arrival": "18:16",
+      "departure": "18:17"
+    },
+    {
+      "station": "Bang Toey",
+      "arrival": "18:20",
+      "departure": "18:21"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "18:25",
+      "departure": "-"
+    }
+  ]
+}

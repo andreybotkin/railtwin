@@ -1,0 +1,112 @@
+{
+  "name": "Commuter No. 384",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=384&lang=eng",
+  "notes": "This train is one of five pairs of commuter trains that go between Chachoengsao and Bangkok. It is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. The return journey is done by No. 383 train.",
+  "timetable": [
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "-",
+      "departure": "05:20"
+    },
+    {
+      "station": "Bang Toey",
+      "arrival": "05:24",
+      "departure": "05:25"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "arrival": "05:29",
+      "departure": "05:30"
+    },
+    {
+      "station": "Khlong Kwaeng Klan",
+      "arrival": "05:33",
+      "departure": "05:34"
+    },
+    {
+      "station": "Preng",
+      "arrival": "05:39",
+      "departure": "05:40"
+    },
+    {
+      "station": "Khlong Udom Chonlajorn",
+      "arrival": "05:44",
+      "departure": "05:45"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "arrival": "05:49",
+      "departure": "05:50"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "05:59",
+      "departure": "06:00"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "arrival": "06:01",
+      "departure": "06:02"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "06:06",
+      "departure": "06:07"
+    },
+    {
+      "station": "Soi Wat Lan Boon",
+      "arrival": "06:09",
+      "departure": "06:10"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "arrival": "06:12",
+      "departure": "06:13"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "06:21",
+      "departure": "06:22"
+    },
+    {
+      "station": "Sukhumvit 71",
+      "arrival": "06:28",
+      "departure": "06:29"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "06:33",
+      "departure": "06:36"
+    },
+    {
+      "station": "Asoke",
+      "arrival": "06:40",
+      "departure": "06:41"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "06:44",
+      "departure": "06:49"
+    },
+    {
+      "station": "Phayathai",
+      "arrival": "06:55",
+      "departure": "06:56"
+    },
+    {
+      "station": "Urupong",
+      "arrival": "06:59",
+      "departure": "07:00"
+    },
+    {
+      "station": "Yommaraj",
+      "arrival": "07:02",
+      "departure": "07:03"
+    },
+    {
+      "station": "Bangkok",
+      "arrival": "07:10",
+      "departure": "-"
+    }
+  ]
+}

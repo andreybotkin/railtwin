@@ -1,0 +1,76 @@
+{
+  "name": "Special Express No. 6",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=6&lang=eng",
+  "valid_period": "26-12-2025 to 30-12-2025",
+  "notes": [
+    "Special Express service with air-conditioned sleeping and seating cars. Timetable valid for the New Year and Songkran holiday periods only. Train uses the spare CNR trainset. Please note, the dining car is not open for this train and so bring your own food and drinks. Runs Chiang Mai to Bangkok (Krung Thep Aphiwat)."
+  ],
+  "timetable": [
+    {
+      "station": "Chiang Mai",
+      "arrival": "-",
+      "departure": "19:35"
+    },
+    {
+      "station": "Lamphun",
+      "arrival": "19:59",
+      "departure": "20:00"
+    },
+    {
+      "station": "Khun Tan",
+      "arrival": "20:47",
+      "departure": "20:48"
+    },
+    {
+      "station": "Nakhon Lampang",
+      "arrival": "21:40",
+      "departure": "21:43"
+    },
+    {
+      "station": "Den Chai",
+      "arrival": "23:55",
+      "departure": "23:56"
+    },
+    {
+      "station": "Sila At",
+      "arrival": "00:48",
+      "departure": "00:49",
+      "arrival_date_offset": 1
+    },
+    {
+      "station": "Phitsanulok",
+      "arrival": "02:21",
+      "departure": "02:22"
+    },
+    {
+      "station": "Nakhon Sawan",
+      "arrival": "04:13",
+      "departure": "04:16"
+    },
+    {
+      "station": "Lop Buri 2 (Tha Wung)",
+      "arrival": "05:51",
+      "departure": "05:52"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "06:55",
+      "departure": "06:56"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "07:38",
+      "departure": "07:41"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "07:50",
+      "departure": "07:52"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "08:10",
+      "departure": "-"
+    }
+  ]
+}

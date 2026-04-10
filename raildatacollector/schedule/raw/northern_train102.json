@@ -1,0 +1,186 @@
+{
+  "name": "Rapid No. 102",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=102&lang=eng",
+  "notes": [
+    "Rapid service.",
+    "Advance booking is recommended.",
+    "Runs Chiang Mai to Bangkok (Krung Thep Aphiwat)."
+  ],
+  "timetable": [
+    {
+      "station": "Chiang Mai",
+      "arrival": "-",
+      "departure": "06:25"
+    },
+    {
+      "station": "Lamphun",
+      "arrival": "06:47",
+      "departure": "06:51"
+    },
+    {
+      "station": "Khun Tan",
+      "arrival": "07:35",
+      "departure": "07:36"
+    },
+    {
+      "station": "Nakhon Lampang",
+      "arrival": "08:29",
+      "departure": "08:32"
+    },
+    {
+      "station": "Mae Mo",
+      "arrival": "09:13",
+      "departure": "09:14"
+    },
+    {
+      "station": "Ban Pin",
+      "arrival": "10:10",
+      "departure": "10:11"
+    },
+    {
+      "station": "Den Chai",
+      "arrival": "10:43",
+      "departure": "10:46"
+    },
+    {
+      "station": "Sila At",
+      "arrival": "11:38",
+      "departure": "11:48"
+    },
+    {
+      "station": "Uttaradit",
+      "arrival": "11:51",
+      "departure": "11:54"
+    },
+    {
+      "station": "Tha Sak",
+      "arrival": "12:14",
+      "departure": "12:15"
+    },
+    {
+      "station": "Ban Dara Junction",
+      "arrival": "12:19",
+      "departure": "12:20"
+    },
+    {
+      "station": "Phichai",
+      "arrival": "12:30",
+      "departure": "12:33"
+    },
+    {
+      "station": "Nong Tom",
+      "arrival": "13:07",
+      "departure": "13:08"
+    },
+    {
+      "station": "Phrom Phiram",
+      "arrival": "13:15",
+      "departure": "13:16"
+    },
+    {
+      "station": "Phitsanulok",
+      "arrival": "13:40",
+      "departure": "13:42"
+    },
+    {
+      "station": "Bang Krathum",
+      "arrival": "14:07",
+      "departure": "14:08"
+    },
+    {
+      "station": "Phichit",
+      "arrival": "14:21",
+      "departure": "14:22"
+    },
+    {
+      "station": "Taphan Hin",
+      "arrival": "14:44",
+      "departure": "14:45"
+    },
+    {
+      "station": "Bang Mun Nak",
+      "arrival": "15:03",
+      "departure": "15:04"
+    },
+    {
+      "station": "Chumsaeng",
+      "arrival": "15:18",
+      "departure": "15:19"
+    },
+    {
+      "station": "Pak Nam Pho",
+      "arrival": "15:45",
+      "departure": "15:46"
+    },
+    {
+      "station": "Nakhon Sawan",
+      "arrival": "15:51",
+      "departure": "15:54"
+    },
+    {
+      "station": "Nong Pho",
+      "arrival": "16:23",
+      "departure": "16:24"
+    },
+    {
+      "station": "Ban Takhli",
+      "arrival": "16:42",
+      "departure": "16:43"
+    },
+    {
+      "station": "Chong Khae",
+      "arrival": "16:56",
+      "departure": "16:57"
+    },
+    {
+      "station": "Chansen",
+      "arrival": "17:04",
+      "departure": "17:05"
+    },
+    {
+      "station": "Ban Mi",
+      "arrival": "17:17",
+      "departure": "17:18"
+    },
+    {
+      "station": "Lop Buri 2 (Tha Wung)",
+      "arrival": "17:48",
+      "departure": "17:50"
+    },
+    {
+      "station": "Ban Mo",
+      "arrival": "18:16",
+      "departure": "18:17"
+    },
+    {
+      "station": "Tha Rua",
+      "arrival": "18:23",
+      "departure": "18:24"
+    },
+    {
+      "station": "Ban Phachi Junction",
+      "arrival": "18:36",
+      "departure": "18:37"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "18:57",
+      "departure": "18:59"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "19:35",
+      "departure": "19:38"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "19:48",
+      "departure": "19:50"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "20:05",
+      "departure": "-"
+    }
+  ]
+}

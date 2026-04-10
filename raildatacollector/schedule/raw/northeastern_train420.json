@@ -1,0 +1,126 @@
+{
+  "name": "Local No. 420",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=420&lang=eng",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Ubon Ratchathani to Lam Chi."
+  ],
+  "timetable": [
+    {
+      "station": "Ubon Ratchathani",
+      "arrival": "-",
+      "departure": "18:10"
+    },
+    {
+      "station": "Bung Wai",
+      "arrival": "18:19",
+      "departure": "18:20"
+    },
+    {
+      "station": "Ban Thon",
+      "arrival": "18:22",
+      "departure": "18:23"
+    },
+    {
+      "station": "Huai Khayung",
+      "arrival": "18:34",
+      "departure": "18:35"
+    },
+    {
+      "station": "Ban Non Phung",
+      "arrival": "18:39",
+      "departure": "18:40"
+    },
+    {
+      "station": "Kanthararom",
+      "arrival": "18:46",
+      "departure": "18:47"
+    },
+    {
+      "station": "Ban Khlo",
+      "arrival": "18:56",
+      "departure": "19:01"
+    },
+    {
+      "station": "Nong Waeng",
+      "arrival": "19:10",
+      "departure": "19:15"
+    },
+    {
+      "station": "Chalerm Kanchana",
+      "arrival": "19:40",
+      "departure": "19:41"
+    },
+    {
+      "station": "Si Sa Ket",
+      "arrival": "19:28",
+      "departure": "19:30"
+    },
+    {
+      "station": "Ban Niam",
+      "arrival": "19:38",
+      "departure": "19:39"
+    },
+    {
+      "station": "Ban Tae",
+      "arrival": "20:04",
+      "departure": "20:05"
+    },
+    {
+      "station": "Uthumphon Phisai",
+      "arrival": "19:51",
+      "departure": "19:52"
+    },
+    {
+      "station": "Nong Khaen",
+      "arrival": "20:15",
+      "departure": "20:16"
+    },
+    {
+      "station": "Huai Thap Than",
+      "arrival": "20:04",
+      "departure": "20:05"
+    },
+    {
+      "station": "Samrong Thap",
+      "arrival": "20:13",
+      "departure": "20:14"
+    },
+    {
+      "station": "Ban Kalan",
+      "arrival": "20:20",
+      "departure": "20:21"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "20:27",
+      "departure": "20:28"
+    },
+    {
+      "station": "Kadon Kho",
+      "arrival": "20:34",
+      "departure": "20:35"
+    },
+    {
+      "station": "Muang Thi",
+      "arrival": "20:41",
+      "departure": "20:42"
+    },
+    {
+      "station": "Bu Rusi",
+      "arrival": "20:48",
+      "departure": "20:49"
+    },
+    {
+      "station": "Surin",
+      "arrival": "20:57",
+      "departure": "21:00"
+    },
+    {
+      "station": "Lam Chi",
+      "arrival": "21:10",
+      "departure": "-"
+    }
+  ]
+}

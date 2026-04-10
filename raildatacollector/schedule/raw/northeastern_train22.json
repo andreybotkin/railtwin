@@ -1,0 +1,99 @@
+{
+  "name": "Special Express No. 22",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=22&lang=eng",
+  "notes": [
+    "Special Express service with three air-conditioned seating cars. It runs from Ubon Ratchathani to Bangkok (Krung Thep Aphiwat) during the day. This is a Daewoo diesel railcar with reclining seats that face direction of travel. It is the fastest train on this route. Advance booking is recommended."
+  ],
+  "timetable": [
+    {
+      "station": "Ubon Ratchathani",
+      "arrival": "-",
+      "departure": "14:50"
+    },
+    {
+      "station": "Kanthararom",
+      "arrival": "15:11",
+      "departure": "15:12"
+    },
+    {
+      "station": "Si Sa Ket",
+      "arrival": "15:29",
+      "departure": "15:31"
+    },
+    {
+      "station": "Uthumphon Phisai",
+      "arrival": "15:47",
+      "departure": "15:48"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "16:15",
+      "departure": "16:16"
+    },
+    {
+      "station": "Surin",
+      "arrival": "16:37",
+      "departure": "16:41"
+    },
+    {
+      "station": "Krasang",
+      "arrival": "16:55",
+      "departure": "16:56"
+    },
+    {
+      "station": "Buri Ram",
+      "arrival": "17:12",
+      "departure": "17:15"
+    },
+    {
+      "station": "Lam Plai Mat",
+      "arrival": "17:34",
+      "departure": "17:35"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "18:30",
+      "departure": "18:31"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "18:36",
+      "departure": "18:47"
+    },
+    {
+      "station": "Pak Chong",
+      "arrival": "19:47",
+      "departure": "19:48"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "20:39",
+      "departure": "20:40"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "20:49",
+      "departure": "20:50"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "21:21",
+      "departure": "21:22"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "21:48",
+      "departure": "21:51"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "22:00",
+      "departure": "22:02"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "22:15",
+      "departure": "-"
+    }
+  ]
+}

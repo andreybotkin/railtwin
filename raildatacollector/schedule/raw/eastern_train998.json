@@ -1,0 +1,87 @@
+{
+  "name": "Express No. 998",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=998&lang=eng",
+  "notes": "This popular weekend beach train is a British made Sprinter diesel railcar. This has 2nd Class carriages with air-conditioning and reclining seats. Tickets can be bought at the station or on DTicket up to 30 days in advance. The return journey back to Bangkok is done by No. 997 train. Please note, this train only runs at the weekends.",
+  "timetable": [
+    {
+      "station": "Chuk Samet",
+      "arrival": "-",
+      "departure": "15:30"
+    },
+    {
+      "station": "Utaphao",
+      "arrival": "15:42",
+      "departure": "15:43"
+    },
+    {
+      "station": "Ban Plu Ta Luang",
+      "arrival": "15:49",
+      "departure": "15:50"
+    },
+    {
+      "station": "Suan Nong Nuch",
+      "arrival": "15:59",
+      "departure": "16:00"
+    },
+    {
+      "station": "Yanasangwararam",
+      "arrival": "16:04",
+      "departure": "16:05"
+    },
+    {
+      "station": "Talat Nam 4 Pak",
+      "arrival": "16:14",
+      "departure": "16:15"
+    },
+    {
+      "station": "Pattaya",
+      "arrival": "16:25",
+      "departure": "16:26"
+    },
+    {
+      "station": "Si Racha Junction",
+      "arrival": "16:44",
+      "departure": "16:45"
+    },
+    {
+      "station": "Chon Buri",
+      "arrival": "17:02",
+      "departure": "17:03"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "17:36",
+      "departure": "17:37"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "18:05",
+      "departure": "18:06"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "18:11",
+      "departure": "18:12"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "18:25",
+      "departure": "18:26"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "18:32",
+      "departure": "18:33"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "18:38",
+      "departure": "18:42"
+    },
+    {
+      "station": "Bangkok",
+      "arrival": "18:55",
+      "departure": "-"
+    }
+  ]
+}

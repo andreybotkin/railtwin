@@ -1,0 +1,99 @@
+{
+  "name": "Special Express No. 8",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=8&lang=eng",
+  "notes": [
+    "Special Express service with three air-conditioned seating cars. It runs from Chiang Mai to Bangkok (Krung Thep Aphiwat) during the day. This is a Daewoo diesel railcar with reclining seats that face direction of travel. It is the fastest train on this route. Advance booking is recommended."
+  ],
+  "timetable": [
+    {
+      "station": "Chiang Mai",
+      "arrival": "-",
+      "departure": "07:30"
+    },
+    {
+      "station": "Lamphun",
+      "arrival": "07:48",
+      "departure": "07:49"
+    },
+    {
+      "station": "Khun Tan",
+      "arrival": "08:35",
+      "departure": "08:36"
+    },
+    {
+      "station": "Nakhon Lampang",
+      "arrival": "09:27",
+      "departure": "09:30"
+    },
+    {
+      "station": "Ban Pin",
+      "arrival": "10:56",
+      "departure": "10:57"
+    },
+    {
+      "station": "Den Chai",
+      "arrival": "11:27",
+      "departure": "11:28"
+    },
+    {
+      "station": "Sila At",
+      "arrival": "12:14",
+      "departure": "12:15"
+    },
+    {
+      "station": "Uttaradit",
+      "arrival": "12:17",
+      "departure": "12:20"
+    },
+    {
+      "station": "Phitsanulok",
+      "arrival": "13:16",
+      "departure": "13:26"
+    },
+    {
+      "station": "Phichit",
+      "arrival": "13:50",
+      "departure": "13:51"
+    },
+    {
+      "station": "Taphan Hin",
+      "arrival": "14:07",
+      "departure": "14:08"
+    },
+    {
+      "station": "Pak Nam Pho",
+      "arrival": "14:47",
+      "departure": "14:48"
+    },
+    {
+      "station": "Nakhon Sawan",
+      "arrival": "14:52",
+      "departure": "14:55"
+    },
+    {
+      "station": "Lop Buri 2 (Tha Wung)",
+      "arrival": "16:03",
+      "departure": "16:05"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "16:48",
+      "departure": "16:50"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "17:14",
+      "departure": "17:17"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "17:25",
+      "departure": "17:27"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "17:40",
+      "departure": "-"
+    }
+  ]
+}

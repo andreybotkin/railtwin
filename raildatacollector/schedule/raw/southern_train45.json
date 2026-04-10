@@ -1,0 +1,115 @@
+{
+  "name": "Special Express No. 45",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=45&lang=eng",
+  "station_list": "https://www.railway.co.th/SRTTimetable/stationList?Startstation=1001&lang=eng",
+  "notes": [
+    "Special Express overnight sleeper service. It runs from Bangkok (Krung Thep Aphiwat) to Padang Besar. This train provides air-conditioned second-class sleepers and is popular for travelers heading to the Malaysian border. Advance booking is highly recommended as there are only two sleeper carriages. At Hat Yai Junction, they will add a couple of 3rd Class carriages for people to cross the border. Tickets for these carriages cost 50 baht and can only be bought at the station."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "16:10"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "16:21",
+      "departure": "16:22"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "16:42",
+      "departure": "16:43"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "17:10",
+      "departure": "17:12"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "17:31",
+      "departure": "17:32"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "18:00",
+      "departure": "18:10"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "18:51",
+      "departure": "18:56"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "19:45",
+      "departure": "19:50"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "20:07",
+      "departure": "20:08"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "21:04",
+      "departure": "21:05"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "22:03",
+      "departure": "22:04"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "23:16",
+      "departure": "23:26"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "01:49",
+      "departure": "01:52"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "03:38",
+      "departure": "03:48"
+    },
+    {
+      "station": "Cha-uat",
+      "arrival": "04:40",
+      "departure": "04:41"
+    },
+    {
+      "station": "Phatthalung",
+      "arrival": "05:21",
+      "departure": "05:23"
+    },
+    {
+      "station": "Bang Kaeo",
+      "arrival": "05:45",
+      "departure": "05:46"
+    },
+    {
+      "station": "Hat Yai Junction",
+      "arrival": "06:35",
+      "departure": "07:20"
+    },
+    {
+      "station": "Khlong Ngae",
+      "arrival": "07:42",
+      "departure": "07:43"
+    },
+    {
+      "station": "Padang Besar (Thai)",
+      "arrival": "07:59",
+      "departure": "08:02"
+    },
+    {
+      "station": "Padang Besar",
+      "arrival": "08:05",
+      "departure": "-"
+    }
+  ]
+}

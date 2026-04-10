@@ -1,0 +1,236 @@
+{
+  "name": "Rapid No. 170",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=170&lang=eng",
+  "notes": [
+    "Rapid service with a mix of air-conditioned and non-air-conditioned cars.",
+    "Advance booking is recommended.",
+    "Runs Yala to Bangkok (Krung Thep Aphiwat)."
+  ],
+  "timetable": [
+    {
+      "station": "Yala",
+      "arrival": "-",
+      "departure": "16:30"
+    },
+    {
+      "station": "Na Pradu",
+      "arrival": "16:50",
+      "departure": "16:51"
+    },
+    {
+      "station": "Pattani",
+      "arrival": "16:58",
+      "departure": "16:59"
+    },
+    {
+      "station": "Thepha",
+      "arrival": "17:14",
+      "departure": "17:15"
+    },
+    {
+      "station": "Chana",
+      "arrival": "17:39",
+      "departure": "17:40"
+    },
+    {
+      "station": "Hat Yai Junction",
+      "arrival": "18:10",
+      "departure": "18:20"
+    },
+    {
+      "station": "Khuan Niang",
+      "arrival": "18:43",
+      "departure": "18:44"
+    },
+    {
+      "station": "Hanthao",
+      "arrival": "18:57",
+      "departure": "18:58"
+    },
+    {
+      "station": "Bang Kaeo",
+      "arrival": "19:14",
+      "departure": "19:15"
+    },
+    {
+      "station": "Khao Chaison",
+      "arrival": "19:20",
+      "departure": "19:21"
+    },
+    {
+      "station": "Phatthalung",
+      "arrival": "19:39",
+      "departure": "19:41"
+    },
+    {
+      "station": "Pak Khlong",
+      "arrival": "19:54",
+      "departure": "19:55"
+    },
+    {
+      "station": "Laem Tanot",
+      "arrival": "20:04",
+      "departure": "20:05"
+    },
+    {
+      "station": "Ban Khon Hat",
+      "arrival": "20:11",
+      "departure": "20:12"
+    },
+    {
+      "station": "Cha-uat",
+      "arrival": "20:26",
+      "departure": "20:27"
+    },
+    {
+      "station": "Khao Chum Thong Junction",
+      "arrival": "20:52",
+      "departure": "20:53"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "21:20",
+      "departure": "21:30"
+    },
+    {
+      "station": "Na Bon",
+      "arrival": "21:45",
+      "departure": "21:46"
+    },
+    {
+      "station": "Khlong Chan Di",
+      "arrival": "21:59",
+      "departure": "22:00"
+    },
+    {
+      "station": "Chawang",
+      "arrival": "22:06",
+      "departure": "22:07"
+    },
+    {
+      "station": "Thanpho",
+      "arrival": "22:13",
+      "departure": "22:14"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "23:25",
+      "departure": "23:28"
+    },
+    {
+      "station": "Chaiya",
+      "arrival": "00:01",
+      "departure": "00:02"
+    },
+    {
+      "station": "Lamae",
+      "arrival": "00:41",
+      "departure": "00:45"
+    },
+    {
+      "station": "Lang Suan",
+      "arrival": "01:14",
+      "departure": "01:15"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "02:22",
+      "departure": "02:32"
+    },
+    {
+      "station": "Pathiu",
+      "arrival": "03:04",
+      "departure": "03:05"
+    },
+    {
+      "station": "Map Ammarit",
+      "arrival": "03:22",
+      "departure": "03:23"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "04:03",
+      "departure": "04:04"
+    },
+    {
+      "station": "Ban Krut",
+      "arrival": "04:19",
+      "departure": "04:20"
+    },
+    {
+      "station": "Thap Sakae",
+      "arrival": "04:36",
+      "departure": "04:37"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "05:11",
+      "departure": "05:12"
+    },
+    {
+      "station": "Pran Buri",
+      "arrival": "06:10",
+      "departure": "06:11"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "06:15",
+      "departure": "06:16"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "06:35",
+      "departure": "06:40"
+    },
+    {
+      "station": "Cha-am",
+      "arrival": "07:04",
+      "departure": "07:05"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "07:38",
+      "departure": "07:43"
+    },
+    {
+      "station": "Pak Tho",
+      "arrival": "08:11",
+      "departure": "08:12"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "08:29",
+      "departure": "08:32"
+    },
+    {
+      "station": "Photharam",
+      "arrival": "08:51",
+      "departure": "08:54"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "09:09",
+      "departure": "09:10"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "09:33",
+      "departure": "09:38"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "10:12",
+      "departure": "10:13"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "10:36",
+      "departure": "10:37"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "10:50",
+      "departure": "-"
+    }
+  ]
+}

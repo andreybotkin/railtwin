@@ -1,0 +1,84 @@
+{
+  "name": "Special Express No. 25",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=25&lang=eng",
+  "notes": [
+    "Special Express service with air-conditioned sleeping cars using a CNR trainset. It runs from Bangkok (Krung Thep Aphiwat) to Nong Khai. There are 1st Class private cabins and shared 2nd Class cars. One car is designed for wheelchair users and includes a wheelchair lift and accessible toilets. There is also a women-only car for women and young children. This train has a dining car. Advance booking is recommended, as this is a popular train and route."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "20:25"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "20:40",
+      "departure": "20:42"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "20:53",
+      "departure": "20:54"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "21:38",
+      "departure": "21:39"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "22:22",
+      "departure": "22:23"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "22:33",
+      "departure": "22:35"
+    },
+    {
+      "station": "Lam Narai",
+      "arrival": "23:58",
+      "departure": "00:03"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "02:40",
+      "departure": "02:50"
+    },
+    {
+      "station": "Muang Phon",
+      "arrival": "03:14",
+      "departure": "03:15"
+    },
+    {
+      "station": "Ban Phai",
+      "arrival": "03:37",
+      "departure": "03:40"
+    },
+    {
+      "station": "Khon Kaen",
+      "arrival": "04:10",
+      "departure": "04:12"
+    },
+    {
+      "station": "Nam Phong",
+      "arrival": "04:37",
+      "departure": "04:38"
+    },
+    {
+      "station": "Kumphawapi",
+      "arrival": "05:12",
+      "departure": "05:13"
+    },
+    {
+      "station": "Udon Thani",
+      "arrival": "05:39",
+      "departure": "05:44"
+    },
+    {
+      "station": "Nong Khai",
+      "arrival": "06:25",
+      "departure": "-"
+    }
+  ]
+}

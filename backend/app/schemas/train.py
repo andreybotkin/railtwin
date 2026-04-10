@@ -30,7 +30,7 @@ class TrainBase(BaseModel):
     operator: str = Field(default="State Railway of Thailand", max_length=100)
     source: str = Field(default="manual", min_length=1, max_length=50)
     source_url: str | None = None
-    service_notes: list[str] | None = None
+    service_notes: dict | list[str] | None = None
 
 
 class TrainCreate(TrainBase):
@@ -56,7 +56,7 @@ class TrainUpdate(BaseModel):
     operator: str | None = Field(None, max_length=100)
     source: str | None = Field(None, min_length=1, max_length=50)
     source_url: str | None = None
-    service_notes: list[str] | None = None
+    service_notes: dict | list[str] | None = None
     current_route_id: int | None = None
 
 

@@ -1,0 +1,139 @@
+{
+  "name": "Rapid No. 134",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=134&lang=eng",
+  "notes": [
+    "Overnight Rapid service with mixed seating and sleeping cars. It runs from Vientiane (Khamsavath) in Laos to Bangkok (Krung Thep Aphiwat). Laos immigration is done at Vientiane (Khamsavath) Station and Thai immigration at Nong Khai Station. The train has 2nd and 3rd Class seats with fans, 2nd Class seats with air-conditioning, and 2nd class sleeper carriages. Advance booking is recommended as there are only two sleeper carriages. Your alternative is to take this train to Nong Khai and then switch to Special Express No. 26 to go to Bangkok. Make sure you let officials know you are taking the earlier train and they will let you go to the front of the immigration queue. Timetable updated on 1st February 2026."
+  ],
+  "timetable": [
+    {
+      "station": "Vientiane (Khamsavath)",
+      "arrival": "-",
+      "departure": "18:25"
+    },
+    {
+      "station": "Nong Khai",
+      "arrival": "18:55",
+      "departure": "20:15"
+    },
+    {
+      "station": "Udon Thani",
+      "arrival": "20:57",
+      "departure": "20:59"
+    },
+    {
+      "station": "Huai Sam Phat",
+      "arrival": "21:22",
+      "departure": "21:23"
+    },
+    {
+      "station": "Kumphawapi",
+      "arrival": "21:32",
+      "departure": "21:33"
+    },
+    {
+      "station": "Huai Koeng",
+      "arrival": "21:42",
+      "departure": "21:43"
+    },
+    {
+      "station": "Non Sa-at",
+      "arrival": "21:52",
+      "departure": "21:53"
+    },
+    {
+      "station": "Khao Suan Kwang",
+      "arrival": "22:05",
+      "departure": "22:06"
+    },
+    {
+      "station": "Nam Phong",
+      "arrival": "22:20",
+      "departure": "22:21"
+    },
+    {
+      "station": "Khon Kaen",
+      "arrival": "22:49",
+      "departure": "22:51"
+    },
+    {
+      "station": "Tha Phra",
+      "arrival": "23:00",
+      "departure": "23:01"
+    },
+    {
+      "station": "Ban Phai",
+      "arrival": "23:26",
+      "departure": "23:29"
+    },
+    {
+      "station": "Muang Phon",
+      "arrival": "23:53",
+      "departure": "23:54"
+    },
+    {
+      "station": "Nong Bua Lai",
+      "arrival": "00:12",
+      "departure": "00:13"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "00:26",
+      "departure": "00:36"
+    },
+    {
+      "station": "Ban Luam",
+      "arrival": "01:09",
+      "departure": "01:10"
+    },
+    {
+      "station": "Chatturat",
+      "arrival": "01:38",
+      "departure": "01:44"
+    },
+    {
+      "station": "Bamnet Narong",
+      "arrival": "02:03",
+      "departure": "02:07"
+    },
+    {
+      "station": "Lam Narai",
+      "arrival": "03:31",
+      "departure": "03:34"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "04:54",
+      "departure": "05:14"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "05:28",
+      "departure": "05:29"
+    },
+    {
+      "station": "Ban Phachi Junction",
+      "arrival": "05:53",
+      "departure": "05:54"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "06:13",
+      "departure": "06:14"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "06:50",
+      "departure": "06:53"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "07:03",
+      "departure": "07:05"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "07:20",
+      "departure": "-"
+    }
+  ]
+}

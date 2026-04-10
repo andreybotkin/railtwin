@@ -1,0 +1,126 @@
+{
+  "name": "Rapid No. 139",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=139&lang=eng",
+  "notes": [
+    "Overnight Rapid service with mixed seating and sleeping cars.",
+    "Advance booking is recommended.",
+    "Runs Bangkok (Krung Thep Aphiwat) to Ubon Ratchathani."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "19:25"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "19:39",
+      "departure": "19:41"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "19:51",
+      "departure": "19:52"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "20:25",
+      "departure": "20:26"
+    },
+    {
+      "station": "Ban Phachi Junction",
+      "arrival": "20:47",
+      "departure": "20:48"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "21:09",
+      "departure": "21:10"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "21:22",
+      "departure": "21:24"
+    },
+    {
+      "station": "Pak Chong",
+      "arrival": "22:33",
+      "departure": "22:36"
+    },
+    {
+      "station": "Sikhiu",
+      "arrival": "23:24",
+      "departure": "23:25"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "00:07",
+      "departure": "00:23"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "00:32",
+      "departure": "00:36"
+    },
+    {
+      "station": "Lam Plai Mat",
+      "arrival": "01:47",
+      "departure": "01:49"
+    },
+    {
+      "station": "Buri Ram",
+      "arrival": "02:22",
+      "departure": "02:26"
+    },
+    {
+      "station": "Krasang",
+      "arrival": "02:48",
+      "departure": "02:49"
+    },
+    {
+      "station": "Lam Chi",
+      "arrival": "03:03",
+      "departure": "03:04"
+    },
+    {
+      "station": "Surin",
+      "arrival": "03:15",
+      "departure": "03:17"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "03:53",
+      "departure": "03:54"
+    },
+    {
+      "station": "Samrong Thap",
+      "arrival": "04:17",
+      "departure": "04:18"
+    },
+    {
+      "station": "Huai Thap Than",
+      "arrival": "04:30",
+      "departure": "04:31"
+    },
+    {
+      "station": "Uthumphon Phisai",
+      "arrival": "04:44",
+      "departure": "04:45"
+    },
+    {
+      "station": "Si Sa Ket",
+      "arrival": "05:07",
+      "departure": "05:09"
+    },
+    {
+      "station": "Kanthararom",
+      "arrival": "05:38",
+      "departure": "05:39"
+    },
+    {
+      "station": "Ubon Ratchathani",
+      "arrival": "06:15",
+      "departure": "-"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "name": "Local No. 430",
+  "link": "",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Bua Yai Junction to Nakhon Ratchasima."
+  ],
+  "timetable": [
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "-",
+      "departure": "05:50"
+    },
+    {
+      "station": "Huai Rahat",
+      "arrival": "05:53",
+      "departure": "05:54"
+    },
+    {
+      "station": "Non Thong Lang",
+      "arrival": "06:00",
+      "departure": "06:01"
+    },
+    {
+      "station": "Ban Rai",
+      "arrival": "06:03",
+      "departure": "06:04"
+    },
+    {
+      "station": "Muang Khong",
+      "arrival": "06:10",
+      "departure": "06:11"
+    },
+    {
+      "station": "Ban Don Yai",
+      "arrival": "06:16",
+      "departure": "06:17"
+    },
+    {
+      "station": "Phon Songkhram",
+      "arrival": "06:21",
+      "departure": "06:22"
+    },
+    {
+      "station": "Noen Thua Paep",
+      "arrival": "06:26",
+      "departure": "06:27"
+    },
+    {
+      "station": "Ban Makha",
+      "arrival": "06:30",
+      "departure": "06:31"
+    },
+    {
+      "station": "Ban Dong Phlong",
+      "arrival": "06:36",
+      "departure": "06:37"
+    },
+    {
+      "station": "Non Sung",
+      "arrival": "06:43",
+      "departure": "06:44"
+    },
+    {
+      "station": "Nong Maeo",
+      "arrival": "06:49",
+      "departure": "06:50"
+    },
+    {
+      "station": "Ban Nong Gunngar",
+      "arrival": "06:56",
+      "departure": "06:57"
+    },
+    {
+      "station": "Ban Kradon",
+      "arrival": "06:56",
+      "departure": "06:57"
+    },
+    {
+      "station": "Nong Khai Nam",
+      "arrival": "06:59",
+      "departure": "07:00"
+    },
+    {
+      "station": "Ban Ko",
+      "arrival": "07:08",
+      "departure": "07:09"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "07:14",
+      "departure": "07:15"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "07:20",
+      "departure": "-"
+    }
+  ]
+}

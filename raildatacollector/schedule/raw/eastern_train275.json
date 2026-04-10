@@ -1,0 +1,248 @@
+{
+  "name": "Ordinary No. 275",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=275&lang=eng",
+  "otherLink": "https://www.railway.co.th/SRTTimetable/StationList?StartStation=3130&lang=eng",
+  "notes": "This train to the Thai-Cambodian border is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. One carriage has room for full sized bicycles. There are two trains to the Thai-Cambodian border a day. The afternoon train is a diesel railcar (No. 279). Going the other way, the diesel railcar (No. 280) returns in the morning and this diesel locomotive train (No. 276) in the afternoon.",
+  "timetable": [
+    {
+      "station": "Bangkok",
+      "arrival": "-",
+      "departure": "05:55"
+    },
+    {
+      "station": "Phayathai",
+      "arrival": "06:09",
+      "departure": "06:10"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "06:19",
+      "departure": "06:20"
+    },
+    {
+      "station": "Asoke",
+      "arrival": "06:25",
+      "departure": "06:26"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "06:35",
+      "departure": "06:36"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "06:42",
+      "departure": "06:43"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "arrival": "06:48",
+      "departure": "06:49"
+    },
+    {
+      "station": "Soi Wat Lan Boon",
+      "arrival": "06:53",
+      "departure": "06:54"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "06:57",
+      "departure": "06:58"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "arrival": "07:02",
+      "departure": "07:03"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "07:06",
+      "departure": "07:07"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "arrival": "07:14",
+      "departure": "07:15"
+    },
+    {
+      "station": "Klong Udom Chonlajorn",
+      "arrival": "07:19",
+      "departure": "07:20"
+    },
+    {
+      "station": "Preng",
+      "arrival": "07:24",
+      "departure": "07:25"
+    },
+    {
+      "station": "Klong Kwaeng Klan",
+      "arrival": "07:29",
+      "departure": "07:30"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "arrival": "07:34",
+      "departure": "07:35"
+    },
+    {
+      "station": "Bang Toey",
+      "arrival": "07:38",
+      "departure": "07:39"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "07:44",
+      "departure": "07:45"
+    },
+    {
+      "station": "Phrong Akat",
+      "arrival": "07:54",
+      "departure": "07:55"
+    },
+    {
+      "station": "Bang Nam Prieo",
+      "arrival": "08:00",
+      "departure": "08:01"
+    },
+    {
+      "station": "Khlong Sip Kao Junction",
+      "arrival": "08:10",
+      "departure": "08:11"
+    },
+    {
+      "station": "Khlong Yi Sip Et",
+      "arrival": "08:16",
+      "departure": "08:17"
+    },
+    {
+      "station": "Yothaka",
+      "arrival": "08:22",
+      "departure": "08:23"
+    },
+    {
+      "station": "Ban Sang",
+      "arrival": "08:30",
+      "departure": "08:31"
+    },
+    {
+      "station": "Nong Nam Khao",
+      "arrival": "08:36",
+      "departure": "08:37"
+    },
+    {
+      "station": "Ban Pak Phli",
+      "arrival": "08:42",
+      "departure": "08:43"
+    },
+    {
+      "station": "Prachin Buri",
+      "arrival": "08:50",
+      "departure": "08:52"
+    },
+    {
+      "station": "Khok Makok",
+      "arrival": "08:58",
+      "departure": "08:59"
+    },
+    {
+      "station": "Prachantakham",
+      "arrival": "09:05",
+      "departure": "09:07"
+    },
+    {
+      "station": "Nong Saeng",
+      "arrival": "09:13",
+      "departure": "09:14"
+    },
+    {
+      "station": "Ban Dong Bang",
+      "arrival": "09:19",
+      "departure": "09:20"
+    },
+    {
+      "station": "Ban Phrom Saeng",
+      "arrival": "09:25",
+      "departure": "09:26"
+    },
+    {
+      "station": "Ban Ko Daeng",
+      "arrival": "09:30",
+      "departure": "09:31"
+    },
+    {
+      "station": "Kabin Buri",
+      "arrival": "09:38",
+      "departure": "09:40"
+    },
+    {
+      "station": "Kabin Kao",
+      "arrival": "09:46",
+      "departure": "09:47"
+    },
+    {
+      "station": "Nong Sang",
+      "arrival": "09:54",
+      "departure": "09:55"
+    },
+    {
+      "station": "Phra Prong",
+      "arrival": "10:01",
+      "departure": "10:02"
+    },
+    {
+      "station": "Ban Kaeng",
+      "arrival": "10:08",
+      "departure": "10:09"
+    },
+    {
+      "station": "Sala Lamduan",
+      "arrival": "10:14",
+      "departure": "10:15"
+    },
+    {
+      "station": "Sa Kaeo",
+      "arrival": "10:23",
+      "departure": "10:24"
+    },
+    {
+      "station": "Sakaeo Govt Center",
+      "arrival": "10:30",
+      "departure": "10:31"
+    },
+    {
+      "station": "Tha Kasem",
+      "arrival": "10:37",
+      "departure": "10:38"
+    },
+    {
+      "station": "Huai Chot",
+      "arrival": "10:43",
+      "departure": "10:44"
+    },
+    {
+      "station": "Watthana Nakhon",
+      "arrival": "10:50",
+      "departure": "10:51"
+    },
+    {
+      "station": "Ban Pong Kom",
+      "arrival": "10:56",
+      "departure": "10:57"
+    },
+    {
+      "station": "Huai Dua",
+      "arrival": "11:02",
+      "departure": "11:03"
+    },
+    {
+      "station": "Aranyaprathet",
+      "arrival": "11:10",
+      "departure": "11:11"
+    },
+    {
+      "station": "Ban Klong Luk Border",
+      "arrival": "11:17",
+      "departure": "-"
+    }
+  ]
+}

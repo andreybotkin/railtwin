@@ -1,0 +1,436 @@
+{
+  "name": "Local No. 446",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=446&lang=eng",
+  "timetable": [
+    {
+      "station": "Hat Yai Junction",
+      "arrival": "-",
+      "departure": "06:20"
+    },
+    {
+      "station": "Ban Din Lan",
+      "arrival": "06:27",
+      "departure": "06:31"
+    },
+    {
+      "station": "Bang Klam",
+      "arrival": "06:37",
+      "departure": "06:38"
+    },
+    {
+      "station": "Ban Ko Yai",
+      "arrival": "06:46",
+      "departure": "06:50"
+    },
+    {
+      "station": "Khuan Niang",
+      "arrival": "06:58",
+      "departure": "06:59"
+    },
+    {
+      "station": "Khok Sai",
+      "arrival": "07:07",
+      "departure": "07:15"
+    },
+    {
+      "station": "Wat Khuan Phayer",
+      "arrival": "07:18",
+      "departure": "07:19"
+    },
+    {
+      "station": "Hanthao",
+      "arrival": "07:24",
+      "departure": "07:25"
+    },
+    {
+      "station": "Han Kong",
+      "arrival": "07:28",
+      "departure": "07:29"
+    },
+    {
+      "station": "Khuan Khiam",
+      "arrival": "07:33",
+      "departure": "07:34"
+    },
+    {
+      "station": "Khuan Phra",
+      "arrival": "07:38",
+      "departure": "07:39"
+    },
+    {
+      "station": "Bang Kaeo",
+      "arrival": "07:45",
+      "departure": "07:46"
+    },
+    {
+      "station": "Khao Chaison",
+      "arrival": "07:51",
+      "departure": "07:52"
+    },
+    {
+      "station": "Ban Huai Tan",
+      "arrival": "07:59",
+      "departure": "08:00"
+    },
+    {
+      "station": "Ban Ton Don",
+      "arrival": "08:04",
+      "departure": "08:08"
+    },
+    {
+      "station": "Ban Khai Thai",
+      "arrival": "08:12",
+      "departure": "08:13"
+    },
+    {
+      "station": "Na Pru",
+      "arrival": "08:18",
+      "departure": "08:19"
+    },
+    {
+      "station": "Phatthalung",
+      "arrival": "08:23",
+      "departure": "08:26"
+    },
+    {
+      "station": "Chai Buri",
+      "arrival": "08:35",
+      "departure": "08:36"
+    },
+    {
+      "station": "Ban Makok Tai",
+      "arrival": "08:39",
+      "departure": "08:40"
+    },
+    {
+      "station": "Pak Khlong",
+      "arrival": "08:45",
+      "departure": "08:46"
+    },
+    {
+      "station": "Ban Suntara",
+      "arrival": "08:52",
+      "departure": "08:53"
+    },
+    {
+      "station": "Laem Tanot",
+      "arrival": "08:58",
+      "departure": "08:59"
+    },
+    {
+      "station": "Ban Khon Hat",
+      "arrival": "09:06",
+      "departure": "09:07"
+    },
+    {
+      "station": "Ban Trok Kae",
+      "arrival": "09:11",
+      "departure": "09:12"
+    },
+    {
+      "station": "Ban Nang Long",
+      "arrival": "09:17",
+      "departure": "09:18"
+    },
+    {
+      "station": "Nong Jik",
+      "arrival": "09:22",
+      "departure": "09:23"
+    },
+    {
+      "station": "Cha-uat",
+      "arrival": "09:29",
+      "departure": "09:30"
+    },
+    {
+      "station": "Ban Tungkhai",
+      "arrival": "09:35",
+      "departure": "09:36"
+    },
+    {
+      "station": "Ban Tun",
+      "arrival": "09:45",
+      "departure": "09:46"
+    },
+    {
+      "station": "Khuan Nong Khwa",
+      "arrival": "09:53",
+      "departure": "09:54"
+    },
+    {
+      "station": "Khao Chum Thong Junction",
+      "arrival": "10:03",
+      "departure": "10:04"
+    },
+    {
+      "station": "Ron Phibun",
+      "arrival": "10:10",
+      "departure": "10:11"
+    },
+    {
+      "station": "Chong Khao",
+      "arrival": "10:23",
+      "departure": "10:24"
+    },
+    {
+      "station": "Sai Yai",
+      "arrival": "10:31",
+      "departure": "10:32"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "10:39",
+      "departure": "10:49"
+    },
+    {
+      "station": "Ban Ko Pring",
+      "arrival": "10:58",
+      "departure": "10:59"
+    },
+    {
+      "station": "Khlong Chang",
+      "arrival": "11:04",
+      "departure": "11:05"
+    },
+    {
+      "station": "Na Bon",
+      "arrival": "11:10",
+      "departure": "11:11"
+    },
+    {
+      "station": "Khlong Kui",
+      "arrival": "11:16",
+      "departure": "11:17"
+    },
+    {
+      "station": "Lak Chang",
+      "arrival": "11:22",
+      "departure": "11:23"
+    },
+    {
+      "station": "Pho Than Klai Wachasit",
+      "arrival": "11:28",
+      "departure": "11:29"
+    },
+    {
+      "station": "Khlong Chan Di",
+      "arrival": "11:31",
+      "departure": "11:32"
+    },
+    {
+      "station": "Chawang",
+      "arrival": "11:37",
+      "departure": "11:38"
+    },
+    {
+      "station": "Thanpho",
+      "arrival": "11:45",
+      "departure": "11:46"
+    },
+    {
+      "station": "Krabiat",
+      "arrival": "11:54",
+      "departure": "11:55"
+    },
+    {
+      "station": "Huai Prik",
+      "arrival": "12:01",
+      "departure": "12:02"
+    },
+    {
+      "station": "Ban Phru Krachaeng",
+      "arrival": "12:08",
+      "departure": "12:09"
+    },
+    {
+      "station": "Ban Song",
+      "arrival": "12:16",
+      "departure": "12:17"
+    },
+    {
+      "station": "Phruphi",
+      "arrival": "12:25",
+      "departure": "12:26"
+    },
+    {
+      "station": "Khlong Prap",
+      "arrival": "12:31",
+      "departure": "12:32"
+    },
+    {
+      "station": "Na San",
+      "arrival": "12:39",
+      "departure": "12:40"
+    },
+    {
+      "station": "Huai Mut",
+      "arrival": "12:45",
+      "departure": "12:46"
+    },
+    {
+      "station": "Ban Na",
+      "arrival": "12:53",
+      "departure": "12:54"
+    },
+    {
+      "station": "Khlong Ya",
+      "arrival": "12:59",
+      "departure": "13:00"
+    },
+    {
+      "station": "Khao Phlu",
+      "arrival": "13:06",
+      "departure": "13:07"
+    },
+    {
+      "station": "Bo Krang",
+      "arrival": "13:13",
+      "departure": "13:14"
+    },
+    {
+      "station": "Khao Hua Khwai",
+      "arrival": "13:20",
+      "departure": "13:21"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "13:28",
+      "departure": "13:31"
+    },
+    {
+      "station": "Ban Thung Pho Junction",
+      "arrival": "13:36",
+      "departure": "13:37"
+    },
+    {
+      "station": "Maluan",
+      "arrival": "13:44",
+      "departure": "13:45"
+    },
+    {
+      "station": "Khlong Sai",
+      "arrival": "13:51",
+      "departure": "13:52"
+    },
+    {
+      "station": "Khlong Khut",
+      "arrival": "13:58",
+      "departure": "13:59"
+    },
+    {
+      "station": "Tha Chang",
+      "arrival": "14:04",
+      "departure": "14:05"
+    },
+    {
+      "station": "Chaiya",
+      "arrival": "14:16",
+      "departure": "14:17"
+    },
+    {
+      "station": "Khao Phanom Baek",
+      "arrival": "14:26",
+      "departure": "14:27"
+    },
+    {
+      "station": "Ban Ko Muk",
+      "arrival": "14:32",
+      "departure": "14:33"
+    },
+    {
+      "station": "Tha Chana",
+      "arrival": "14:40",
+      "departure": "14:41"
+    },
+    {
+      "station": "Don Thup",
+      "arrival": "14:49",
+      "departure": "14:50"
+    },
+    {
+      "station": "Khan Thuli",
+      "arrival": "14:55",
+      "departure": "14:56"
+    },
+    {
+      "station": "Ban Duat",
+      "arrival": "15:03",
+      "departure": "15:04"
+    },
+    {
+      "station": "Lamae",
+      "arrival": "15:11",
+      "departure": "15:16"
+    },
+    {
+      "station": "Hua Mat",
+      "arrival": "15:23",
+      "departure": "15:24"
+    },
+    {
+      "station": "Khlong Khanan",
+      "arrival": "15:30",
+      "departure": "15:31"
+    },
+    {
+      "station": "Lang Suan",
+      "arrival": "15:39",
+      "departure": "15:40"
+    },
+    {
+      "station": "Khuan Hin Mui",
+      "arrival": "15:48",
+      "departure": "15:49"
+    },
+    {
+      "station": "Tha Thong",
+      "arrival": "15:54",
+      "departure": "15:55"
+    },
+    {
+      "station": "Pak Tako",
+      "arrival": "16:01",
+      "departure": "16:02"
+    },
+    {
+      "station": "Khao Pip",
+      "arrival": "16:08",
+      "departure": "16:09"
+    },
+    {
+      "station": "Khao Suan Thurian",
+      "arrival": "16:14",
+      "departure": "16:15"
+    },
+    {
+      "station": "Sawi",
+      "arrival": "16:23",
+      "departure": "16:24"
+    },
+    {
+      "station": "Ban Khron",
+      "arrival": "16:30",
+      "departure": "16:31"
+    },
+    {
+      "station": "Wisai",
+      "arrival": "16:37",
+      "departure": "16:38"
+    },
+    {
+      "station": "Thung Kha",
+      "arrival": "16:47",
+      "departure": "16:48"
+    },
+    {
+      "station": "Saeng Daet",
+      "arrival": "16:57",
+      "departure": "16:58"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "17:05",
+      "departure": "-"
+    }
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "name": "Ordinary No. 234",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=234&lang=eng",
+  "notes": [
+    "Ordinary service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Surin to Bangkok (Hua Lamphong)."
+  ],
+  "timetable": [
+    {
+      "station": "Surin",
+      "arrival": "-",
+      "departure": "05:20"
+    },
+    {
+      "station": "Lam Chi",
+      "arrival": "05:27",
+      "departure": "05:28"
+    },
+    {
+      "station": "Nong Teng",
+      "arrival": "05:34",
+      "departure": "05:35"
+    },
+    {
+      "station": "Krasang",
+      "arrival": "05:42",
+      "departure": "05:43"
+    },
+    {
+      "station": "Huai Rat",
+      "arrival": "05:53",
+      "departure": "05:54"
+    },
+    {
+      "station": "Ban Tako",
+      "arrival": "05:59",
+      "departure": "06:00"
+    },
+    {
+      "station": "Buri Ram",
+      "arrival": "06:05",
+      "departure": "06:07"
+    },
+    {
+      "station": "Ban Nong Tat",
+      "arrival": "06:15",
+      "departure": "06:20"
+    },
+    {
+      "station": "Ban Salaeng Phan",
+      "arrival": "06:24",
+      "departure": "06:25"
+    },
+    {
+      "station": "Thamen Chai",
+      "arrival": "06:32",
+      "departure": "06:33"
+    },
+    {
+      "station": "Lam Plai Mat",
+      "arrival": "06:41",
+      "departure": "06:42"
+    },
+    {
+      "station": "Nong Krathing",
+      "arrival": "06:49",
+      "departure": "06:50"
+    },
+    {
+      "station": "Huai Thalaeng",
+      "arrival": "06:59",
+      "departure": "07:00"
+    },
+    {
+      "station": "Hin Dat",
+      "arrival": "07:08",
+      "departure": "07:09"
+    },
+    {
+      "station": "Ban Hin Khon",
+      "arrival": "07:16",
+      "departure": "07:17"
+    },
+    {
+      "station": "Chakkarat",
+      "arrival": "07:26",
+      "departure": "07:27"
+    },
+    {
+      "station": "Nong Manorom",
+      "arrival": "07:34",
+      "departure": "07:35"
+    },
+    {
+      "station": "Tha Chang",
+      "arrival": "07:43",
+      "departure": "07:44"
+    },
+    {
+      "station": "Ban Phra Phut",
+      "arrival": "07:49",
+      "departure": "07:50"
+    },
+    {
+      "station": "Ban Phanao",
+      "arrival": "07:54",
+      "departure": "07:55"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "08:05",
+      "departure": "08:06"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "08:12",
+      "departure": "08:22"
+    },
+    {
+      "station": "Phu Khao Lat",
+      "arrival": "08:28",
+      "departure": "08:29"
+    },
+    {
+      "station": "Khok Kruat",
+      "arrival": "08:36",
+      "departure": "08:37"
+    },
+    {
+      "station": "Kut Chik",
+      "arrival": "08:44",
+      "departure": "08:45"
+    },
+    {
+      "station": "Sung Noen",
+      "arrival": "08:51",
+      "departure": "08:52"
+    },
+    {
+      "station": "Khok Sa-at",
+      "arrival": "08:56",
+      "departure": "08:57"
+    },
+    {
+      "station": "Sikhiu",
+      "arrival": "09:01",
+      "departure": "09:02"
+    },
+    {
+      "station": "Nong Nam Khun",
+      "arrival": "09:08",
+      "departure": "09:09"
+    },
+    {
+      "station": "Ban Mai Samrong",
+      "arrival": "09:12",
+      "departure": "09:20"
+    },
+    {
+      "station": "Lat Bua Khao",
+      "arrival": "09:25",
+      "departure": "09:26"
+    },
+    {
+      "station": "Khlong Phai",
+      "arrival": "09:30",
+      "departure": "09:31"
+    },
+    {
+      "station": "Khlong Khanan Chit",
+      "arrival": "09:37",
+      "departure": "09:38"
+    },
+    {
+      "station": "Chanthuk",
+      "arrival": "09:44",
+      "departure": "09:45"
+    },
+    {
+      "station": "Sap Muang",
+      "arrival": "09:52",
+      "departure": "09:53"
+    },
+    {
+      "station": "Pak Chong",
+      "arrival": "10:01",
+      "departure": "10:06"
+    },
+    {
+      "station": "Bandai Ma",
+      "arrival": "10:12",
+      "departure": "10:13"
+    },
+    {
+      "station": "Pang Asok",
+      "arrival": "10:22",
+      "departure": "10:27"
+    },
+    {
+      "station": "Klang Dong",
+      "arrival": "10:32",
+      "departure": "10:33"
+    },
+    {
+      "station": "Muak Lek",
+      "arrival": "10:45",
+      "departure": "10:46"
+    },
+    {
+      "station": "Map Kabao",
+      "arrival": "11:07",
+      "departure": "11:08"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "11:17",
+      "departure": "11:18"
+    },
+    {
+      "station": "Nong Bua Junction",
+      "arrival": "11:26",
+      "departure": "11:27"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "11:33",
+      "departure": "11:34"
+    },
+    {
+      "station": "Ban Pokpaek",
+      "arrival": "11:40",
+      "departure": "11:41"
+    },
+    {
+      "station": "Nong Sida",
+      "arrival": "11:46",
+      "departure": "11:47"
+    },
+    {
+      "station": "Nong Saeng",
+      "arrival": "11:53",
+      "departure": "11:54"
+    },
+    {
+      "station": "Nong Kuai",
+      "arrival": "11:57",
+      "departure": "11:58"
+    },
+    {
+      "station": "Ban Phachi Junction",
+      "arrival": "12:05",
+      "departure": "12:06"
+    },
+    {
+      "station": "Ban Don Klang",
+      "arrival": "12:17",
+      "departure": "12:18"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "12:33",
+      "departure": "12:35"
+    },
+    {
+      "station": "Bang Pa-in",
+      "arrival": "12:50",
+      "departure": "12:51"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "13:20",
+      "departure": "13:23"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "13:35",
+      "departure": "13:37"
+    },
+    {
+      "station": "Bang Sue Junction",
+      "arrival": "14:02",
+      "departure": "14:04"
+    },
+    {
+      "station": "Sam Sen",
+      "arrival": "14:11",
+      "departure": "14:12"
+    },
+    {
+      "station": "Bangkok (Hua Lamphong)",
+      "arrival": "14:25",
+      "departure": "-"
+    }
+  ]
+}

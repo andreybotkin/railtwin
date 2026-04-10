@@ -1,0 +1,126 @@
+{
+  "name": "Local No. 422",
+  "link": "",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Ubon Ratchathani to Lam Chi."
+  ],
+  "timetable": [
+    {
+      "station": "Ubon Ratchathani",
+      "arrival": "-",
+      "departure": "15:15"
+    },
+    {
+      "station": "Bung Wai",
+      "arrival": "15:22",
+      "departure": "15:23"
+    },
+    {
+      "station": "Ban Thon",
+      "arrival": "15:29",
+      "departure": "15:30"
+    },
+    {
+      "station": "Huai Khayung",
+      "arrival": "15:33",
+      "departure": "15:34"
+    },
+    {
+      "station": "Ban Non Phung",
+      "arrival": "15:40",
+      "departure": "15:41"
+    },
+    {
+      "station": "Kanthararom",
+      "arrival": "15:45",
+      "departure": "15:46"
+    },
+    {
+      "station": "Ban Khlo",
+      "arrival": "15:52",
+      "departure": "15:53"
+    },
+    {
+      "station": "Nong Waeng",
+      "arrival": "15:58",
+      "departure": "16:02"
+    },
+    {
+      "station": "Chalerm Kanchana",
+      "arrival": "16:06",
+      "departure": "16:07"
+    },
+    {
+      "station": "Si Sa Ket",
+      "arrival": "16:12",
+      "departure": "16:14"
+    },
+    {
+      "station": "Ban Niam",
+      "arrival": "16:22",
+      "departure": "16:23"
+    },
+    {
+      "station": "Ban Tae",
+      "arrival": "16:28",
+      "departure": "16:29"
+    },
+    {
+      "station": "Uthumphon Phisai",
+      "arrival": "16:32",
+      "departure": "16:36"
+    },
+    {
+      "station": "Nong Khaen",
+      "arrival": "16:41",
+      "departure": "16:42"
+    },
+    {
+      "station": "Huai Thap Than",
+      "arrival": "16:49",
+      "departure": "16:50"
+    },
+    {
+      "station": "Samrong Thap",
+      "arrival": "17:00",
+      "departure": "17:01"
+    },
+    {
+      "station": "Ban Kalan",
+      "arrival": "17:12",
+      "departure": "17:13"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "17:21",
+      "departure": "17:22"
+    },
+    {
+      "station": "Kadon Kho",
+      "arrival": "17:29",
+      "departure": "17:32"
+    },
+    {
+      "station": "Muang Thi",
+      "arrival": "17:39",
+      "departure": "17:42"
+    },
+    {
+      "station": "Bu Rusi",
+      "arrival": "17:51",
+      "departure": "17:52"
+    },
+    {
+      "station": "Surin",
+      "arrival": "18:01",
+      "departure": "18:04"
+    },
+    {
+      "station": "Lam Chi",
+      "arrival": "18:15",
+      "departure": "-"
+    }
+  ]
+}

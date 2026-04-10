@@ -1,0 +1,221 @@
+{
+  "name": "Local No. 419",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=419&lang=eng",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Nakhon Ratchasima to Ubon Ratchathani."
+  ],
+  "timetable": [
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "-",
+      "departure": "11:15"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "11:18",
+      "departure": "11:20"
+    },
+    {
+      "station": "Ban Phanao",
+      "arrival": "11:29",
+      "departure": "11:32"
+    },
+    {
+      "station": "Tha Chang",
+      "arrival": "11:40",
+      "departure": "11:41"
+    },
+    {
+      "station": "Nong Manorom",
+      "arrival": "11:49",
+      "departure": "11:52"
+    },
+    {
+      "station": "Chakkarat",
+      "arrival": "11:58",
+      "departure": "11:59"
+    },
+    {
+      "station": "Ban Hin Khon",
+      "arrival": "12:08",
+      "departure": "12:09"
+    },
+    {
+      "station": "Hin Dat",
+      "arrival": "12:15",
+      "departure": "12:16"
+    },
+    {
+      "station": "Huai Thalaeng",
+      "arrival": "12:23",
+      "departure": "12:24"
+    },
+    {
+      "station": "Nong Krathing",
+      "arrival": "12:34",
+      "departure": "12:35"
+    },
+    {
+      "station": "Lam Plai Mat",
+      "arrival": "12:42",
+      "departure": "12:43"
+    },
+    {
+      "station": "Thamen Chai",
+      "arrival": "12:49",
+      "departure": "12:53"
+    },
+    {
+      "station": "Ban Salaeng Phan",
+      "arrival": "13:01",
+      "departure": "13:02"
+    },
+    {
+      "station": "Ban Nong Tat",
+      "arrival": "13:06",
+      "departure": "13:07"
+    },
+    {
+      "station": "Buri Ram",
+      "arrival": "13:15",
+      "departure": "13:17"
+    },
+    {
+      "station": "Ban Tako",
+      "arrival": "13:21",
+      "departure": "13:22"
+    },
+    {
+      "station": "Huai Rat",
+      "arrival": "13:27",
+      "departure": "13:28"
+    },
+    {
+      "station": "Krasang",
+      "arrival": "13:38",
+      "departure": "13:39"
+    },
+    {
+      "station": "Nong Teng",
+      "arrival": "13:45",
+      "departure": "13:46"
+    },
+    {
+      "station": "Lam Chi",
+      "arrival": "13:52",
+      "departure": "13:55"
+    },
+    {
+      "station": "Surin",
+      "arrival": "14:01",
+      "departure": "14:03"
+    },
+    {
+      "station": "Bu Rusi",
+      "arrival": "14:10",
+      "departure": "14:11"
+    },
+    {
+      "station": "Muang Thi",
+      "arrival": "14:19",
+      "departure": "14:20"
+    },
+    {
+      "station": "Kadon Kho",
+      "arrival": "14:27",
+      "departure": "14:28"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "14:34",
+      "departure": "14:35"
+    },
+    {
+      "station": "Ban Kalan",
+      "arrival": "14:42",
+      "departure": "14:45"
+    },
+    {
+      "station": "Samrong Thap",
+      "arrival": "14:55",
+      "departure": "14:56"
+    },
+    {
+      "station": "Huai Thap Than",
+      "arrival": "15:07",
+      "departure": "15:08"
+    },
+    {
+      "station": "Nong Khaen",
+      "arrival": "15:16",
+      "departure": "15:17"
+    },
+    {
+      "station": "Uthumphon Phisai",
+      "arrival": "15:23",
+      "departure": "15:25"
+    },
+    {
+      "station": "Ban Tae",
+      "arrival": "15:30",
+      "departure": "15:31"
+    },
+    {
+      "station": "Ban Niam",
+      "arrival": "15:36",
+      "departure": "15:41"
+    },
+    {
+      "station": "Si Sa Ket",
+      "arrival": "15:49",
+      "departure": "15:50"
+    },
+    {
+      "station": "Chalerm Kanchana",
+      "arrival": "15:55",
+      "departure": "15:56"
+    },
+    {
+      "station": "Nong Waeng",
+      "arrival": "16:00",
+      "departure": "16:01"
+    },
+    {
+      "station": "Ban Khlo",
+      "arrival": "16:06",
+      "departure": "16:07"
+    },
+    {
+      "station": "Kanthararom",
+      "arrival": "16:13",
+      "departure": "16:14"
+    },
+    {
+      "station": "Ban Non Phung",
+      "arrival": "16:18",
+      "departure": "16:19"
+    },
+    {
+      "station": "Huai Khayung",
+      "arrival": "16:24",
+      "departure": "16:25"
+    },
+    {
+      "station": "Ban Thon",
+      "arrival": "16:29",
+      "departure": "16:30"
+    },
+    {
+      "station": "Bung Wai",
+      "arrival": "16:36",
+      "departure": "16:37"
+    },
+    {
+      "station": "Ubon Ratchathani",
+      "arrival": "16:45",
+      "departure": "-"
+    }
+  ]
+}

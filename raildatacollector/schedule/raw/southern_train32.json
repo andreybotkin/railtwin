@@ -1,0 +1,79 @@
+{
+  "name": "Special Express No. 32",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=32&lang=eng",
+  "notes": [
+    "Special Express service with air-conditioned sleeping cars using a CNR trainset. It runs from Hat Yai Junction to Bangkok (Krung Thep Aphiwat). There are 1st Class private cabins and shared 2nd Class cars. One car is designed for wheelchair users and includes a wheelchair lift and accessible toilets. There is also a women-only car for women and young children. This train has a dining car. Advance booking is recommended, as this is a popular train and route."
+  ],
+  "timetable": [
+    {
+      "station": "Hat Yai Junction",
+      "arrival": "-",
+      "departure": "17:45"
+    },
+    {
+      "station": "Phatthalung",
+      "arrival": "18:55",
+      "departure": "18:57"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "20:27",
+      "departure": "20:37"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "22:21",
+      "departure": "22:24"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "00:44",
+      "departure": "00:54"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "03:07",
+      "departure": "03:08"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "04:22",
+      "departure": "04:27"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "05:20",
+      "departure": "05:23"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "06:05",
+      "departure": "06:08"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "06:37",
+      "departure": "06:38"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "06:56",
+      "departure": "07:06"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "07:33",
+      "departure": "07:34"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "07:56",
+      "departure": "07:57"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "08:10",
+      "departure": "-"
+    }
+  ]
+}

@@ -1,0 +1,219 @@
+{
+  "name": "Ordinary No. 278",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=277&lang=eng",
+  "notes": "This train morning train to Bangkok is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. The return journey to Kabin Buri is done by No. 277 train.",
+  "timetable": [
+    {
+      "station": "Kabin Buri",
+      "arrival": "-",
+      "departure": "06:30"
+    },
+    {
+      "station": "Ban Ko Daeng",
+      "arrival": "06:36",
+      "departure": "06:37"
+    },
+    {
+      "station": "Ban Phrom Saeng",
+      "arrival": "06:42",
+      "departure": "06:43"
+    },
+    {
+      "station": "Nong Sri Vichai",
+      "arrival": "06:45",
+      "departure": "06:46"
+    },
+    {
+      "No": 5,
+      "station": "Ban Dong Bang",
+      "arrival": "06:49",
+      "departure": "06:50"
+    },
+    {
+      "No": 6,
+      "station": "Nong Saeng",
+      "arrival": "06:53",
+      "departure": "06:54"
+    },
+    {
+      "No": 7,
+      "station": "Prachantakham",
+      "arrival": "07:00",
+      "departure": "07:01"
+    },
+    {
+      "No": 8,
+      "station": "Khok Makok",
+      "arrival": "07:07",
+      "departure": "07:08"
+    },
+    {
+      "No": 9,
+      "station": "Nong Krachap",
+      "arrival": "07:12",
+      "departure": "07:13"
+    },
+    {
+      "No": 10,
+      "station": "Prachin Buri",
+      "arrival": "07:17",
+      "departure": "07:19"
+    },
+    {
+      "No": 11,
+      "station": "Ban Pak Phli",
+      "arrival": "07:24",
+      "departure": "07:25"
+    },
+    {
+      "No": 12,
+      "station": "Nong Nam Khao",
+      "arrival": "07:33",
+      "departure": "07:34"
+    },
+    {
+      "No": 13,
+      "station": "Ban Sang",
+      "arrival": "07:42",
+      "departure": "07:43"
+    },
+    {
+      "No": 14,
+      "station": "Yothaka",
+      "arrival": "07:53",
+      "departure": "07:54"
+    },
+    {
+      "No": 15,
+      "station": "Khlong Yi Sip Et",
+      "arrival": "07:58",
+      "departure": "07:59"
+    },
+    {
+      "No": 16,
+      "station": "Khlong Sip Kao Junction",
+      "arrival": "08:05",
+      "departure": "08:06"
+    },
+    {
+      "No": 17,
+      "station": "Bang Nam Prieo",
+      "arrival": "08:11",
+      "departure": "08:12"
+    },
+    {
+      "No": 18,
+      "station": "Phrong Akat",
+      "arrival": "08:17",
+      "departure": "08:18"
+    },
+    {
+      "No": 19,
+      "station": "Chachoengsao Junction",
+      "arrival": "08:29",
+      "departure": "08:31"
+    },
+    {
+      "No": 20,
+      "station": "Bang Toey",
+      "arrival": "08:36",
+      "departure": "08:37"
+    },
+    {
+      "No": 21,
+      "station": "Khlong Bang Phra",
+      "arrival": "08:40",
+      "departure": "08:41"
+    },
+    {
+      "No": 22,
+      "station": "Khlong Kwaeng Klan",
+      "arrival": "08:46",
+      "departure": "08:47"
+    },
+    {
+      "No": 23,
+      "station": "Preng",
+      "arrival": "08:51",
+      "departure": "08:52"
+    },
+    {
+      "No": 24,
+      "station": "Khlong Udom Chonlajorn",
+      "arrival": "08:55",
+      "departure": "08:56"
+    },
+    {
+      "No": 25,
+      "station": "Khlong Luang Phaeng",
+      "arrival": "09:00",
+      "departure": "09:01"
+    },
+    {
+      "No": 26,
+      "station": "Hua Takhe",
+      "arrival": "09:09",
+      "departure": "09:11"
+    },
+    {
+      "No": 27,
+      "station": "Pra Chom Klao",
+      "arrival": "09:13",
+      "departure": "09:14"
+    },
+    {
+      "No": 28,
+      "station": "Lat Krabang",
+      "arrival": "09:19",
+      "departure": "09:20"
+    },
+    {
+      "No": 29,
+      "station": "Soi Wat Lan Boon",
+      "arrival": "09:25",
+      "departure": "09:26"
+    },
+    {
+      "No": 30,
+      "station": "Ban Thap Chang",
+      "arrival": "09:31",
+      "departure": "09:32"
+    },
+    {
+      "No": 31,
+      "station": "Hua Mak",
+      "arrival": "09:38",
+      "departure": "09:39"
+    },
+    {
+      "No": 32,
+      "station": "Khlong Tan",
+      "arrival": "09:47",
+      "departure": "09:48"
+    },
+    {
+      "No": 33,
+      "station": "Asoke",
+      "arrival": "09:52",
+      "departure": "09:53"
+    },
+    {
+      "No": 34,
+      "station": "Makkasan",
+      "arrival": "09:56",
+      "departure": "09:58"
+    },
+    {
+      "No": 35,
+      "station": "Phayathai",
+      "arrival": "10:04",
+      "departure": "10:05"
+    },
+    {
+      "No": 36,
+      "station": "Bangkok",
+      "arrival": "10:15",
+      "departure": "-"
+    }
+  ]
+}

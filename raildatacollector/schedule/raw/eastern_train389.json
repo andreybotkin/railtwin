@@ -1,0 +1,77 @@
+{
+  "name": "Commuter No. 389",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=389&lang=eng",
+  "notes": "This train is one of five pairs of commuter trains that go between Bangkok and Chachoengsao. It is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. The return journey is done by No. 390 train.",
+  "timetable": [
+    {
+      "station": "Bangkok",
+      "departure": "12:10",
+      "arrival": "-"
+    },
+    {
+      "station": "Phayathai",
+      "departure": "12:20",
+      "arrival": "12:19"
+    },
+    {
+      "station": "Makkasan",
+      "departure": "12:28",
+      "arrival": "12:26"
+    },
+    {
+      "station": "Asoke",
+      "departure": "12:32",
+      "arrival": "12:31"
+    },
+    {
+      "station": "Khlong Tan",
+      "departure": "12:37",
+      "arrival": "12:36"
+    },
+    {
+      "station": "Hua Mak",
+      "departure": "12:44",
+      "arrival": "12:43"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "departure": "12:50",
+      "arrival": "12:49"
+    },
+    {
+      "station": "Lat Krabang",
+      "departure": "12:57",
+      "arrival": "12:56"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "departure": "13:01",
+      "arrival": "13:00"
+    },
+    {
+      "station": "Hua Takhe",
+      "departure": "13:04",
+      "arrival": "13:02"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "departure": "13:11",
+      "arrival": "13:10"
+    },
+    {
+      "station": "Preng",
+      "departure": "13:17",
+      "arrival": "13:16"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "departure": "13:23",
+      "arrival": "13:22"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "departure": "-",
+      "arrival": "13:30"
+    }
+  ]
+}

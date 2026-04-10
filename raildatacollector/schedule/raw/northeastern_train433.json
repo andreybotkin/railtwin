@@ -1,0 +1,206 @@
+{
+  "name": "Local No. 433",
+  "link": "",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Kaeng Khoi Junction to Bua Yai Junction (via Lam Narai)."
+  ],
+  "timetable": [
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "-",
+      "departure": "05:30"
+    },
+    {
+      "station": "Khao Khok",
+      "arrival": "05:38",
+      "departure": "05:39"
+    },
+    {
+      "station": "Khao Hin Dat",
+      "arrival": "05:46",
+      "departure": "05:47"
+    },
+    {
+      "station": "Hin Son",
+      "arrival": "05:52",
+      "departure": "05:53"
+    },
+    {
+      "station": "Khao Sung",
+      "arrival": "05:58",
+      "departure": "05:59"
+    },
+    {
+      "station": "Kaeng Sue Ten",
+      "arrival": "06:06",
+      "departure": "06:07"
+    },
+    {
+      "station": "Pa Sak Jolasid Dam",
+      "arrival": "06:10",
+      "departure": "06:11"
+    },
+    {
+      "station": "Ban Nong Bua",
+      "arrival": "06:14",
+      "departure": "06:15"
+    },
+    {
+      "station": "Khok Salung",
+      "arrival": "06:25",
+      "departure": "06:26"
+    },
+    {
+      "station": "Suranarai",
+      "arrival": "06:33",
+      "departure": "06:35"
+    },
+    {
+      "station": "Assumption Convent School",
+      "arrival": "06:43",
+      "departure": "06:44"
+    },
+    {
+      "station": "Khao Yai Ka Ta",
+      "arrival": "06:49",
+      "departure": "06:50"
+    },
+    {
+      "station": "Talat Lam Narai",
+      "arrival": "06:58",
+      "departure": "06:59"
+    },
+    {
+      "station": "Lam Narai",
+      "arrival": "07:01",
+      "departure": "07:02"
+    },
+    {
+      "station": "Ban Ko Rang",
+      "arrival": "07:11",
+      "departure": "07:12"
+    },
+    {
+      "station": "Phaendin Thong",
+      "arrival": "07:17",
+      "departure": "07:18"
+    },
+    {
+      "station": "Ban Chongko",
+      "arrival": "07:27",
+      "departure": "07:28"
+    },
+    {
+      "station": "Khok Khli",
+      "arrival": "07:31",
+      "departure": "07:32"
+    },
+    {
+      "station": "Chong Samran",
+      "arrival": "07:43",
+      "departure": "07:44"
+    },
+    {
+      "station": "Ban Wa Tabaek (Thep Sa Thit)",
+      "arrival": "07:57",
+      "departure": "08:01"
+    },
+    {
+      "station": "Huai Yai Chiu",
+      "arrival": "08:11",
+      "departure": "08:12"
+    },
+    {
+      "station": "Ban Pak Chap",
+      "arrival": "08:18",
+      "departure": "08:19"
+    },
+    {
+      "station": "Bamnet Narong",
+      "arrival": "08:28",
+      "departure": "08:29"
+    },
+    {
+      "station": "Ban Kloy",
+      "arrival": "08:31",
+      "departure": "08:32"
+    },
+    {
+      "station": "Wang Ka-am",
+      "arrival": "08:35",
+      "departure": "08:36"
+    },
+    {
+      "station": "Non Khro",
+      "arrival": "08:40",
+      "departure": "08:41"
+    },
+    {
+      "station": "Chatturat",
+      "arrival": "08:47",
+      "departure": "08:48"
+    },
+    {
+      "station": "Nong Chim",
+      "arrival": "08:58",
+      "departure": "08:59"
+    },
+    {
+      "station": "Ban Ta Noen",
+      "arrival": "09:05",
+      "departure": "09:06"
+    },
+    {
+      "station": "Ban Nong Kham",
+      "arrival": "09:09",
+      "departure": "09:10"
+    },
+    {
+      "station": "Ban Luam",
+      "arrival": "09:15",
+      "departure": "09:16"
+    },
+    {
+      "station": "Ban Khok Krabuang",
+      "arrival": "09:20",
+      "departure": "09:21"
+    },
+    {
+      "station": "Ban Nong Pru Pong",
+      "arrival": "09:26",
+      "departure": "09:27"
+    },
+    {
+      "station": "Nong Phluang",
+      "arrival": "09:30",
+      "departure": "09:31"
+    },
+    {
+      "station": "Ban Kraphi",
+      "arrival": "09:34",
+      "departure": "09:35"
+    },
+    {
+      "station": "Ban Kao Ngiu",
+      "arrival": "09:37",
+      "departure": "09:38"
+    },
+    {
+      "station": "Ban Sa Khrok",
+      "arrival": "09:40",
+      "departure": "09:41"
+    },
+    {
+      "station": "Ban Sok Rang",
+      "arrival": "09:45",
+      "departure": "09:46"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "09:55",
+      "departure": "-"
+    }
+  ]
+}

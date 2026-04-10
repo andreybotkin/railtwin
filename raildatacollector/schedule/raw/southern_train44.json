@@ -1,0 +1,114 @@
+{
+  "name": "Special Express No. 44",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=44&lang=eng",
+  "notes": [
+    "Special Express service with three air-conditioned seating cars. It runs from Surat Thani to Bangkok (Krung Thep Aphiwat) during the night. This is a Daewoo diesel railcar with reclining seats that face direction of travel. It is the fastest train on this route. Advance booking is recommended."
+  ],
+  "timetable": [
+    {
+      "station": "Surat Thani",
+      "arrival": "-",
+      "departure": "18:25"
+    },
+    {
+      "station": "Chaiya",
+      "arrival": "18:53",
+      "departure": "18:54"
+    },
+    {
+      "station": "Tha Chana",
+      "arrival": "19:09",
+      "departure": "19:10"
+    },
+    {
+      "station": "Lamae",
+      "arrival": "19:28",
+      "departure": "19:29"
+    },
+    {
+      "station": "Lang Suan",
+      "arrival": "19:44",
+      "departure": "19:45"
+    },
+    {
+      "station": "Sawi",
+      "arrival": "20:10",
+      "departure": "20:11"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "20:36",
+      "departure": "20:51"
+    },
+    {
+      "station": "Pathiu",
+      "arrival": "21:14",
+      "departure": "21:15"
+    },
+    {
+      "station": "Map Ammarit",
+      "arrival": "21:30",
+      "departure": "21:31"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "22:04",
+      "departure": "22:05"
+    },
+    {
+      "station": "Ban Krut",
+      "arrival": "22:17",
+      "departure": "22:18"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "22:59",
+      "departure": "23:00"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "23:52",
+      "departure": "23:53"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "00:09",
+      "departure": "00:14"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "01:00",
+      "departure": "01:03"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "01:42",
+      "departure": "01:45"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "02:12",
+      "departure": "02:13"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "02:32",
+      "departure": "02:42"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "03:09",
+      "departure": "03:10"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "03:31",
+      "departure": "03:32"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "03:45",
+      "departure": "-"
+    }
+  ]
+}

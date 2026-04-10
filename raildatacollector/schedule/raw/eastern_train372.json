@@ -1,0 +1,157 @@
+{
+  "name": "Commuter No. 372",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=372&lang=eng",
+  "notes": "This train to Bangkok is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. The return journey in the afternoon is done by No. 371 train.",
+  "timetable": [
+    {
+      "station": "Prachin Buri",
+      "arrival": "-",
+      "departure": "05:00"
+    },
+    {
+      "station": "Ban Pak Phli",
+      "arrival": "05:07",
+      "departure": "05:08"
+    },
+    {
+      "station": "Nong Nam Khao",
+      "arrival": "05:15",
+      "departure": "05:16"
+    },
+    {
+      "station": "Ban Sang",
+      "arrival": "05:25",
+      "departure": "05:26"
+    },
+    {
+      "station": "Yothaka",
+      "arrival": "05:36",
+      "departure": "05:37"
+    },
+    {
+      "station": "Khlong Yi Sip Et",
+      "arrival": "05:43",
+      "departure": "05:44"
+    },
+    {
+      "station": "Khlong Sip Kao Junction",
+      "arrival": "05:49",
+      "departure": "05:50"
+    },
+    {
+      "station": "Bang Nam Prieo",
+      "arrival": "05:57",
+      "departure": "05:58"
+    },
+    {
+      "station": "Phrong Akat",
+      "arrival": "06:04",
+      "departure": "06:05"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "06:17",
+      "departure": "06:19"
+    },
+    {
+      "station": "Bang Toey",
+      "arrival": "06:24",
+      "departure": "06:25"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "arrival": "06:29",
+      "departure": "06:30"
+    },
+    {
+      "station": "Khlong Kwaeng Klan",
+      "arrival": "06:33",
+      "departure": "06:34"
+    },
+    {
+      "station": "Preng",
+      "arrival": "06:40",
+      "departure": "06:41"
+    },
+    {
+      "station": "Khlong Udom Chonlajorn",
+      "arrival": "06:44",
+      "departure": "06:45"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "arrival": "06:49",
+      "departure": "06:50"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "06:59",
+      "departure": "07:01"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "arrival": "07:03",
+      "departure": "07:04"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "07:09",
+      "departure": "07:10"
+    },
+    {
+      "station": "Soi Wat Lan Boon",
+      "arrival": "07:13",
+      "departure": "07:14"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "arrival": "07:18",
+      "departure": "07:19"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "07:27",
+      "departure": "07:28"
+    },
+    {
+      "station": "Sukhumvit 71",
+      "arrival": "07:33",
+      "departure": "07:34"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "07:38",
+      "departure": "07:39"
+    },
+    {
+      "station": "Asoke",
+      "arrival": "07:45",
+      "departure": "07:46"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "07:50",
+      "departure": "07:51"
+    },
+    {
+      "station": "Phayathai",
+      "arrival": "07:57",
+      "departure": "07:58"
+    },
+    {
+      "station": "Urupong",
+      "arrival": "08:01",
+      "departure": "08:02"
+    },
+    {
+      "station": "Yommaraj",
+      "arrival": "08:06",
+      "departure": "08:07"
+    },
+    {
+      "station": "Bangkok",
+      "arrival": "08:15",
+      "departure": "-"
+    }
+  ]
+}

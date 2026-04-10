@@ -1,0 +1,94 @@
+{
+  "name": "Special Express No. 7",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=7&lang=eng",
+  "notes": [
+    "Special Express service with three air-conditioned seating cars. It runs from Bangkok (Krung Thep Aphiwat) to Chiang Mai during the day. This is a Daewoo diesel railcar with reclining seats that face direction of travel. It is the fastest train on this route. Advance booking is recommended."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "07:30"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "07:43",
+      "departure": "07:45"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "07:53",
+      "departure": "07:54"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "08:21",
+      "departure": "08:23"
+    },
+    {
+      "station": "Lop Buri 2 (Tha Wung)",
+      "arrival": "09:06",
+      "departure": "09:08"
+    },
+    {
+      "station": "Nakhon Sawan",
+      "arrival": "10:16",
+      "departure": "10:19"
+    },
+    {
+      "station": "Taphan Hin",
+      "arrival": "11:04",
+      "departure": "11:05"
+    },
+    {
+      "station": "Phichit",
+      "arrival": "11:22",
+      "departure": "11:23"
+    },
+    {
+      "station": "Phitsanulok",
+      "arrival": "11:48",
+      "departure": "11:58"
+    },
+    {
+      "station": "Uttaradit",
+      "arrival": "12:59",
+      "departure": "13:02"
+    },
+    {
+      "station": "Sila At",
+      "arrival": "13:05",
+      "departure": "13:06"
+    },
+    {
+      "station": "Den Chai",
+      "arrival": "13:53",
+      "departure": "13:54"
+    },
+    {
+      "station": "Ban Pin",
+      "arrival": "14:24",
+      "departure": "14:25"
+    },
+    {
+      "station": "Nakhon Lampang",
+      "arrival": "15:56",
+      "departure": "15:59"
+    },
+    {
+      "station": "Khun Tan",
+      "arrival": "16:49",
+      "departure": "16:50"
+    },
+    {
+      "station": "Lamphun",
+      "arrival": "17:31",
+      "departure": "17:32"
+    },
+    {
+      "station": "Chiang Mai",
+      "arrival": "17:50",
+      "departure": "-"
+    }
+  ]
+}

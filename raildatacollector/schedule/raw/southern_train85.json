@@ -1,0 +1,152 @@
+{
+  "name": "Express No. 85",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=85&lang=eng",
+  "station_list": "https://www.railway.co.th/SRTTimetable/stationList?Startstation=1001&lang=eng",
+  "notes": [
+    "Express service with air-conditioned seating and sleeping cars.",
+    "Advance booking is recommended.",
+    "Runs Bangkok (Krung Thep Aphiwat) to Nakhon Si Thammarat."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "19:50"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "20:01",
+      "departure": "20:02"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "20:22",
+      "departure": "20:23"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "20:50",
+      "departure": "20:52"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "21:14",
+      "departure": "21:15"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "21:47",
+      "departure": "21:57"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "22:41",
+      "departure": "22:46"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "23:42",
+      "departure": "23:47"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "00:08",
+      "departure": "00:09"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "01:07",
+      "departure": "01:08"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "02:11",
+      "departure": "02:12"
+    },
+    {
+      "station": "Map Ammarit",
+      "arrival": "02:50",
+      "departure": "02:51"
+    },
+    {
+      "station": "Pathiu",
+      "arrival": "03:08",
+      "departure": "03:09"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "03:43",
+      "departure": "03:53"
+    },
+    {
+      "station": "Lang Suan",
+      "arrival": "04:54",
+      "departure": "04:55"
+    },
+    {
+      "station": "Chaiya",
+      "arrival": "05:50",
+      "departure": "05:51"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "06:23",
+      "departure": "06:33"
+    },
+    {
+      "station": "Na San",
+      "arrival": "07:07",
+      "departure": "07:08"
+    },
+    {
+      "station": "Ban Song",
+      "arrival": "07:25",
+      "departure": "07:26"
+    },
+    {
+      "station": "Thanpho",
+      "arrival": "07:47",
+      "departure": "07:48"
+    },
+    {
+      "station": "Chawang",
+      "arrival": "07:54",
+      "departure": "07:55"
+    },
+    {
+      "station": "Khlong Chan Di",
+      "arrival": "08:01",
+      "departure": "08:02"
+    },
+    {
+      "station": "Na Bon",
+      "arrival": "08:15",
+      "departure": "08:16"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "08:30",
+      "departure": "08:45"
+    },
+    {
+      "station": "Khao Chum Thong Junction",
+      "arrival": "09:14",
+      "departure": "09:15"
+    },
+    {
+      "station": "Ban Thung Lo",
+      "arrival": "09:25",
+      "departure": "09:26"
+    },
+    {
+      "station": "Khok Khram",
+      "arrival": "09:32",
+      "departure": "09:33"
+    },
+    {
+      "station": "Nakhon Si Thammarat",
+      "arrival": "09:55",
+      "departure": "-"
+    }
+  ]
+}

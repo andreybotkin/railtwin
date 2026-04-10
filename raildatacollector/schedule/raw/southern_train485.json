@@ -1,0 +1,101 @@
+{
+  "name": "Local No. 485",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=485&lang=eng",
+  "notes": [
+    "Local service between Kanchanaburi and Nam Tok.",
+    "Tickets can be purchased on the day of travel.",
+    "Stops at all stations along the route."
+  ],
+  "timetable": [
+    {
+      "station": "Kanchanaburi",
+      "arrival": "-",
+      "departure": "06:02"
+    },
+    {
+      "station": "Khao Pun",
+      "arrival": "06:12",
+      "departure": "06:13"
+    },
+    {
+      "station": "Wang Lan",
+      "arrival": "06:22",
+      "departure": "06:23"
+    },
+    {
+      "station": "Na Kan",
+      "arrival": "06:28",
+      "departure": "06:29"
+    },
+    {
+      "station": "Wang Yen",
+      "arrival": "06:34",
+      "departure": "06:35"
+    },
+    {
+      "station": "Wang Takhian",
+      "arrival": "06:41",
+      "departure": "06:42"
+    },
+    {
+      "station": "Ban Pong Sieo",
+      "arrival": "06:47",
+      "departure": "06:48"
+    },
+    {
+      "station": "Ban Kao",
+      "arrival": "06:53",
+      "departure": "06:54"
+    },
+    {
+      "station": "Tha Ta Sua",
+      "arrival": "07:00",
+      "departure": "07:01"
+    },
+    {
+      "station": "Tha Kilen",
+      "arrival": "07:07",
+      "departure": "07:08"
+    },
+    {
+      "station": "Wang Sing",
+      "arrival": "07:14",
+      "departure": "07:15"
+    },
+    {
+      "station": "Lumsum",
+      "arrival": "07:21",
+      "departure": "07:22"
+    },
+    {
+      "station": "Wang Pho",
+      "arrival": "07:31",
+      "departure": "07:32"
+    },
+    {
+      "station": "Ko Maha Mongkol",
+      "arrival": "07:39",
+      "departure": "07:40"
+    },
+    {
+      "station": "Chong Khaep",
+      "arrival": "07:43",
+      "departure": "07:44"
+    },
+    {
+      "station": "Wang Yai",
+      "arrival": "07:49",
+      "departure": "07:50"
+    },
+    {
+      "station": "Ban Pu Pong",
+      "arrival": "07:54",
+      "departure": "07:55"
+    },
+    {
+      "station": "Nam Tok",
+      "arrival": "08:00",
+      "departure": "-"
+    }
+  ]
+}

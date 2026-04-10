@@ -1,0 +1,246 @@
+{
+  "name": "Local No. 431",
+  "link": "",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Kaeng Khoi Junction to Khon Kaen."
+  ],
+  "timetable": [
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "-",
+      "departure": "05:00"
+    },
+    {
+      "station": "Map Kabao",
+      "arrival": "05:11",
+      "departure": "05:12"
+    },
+    {
+      "station": "Muak Lek",
+      "arrival": "05:33",
+      "departure": "05:34"
+    },
+    {
+      "station": "Klang Dong",
+      "arrival": "05:46",
+      "departure": "05:47"
+    },
+    {
+      "station": "Pang Asok",
+      "arrival": "05:53",
+      "departure": "05:54"
+    },
+    {
+      "station": "Bandai Ma",
+      "arrival": "06:02",
+      "departure": "06:03"
+    },
+    {
+      "station": "Pak Chong",
+      "arrival": "06:10",
+      "departure": "06:12"
+    },
+    {
+      "station": "Sap Muang",
+      "arrival": "06:20",
+      "departure": "06:21"
+    },
+    {
+      "station": "Chanthuk",
+      "arrival": "06:29",
+      "departure": "06:30"
+    },
+    {
+      "station": "Khlong Khanan Chit",
+      "arrival": "06:37",
+      "departure": "06:38"
+    },
+    {
+      "station": "Khlong Phai",
+      "arrival": "06:44",
+      "departure": "06:45"
+    },
+    {
+      "station": "Lat Bua Khao",
+      "arrival": "06:49",
+      "departure": "06:50"
+    },
+    {
+      "station": "Ban Mai Samrong",
+      "arrival": "06:56",
+      "departure": "06:57"
+    },
+    {
+      "station": "Nong Nam Khun",
+      "arrival": "07:01",
+      "departure": "07:02"
+    },
+    {
+      "station": "Sikhiu",
+      "arrival": "07:07",
+      "departure": "07:08"
+    },
+    {
+      "station": "Khok Sa-at",
+      "arrival": "07:13",
+      "departure": "07:14"
+    },
+    {
+      "station": "Sung Noen",
+      "arrival": "07:18",
+      "departure": "07:19"
+    },
+    {
+      "station": "Kut Chik",
+      "arrival": "07:25",
+      "departure": "07:26"
+    },
+    {
+      "station": "Khok Kruat",
+      "arrival": "07:33",
+      "departure": "07:34"
+    },
+    {
+      "station": "Phu Khao Lat",
+      "arrival": "07:40",
+      "departure": "07:41"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "07:47",
+      "departure": "08:29"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "08:34",
+      "departure": "08:35"
+    },
+    {
+      "station": "Ban Ko",
+      "arrival": "08:40",
+      "departure": "08:41"
+    },
+    {
+      "station": "Ban Kradon",
+      "arrival": "08:50",
+      "departure": "08:51"
+    },
+    {
+      "station": "Ban Nong Gunngar",
+      "arrival": "08:53",
+      "departure": "08:54"
+    },
+    {
+      "station": "Nong Maeo",
+      "arrival": "08:56",
+      "departure": "08:57"
+    },
+    {
+      "station": "Non Sung",
+      "arrival": "09:02",
+      "departure": "09:03"
+    },
+    {
+      "station": "Ban Dong Phlong",
+      "arrival": "09:09",
+      "departure": "09:10"
+    },
+    {
+      "station": "Ban Makha",
+      "arrival": "09:15",
+      "departure": "09:16"
+    },
+    {
+      "station": "Noen Thua Paep",
+      "arrival": "09:19",
+      "departure": "09:20"
+    },
+    {
+      "station": "Phon Songkhram",
+      "arrival": "09:24",
+      "departure": "09:25"
+    },
+    {
+      "station": "Ban Don Yai",
+      "arrival": "09:29",
+      "departure": "09:30"
+    },
+    {
+      "station": "Muang Khong",
+      "arrival": "09:35",
+      "departure": "09:36"
+    },
+    {
+      "station": "Ban Rai",
+      "arrival": "09:42",
+      "departure": "09:43"
+    },
+    {
+      "station": "Non Thong Lang",
+      "arrival": "09:45",
+      "departure": "09:46"
+    },
+    {
+      "station": "Huai Rahat",
+      "arrival": "09:52",
+      "departure": "09:53"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "09:56",
+      "departure": "10:00"
+    },
+    {
+      "station": "Noen Sawat",
+      "arrival": "10:05",
+      "departure": "10:06"
+    },
+    {
+      "station": "Nong Bua Lai",
+      "arrival": "10:11",
+      "departure": "10:12"
+    },
+    {
+      "station": "Sala Din",
+      "arrival": "10:15",
+      "departure": "10:16"
+    },
+    {
+      "station": "Nong Makhua",
+      "arrival": "10:22",
+      "departure": "10:23"
+    },
+    {
+      "station": "Muang Phon",
+      "arrival": "10:29",
+      "departure": "10:30"
+    },
+    {
+      "station": "Ban Han",
+      "arrival": "10:44",
+      "departure": "10:45"
+    },
+    {
+      "station": "Ban Phai",
+      "arrival": "10:53",
+      "departure": "10:55"
+    },
+    {
+      "station": "Ban Haet",
+      "arrival": "11:07",
+      "departure": "11:08"
+    },
+    {
+      "station": "Tha Phra",
+      "arrival": "11:20",
+      "departure": "11:21"
+    },
+    {
+      "station": "Khon Kaen",
+      "arrival": "11:30",
+      "departure": "-"
+    }
+  ]
+}

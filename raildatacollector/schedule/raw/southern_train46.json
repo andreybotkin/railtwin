@@ -1,0 +1,114 @@
+{
+  "name": "Special Express No. 46",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=46&lang=eng",
+  "notes": [
+    "Special Express overnight sleeper service. It runs from Padang Besar to Bangkok (Krung Thep Aphiwat). This train provides air-conditioned second-class sleepers and is popular for travelers going from the Malaysian border to Bangkok. Advance booking is highly recommended as there are only two sleeper carriages. If it is full, then take the shuttle train to Hat Yai Junction where you have a bigger choice of sleeper trains."
+  ],
+  "timetable": [
+    {
+      "station": "Padang Besar",
+      "arrival": "-",
+      "departure": "17:00"
+    },
+    {
+      "station": "Padang Besar (Thai)",
+      "arrival": "17:03",
+      "departure": "17:06"
+    },
+    {
+      "station": "Khlong Ngae",
+      "arrival": "17:23",
+      "departure": "17:24"
+    },
+    {
+      "station": "Hat Yai Junction",
+      "arrival": "17:46",
+      "departure": "18:05"
+    },
+    {
+      "station": "Bang Kaeo",
+      "arrival": "18:53",
+      "departure": "18:54"
+    },
+    {
+      "station": "Phatthalung",
+      "arrival": "19:16",
+      "departure": "19:18"
+    },
+    {
+      "station": "Cha-uat",
+      "arrival": "19:58",
+      "departure": "19:59"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "20:52",
+      "departure": "21:02"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "22:47",
+      "departure": "22:50"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "01:17",
+      "departure": "01:27"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "02:50",
+      "departure": "02:51"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "03:53",
+      "departure": "03:54"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "04:52",
+      "departure": "04:53"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "05:12",
+      "departure": "05:17"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "06:10",
+      "departure": "06:13"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "06:56",
+      "departure": "06:59"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "07:28",
+      "departure": "07:29"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "07:50",
+      "departure": "08:00"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "08:28",
+      "departure": "08:29"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "08:51",
+      "departure": "08:52"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "09:05",
+      "departure": "-"
+    }
+  ]
+}

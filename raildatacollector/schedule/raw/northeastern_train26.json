@@ -1,0 +1,84 @@
+{
+  "name": "Special Express No. 26",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=26&lang=eng",
+  "notes": [
+    "Special Express service with air-conditioned sleeping cars using a CNR trainset. It runs from Nong Khai to Bangkok (Krung Thep Aphiwat). There are 1st Class private cabins and shared 2nd Class cars. One car is designed for wheelchair users and includes a wheelchair lift and accessible toilets. There is also a women-only car for women and young children. This train has a dining car. Advance booking is recommended, as this is a popular train and route."
+  ],
+  "timetable": [
+    {
+      "station": "Nong Khai",
+      "arrival": "-",
+      "departure": "19:40"
+    },
+    {
+      "station": "Udon Thani",
+      "arrival": "20:17",
+      "departure": "20:20"
+    },
+    {
+      "station": "Kumphawapi",
+      "arrival": "20:46",
+      "departure": "20:47"
+    },
+    {
+      "station": "Nam Phong",
+      "arrival": "21:21",
+      "departure": "21:22"
+    },
+    {
+      "station": "Khon Kaen",
+      "arrival": "21:47",
+      "departure": "21:49"
+    },
+    {
+      "station": "Ban Phai",
+      "arrival": "22:19",
+      "departure": "22:22"
+    },
+    {
+      "station": "Muang Phon",
+      "arrival": "22:44",
+      "departure": "22:45"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "23:07",
+      "departure": "23:17"
+    },
+    {
+      "station": "Lam Narai",
+      "arrival": "02:01",
+      "departure": "02:04"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "03:21",
+      "departure": "03:23"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "03:37",
+      "departure": "03:38"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "04:23",
+      "departure": "04:24"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "05:00",
+      "departure": "05:03"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "05:13",
+      "departure": "05:15"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "05:30",
+      "departure": "-"
+    }
+  ]
+}

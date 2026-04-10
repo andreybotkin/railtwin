@@ -1,0 +1,56 @@
+{
+  "name": "Local No. 489",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=489&lang=eng",
+  "timetable": [
+    {
+      "station": "Surat Thani",
+      "arrival": "-",
+      "departure": "16:55"
+    },
+    {
+      "station": "Ban Thung Pho Junction",
+      "arrival": "17:00",
+      "departure": "17:01"
+    },
+    {
+      "station": "Ban Don Rak",
+      "arrival": "17:05",
+      "departure": "17:06"
+    },
+    {
+      "station": "Ban Thung Luang",
+      "arrival": "17:12",
+      "departure": "17:13"
+    },
+    {
+      "station": "Ban Khanai",
+      "arrival": "17:17",
+      "departure": "17:18"
+    },
+    {
+      "station": "Ban Don Riap",
+      "arrival": "17:23",
+      "departure": "17:24"
+    },
+    {
+      "station": "Khlong Yan",
+      "arrival": "17:27",
+      "departure": "17:28"
+    },
+    {
+      "station": "Khao Lung",
+      "arrival": "17:31",
+      "departure": "17:32"
+    },
+    {
+      "station": "Ban Yang",
+      "arrival": "17:35",
+      "departure": "17:36"
+    },
+    {
+      "station": "Khiri Ratthanikhom",
+      "arrival": "17:40",
+      "departure": "-"
+    }
+  ]
+}

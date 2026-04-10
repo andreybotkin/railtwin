@@ -1,0 +1,176 @@
+{
+  "name": "Rapid No. 135",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=135&lang=eng",
+  "notes": [
+    "Daytime Rapid service with mixed seating cars.",
+    "Advance booking is recommended.",
+    "Runs Bangkok (Krung Thep Aphiwat) to Ubon Ratchathani."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "07:10"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "07:25",
+      "departure": "07:27"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "07:38",
+      "departure": "07:39"
+    },
+    {
+      "station": "Chiang Rak",
+      "arrival": "07:49",
+      "departure": "07:50"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "08:27",
+      "departure": "08:28"
+    },
+    {
+      "station": "Ban Phachi Junction",
+      "arrival": "08:50",
+      "departure": "08:51"
+    },
+    {
+      "station": "Nong Saeng",
+      "arrival": "09:01",
+      "departure": "09:02"
+    },
+    {
+      "station": "Saraburi",
+      "arrival": "09:17",
+      "departure": "09:18"
+    },
+    {
+      "station": "Kaeng Khoi Junction",
+      "arrival": "09:29",
+      "departure": "09:30"
+    },
+    {
+      "station": "Muak Lek",
+      "arrival": "10:02",
+      "departure": "10:03"
+    },
+    {
+      "station": "Pak Chong",
+      "arrival": "10:43",
+      "departure": "10:47"
+    },
+    {
+      "station": "Sikhiu",
+      "arrival": "11:35",
+      "departure": "11:36"
+    },
+    {
+      "station": "Sung Noen",
+      "arrival": "11:46",
+      "departure": "11:47"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "12:12",
+      "departure": "12:24"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "12:30",
+      "departure": "12:31"
+    },
+    {
+      "station": "Tha Chang",
+      "arrival": "12:50",
+      "departure": "12:51"
+    },
+    {
+      "station": "Chakkarat",
+      "arrival": "13:05",
+      "departure": "13:06"
+    },
+    {
+      "station": "Huai Thalaeng",
+      "arrival": "13:29",
+      "departure": "13:30"
+    },
+    {
+      "station": "Lam Plai Mat",
+      "arrival": "13:47",
+      "departure": "13:48"
+    },
+    {
+      "station": "Thamen Chai",
+      "arrival": "13:58",
+      "departure": "13:59"
+    },
+    {
+      "station": "Buri Ram",
+      "arrival": "14:19",
+      "departure": "14:22"
+    },
+    {
+      "station": "Huai Rat",
+      "arrival": "14:31",
+      "departure": "14:32"
+    },
+    {
+      "station": "Krasang",
+      "arrival": "14:44",
+      "departure": "14:45"
+    },
+    {
+      "station": "Lam Chi",
+      "arrival": "14:58",
+      "departure": "14:59"
+    },
+    {
+      "station": "Surin",
+      "arrival": "15:07",
+      "departure": "15:10"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "15:40",
+      "departure": "15:41"
+    },
+    {
+      "station": "Samrong Thap",
+      "arrival": "15:59",
+      "departure": "16:06"
+    },
+    {
+      "station": "Huai Thap Than",
+      "arrival": "16:19",
+      "departure": "16:20"
+    },
+    {
+      "station": "Uthumphon Phisai",
+      "arrival": "16:34",
+      "departure": "16:35"
+    },
+    {
+      "station": "Si Sa Ket",
+      "arrival": "17:00",
+      "departure": "17:03"
+    },
+    {
+      "station": "Kanthararom",
+      "arrival": "17:26",
+      "departure": "17:27"
+    },
+    {
+      "station": "Huai Khayung",
+      "arrival": "17:38",
+      "departure": "17:39"
+    },
+    {
+      "station": "Ubon Ratchathani",
+      "arrival": "18:00",
+      "departure": "-"
+    }
+  ]
+}

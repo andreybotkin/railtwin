@@ -1,0 +1,146 @@
+{
+  "name": "Local No. 424",
+  "link": "",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Samrong Thap to Nakhon Ratchasima."
+  ],
+  "timetable": [
+    {
+      "station": "Samrong Thap",
+      "arrival": "-",
+      "departure": "05:50"
+    },
+    {
+      "station": "Ban Kalan",
+      "arrival": "05:59",
+      "departure": "06:00"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "06:08",
+      "departure": "06:13"
+    },
+    {
+      "station": "Kadon Kho",
+      "arrival": "06:22",
+      "departure": "06:23"
+    },
+    {
+      "station": "Muang Thi",
+      "arrival": "06:33",
+      "departure": "06:34"
+    },
+    {
+      "station": "Bu Rusi",
+      "arrival": "06:44",
+      "departure": "06:45"
+    },
+    {
+      "station": "Surin",
+      "arrival": "06:55",
+      "departure": "06:59"
+    },
+    {
+      "station": "Lam Chi",
+      "arrival": "07:08",
+      "departure": "07:13"
+    },
+    {
+      "station": "Nong Teng",
+      "arrival": "07:20",
+      "departure": "07:21"
+    },
+    {
+      "station": "Krasang",
+      "arrival": "07:27",
+      "departure": "07:28"
+    },
+    {
+      "station": "Huai Rat",
+      "arrival": "07:39",
+      "departure": "07:40"
+    },
+    {
+      "station": "Ban Tako",
+      "arrival": "07:45",
+      "departure": "07:46"
+    },
+    {
+      "station": "Buri Ram",
+      "arrival": "07:50",
+      "departure": "07:52"
+    },
+    {
+      "station": "Ban Nong Tat",
+      "arrival": "07:59",
+      "departure": "08:01"
+    },
+    {
+      "station": "Ban Salaeng Phan",
+      "arrival": "08:04",
+      "departure": "08:05"
+    },
+    {
+      "station": "Thamen Chai",
+      "arrival": "08:12",
+      "departure": "08:13"
+    },
+    {
+      "station": "Lam Plai Mat",
+      "arrival": "08:21",
+      "departure": "08:22"
+    },
+    {
+      "station": "Nong Krathing",
+      "arrival": "08:30",
+      "departure": "08:31"
+    },
+    {
+      "station": "Huai Thalaeng",
+      "arrival": "08:41",
+      "departure": "08:42"
+    },
+    {
+      "station": "Hin Dat",
+      "arrival": "08:50",
+      "departure": "08:51"
+    },
+    {
+      "station": "Ban Hin Khon",
+      "arrival": "08:57",
+      "departure": "08:58"
+    },
+    {
+      "station": "Chakkarat",
+      "arrival": "09:06",
+      "departure": "09:07"
+    },
+    {
+      "station": "Nong Manorom",
+      "arrival": "09:14",
+      "departure": "09:15"
+    },
+    {
+      "station": "Tha Chang",
+      "arrival": "09:23",
+      "departure": "09:24"
+    },
+    {
+      "station": "Ban Phanao",
+      "arrival": "09:33",
+      "departure": "09:34"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "09:44",
+      "departure": "09:45"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "09:50",
+      "departure": "-"
+    }
+  ]
+}

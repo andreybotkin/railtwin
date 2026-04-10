@@ -1,0 +1,181 @@
+{
+  "name": "Ordinary No. 257",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=257&lang=eng",
+  "notes": [
+    "Ordinary service with non-air-conditioned cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Thon Buri to Nam Tok."
+  ],
+  "timetable": [
+    {
+      "station": "Thon Buri",
+      "arrival": "-",
+      "departure": "07:45"
+    },
+    {
+      "station": "Jaran Sanitwong",
+      "arrival": "07:47",
+      "departure": "07:48"
+    },
+    {
+      "station": "Bang Ramat",
+      "arrival": "07:52",
+      "departure": "07:53"
+    },
+    {
+      "station": "Taling Chan Junction",
+      "arrival": "07:56",
+      "departure": "07:57"
+    },
+    {
+      "station": "Banchimphli",
+      "arrival": "08:00",
+      "departure": "08:01"
+    },
+    {
+      "station": "Sala Thammasop",
+      "arrival": "08:08",
+      "departure": "08:09"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "08:16",
+      "departure": "08:17"
+    },
+    {
+      "station": "Wat Suwan",
+      "arrival": "08:22",
+      "departure": "08:23"
+    },
+    {
+      "station": "Khlong Maha Sawat",
+      "arrival": "08:27",
+      "departure": "08:28"
+    },
+    {
+      "station": "Wat Ngiu Rai",
+      "arrival": "08:32",
+      "departure": "08:33"
+    },
+    {
+      "station": "Nakhon Chaisi",
+      "arrival": "08:38",
+      "departure": "08:39"
+    },
+    {
+      "station": "Tha Chalaep",
+      "arrival": "08:44",
+      "departure": "08:45"
+    },
+    {
+      "station": "Ton Samrong",
+      "arrival": "08:50",
+      "departure": "08:51"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "08:55",
+      "departure": "08:56"
+    },
+    {
+      "station": "Sanam Chandra Palace",
+      "arrival": "08:59",
+      "departure": "09:00"
+    },
+    {
+      "station": "Phrong Madua",
+      "arrival": "09:05",
+      "departure": "09:06"
+    },
+    {
+      "station": "Khlong Bang Tan",
+      "arrival": "09:10",
+      "departure": "09:11"
+    },
+    {
+      "station": "Nong Pla Duk Junction",
+      "arrival": "09:16",
+      "departure": "09:21"
+    },
+    {
+      "station": "Tanon Songpol",
+      "arrival": "09:26",
+      "departure": "09:27"
+    },
+    {
+      "station": "Sa Kosi Narai",
+      "arrival": "09:33",
+      "departure": "09:34"
+    },
+    {
+      "station": "Luk Kae",
+      "arrival": "09:39",
+      "departure": "09:40"
+    },
+    {
+      "station": "Tha Rua Noi",
+      "arrival": "09:51",
+      "departure": "09:52"
+    },
+    {
+      "station": "Thung Thong",
+      "arrival": "10:05",
+      "departure": "10:06"
+    },
+    {
+      "station": "Kanchanaburi",
+      "arrival": "10:20",
+      "departure": "10:30"
+    },
+    {
+      "station": "Saphan Kwae Yai",
+      "arrival": "10:34",
+      "departure": "10:35"
+    },
+    {
+      "station": "Wang Yen",
+      "arrival": "10:55",
+      "departure": "10:56"
+    },
+    {
+      "station": "Wang Takhian",
+      "arrival": "11:01",
+      "departure": "11:02"
+    },
+    {
+      "station": "Ban Kao",
+      "arrival": "11:10",
+      "departure": "11:11"
+    },
+    {
+      "station": "Tha Kilen",
+      "arrival": "11:21",
+      "departure": "11:22"
+    },
+    {
+      "station": "Lumsum",
+      "arrival": "11:32",
+      "departure": "11:33"
+    },
+    {
+      "station": "Saphan Tam Krasae",
+      "arrival": "11:36",
+      "departure": "11:37"
+    },
+    {
+      "station": "Wang Pho",
+      "arrival": "11:43",
+      "departure": "11:44"
+    },
+    {
+      "station": "Ko Maha Mongkol",
+      "arrival": "11:50",
+      "departure": "11:51"
+    },
+    {
+      "station": "Nam Tok",
+      "arrival": "12:05",
+      "departure": "-"
+    }
+  ]
+}

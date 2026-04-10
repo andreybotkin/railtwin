@@ -1,0 +1,87 @@
+{
+  "name": "Ordinary No. 997",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=997&lang=eng",
+  "notes": "This popular weekend beach train is a British made Sprinter diesel railcar. It has 2nd Class carriages with air-conditioning and reclining seats. Tickets can be bought at the station or on DTicket up to 30 days in advance. The return journey back to Bangkok is done by No. 998 train. Please note, this train only runs on weekends.",
+  "timetable": [
+    {
+      "station": "Bangkok",
+      "arrival": "-",
+      "departure": "06:45"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "06:58",
+      "departure": "06:59"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "07:06",
+      "departure": "07:07"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "07:14",
+      "departure": "07:15"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "07:27",
+      "departure": "07:28"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "07:32",
+      "departure": "07:33"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "08:01",
+      "departure": "08:02"
+    },
+    {
+      "station": "Chon Buri",
+      "arrival": "08:36",
+      "departure": "08:37"
+    },
+    {
+      "station": "Si Racha Junction",
+      "arrival": "08:54",
+      "departure": "08:55"
+    },
+    {
+      "station": "Pattaya",
+      "arrival": "09:13",
+      "departure": "09:14"
+    },
+    {
+      "station": "Talat Nam 4 Pak",
+      "arrival": "09:24",
+      "departure": "09:25"
+    },
+    {
+      "station": "Yanasangwararam",
+      "arrival": "09:33",
+      "departure": "09:34"
+    },
+    {
+      "station": "Suan Nong Nuch",
+      "arrival": "09:38",
+      "departure": "09:39"
+    },
+    {
+      "station": "Ban Plu Ta Luang",
+      "arrival": "09:50",
+      "departure": "09:51"
+    },
+    {
+      "station": "Utaphao",
+      "arrival": "09:57",
+      "departure": "09:58"
+    },
+    {
+      "station": "Chuk Samet",
+      "arrival": "10:10",
+      "departure": "-"
+    }
+  ]
+}

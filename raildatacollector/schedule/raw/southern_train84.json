@@ -1,0 +1,106 @@
+{
+  "name": "Express No. 84",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=84&lang=eng",
+  "notes": [
+    "Express service with air-conditioned sleeping and seating cars.",
+    "Advance booking is recommended.",
+    "Runs Trang to Bangkok (Krung Thep Aphiwat)."
+  ],
+  "timetable": [
+    {
+      "station": "Trang",
+      "arrival": "-",
+      "departure": "17:00"
+    },
+    {
+      "station": "Huai Yot",
+      "arrival": "17:26",
+      "departure": "17:27"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "18:18",
+      "departure": "18:28"
+    },
+    {
+      "station": "Khlong Chan Di",
+      "arrival": "18:56",
+      "departure": "18:57"
+    },
+    {
+      "station": "Ban Song",
+      "arrival": "19:28",
+      "departure": "19:29"
+    },
+    {
+      "station": "Na San",
+      "arrival": "19:46",
+      "departure": "19:47"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "20:20",
+      "departure": "20:23"
+    },
+    {
+      "station": "Chaiya",
+      "arrival": "20:57",
+      "departure": "20:58"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "22:58",
+      "departure": "23:18"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "00:42",
+      "departure": "00:43"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "02:42",
+      "departure": "02:43"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "03:02",
+      "departure": "03:07"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "03:59",
+      "departure": "04:02"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "04:45",
+      "departure": "04:48"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "05:20",
+      "departure": "05:21"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "05:44",
+      "departure": "05:54"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "06:28",
+      "departure": "06:29"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "06:51",
+      "departure": "06:52"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "07:05",
+      "departure": "-"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "Local No. 423",
+  "link": "",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Lam Chi to Samrong Thap."
+  ],
+  "timetable": [
+    {
+      "station": "Lam Chi",
+      "arrival": "-",
+      "departure": "04:40"
+    },
+    {
+      "station": "Surin",
+      "arrival": "04:46",
+      "departure": "04:50"
+    },
+    {
+      "station": "Bu Rusi",
+      "arrival": "04:58",
+      "departure": "04:59"
+    },
+    {
+      "station": "Muang Thi",
+      "arrival": "05:06",
+      "departure": "05:07"
+    },
+    {
+      "station": "Kadon Kho",
+      "arrival": "05:15",
+      "departure": "05:16"
+    },
+    {
+      "station": "Sikhoraphum",
+      "arrival": "05:23",
+      "departure": "05:24"
+    },
+    {
+      "station": "Ban Kalan",
+      "arrival": "05:31",
+      "departure": "05:32"
+    },
+    {
+      "station": "Samrong Thap",
+      "arrival": "05:40",
+      "departure": "-"
+    }
+  ]
+}

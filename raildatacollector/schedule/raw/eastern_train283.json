@@ -1,0 +1,192 @@
+{
+  "name": "Ordinary No. 283",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=283&lang=eng",
+  "notes": "This popular beach train is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. One carriage has room for full sized bicycles. Get off the train in Chon Buri for Bangsaen Beach, Pattaya Tai for the boat to Koh Lan, and Chuk Samet for Nang Ram Beach. The return journey in the afternoon is done by No. 284 train. At the weekends, there is also an express service No. 997/998.",
+  "timetable": [
+    {
+      "station": "Bangkok",
+      "arrival": "-",
+      "departure": "06:55"
+    },
+    {
+      "station": "Phayathai",
+      "arrival": "07:07",
+      "departure": "07:08"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "07:15",
+      "departure": "07:16"
+    },
+    {
+      "station": "Asoke",
+      "arrival": "07:21",
+      "departure": "07:22"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "07:31",
+      "departure": "07:40"
+    },
+    {
+      "station": "Sukhumvit 71",
+      "arrival": "07:42",
+      "departure": "07:43"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "07:48",
+      "departure": "07:49"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "arrival": "07:56",
+      "departure": "07:57"
+    },
+    {
+      "station": "Soi Wat Lan Boon",
+      "arrival": "08:01",
+      "departure": "08:02"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "08:05",
+      "departure": "08:06"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "arrival": "08:09",
+      "departure": "08:10"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "08:13",
+      "departure": "08:14"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "arrival": "08:23",
+      "departure": "08:24"
+    },
+    {
+      "station": "Klong Udom Chonlajorn",
+      "arrival": "08:28",
+      "departure": "08:29"
+    },
+    {
+      "station": "Preng",
+      "arrival": "08:33",
+      "departure": "08:34"
+    },
+    {
+      "station": "Klong Kwaeng Klan",
+      "arrival": "08:39",
+      "departure": "08:40"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "arrival": "08:45",
+      "departure": "08:46"
+    },
+    {
+      "station": "Bang Toey",
+      "arrival": "08:50",
+      "departure": "08:51"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "08:56",
+      "departure": "08:59"
+    },
+    {
+      "station": "Paet Riu",
+      "arrival": "09:03",
+      "departure": "09:04"
+    },
+    {
+      "station": "Don Si Non",
+      "arrival": "09:15",
+      "departure": "09:16"
+    },
+    {
+      "station": "Phan Thong",
+      "arrival": "09:30",
+      "departure": "09:31"
+    },
+    {
+      "station": "Chon Buri",
+      "arrival": "09:48",
+      "departure": "09:49"
+    },
+    {
+      "station": "Bang Phra",
+      "arrival": "09:59",
+      "departure": "10:00"
+    },
+    {
+      "station": "Khao Phrabat",
+      "arrival": "10:06",
+      "departure": "10:07"
+    },
+    {
+      "station": "Si Racha Junction",
+      "arrival": "10:12",
+      "departure": "10:13"
+    },
+    {
+      "station": "Bang Lamung",
+      "arrival": "10:24",
+      "departure": "10:25"
+    },
+    {
+      "station": "Pattaya",
+      "arrival": "10:34",
+      "departure": "10:35"
+    },
+    {
+      "station": "Pattaya Tai",
+      "arrival": "10:39",
+      "departure": "10:40"
+    },
+    {
+      "station": "Talat Nam 4 Pak *",
+      "arrival": "10:44",
+      "departure": "10:45"
+    },
+    {
+      "station": "Ban Huai Kwang",
+      "arrival": "10:50",
+      "departure": "10:51"
+    },
+    {
+      "station": "Yanasangwararam",
+      "arrival": "10:56",
+      "departure": "10:57"
+    },
+    {
+      "station": "Suan Nong Nuch",
+      "arrival": "11:03",
+      "departure": "11:04"
+    },
+    {
+      "station": "Kao Chi Chan Junction",
+      "arrival": "11:12",
+      "departure": "11:13"
+    },
+    {
+      "station": "Ban Plu Ta Luang",
+      "arrival": "11:20",
+      "departure": "11:25"
+    },
+    {
+      "station": "Utaphao",
+      "arrival": "11:32",
+      "departure": "11:33"
+    },
+    {
+      "station": "Chuk Samet",
+      "arrival": "11:45",
+      "departure": "-"
+    }
+  ]
+}

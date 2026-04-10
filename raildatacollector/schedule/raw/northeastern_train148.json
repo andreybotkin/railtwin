@@ -1,0 +1,19 @@
+{
+  "name": "Rapid No. 148",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=148&lang=eng",
+  "notes": [
+    "Rapid International service across the Thai-Lao border. It runs from Vientiane (Khamsavath) to Nong Khai. Laos immigration is done at Vientiane (Khamsavath) Station and Thai immigration at Nong Khai Station."
+  ],
+  "timetable": [
+    {
+      "station": "Vientiane (Khamsavath)",
+      "arrival": "-",
+      "departure": "09:35"
+    },
+    {
+      "station": "Nong Khai",
+      "arrival": "10:05",
+      "departure": "-"
+    }
+  ]
+}

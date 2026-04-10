@@ -1,0 +1,101 @@
+{
+  "name": "Local No. 454",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=454&lang=eng",
+  "timetable": [
+    {
+      "station": "Su-Ngai Kolok",
+      "arrival": "-",
+      "departure": "15:25"
+    },
+    {
+      "station": "Khok Sahya",
+      "arrival": "15:31",
+      "departure": "15:32"
+    },
+    {
+      "station": "Su-Ngai Padi",
+      "arrival": "15:39",
+      "departure": "15:40"
+    },
+    {
+      "station": "To Deng",
+      "arrival": "15:45",
+      "departure": "15:46"
+    },
+    {
+      "station": "Ai Satia",
+      "arrival": "15:53",
+      "departure": "15:54"
+    },
+    {
+      "station": "Bukit",
+      "arrival": "15:58",
+      "departure": "15:59"
+    },
+    {
+      "station": "Cho Ai Rong",
+      "arrival": "16:04",
+      "departure": "16:05"
+    },
+    {
+      "station": "Pa Phai",
+      "arrival": "16:11",
+      "departure": "16:12"
+    },
+    {
+      "station": "Tanyong Mat",
+      "arrival": "16:18",
+      "departure": "16:19"
+    },
+    {
+      "station": "Kadae",
+      "arrival": "16:25",
+      "departure": "16:26"
+    },
+    {
+      "station": "Marubo",
+      "arrival": "16:31",
+      "departure": "16:32"
+    },
+    {
+      "station": "Lalo",
+      "arrival": "16:40",
+      "departure": "16:41"
+    },
+    {
+      "station": "Ban Salo Bukit Yuaerae",
+      "arrival": "16:47",
+      "departure": "16:48"
+    },
+    {
+      "station": "Ruso",
+      "arrival": "16:53",
+      "departure": "16:54"
+    },
+    {
+      "station": "Balo",
+      "arrival": "17:03",
+      "departure": "17:04"
+    },
+    {
+      "station": "Raman",
+      "arrival": "17:09",
+      "departure": "17:10"
+    },
+    {
+      "station": "Ban Patae",
+      "arrival": "17:15",
+      "departure": "17:16"
+    },
+    {
+      "station": "Mai Kaen",
+      "arrival": "17:20",
+      "departure": "17:21"
+    },
+    {
+      "station": "Yala",
+      "arrival": "17:30",
+      "departure": "-"
+    }
+  ]
+}

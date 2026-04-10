@@ -1,0 +1,74 @@
+{
+  "name": "Special Express No. 9",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=9&lang=eng",
+  "notes": [
+    "Special Express service with air-conditioned sleeping cars using a CNR trainset. It runs from Bangkok (Krung Thep Aphiwat) to Chiang Mai. There are 1st Class private cabins and shared 2nd Class cars. One car is designed for wheelchair users and includes a wheelchair lift and accessible toilets. There is also a women-only car for women and young children. This train has a dining car. Advance booking is recommended, as this is a popular train and route."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "18:40"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "18:55",
+      "departure": "18:57"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "19:06",
+      "departure": "19:07"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "19:43",
+      "departure": "19:45"
+    },
+    {
+      "station": "Lop Buri 2 (Tha Wung)",
+      "arrival": "20:41",
+      "departure": "20:43"
+    },
+    {
+      "station": "Nakhon Sawan",
+      "arrival": "22:17",
+      "departure": "22:20"
+    },
+    {
+      "station": "Phitsanulok",
+      "arrival": "00:15",
+      "departure": "00:17"
+    },
+    {
+      "station": "Sila At",
+      "arrival": "01:41",
+      "departure": "01:51"
+    },
+    {
+      "station": "Den Chai",
+      "arrival": "02:45",
+      "departure": "02:48"
+    },
+    {
+      "station": "Nakhon Lampang",
+      "arrival": "04:57",
+      "departure": "05:00"
+    },
+    {
+      "station": "Khun Tan",
+      "arrival": "05:57",
+      "departure": "06:02"
+    },
+    {
+      "station": "Lamphun",
+      "arrival": "06:49",
+      "departure": "06:50"
+    },
+    {
+      "station": "Chiang Mai",
+      "arrival": "07:15",
+      "departure": "-"
+    }
+  ]
+}

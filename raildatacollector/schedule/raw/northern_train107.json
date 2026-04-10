@@ -1,0 +1,111 @@
+{
+  "name": "Rapid No. 107",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=107&lang=eng",
+  "notes": [
+    "Rapid service.",
+    "Advance booking is recommended.",
+    "Runs Bangkok (Krung Thep Aphiwat) to Den Chai."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "20:45"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "21:00",
+      "departure": "21:02"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "21:11",
+      "departure": "21:12"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "21:48",
+      "departure": "21:50"
+    },
+    {
+      "station": "Ban Phachi Junction",
+      "arrival": "22:07",
+      "departure": "22:08"
+    },
+    {
+      "station": "Lop Buri 2 (Tha Wung)",
+      "arrival": "22:48",
+      "departure": "22:50"
+    },
+    {
+      "station": "Nakhon Sawan",
+      "arrival": "00:22",
+      "departure": "00:24"
+    },
+    {
+      "station": "Pak Nam Pho",
+      "arrival": "00:29",
+      "departure": "00:32"
+    },
+    {
+      "station": "Chumsaeng",
+      "arrival": "01:01",
+      "departure": "01:02"
+    },
+    {
+      "station": "Bang Mun Nak",
+      "arrival": "01:17",
+      "departure": "01:20"
+    },
+    {
+      "station": "Taphan Hin",
+      "arrival": "01:40",
+      "departure": "01:41"
+    },
+    {
+      "station": "Phichit",
+      "arrival": "02:09",
+      "departure": "02:10"
+    },
+    {
+      "station": "Phitsanulok",
+      "arrival": "02:44",
+      "departure": "02:46"
+    },
+    {
+      "station": "Phrom Phiram",
+      "arrival": "03:06",
+      "departure": "03:07"
+    },
+    {
+      "station": "Nong Tom",
+      "arrival": "03:14",
+      "departure": "03:15"
+    },
+    {
+      "station": "Phichai",
+      "arrival": "03:36",
+      "departure": "03:37"
+    },
+    {
+      "station": "Tha Sak",
+      "arrival": "03:51",
+      "departure": "03:52"
+    },
+    {
+      "station": "Uttaradit",
+      "arrival": "04:13",
+      "departure": "04:16"
+    },
+    {
+      "station": "Sila At",
+      "arrival": "04:20",
+      "departure": "04:30"
+    },
+    {
+      "station": "Den Chai",
+      "arrival": "05:25",
+      "departure": "-"
+    }
+  ]
+}

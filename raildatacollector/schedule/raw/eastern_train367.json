@@ -1,0 +1,92 @@
+{
+  "name": "Commuter No. 367",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=367&lang=eng",
+  "notes": "This train is one of five pairs of commuter trains that go between Bangkok and Chachoengsao. It is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. The return journey in the afternoon is done by No. 368 train.",
+  "timetable": [
+    {
+      "station": "Bangkok",
+      "arrival": "-",
+      "departure": "10:10"
+    },
+    {
+      "station": "Urupong",
+      "arrival": "10:19",
+      "departure": "10:20"
+    },
+    {
+      "station": "Phayathai",
+      "arrival": "10:22",
+      "departure": "10:23"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "10:28",
+      "departure": "10:30"
+    },
+    {
+      "station": "Asoke",
+      "arrival": "10:33",
+      "departure": "10:34"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "10:39",
+      "departure": "10:40"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "10:48",
+      "departure": "10:49"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "arrival": "10:55",
+      "departure": "10:56"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "11:01",
+      "departure": "11:02"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "arrival": "11:06",
+      "departure": "11:07"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "11:08",
+      "departure": "11:09"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "arrival": "11:17",
+      "departure": "11:18"
+    },
+    {
+      "station": "Preng",
+      "arrival": "11:24",
+      "departure": "11:25"
+    },
+    {
+      "station": "Khlong Kwaeng Klan",
+      "arrival": "11:30",
+      "departure": "11:31"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "arrival": "11:34",
+      "departure": "11:35"
+    },
+    {
+      "station": "Bang Toey",
+      "arrival": "11:39",
+      "departure": "11:40"
+    },
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "11:45",
+      "departure": "-"
+    }
+  ]
+}

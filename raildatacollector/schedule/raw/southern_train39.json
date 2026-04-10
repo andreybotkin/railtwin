@@ -1,0 +1,115 @@
+{
+  "name": "Special Express No. 39",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=39&lang=eng",
+  "station_list": "https://www.railway.co.th/SRTTimetable/stationList?Startstation=1001&lang=eng",
+  "notes": [
+    "Special Express service with three air-conditioned seating cars. It runs from Bangkok (Krung Thep Aphiwat) to Surat Thani during the night. This is a Daewoo diesel railcar with reclining seats that face direction of travel. It is the fastest train on this route. Advance booking is recommended."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "22:50"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "23:01",
+      "departure": "23:02"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "23:19",
+      "departure": "23:20"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "23:42",
+      "departure": "23:43"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "00:01",
+      "departure": "00:02"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "00:27",
+      "departure": "00:37"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "01:14",
+      "departure": "01:19"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "02:04",
+      "departure": "02:09"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "02:24",
+      "departure": "02:25"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "03:14",
+      "departure": "03:15"
+    },
+    {
+      "station": "Ban Krut",
+      "arrival": "03:56",
+      "departure": "03:57"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "04:09",
+      "departure": "04:10"
+    },
+    {
+      "station": "Map Ammarit",
+      "arrival": "04:43",
+      "departure": "04:44"
+    },
+    {
+      "station": "Pathiu",
+      "arrival": "04:58",
+      "departure": "04:59"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "05:22",
+      "departure": "05:37"
+    },
+    {
+      "station": "Sawi",
+      "arrival": "06:01",
+      "departure": "06:02"
+    },
+    {
+      "station": "Lang Suan",
+      "arrival": "06:28",
+      "departure": "06:29"
+    },
+    {
+      "station": "Lamae",
+      "arrival": "06:44",
+      "departure": "06:45"
+    },
+    {
+      "station": "Tha Chana",
+      "arrival": "07:04",
+      "departure": "07:05"
+    },
+    {
+      "station": "Chaiya",
+      "arrival": "07:20",
+      "departure": "07:21"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "07:50",
+      "departure": "-"
+    }
+  ]
+}

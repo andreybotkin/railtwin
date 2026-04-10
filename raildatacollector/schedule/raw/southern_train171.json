@@ -1,0 +1,207 @@
+{
+  "name": "Rapid No. 171",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=171&lang=eng",
+  "station_list": "https://www.railway.co.th/SRTTimetable/stationList?Startstation=1001&lang=eng",
+  "notes": [
+    "Rapid service with a mix of air-conditioned and non-air-conditioned seating and sleeping cars.",
+    "Advance booking is recommended.",
+    "Runs Bangkok (Krung Thep Aphiwat) to Su-Ngai Kolok."
+  ],
+  "timetable": [
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "-",
+      "departure": "15:10"
+    },
+    {
+      "station": "Bang Bamru",
+      "arrival": "15:21",
+      "departure": "15:22"
+    },
+    {
+      "station": "Sala Ya",
+      "arrival": "15:41",
+      "departure": "15:42"
+    },
+    {
+      "station": "Nakhon Pathom",
+      "arrival": "16:04",
+      "departure": "16:06"
+    },
+    {
+      "station": "Ban Pong",
+      "arrival": "16:24",
+      "departure": "16:25"
+    },
+    {
+      "station": "Ratchaburi",
+      "arrival": "16:57",
+      "departure": "17:07"
+    },
+    {
+      "station": "Phetchaburi",
+      "arrival": "17:50",
+      "departure": "17:55"
+    },
+    {
+      "station": "Hua Hin",
+      "arrival": "18:44",
+      "departure": "18:49"
+    },
+    {
+      "station": "Wang Phong",
+      "arrival": "19:06",
+      "departure": "19:07"
+    },
+    {
+      "station": "Prachuap Khiri Khan",
+      "arrival": "20:03",
+      "departure": "20:04"
+    },
+    {
+      "station": "Ban Krut",
+      "arrival": "20:49",
+      "departure": "20:50"
+    },
+    {
+      "station": "Bang Saphan Yai",
+      "arrival": "21:04",
+      "departure": "21:05"
+    },
+    {
+      "station": "Pathiu",
+      "arrival": "21:52",
+      "departure": "21:53"
+    },
+    {
+      "station": "Chumphon",
+      "arrival": "22:17",
+      "departure": "22:27"
+    },
+    {
+      "station": "Sawi",
+      "arrival": "22:59",
+      "departure": "23:00"
+    },
+    {
+      "station": "Lang Suan",
+      "arrival": "23:29",
+      "departure": "23:30"
+    },
+    {
+      "station": "Lamae",
+      "arrival": "23:53",
+      "departure": "23:57"
+    },
+    {
+      "station": "Tha Chana",
+      "arrival": "00:18",
+      "departure": "00:22"
+    },
+    {
+      "station": "Chaiya",
+      "arrival": "00:39",
+      "departure": "00:40"
+    },
+    {
+      "station": "Surat Thani",
+      "arrival": "01:11",
+      "departure": "01:14"
+    },
+    {
+      "station": "Na San",
+      "arrival": "01:46",
+      "departure": "01:47"
+    },
+    {
+      "station": "Ban Song",
+      "arrival": "02:03",
+      "departure": "02:04"
+    },
+    {
+      "station": "Thung Song Junction",
+      "arrival": "02:59",
+      "departure": "03:09"
+    },
+    {
+      "station": "Cha-uat",
+      "arrival": "04:00",
+      "departure": "04:01"
+    },
+    {
+      "station": "Phatthalung",
+      "arrival": "04:39",
+      "departure": "04:41"
+    },
+    {
+      "station": "Hat Yai Junction",
+      "arrival": "05:50",
+      "departure": "06:30"
+    },
+    {
+      "station": "Chana",
+      "arrival": "06:59",
+      "departure": "07:00"
+    },
+    {
+      "station": "Thepha",
+      "arrival": "07:23",
+      "departure": "07:24"
+    },
+    {
+      "station": "Pattani",
+      "arrival": "07:39",
+      "departure": "07:40"
+    },
+    {
+      "station": "Na Pradu",
+      "arrival": "07:47",
+      "departure": "07:48"
+    },
+    {
+      "station": "Wat Chang Hai",
+      "arrival": "07:52",
+      "departure": "07:53"
+    },
+    {
+      "station": "Yala",
+      "arrival": "08:10",
+      "departure": "08:25"
+    },
+    {
+      "station": "Raman",
+      "arrival": "08:42",
+      "departure": "08:43"
+    },
+    {
+      "station": "Ruso",
+      "arrival": "08:56",
+      "departure": "08:57"
+    },
+    {
+      "station": "Marubo",
+      "arrival": "09:14",
+      "departure": "09:15"
+    },
+    {
+      "station": "Tanyong Mat",
+      "arrival": "09:24",
+      "departure": "09:25"
+    },
+    {
+      "station": "Cho Ai Rong",
+      "arrival": "09:36",
+      "departure": "09:37"
+    },
+    {
+      "station": "Su-Ngai Padi",
+      "arrival": "09:57",
+      "departure": "09:58"
+    },
+    {
+      "station": "Su-Ngai Kolok",
+      "arrival": "10:10",
+      "departure": "-"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "name": "Commuter No. 388",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=388&lang=eng",
+  "notes": "This train is one of five pairs of commuter trains that go between Chachoengsao and Bangkok. It is hauled by a diesel locomotive and has 3rd Class carriages with fans. Tickets can only be bought at the station up to two hours before departure. The return journey is done by No. 389 train.",
+  "timetable": [
+    {
+      "station": "Chachoengsao Junction",
+      "arrival": "-",
+      "departure": "07:05"
+    },
+    {
+      "station": "Khlong Bang Phra",
+      "arrival": "07:11",
+      "departure": "07:12"
+    },
+    {
+      "station": "Khlong Kwaeng Klan",
+      "arrival": "07:14",
+      "departure": "07:15"
+    },
+    {
+      "station": "Preng",
+      "arrival": "07:18",
+      "departure": "07:19"
+    },
+    {
+      "station": "Khlong Udom Chonlajorn",
+      "arrival": "07:23",
+      "departure": "07:24"
+    },
+    {
+      "station": "Khlong Luang Phaeng",
+      "arrival": "07:26",
+      "departure": "07:27"
+    },
+    {
+      "station": "Hua Takhe",
+      "arrival": "07:34",
+      "departure": "07:35"
+    },
+    {
+      "station": "Pra Chom Klao",
+      "arrival": "07:36",
+      "departure": "07:37"
+    },
+    {
+      "station": "Lat Krabang",
+      "arrival": "07:41",
+      "departure": "07:42"
+    },
+    {
+      "station": "Soi Wat Lan Boon",
+      "arrival": "07:45",
+      "departure": "07:46"
+    },
+    {
+      "station": "Ban Thap Chang",
+      "arrival": "07:49",
+      "departure": "07:50"
+    },
+    {
+      "station": "Hua Mak",
+      "arrival": "07:55",
+      "departure": "07:56"
+    },
+    {
+      "station": "Khlong Tan",
+      "arrival": "08:04",
+      "departure": "08:05"
+    },
+    {
+      "station": "Asoke",
+      "arrival": "08:09",
+      "departure": "08:10"
+    },
+    {
+      "station": "Makkasan",
+      "arrival": "08:13",
+      "departure": "08:16"
+    },
+    {
+      "station": "Phayathai",
+      "arrival": "08:20",
+      "departure": "08:21"
+    },
+    {
+      "station": "Yommaraj",
+      "arrival": "08:26",
+      "departure": "08:27"
+    },
+    {
+      "station": "Bangkok",
+      "arrival": "08:35",
+      "departure": "-"
+    }
+  ]
+}

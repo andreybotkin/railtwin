@@ -1,0 +1,101 @@
+{
+  "name": "Local No. 429",
+  "link": "",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Nakhon Ratchasima to Bua Yai Junction."
+  ],
+  "timetable": [
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "-",
+      "departure": "17:55"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "18:00",
+      "departure": "18:01"
+    },
+    {
+      "station": "Ban Ko",
+      "arrival": "18:06",
+      "departure": "18:07"
+    },
+    {
+      "station": "Nong Khai Nam",
+      "arrival": "18:15",
+      "departure": "18:16"
+    },
+    {
+      "station": "Ban Kradon",
+      "arrival": "18:18",
+      "departure": "18:19"
+    },
+    {
+      "station": "Ban Nong Gunngar",
+      "arrival": "18:22",
+      "departure": "18:23"
+    },
+    {
+      "station": "Nong Maeo",
+      "arrival": "18:25",
+      "departure": "18:26"
+    },
+    {
+      "station": "Non Sung",
+      "arrival": "18:31",
+      "departure": "18:32"
+    },
+    {
+      "station": "Ban Dong Phlong",
+      "arrival": "18:38",
+      "departure": "18:39"
+    },
+    {
+      "station": "Ban Makha",
+      "arrival": "18:44",
+      "departure": "18:45"
+    },
+    {
+      "station": "Noen Thua Paep",
+      "arrival": "18:48",
+      "departure": "18:49"
+    },
+    {
+      "station": "Phon Songkhram",
+      "arrival": "18:53",
+      "departure": "18:54"
+    },
+    {
+      "station": "Ban Don Yai",
+      "arrival": "18:58",
+      "departure": "18:59"
+    },
+    {
+      "station": "Muang Khong",
+      "arrival": "19:04",
+      "departure": "19:05"
+    },
+    {
+      "station": "Ban Rai",
+      "arrival": "19:11",
+      "departure": "19:12"
+    },
+    {
+      "station": "Non Thong Lang",
+      "arrival": "19:14",
+      "departure": "19:15"
+    },
+    {
+      "station": "Huai Rahat",
+      "arrival": "19:20",
+      "departure": "19:22"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "19:25",
+      "departure": "-"
+    }
+  ]
+}

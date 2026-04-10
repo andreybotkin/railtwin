@@ -1,0 +1,74 @@
+{
+  "name": "Special Express No. 10",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=10&lang=eng",
+  "notes": [
+    "Special Express service with air-conditioned sleeping cars using a CNR trainset. It runs from Chiang Mai to Bangkok (Krung Thep Aphiwat). There are 1st Class private cabins and shared 2nd Class cars. One car is designed for wheelchair users and includes a wheelchair lift and accessible toilets. There is also a women-only car for women and young children. This train has a dining car. Advance booking is recommended, as this is a popular train and route."
+  ],
+  "timetable": [
+    {
+      "station": "Chiang Mai",
+      "arrival": "-",
+      "departure": "18:20"
+    },
+    {
+      "station": "Lamphun",
+      "arrival": "18:42",
+      "departure": "18:43"
+    },
+    {
+      "station": "Khun Tan",
+      "arrival": "19:28",
+      "departure": "19:29"
+    },
+    {
+      "station": "Nakhon Lampang",
+      "arrival": "20:21",
+      "departure": "20:24"
+    },
+    {
+      "station": "Den Chai",
+      "arrival": "22:32",
+      "departure": "22:37"
+    },
+    {
+      "station": "Sila At",
+      "arrival": "23:30",
+      "departure": "23:31"
+    },
+    {
+      "station": "Phitsanulok",
+      "arrival": "00:59",
+      "departure": "01:01"
+    },
+    {
+      "station": "Nakhon Sawan",
+      "arrival": "02:47",
+      "departure": "02:52"
+    },
+    {
+      "station": "Lop Buri 2 (Tha Wung)",
+      "arrival": "04:20",
+      "departure": "04:22"
+    },
+    {
+      "station": "Ayutthaya",
+      "arrival": "05:23",
+      "departure": "05:25"
+    },
+    {
+      "station": "Rangsit",
+      "arrival": "06:01",
+      "departure": "06:04"
+    },
+    {
+      "station": "Don Mueang",
+      "arrival": "06:13",
+      "departure": "06:15"
+    },
+    {
+      "station": "Bangkok (Krung Thep Aphiwat)",
+      "arrival": "06:30",
+      "departure": "-"
+    }
+  ]
+}
