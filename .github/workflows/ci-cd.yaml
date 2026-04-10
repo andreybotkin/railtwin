@@ -268,9 +268,9 @@ jobs:
           context: ./${{ matrix.component }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.component }}:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.component }}:${{ steps.tags.outputs.DATE_TAG }}
-            ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.component }}:${{ steps.tags.outputs.SHORT_SHA }}
+            ${{ env.REGISTRY }}/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')/${{ matrix.component }}:latest
+            ${{ env.REGISTRY }}/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')/${{ matrix.component }}:${{ steps.tags.outputs.DATE_TAG }}
+            ${{ env.REGISTRY }}/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')/${{ matrix.component }}:${{ steps.tags.outputs.SHORT_SHA }}
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.API_URL }}
             NEXT_PUBLIC_WS_URL=${{ secrets.WS_URL }}
