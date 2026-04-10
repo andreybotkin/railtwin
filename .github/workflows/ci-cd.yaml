@@ -284,70 +284,70 @@ jobs:
   ##############################################################
   # 4. Deploy to K3s
   ##############################################################
-  deploy:
-    name: Deploy to K3s
-    runs-on: ubuntu-latest
-    needs: [detect-changes, build-images]
-    if: |
-      always() &&
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main' &&
-      needs.build-images.result != 'failure' &&
-      needs.build-images.result != 'cancelled' &&
-      (needs.build-images.result == 'success' || needs.detect-changes.outputs.k8s == 'true')
-    permissions:
-      contents: read
+  # deploy:
+  #   name: Deploy to K3s
+  #   runs-on: ubuntu-latest
+  #   needs: [detect-changes, build-images]
+  #   if: |
+  #     always() &&
+  #     github.event_name == 'push' &&
+  #     github.ref == 'refs/heads/main' &&
+  #     needs.build-images.result != 'failure' &&
+  #     needs.build-images.result != 'cancelled' &&
+  #     (needs.build-images.result == 'success' || needs.detect-changes.outputs.k8s == 'true')
+  #   permissions:
+  #     contents: read
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.28.0'
+  #     - name: Set up kubectl
+  #       uses: azure/setup-kubectl@v3
+  #       with:
+  #         version: 'v1.28.0'
 
-      - name: Configure kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+  #     - name: Configure kubeconfig
+  #       run: |
+  #         mkdir -p ~/.kube
+  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
 
-      - name: Deploy to K3s
-        run: |
-          kubectl apply -f k8s/namespace.yaml
-          kubectl apply -f k8s/network-policy.yaml
+  #     - name: Deploy to K3s
+  #       run: |
+  #         kubectl apply -f k8s/namespace.yaml
+  #         kubectl apply -f k8s/network-policy.yaml
 
-          kubectl apply -f k8s/postgres/deployment.yaml
-          kubectl apply -f k8s/postgres/service.yaml
-          kubectl apply -f k8s/redis/deployment.yaml
-          kubectl apply -f k8s/redis/service.yaml
+  #         kubectl apply -f k8s/postgres/deployment.yaml
+  #         kubectl apply -f k8s/postgres/service.yaml
+  #         kubectl apply -f k8s/redis/deployment.yaml
+  #         kubectl apply -f k8s/redis/service.yaml
 
-          kubectl apply -f k8s/backend/configmap.yaml
-          kubectl apply -f k8s/backend/secrets.yaml
+  #         kubectl apply -f k8s/backend/configmap.yaml
+  #         kubectl apply -f k8s/backend/secrets.yaml
 
-          kubectl apply -f k8s/backend/deployment.yaml
-          kubectl apply -f k8s/backend/service.yaml
-          kubectl apply -f k8s/backend/hpa.yaml
+  #         kubectl apply -f k8s/backend/deployment.yaml
+  #         kubectl apply -f k8s/backend/service.yaml
+  #         kubectl apply -f k8s/backend/hpa.yaml
 
-          kubectl apply -f k8s/frontend/deployment.yaml
-          kubectl apply -f k8s/frontend/service.yaml
-          kubectl apply -f k8s/frontend/ingress.yaml
+  #         kubectl apply -f k8s/frontend/deployment.yaml
+  #         kubectl apply -f k8s/frontend/service.yaml
+  #         kubectl apply -f k8s/frontend/ingress.yaml
 
-          if [ "${{ needs.detect-changes.outputs.backend }}" = "true" ]; then
-            kubectl rollout restart deployment/backend -n railway
-            kubectl rollout status deployment/backend -n railway --timeout=300s
-          fi
-          if [ "${{ needs.detect-changes.outputs.frontend }}" = "true" ]; then
-            kubectl rollout restart deployment/frontend -n railway
-            kubectl rollout status deployment/frontend -n railway --timeout=300s
-          fi
+  #         if [ "${{ needs.detect-changes.outputs.backend }}" = "true" ]; then
+  #           kubectl rollout restart deployment/backend -n railway
+  #           kubectl rollout status deployment/backend -n railway --timeout=300s
+  #         fi
+  #         if [ "${{ needs.detect-changes.outputs.frontend }}" = "true" ]; then
+  #           kubectl rollout restart deployment/frontend -n railway
+  #           kubectl rollout status deployment/frontend -n railway --timeout=300s
+  #         fi
 
   ##############################################################
   # 5. Notifications
   ##############################################################
   notify:
     name: Send Notifications
-    needs: [detect-changes, backend-ci, frontend-ci, build-images, deploy]
+    needs: [detect-changes, backend-ci, frontend-ci, build-images]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -360,16 +360,13 @@ jobs:
             echo "emoji=⏭️" >> $GITHUB_OUTPUT
           elif [ "${{ needs.backend-ci.result }}" = "failure" ] || \
                [ "${{ needs.frontend-ci.result }}" = "failure" ] || \
-               [ "${{ needs.build-images.result }}" = "failure" ] || \
-               [ "${{ needs.deploy.result }}" = "failure" ]; then
+               [ "${{ needs.build-images.result }}" = "failure" ]; then
             echo "status=❌ Failed" >> $GITHUB_OUTPUT
             echo "emoji=❌" >> $GITHUB_OUTPUT
-          elif [ "${{ needs.deploy.result }}" = "success" ] || \
-               [ "${{ needs.build-images.result }}" = "success" ]; then
+          elif [ "${{ needs.build-images.result }}" = "success" ]; then
             echo "status=✅ Success" >> $GITHUB_OUTPUT
             echo "emoji=✅" >> $GITHUB_OUTPUT
-          elif [ "${{ needs.deploy.result }}" = "cancelled" ] || \
-               [ "${{ needs.build-images.result }}" = "cancelled" ]; then
+          elif [ "${{ needs.build-images.result }}" = "cancelled" ]; then
             echo "status=⏹️ Cancelled" >> $GITHUB_OUTPUT
             echo "emoji=⏹️" >> $GITHUB_OUTPUT
           else
@@ -380,7 +377,7 @@ jobs:
       - name: Send Telegram Notification
         uses: appleboy/telegram-action@master
         with:
-          to: ${{ vars.TELEGRAM_CHAT_ID }}
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           format: markdown
           message: |
@@ -395,7 +392,6 @@ jobs:
             • Backend CI: ${{ needs.backend-ci.result == 'success' && '✅' || needs.backend-ci.result == 'failure' && '❌' || needs.backend-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Frontend CI: ${{ needs.frontend-ci.result == 'success' && '✅' || needs.frontend-ci.result == 'failure' && '❌' || needs.frontend-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Build Images: ${{ needs.build-images.result == 'success' && '✅' || needs.build-images.result == 'failure' && '❌' || needs.build-images.result == 'skipped' && '⏭️' || '⚠️' }}
-            • Deploy: ${{ needs.deploy.result == 'success' && '✅' || needs.deploy.result == 'failure' && '❌' || needs.deploy.result == 'skipped' && '⏭️' || '⚠️' }}
 
             ${{ github.event_name == 'push' && format('*Commit:* `{0}`', github.event.head_commit.message) || '' }}
             ${{ github.event_name == 'push' && format('*Author:* {0}', github.event.head_commit.author.name) || '' }}
