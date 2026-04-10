@@ -58,7 +58,7 @@ spec:
             - secretRef:
                 name: postgres-secrets
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
+            - mountPath: /var/lib/postgresql
               name: postgres-data
           readinessProbe:
             exec:

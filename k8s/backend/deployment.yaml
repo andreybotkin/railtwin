@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: backend
     app.kubernetes.io/component: api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: backend
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghcr.io/thailand-railway/backend:latest
+          image: ghcr.io/raybotkin/railtwin/backend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

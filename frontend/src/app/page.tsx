@@ -114,7 +114,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="h-8 border-t bg-background px-4 flex items-center justify-between text-xs text-muted-foreground">
-        <span>© 2024 Thailand Railway Digital Twin</span>
+        <span>© 2026 Thailand Railway Digital Twin</span>
         <span>Data source: State Railway of Thailand (SRT)</span>
       </footer>
     </div>
