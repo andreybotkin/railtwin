@@ -267,7 +267,7 @@ jobs:
           echo "SHORT_SHA=$SHORT_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Build and push ${{ matrix.component }}
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./${{ matrix.component }}
           push: true
@@ -278,8 +278,6 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.API_URL }}
             NEXT_PUBLIC_WS_URL=${{ secrets.WS_URL }}
-          cache-from: type=gha,scope=${{ matrix.component }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.component }}
           platforms: linux/amd64
           provenance: false
 
