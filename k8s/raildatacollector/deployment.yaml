@@ -22,7 +22,7 @@ spec:
       containers:
         - name: raildatacollector
           image: ghcr.io/raybotkin/railtwin/raildatacollector:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8001
               name: http
@@ -33,9 +33,9 @@ spec:
                 name: raildatacollector-secrets
           env:
             - name: KML_LOCAL_PATH
-              value: /data/railroad/20260410RailwayMapofThailand.kml
+              value: /app/railroad/20260410RailwayMapofThailand.kml
             - name: SCHEDULE_DATA_DIR
-              value: /data/schedule
+              value: /app/schedule
           resources:
             requests:
               memory: "256Mi"
@@ -59,26 +59,9 @@ spec:
             periodSeconds: 15
             timeoutSeconds: 3
             failureThreshold: 3
-          volumeMounts:
-            - name: collector-data
-              mountPath: /data
+          volumeMounts: []
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
             allowPrivilegeEscalation: false
-      volumes:
-        - name: collector-data
-          persistentVolumeClaim:
-            claimName: raildatacollector-data
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: raildatacollector-data
-  namespace: railway
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+      volumes: []
