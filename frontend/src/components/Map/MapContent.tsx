@@ -4,12 +4,11 @@
 
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   MapContainer,
   TileLayer,
   Polyline,
-  Marker,
   Popup,
   useMap,
 } from 'react-leaflet';
@@ -17,7 +16,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 import { useRoutes, useStations, useTrainPositions, useInitialPositions } from '@/lib/hooks';
-import { getRouteColor, formatSpeed, formatDelay, getTrainTypeName } from '@/lib/utils';
+import { getRouteColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import TrainMarker from './TrainMarker';
 import StationMarker from './StationMarker';
@@ -41,12 +40,24 @@ interface MapContentProps {
 // Component to handle map events
 function MapController() {
   const map = useMap();
-  
+
   useEffect(() => {
-    // Invalidate size after mount to fix container issues
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+    const invalidateMap = () => map.invalidateSize({ animate: false });
+
+    const delayedInvalidate = setTimeout(invalidateMap, 100);
+
+    const observer = new ResizeObserver(() => {
+      invalidateMap();
+    });
+
+    observer.observe(map.getContainer());
+    window.addEventListener('resize', invalidateMap);
+
+    return () => {
+      clearTimeout(delayedInvalidate);
+      observer.disconnect();
+      window.removeEventListener('resize', invalidateMap);
+    };
   }, [map]);
 
   return null;
