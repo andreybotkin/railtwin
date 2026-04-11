@@ -4,7 +4,7 @@
 
 import type { WebSocketMessage, TrainPositionUpdate } from '@/types';
 
-const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8002';
 
 // Heartbeat interval in milliseconds (slightly less than server timeout)
 const HEARTBEAT_INTERVAL_MS = 10000;

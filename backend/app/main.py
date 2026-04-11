@@ -17,11 +17,11 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.api.dependencies import get_redis
-from app.api.v1.endpoints.websocket import broadcaster
-from app.api.v1.endpoints.websocket import router as websocket_router
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import get_logger, setup_logging
+from app.models.database import async_session_factory
+from app.services.position_cache import build_position_cache_updater
 from app.services.tts_scraper import tts_scraper_loop
 
 # Initialize logging
@@ -58,13 +58,13 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     )
     logger.info("TTS scraper background task started")
 
-    # Start the position broadcaster (single shared DB query for all WS clients)
-    broadcaster.start()
+    position_cache_updater = build_position_cache_updater(async_session_factory, redis_client)
+    position_cache_updater.start()
 
     yield
 
     # Shutdown
-    broadcaster.stop()
+    await position_cache_updater.stop()
     scraper_task.cancel()
     with contextlib.suppress(asyncio.CancelledError):
         await scraper_task
@@ -86,11 +86,6 @@ app = FastAPI(
     * **Trains**: Track trains and their current positions
     * **Schedules**: Access train schedules and timetables
     * **Real-time Updates**: WebSocket connections for live train positions
-
-    ## WebSocket Endpoints
-
-    * `/ws/trains` - Stream all train positions
-    * `/ws/trains/{train_id}` - Stream a single train's position
     """,
     version=settings.app_version,
     docs_url="/docs",
@@ -143,13 +138,6 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 app.include_router(
     api_router,
     prefix=settings.api_v1_prefix,
-)
-
-# Include WebSocket routes
-app.include_router(
-    websocket_router,
-    prefix="/ws",
-    tags=["WebSocket"],
 )
 
 

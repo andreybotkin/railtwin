@@ -5,7 +5,7 @@ FastAPI backend for the Thailand Railway Digital Twin application.
 ## Features
 
 - RESTful API with automatic OpenAPI documentation
-- WebSocket support for real-time train position updates
+- Background train position calculation and Redis caching for gateway
 - PostGIS integration for geospatial queries
 - Train simulation based on actual schedules
 - Rate limiting and CORS protection
@@ -16,7 +16,7 @@ FastAPI backend for the Thailand Railway Digital Twin application.
 
 - Python 3.14+
 - PostgreSQL 15+ with PostGIS extension
-- Redis (optional, for caching)
+- Redis (required, for train position cache)
 
 ### Installation
 
