@@ -1,11 +1,12 @@
-"""APScheduler configuration.
+"""APScheduler configuration for RailDataCollector.
 
 Jobs:
-  - update_schedules  — daily at 03:00 Asia/Bangkok
-  - update_delays     — every 30 minutes (configurable)
+  - update_schedules  — monthly (1st, 10:00 Asia/Bangkok): fetch timetable,
+                        save to DB + JSON file + Redis.
+  - update_delays     — every 30 minutes: fetch real-time delays from TTS,
+                        store in Redis.
 
-The railroad initialization is triggered once at startup from main.py
-and is not managed by the scheduler.
+Database initialization has been moved to the ``raildbsetup`` microservice.
 """
 
 from datetime import datetime
@@ -28,9 +29,11 @@ logger = get_logger(__name__)
 
 scheduler = AsyncIOScheduler(timezone="Asia/Bangkok")
 
+# Module-level redis client — set once by setup_scheduler()
+_redis_client: aioredis.Redis | None = None
+
 # Status store — accessible from API endpoints
 _status: dict[str, dict[str, Any]] = {
-    "railroad": {"last_run": None, "last_result": None},
     "schedules": {"last_run": None, "last_result": None},
     "delays": {"last_run": None, "last_result": None},
 }
@@ -46,13 +49,14 @@ def get_status() -> dict[str, dict[str, Any]]:
 
 
 async def run_update_schedules() -> None:
-    """Periodic job: fetch fresh timetable and upsert into DB unconditionally."""
+    """Periodic job: fetch fresh timetable, upsert to DB, cache to file + Redis."""
     _status["schedules"]["last_run"] = datetime.utcnow().isoformat()
     try:
         async with get_session_factory()() as session:
             async with session.begin():
                 result = await UpdateSchedulesUseCase(
-                    SqlScheduleRepository(session)
+                    SqlScheduleRepository(session),
+                    redis_client=_redis_client,
                 ).execute()
         _status["schedules"]["last_result"] = result
     except Exception as exc:
@@ -60,28 +64,8 @@ async def run_update_schedules() -> None:
         _status["schedules"]["last_result"] = {"success": False, "error": str(exc)}
 
 
-async def run_init_schedules() -> None:
-    """Startup job: load ALL schedules from raw files only when the DB is empty.
-
-    Each train is committed in its own transaction so a single bad file
-    does not roll back the entire dataset.  Skipped on subsequent restarts.
-    """
-    from app.application.use_cases.init_schedules import InitSchedulesUseCase
-
-    _status["schedules"]["last_run"] = datetime.utcnow().isoformat()
-    try:
-        result = await InitSchedulesUseCase.run(get_session_factory())
-        _status["schedules"]["last_result"] = result
-        if result.get("skipped"):
-            logger.info("Schedule init skipped — DB already populated")
-        else:
-            logger.info("Schedules initialized from raw files", result=result)
-    except Exception as exc:
-        logger.error("Schedule init failed", error=str(exc))
-        _status["schedules"]["last_result"] = {"success": False, "error": str(exc)}
-
-
 async def run_update_delays(redis_client: aioredis.Redis) -> None:
+    """Periodic job: fetch real-time delays from TTS, store in Redis."""
     _status["delays"]["last_run"] = datetime.utcnow().isoformat()
     try:
         result = await UpdateDelaysUseCase(RedisDelayRepository(redis_client)).execute()
@@ -91,25 +75,6 @@ async def run_update_delays(redis_client: aioredis.Redis) -> None:
         _status["delays"]["last_result"] = {"success": False, "error": str(exc)}
 
 
-async def run_init_railroad(force: bool = False) -> None:
-    """Run inside an open DB transaction (called from main.py lifespan)."""
-    from app.application.use_cases.init_railroad import InitRailroadUseCase
-    from app.infrastructure.database.repositories.railroad import SqlRailroadRepository
-
-    _status["railroad"]["last_run"] = datetime.utcnow().isoformat()
-    try:
-        async with get_session_factory()() as session:
-            async with session.begin():
-                result = await InitRailroadUseCase(
-                    SqlRailroadRepository(session)
-                ).execute(force=force)
-        _status["railroad"]["last_result"] = result
-        logger.info("Railroad init complete", result=result)
-    except Exception as exc:
-        logger.error("Railroad init failed", error=str(exc))
-        _status["railroad"]["last_result"] = {"success": False, "error": str(exc)}
-
-
 # --------------------------------------------------------------------------- #
 # Scheduler setup                                                               #
 # --------------------------------------------------------------------------- #
@@ -117,6 +82,8 @@ async def run_init_railroad(force: bool = False) -> None:
 
 def setup_scheduler(redis_client: aioredis.Redis) -> AsyncIOScheduler:
     """Register all periodic jobs and return the scheduler (not yet started)."""
+    global _redis_client
+    _redis_client = redis_client
 
     # Monthly timetable update: 1st of each month at 10:00 Bangkok time
     scheduler.add_job(

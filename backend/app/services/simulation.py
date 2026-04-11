@@ -8,6 +8,7 @@ import json
 from datetime import datetime, time, timedelta, timezone
 from typing import Any
 
+from geoalchemy2.shape import to_shape
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -385,9 +386,18 @@ class TrainSimulationService:
             )
             heading = self._calculate_heading((lon, lat), (next_lon, next_lat))
         else:
-            # Fallback: interpolate between station locations (if available)
-            # For now, return None if no route geometry
-            return None
+            # Fallback: interpolate between station locations when route geometry is unavailable.
+            if prev_stop.station is None or next_stop.station is None:
+                return None
+
+            prev_point = to_shape(prev_stop.station.location)
+            next_point = to_shape(next_stop.station.location)
+            prev_coords = (float(prev_point.x), float(prev_point.y))
+            next_coords = (float(next_point.x), float(next_point.y))
+
+            lon = prev_coords[0] + ((next_coords[0] - prev_coords[0]) * progress)
+            lat = prev_coords[1] + ((next_coords[1] - prev_coords[1]) * progress)
+            heading = self._calculate_heading(prev_coords, next_coords)
 
         # Estimate speed based on distance and time
         avg_speed = 60.0  # Default 60 km/h
@@ -439,37 +449,47 @@ class TrainSimulationService:
             except Exception as exc:
                 logger.warning("Could not load TTS delays from Redis", error=str(exc))
 
-        # Get all trains with routes
-        trains = await self.train_repo.get_all_with_route(skip=0, limit=100)
-
         positions = []
-        for train in trains:
-            schedules = await self.schedule_repo.get_by_train(train.id)
+        batch_size = 100
+        skip = 0
 
-            if not schedules:
-                continue
+        while True:
+            trains = await self.train_repo.get_all_with_route(skip=skip, limit=batch_size)
+            if not trains:
+                break
 
-            route_coords = None
-            route_distance_km = None
-            if train.current_route_id:
-                route = await self.route_repo.get_by_id_with_geometry(
-                    train.current_route_id
-                )
-                if route and hasattr(route, "_geojson") and route._geojson:
-                    geojson = json.loads(route._geojson)
-                    route_coords = geojson.get("coordinates", [])
-                    route_distance_km = (
-                        float(route.distance_km) if route.distance_km else None
+            for train in trains:
+                schedules = await self.schedule_repo.get_by_train(train.id)
+
+                if not schedules:
+                    continue
+
+                route_coords = None
+                route_distance_km = None
+                if train.current_route_id:
+                    route = await self.route_repo.get_by_id_with_geometry(
+                        train.current_route_id
                     )
+                    if route and hasattr(route, "_geojson") and route._geojson:
+                        geojson = json.loads(route._geojson)
+                        route_coords = geojson.get("coordinates", [])
+                        route_distance_km = (
+                            float(route.distance_km) if route.distance_km else None
+                        )
 
-            position = await self.get_train_position(
-                train,
-                schedules,
-                route_coords,
-                route_distance_km=route_distance_km,
-            )
-            if position:
-                positions.append(position)
+                position = await self.get_train_position(
+                    train,
+                    schedules,
+                    route_coords,
+                    route_distance_km=route_distance_km,
+                )
+                if position:
+                    positions.append(position)
+
+            if len(trains) < batch_size:
+                break
+
+            skip += batch_size
 
         return positions
 

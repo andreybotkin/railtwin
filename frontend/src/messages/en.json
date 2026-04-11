@@ -1,0 +1,83 @@
+{
+  "appTitle": "Thailand Railway Digital Twin",
+  "header": {
+    "toggleTrainPanel": "Toggle train panel",
+    "toggleSchedulePanel": "Toggle schedule panel",
+    "toggleDarkMode": "Toggle dark mode",
+    "language": "Language"
+  },
+  "map": {
+    "northern": "Northern",
+    "northeastern": "Northeastern",
+    "southern": "Southern",
+    "eastern": "Eastern",
+    "locateMe": "Show my location"
+  },
+  "trains": {
+    "title": "Trains",
+    "train": "Train",
+    "speed": "Speed",
+    "delay": "Delay",
+    "onTime": "On time",
+    "nextStation": "Next station",
+    "journeyProgress": "Journey progress",
+    "specialExpress": "Special Express",
+    "rapid": "Rapid",
+    "ordinary": "Ordinary",
+    "moving": "Moving",
+    "stopped": "Stopped",
+    "atStation": "At Station",
+    "delayed": "Delayed",
+    "searchPlaceholder": "Search trains...",
+    "noTrainsFound": "No trains found",
+    "live": "Live",
+    "polling": "Polling"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "routes": "Routes",
+    "stations": "Stations",
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "platform": "Platform",
+    "distance": "Distance"
+  },
+  "station": {
+    "majorStation": "Major Station",
+    "parking": "Parking",
+    "wifi": "WiFi",
+    "food": "Food",
+    "atm": "ATM"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "noData": "No data available"
+  },
+  "topics": {
+    "railway": "Railway Operations",
+    "satellite": "Satellite View",
+    "infrastructure": "Infrastructure",
+    "dark": "Night Mode"
+  },
+  "layers": {
+    "title": "Layers",
+    "theme": "Theme",
+    "routes": "Routes",
+    "routeNorthern": "Northern Line",
+    "routeNortheastern": "Northeastern Line",
+    "routeSouthern": "Southern Line",
+    "routeEastern": "Eastern Line",
+    "stations": "Stations",
+    "stationsMajor": "Major Stations",
+    "stationsAll": "All Stations",
+    "trains": "Trains",
+    "trainsSpecialExpress": "Special Express",
+    "trainsRapid": "Rapid",
+    "trainsOrdinary": "Ordinary"
+  },
+  "footer": {
+    "copyright": "© 2026 Thailand Railway Digital Twin",
+    "dataSource": "Data source: State Railway of Thailand (SRT)"
+  }
+}

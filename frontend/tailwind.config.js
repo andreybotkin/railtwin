@@ -1,3 +1,5 @@
+// Tailwind v4: configuration moved to src/styles/globals.css (@theme inline).
+// This file is kept for editor reference only.
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ['class'],

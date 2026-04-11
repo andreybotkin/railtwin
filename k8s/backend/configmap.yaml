@@ -12,7 +12,7 @@ data:
   DEBUG: "false"
   ENVIRONMENT: "production"
   API_V1_PREFIX: "/api/v1"
-  LOG_LEVEL: "INFO"
+  LOG_LEVEL: "WARNING"
   CORS_ORIGINS: "http://localhost:3000,https://rthfi.com,https://www.rthfi.com"
   RATE_LIMIT_PER_MINUTE: "100"
   WS_HEARTBEAT_INTERVAL: "5"

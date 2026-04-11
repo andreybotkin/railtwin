@@ -1,10 +1,15 @@
 /**
  * Train marker component for the map with smooth position animation.
+ *
+ * Best practices from geops/mobility-toolbox-js:
+ * - Delay color coding (realtimeDelayStyle / realtimeByDelayStyle pattern)
+ * - Selected train highlighting
+ * - Click to select/deselect
  */
 
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useCallback } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -19,11 +24,34 @@ import { Badge } from '@/components/ui';
 // Animation duration should match the WebSocket update interval (2s)
 const ANIM_DURATION_MS = 1900;
 
-interface TrainMarkerProps {
-  position: TrainPositionUpdate;
+/**
+ * Get delay color following mobility-toolbox-js realtimeByDelayStyle pattern:
+ * green = on time or early, yellow = 1-5 min late, orange = 5-15 min, red = 15+ min.
+ */
+function getDelayColor(delayMinutes: number): string {
+  if (delayMinutes <= 0) return '#43A047'; // green — on time
+  if (delayMinutes <= 5) return '#FDD835'; // yellow — slight delay
+  if (delayMinutes <= 15) return '#FB8C00'; // orange — moderate delay
+  return '#E53935'; // red — severe delay
 }
 
-export default function TrainMarker({ position }: TrainMarkerProps) {
+/**
+ * Get delay border ring size for visual emphasis.
+ */
+function getDelayRingSize(delayMinutes: number): number {
+  if (delayMinutes <= 0) return 0;
+  if (delayMinutes <= 5) return 2;
+  if (delayMinutes <= 15) return 3;
+  return 4;
+}
+
+interface TrainMarkerProps {
+  position: TrainPositionUpdate;
+  isSelected?: boolean;
+  onSelect?: (id: number | null) => void;
+}
+
+export default function TrainMarker({ position, isSelected, onSelect }: TrainMarkerProps) {
   const markerRef = useRef<L.Marker>(null);
   // Current displayed position (lat, lon) — updated by rAF, not React state
   const displayPosRef = useRef<[number, number]>([
@@ -33,8 +61,6 @@ export default function TrainMarker({ position }: TrainMarkerProps) {
   const animRef = useRef<number>(0);
 
   // Smoothly animate marker from current displayed position to new target via rAF + setLatLng.
-  // Using setLatLng (not CSS transforms) keeps Leaflet's internal state correct so that
-  // map panning, popups, and hit-testing always work at the right coordinates.
   useEffect(() => {
     const targetLat = position.location.coordinates[1];
     const targetLon = position.location.coordinates[0];
@@ -58,29 +84,46 @@ export default function TrainMarker({ position }: TrainMarkerProps) {
     return () => cancelAnimationFrame(animRef.current);
   }, [position.location.coordinates[0], position.location.coordinates[1]]);
 
-  // Create custom icon (only re-created when type/status/heading changes)
+  const handleClick = useCallback(() => {
+    onSelect?.(isSelected ? null : position.train_id);
+  }, [onSelect, isSelected, position.train_id]);
+
+  // Create custom icon with delay color coding (pattern from mobility-toolbox-js realtimeDelayStyle)
   const icon = useMemo(() => {
-    const color = position.train_type === 'special_express'
+    const baseColor = position.train_type === 'special_express'
       ? '#E53935'
       : position.train_type === 'rapid'
       ? '#1E88E5'
       : '#43A047';
 
+    const delayColor = getDelayColor(position.delay_minutes);
+    const ringSize = getDelayRingSize(position.delay_minutes);
+    const selectedBorder = isSelected ? 'border: 3px solid #FFD600;' : '';
+    const delayBorder = ringSize > 0 && !isSelected ? `box-shadow: 0 0 0 ${ringSize}px ${delayColor};` : '';
+    const size = isSelected ? 36 : 28;
+
+    const delayBadge = position.delay_minutes > 0
+      ? `<span style="position:absolute;top:-8px;right:-12px;background:${delayColor};color:#fff;font-size:9px;padding:1px 3px;border-radius:6px;font-weight:bold;white-space:nowrap">+${position.delay_minutes}</span>`
+      : '';
+
     const iconHtml = `
-      <div class="train-icon ${position.status === 'moving' ? 'moving' : ''}"
-           style="background-color: ${color}; transform: rotate(${position.heading || 0}deg)">
-        🚂
+      <div style="position:relative">
+        <div class="train-icon ${position.status === 'moving' ? 'moving' : ''}"
+             style="background-color: ${baseColor}; transform: rotate(${position.heading || 0}deg); ${selectedBorder} ${delayBorder} width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${isSelected ? 18 : 14}px;cursor:pointer">
+          🚂
+        </div>
+        ${delayBadge}
       </div>
     `;
 
     return L.divIcon({
       html: iconHtml,
       className: 'train-marker',
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
-      popupAnchor: [0, -14],
+      iconSize: [size + 8, size + 8],
+      iconAnchor: [(size + 8) / 2, (size + 8) / 2],
+      popupAnchor: [0, -(size / 2)],
     });
-  }, [position.train_type, position.status, position.heading]);
+  }, [position.train_type, position.status, position.heading, position.delay_minutes, isSelected]);
 
   const statusBadgeVariant =
     position.status === 'moving' ? 'success' :
@@ -88,8 +131,12 @@ export default function TrainMarker({ position }: TrainMarkerProps) {
     position.status === 'at_station' ? 'info' : 'secondary';
 
   return (
-    // position is set once on mount; all updates go through setLatLng in the effect above
-    <Marker ref={markerRef} position={displayPosRef.current} icon={icon}>
+    <Marker
+      ref={markerRef}
+      position={displayPosRef.current}
+      icon={icon}
+      eventHandlers={{ click: handleClick }}
+    >
       <Popup>
         <div className="min-w-[200px] space-y-2">
           <div className="flex items-center justify-between">
@@ -111,7 +158,10 @@ export default function TrainMarker({ position }: TrainMarkerProps) {
               </div>
               <div>
                 <span className="text-muted-foreground">Delay:</span>
-                <span className={`ml-1 font-medium ${position.delay_minutes > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                <span
+                  className="ml-1 font-medium"
+                  style={{ color: getDelayColor(position.delay_minutes) }}
+                >
                   {formatDelay(position.delay_minutes)}
                 </span>
               </div>

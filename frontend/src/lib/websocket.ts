@@ -1,5 +1,10 @@
 /**
  * WebSocket client for real-time train position updates.
+ *
+ * Best practices from geops/mobility-toolbox-js:
+ * - Visibility API: pause WS when tab is hidden, resume on return
+ * - BBOX command: send visible map bounds for server-side filtering
+ * - Ping/keepalive with exponential backoff reconnect
  */
 
 import type { WebSocketMessage, TrainPositionUpdate } from '@/types';
@@ -24,6 +29,8 @@ export class TrainWebSocketClient {
   private reconnectDelay = 1000;
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   private shouldReconnect = true;
+  private currentBBox: string | null = null;
+  private visibilityHandler: (() => void) | null = null;
 
   private onMessageHandlers = new Set<MessageHandler>();
   private onErrorHandlers = new Set<ErrorHandler>();
@@ -47,9 +54,14 @@ export class TrainWebSocketClient {
         console.log('WebSocket connected');
         this.reconnectAttempts = 0;
         this.startHeartbeat();
+        this.setupVisibilityHandler();
         this.onConnectHandlers.forEach((handler) => {
           handler();
         });
+        // Re-send BBOX on reconnect
+        if (this.currentBBox) {
+          this.sendBBox(this.currentBBox);
+        }
       };
 
       this.ws.onmessage = (event) => {
@@ -60,6 +72,7 @@ export class TrainWebSocketClient {
               handler(message.data as TrainPositionUpdate[]);
             });
           }
+          // Ignore keepalive messages silently
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
         }
@@ -94,9 +107,21 @@ export class TrainWebSocketClient {
   disconnect(): void {
     this.shouldReconnect = false;
     this.stopHeartbeat();
+    this.teardownVisibilityHandler();
     if (this.ws) {
       this.ws.close();
       this.ws = null;
+    }
+  }
+
+  /**
+   * Send BBOX to server for viewport-based filtering.
+   * Pattern from mobility-toolbox-js RealtimeAPI: "BBOX minLon,minLat,maxLon,maxLat"
+   */
+  sendBBox(bbox: string): void {
+    this.currentBBox = bbox;
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(`BBOX ${bbox}`);
     }
   }
 
@@ -137,6 +162,45 @@ export class TrainWebSocketClient {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
+    }
+  }
+
+  /**
+   * Setup Visibility API handler to pause/resume WS when tab is hidden/shown.
+   * Pattern from mobility-toolbox-js RealtimeEngine.onDocumentVisibilityChange().
+   */
+  private setupVisibilityHandler(): void {
+    if (typeof document === 'undefined') return;
+
+    this.visibilityHandler = () => {
+      if (document.hidden) {
+        // Tab hidden — pause heartbeat to save resources
+        this.stopHeartbeat();
+      } else {
+        // Tab visible again — restart heartbeat and reconnect if needed
+        if (this.ws?.readyState === WebSocket.OPEN) {
+          this.startHeartbeat();
+          // Re-send BBOX to get fresh data for current viewport
+          if (this.currentBBox) {
+            this.sendBBox(this.currentBBox);
+          }
+        } else if (this.shouldReconnect) {
+          this.reconnectAttempts = 0;
+          this.connect();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  /**
+   * Teardown Visibility API handler.
+   */
+  private teardownVisibilityHandler(): void {
+    if (this.visibilityHandler && typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.visibilityHandler = null;
     }
   }
 

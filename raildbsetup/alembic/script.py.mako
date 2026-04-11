@@ -1,4 +1,4 @@
-"""${message}
+${message}
 
 Revision ID: ${up_revision}
 Revises: ${down_revision | comma,n}
@@ -20,10 +20,8 @@ depends_on: Union[str, Sequence[str], None] = ${repr(depends_on)}
 
 
 def upgrade() -> None:
-    """Apply migration."""
     ${upgrades if upgrades else "pass"}
 
 
 def downgrade() -> None:
-    """Revert migration."""
     ${downgrades if downgrades else "pass"}

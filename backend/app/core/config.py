@@ -81,17 +81,11 @@ class Settings(BaseSettings):
         "postgresql+asyncpg://postgres:postgres@localhost:5432/railway_db"
     )
 
-    @property
-    def database_url_sync(self) -> str:
-        """Get synchronous database URL for Alembic migrations."""
-        url = str(self.database_url)
-        return url.replace("+asyncpg", "")
-
     # Redis settings
     redis_url: str = "redis://localhost:6379/0"
 
     # Logging settings
-    log_level: str = "INFO"
+    log_level: str = "WARNING"
 
     # Rate limiting
     rate_limit_per_minute: int = 100

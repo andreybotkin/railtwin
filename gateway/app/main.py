@@ -1,18 +1,33 @@
-"""Stateless gateway for website traffic and train positions from Redis."""
+"""Stateless gateway for website traffic and train positions from Redis.
+
+TODO (deferred — geops patterns for future iterations):
+- Topic-based architecture: route WS subscriptions to separate pub/sub channels
+  per topic (e.g., "trains", "stations", "disruptions") like trafimage-maps topics
+- Rate limiting per client IP for WS connections
+- Message compression (permessage-deflate) for large position payloads
+- Prometheus /metrics endpoint for observability
+- Graceful shutdown: drain WS clients before stopping
+"""
 
 import asyncio
 import json
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from typing import Any
+from typing import Annotated
 
 import httpx
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 from redis.asyncio import Redis
+from starlette.middleware.base import BaseHTTPMiddleware
+
+logger = logging.getLogger(__name__)
 
 REDIS_POSITIONS_KEY = "train:positions:latest"
 
@@ -30,7 +45,7 @@ class Settings(BaseSettings):
     backend_url: str = "http://backend:8000"
     redis_url: str = "redis://redis:6379/0"
     ws_poll_interval: int = 2
-    cors_origins: list[str] = [
+    cors_origins: Annotated[list[str], NoDecode] = [
         "http://localhost:3000",
         "http://localhost:8002",
     ]
@@ -39,7 +54,21 @@ class Settings(BaseSettings):
     @classmethod
     def parse_cors_origins(cls, value: Any) -> list[str]:
         if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
+            parsed_value = value.strip()
+
+            if not parsed_value:
+                return []
+
+            if parsed_value.startswith("["):
+                decoded = json.loads(parsed_value)
+                if isinstance(decoded, list):
+                    return [
+                        str(origin).strip()
+                        for origin in decoded
+                        if str(origin).strip()
+                    ]
+
+            return [origin.strip() for origin in parsed_value.split(",") if origin.strip()]
         return list(value)
 
 
@@ -61,6 +90,22 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
+
+
+# Security headers middleware (OWASP best practices, pattern from trafimage-maps)
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):  # noqa: ANN001
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(self), microphone=()"
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -79,6 +124,11 @@ async def _read_positions() -> list[dict[str, Any]]:
     return json.loads(raw)
 
 
+async def _read_position(train_id: int) -> dict[str, Any] | None:
+    positions = await _read_positions()
+    return next((position for position in positions if position["train_id"] == train_id), None)
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "healthy"}
@@ -92,23 +142,66 @@ async def ready() -> dict[str, str]:
     return {"status": "ready"}
 
 
+def _filter_by_bbox(
+    positions: list[dict[str, Any]], bbox: str | None
+) -> list[dict[str, Any]]:
+    """Filter positions by bounding box string 'minLon,minLat,maxLon,maxLat'."""
+    if not bbox:
+        return positions
+    try:
+        min_lon, min_lat, max_lon, max_lat = (float(v) for v in bbox.split(","))
+    except (ValueError, TypeError):
+        return positions
+    return [
+        p
+        for p in positions
+        if "location" in p
+        and min_lon <= p["location"]["coordinates"][0] <= max_lon
+        and min_lat <= p["location"]["coordinates"][1] <= max_lat
+    ]
+
+
 @app.get("/api/v1/trains/positions")
-async def get_positions() -> list[dict[str, Any]]:
-    return await _read_positions()
+async def get_positions(bbox: str | None = None) -> list[dict[str, Any]]:
+    """Get all train positions, optionally filtered by bbox."""
+    positions = await _read_positions()
+    return _filter_by_bbox(positions, bbox)
+
+
+@app.get("/api/v1/trains/{train_id}/position")
+async def get_train_position(train_id: int) -> dict[str, Any]:
+    position = await _read_position(train_id)
+    if position is None:
+        raise HTTPException(status_code=404, detail=f"Position for train {train_id} not found")
+
+    return {
+        "id": train_id,
+        "train_id": train_id,
+        "location": position["location"],
+        "speed": position.get("speed"),
+        "heading": position.get("heading"),
+        "status": position.get("status", "moving"),
+        "delay_minutes": position.get("delay_minutes", 0),
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
 
 
 async def _ws_positions_loop(websocket: WebSocket, train_id: int | None = None) -> None:
+    """WebSocket loop that supports BBOX command, ping/pong, and server keepalive."""
     await websocket.accept()
     last_payload: str | None = None
+    client_bbox: str | None = None
+    keepalive_counter = 0
 
     while True:
         positions = await _read_positions()
         payload: dict[str, Any]
 
         if train_id is None:
+            filtered = _filter_by_bbox(positions, client_bbox)
             payload = {
                 "type": "positions",
-                "data": positions,
+                "data": filtered,
                 "timestamp": asyncio.get_running_loop().time(),
             }
         else:
@@ -125,10 +218,23 @@ async def _ws_positions_loop(websocket: WebSocket, train_id: int | None = None) 
             await websocket.send_json(payload)
             last_payload = serialized
 
+        # Server-side keepalive every ~10s (5 poll cycles of 2s)
+        keepalive_counter += 1
+        if keepalive_counter >= 5:
+            keepalive_counter = 0
+            try:
+                await websocket.send_json({"type": "keepalive", "timestamp": asyncio.get_running_loop().time()})
+            except Exception:
+                return
+
         try:
             message = await asyncio.wait_for(websocket.receive_text(), timeout=settings.ws_poll_interval)
             if message == "ping":
                 await websocket.send_text("pong")
+            elif message.startswith("BBOX "):
+                # Client sends "BBOX minLon,minLat,maxLon,maxLat"
+                client_bbox = message[5:].strip() or None
+                logger.debug("WS BBOX updated: %s", client_bbox)
         except asyncio.TimeoutError:
             continue
 

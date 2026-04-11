@@ -2,12 +2,14 @@
 
 These endpoints allow operators to trigger a collection run immediately
 without waiting for the scheduler, useful for debugging or after incidents.
+
+Database initialization (railroad network, schedule seeding) is handled
+by the ``raildbsetup`` microservice.
 """
 
 from fastapi import APIRouter, BackgroundTasks, Request
 
 from app.application.scheduler import (
-    run_init_railroad,
     run_update_delays,
     run_update_schedules,
 )
@@ -16,27 +18,12 @@ router = APIRouter()
 
 
 @router.post(
-    "/railroad",
-    summary="Trigger railroad network initialization",
-    description=(
-        "Loads routes and stations from the local KML file (or downloads it) "
-        "and writes them to the database.  Use force=true to overwrite existing data."
-    ),
-)
-async def trigger_railroad(
-    background_tasks: BackgroundTasks,
-    force: bool = False,
-) -> dict:
-    background_tasks.add_task(run_init_railroad, force)
-    return {"message": "Railroad initialization triggered", "force": force}
-
-
-@router.post(
     "/schedules",
     summary="Trigger timetable update",
     description=(
-        "Fetches the latest train timetable (local cache → TTS remote) "
-        "and upserts train and schedule records in the database."
+        "Fetches the latest train timetable (local cache → TTS remote), "
+        "upserts train and schedule records in the database, "
+        "saves a dated JSON file, and caches per-train data in Redis."
     ),
 )
 async def trigger_schedules(background_tasks: BackgroundTasks) -> dict:

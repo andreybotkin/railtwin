@@ -3,13 +3,15 @@
 Startup sequence (lifespan):
   1. Configure structured logging.
   2. Connect to Redis (shared with backend).
-  3. Wait for the database to be accessible (tables created by backend alembic).
-  4. First-run check: if railroad network is empty → load from local KML.
-  5. First-run check: if trains table is empty → load from local seed file.
-  6. Start background delay fetch from TTS (fire-and-forget).
-  7. Start APScheduler:
-       - monthly (1st, 10:00 Bangkok) timetable update
-       - every 30 min delay update from TTS
+  3. Wait for the database to be ready (raildbsetup must finish first).
+  4. Start background delay fetch from TTS (fire-and-forget).
+  5. Start APScheduler:
+       - monthly (1st, 10:00 Bangkok) timetable update → DB + file + Redis
+       - every 30 min delay update from TTS → Redis
+
+Schema creation and initial data seeding are handled exclusively by
+``raildbsetup``. In docker-compose this service depends on raildbsetup
+being healthy. In other environments _wait_for_db provides a safety check.
 
 On shutdown the scheduler and Redis connection are closed gracefully.
 """
@@ -24,8 +26,6 @@ from fastapi import FastAPI
 
 from app.api.v1.router import router as v1_router
 from app.application.scheduler import (
-    run_init_railroad,
-    run_init_schedules,
     run_update_delays,
     setup_scheduler,
 )
@@ -37,11 +37,11 @@ logger = get_logger(__name__)
 
 
 async def _wait_for_db(max_attempts: int = 20, delay: float = 5.0) -> None:
-    """Retry until the database tables are accessible.
+    """Retry until the database is accessible and has station data.
 
-    The backend runs ``alembic upgrade head`` before starting uvicorn.
-    This function ensures raildatacollector does not proceed until the
-    shared schema is fully in place.
+    The ``raildbsetup`` service populates the schema before this service
+    starts (docker-compose dependency).  This function is a safety
+    check for non-compose environments (K8S, local dev without compose).
     """
     for attempt in range(1, max_attempts + 1):
         try:
@@ -73,17 +73,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
     app.state.redis = redis_client
 
-    # --- Wait for DB tables to be ready (backend alembic must finish first) --
+    # Safety check: ensure DB schema is accessible
     await _wait_for_db()
-
-    # --- First-run: initialize railroad network from local KML ---------------
-    # Skipped automatically if stations table is already populated.
-    await run_init_railroad(force=False)
-
-    # --- First-run: load train schedules from local seed file ----------------
-    # Skipped automatically if trains table is already populated.
-    # Runs in background so the HTTP server becomes available immediately.
-    asyncio.ensure_future(run_init_schedules())
 
     # --- Start background delay fetch from TTS --------------------------------
     asyncio.ensure_future(run_update_delays(redis_client))
@@ -97,6 +88,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
 
     yield
+
+    sched.shutdown(wait=False)
+    await redis_client.aclose()
+    logger.info("RailDataCollector shutdown complete")
 
     sched.shutdown(wait=False)
     await redis_client.aclose()

@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: raildbsetup
+  namespace: railway
+  labels:
+    app: raildbsetup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: raildbsetup
+  strategy:
+    type: Recreate   # Only one instance should run initialization at a time
+  template:
+    metadata:
+      labels:
+        app: raildbsetup
+    spec:
+      serviceAccountName: default
+      initContainers:
+        # Wait for the backend (which runs alembic) to be ready before starting
+        - name: wait-for-backend
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until wget -qO- http://backend:8000/health > /dev/null 2>&1; do
+                echo "Waiting for backend to be healthy..."
+                sleep 5
+              done
+              echo "Backend is ready"
+      containers:
+        - name: raildbsetup
+          image: raildbsetup:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8003
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: raildbsetup-config
+            - secretRef:
+                name: raildbsetup-secrets
+                optional: true
+          # Data volumes: railroad KML and schedule files
+          # In production these should come from a PVC populated during CI/CD
+          volumeMounts:
+            - name: railroad-data
+              mountPath: /app/railroad
+              readOnly: true
+            - name: schedule-data
+              mountPath: /app/schedule
+              readOnly: true
+          # Liveness: the process is alive
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8003
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Readiness: initialization is complete
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8003
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            # Allow up to 30 minutes for initial schedule loading
+            failureThreshold: 180
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: railroad-data
+          persistentVolumeClaim:
+            claimName: railroad-data-pvc
+        - name: schedule-data
+          persistentVolumeClaim:
+            claimName: schedule-data-pvc
+      restartPolicy: Always

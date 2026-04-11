@@ -20,9 +20,11 @@ const MapContent = dynamic(() => import('./MapContent'), {
 
 interface MapContainerProps {
   className?: string;
+  selectedTrainId?: number | null;
+  onTrainSelect?: (id: number | null) => void;
 }
 
-export default function MapContainer({ className }: MapContainerProps) {
+export default function MapContainer({ className, selectedTrainId, onTrainSelect }: MapContainerProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -37,5 +39,5 @@ export default function MapContainer({ className }: MapContainerProps) {
     );
   }
 
-  return <MapContent className={className} />;
+  return <MapContent className={className} selectedTrainId={selectedTrainId} onTrainSelect={onTrainSelect} />;
 }

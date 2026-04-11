@@ -2,6 +2,9 @@
  * TypeScript type definitions for the Thailand Railway Digital Twin application.
  */
 
+// Re-export map topic types
+export type { MapLayer, MapTopic, LayerCategory, ZoomGeneralization } from './map-topics';
+
 // GeoJSON types
 export interface GeoJSONPoint {
   type: 'Point';
@@ -117,6 +120,7 @@ export interface TrainPositionUpdate {
   next_station: string | null;
   prev_station: string | null;
   progress: number;
+  route_id: number | null;
 }
 
 // Schedule types
@@ -154,7 +158,7 @@ export interface PaginatedResponse<T> {
 
 // WebSocket message types
 export interface WebSocketMessage {
-  type: 'positions' | 'position';
+  type: 'positions' | 'position' | 'keepalive';
   data: TrainPositionUpdate[] | TrainPositionUpdate | null;
   train_id?: number;
   timestamp: number;

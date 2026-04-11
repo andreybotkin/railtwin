@@ -2,6 +2,12 @@
 
 This is the main entry point for the backend application, configuring
 FastAPI with all middleware, routes, and event handlers.
+
+TODO (deferred — geops patterns for future iterations):
+- OpenAPI schema enrichment: add detailed examples, tags, and descriptions
+  for openapi-typescript auto-generation (mobility-toolbox-js pattern)
+- Structured logging with correlation IDs per request
+- Background task scheduler for cache warming and stale-data cleanup
 """
 
 import asyncio
@@ -76,8 +82,8 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title=settings.app_name,
     description="""
-    Thailand Railway Digital Twin API provides real-time tracking and
-    information about the Thai railway network.
+    Thailand Railway Digital Twin backend provides timetable, station,
+    route, and train data for the Thai railway network.
 
     ## Features
 
@@ -85,7 +91,8 @@ app = FastAPI(
     * **Routes**: View railway routes with geographic data
     * **Trains**: Track trains and their current positions
     * **Schedules**: Access train schedules and timetables
-    * **Real-time Updates**: WebSocket connections for live train positions
+    * **Position Cache**: Recalculate active train positions and publish them to Redis
+    * **Gateway Integration**: Website-facing realtime traffic is served by the gateway service
     """,
     version=settings.app_version,
     docs_url="/docs",
@@ -174,5 +181,16 @@ async def readiness_check() -> dict[str, str]:
     Returns:
         Dict with readiness status.
     """
-    # TODO: Add database connectivity check
+    from sqlalchemy import text
+
+    from app.models.database import async_session_factory
+
+    try:
+        async with async_session_factory() as session:
+            await session.execute(text("SELECT 1"))
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "not_ready", "detail": "Database connection failed"},
+        )
     return {"status": "ready"}
