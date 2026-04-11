@@ -10,8 +10,6 @@ TODO (deferred — geops patterns for future iterations):
 - Background task scheduler for cache warming and stale-data cleanup
 """
 
-import asyncio
-import contextlib
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -28,7 +26,10 @@ from app.core.config import settings
 from app.core.logging import get_logger, setup_logging
 from app.models.database import async_session_factory
 from app.services.position_cache import build_position_cache_updater
-from app.services.tts_scraper import tts_scraper_loop
+
+# TTS scraper is owned by the raildatacollector service and writes to Redis.
+# The backend reads TTS delays from Redis via get_delays_from_redis() inside
+# TrainSimulationService — it does NOT run its own scraper loop.
 
 # Initialize logging
 setup_logging()
@@ -58,11 +59,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     )
 
     redis_client = get_redis()
-    scraper_task = asyncio.create_task(
-        tts_scraper_loop(redis_client, interval_seconds=3600),
-        name="tts_scraper",
-    )
-    logger.info("TTS scraper background task started")
 
     position_cache_updater = build_position_cache_updater(async_session_factory, redis_client)
     position_cache_updater.start()
@@ -71,9 +67,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Shutdown
     await position_cache_updater.stop()
-    scraper_task.cancel()
-    with contextlib.suppress(asyncio.CancelledError):
-        await scraper_task
     await redis_client.aclose()
     logger.info("Shutting down Thailand Railway Digital Twin API")
 

@@ -164,6 +164,109 @@ export interface WebSocketMessage {
   timestamp: number;
 }
 
+// ---------------------------------------------------------------------------
+// Trajectory types — geops mobility-toolbox-js pattern
+// Backend generates time_intervals so clients can interpolate position at any
+// moment without waiting for the next server update (smooth 60fps animation).
+// @see https://github.com/geops/mobility-toolbox-js
+// ---------------------------------------------------------------------------
+
+/**
+ * A single time-position-rotation sample inside a trajectory.
+ * [unix_ms, geom_fraction, rotation_degrees]
+ *   unix_ms        — Wall-clock time this sample was computed for
+ *   geom_fraction  — Fraction (0..1) along the full route LineString
+ *   rotation       — Heading in degrees (0 = North, clockwise)
+ */
+export type TimeInterval = [number, number, number];
+
+export interface TrainTrajectoryLine {
+  name: string;
+  color: string;
+  /** Internal route ID (geops compat). */
+  id?: number;
+  /** Stroke colour (alias for color, geops compat). */
+  stroke?: string;
+  text_color?: string;
+  tags?: string[];
+}
+
+/** geops TrackerTrajectoryProperties — all mandatory fields included. */
+export interface TrainTrajectoryProperties {
+  // Core identification
+  train_id: number;
+  train_number: string;
+  train_type: TrainType;
+  route_identifier: string;
+  // Delay
+  /** Delay in minutes (legacy / display). */
+  delay_minutes: number;
+  /** Delay in seconds (geops standard). */
+  delay: number;
+  // Context
+  next_station: string | null;
+  prev_station: string | null;
+  /** Geops-compatible time_intervals for temporal position interpolation. */
+  time_intervals: TimeInterval[];
+  line: TrainTrajectoryLine;
+  /** BBOX of the visible trajectory segment: [minLon, minLat, maxLon, maxLat] */
+  bounds: [number, number, number, number];
+  // geops TrackerTrajectoryProperties required fields
+  /** Vehicle movement state. */
+  state: 'BOARDING' | 'DRIVING' | 'JOURNEY_CANCELLED';
+  /** Vehicle type — always "rail" for trains. */
+  type: 'rail';
+  /** Tenant identifier for multi-operator deployments. */
+  tenant: string;
+  /** Server-side computation timestamp (Unix ms). */
+  timestamp: number;
+  has_journey: boolean;
+  has_realtime: boolean;
+  has_realtime_journey: boolean;
+  gen_level: number;
+  gen_range: number[];
+  graph: string;
+  operator_provides_realtime_journey: string;
+}
+
+/** geops-compatible GeoJSON Feature for a train trajectory. */
+export interface TrainTrajectory {
+  /** GeoJSON Feature discriminator. */
+  type: 'Feature';
+  /** Full GeoJSON LineString of the train's route. */
+  geometry: GeoJSONLineString;
+  properties: TrainTrajectoryProperties;
+}
+
+// ---------------------------------------------------------------------------
+// Stop-sequence types
+// ---------------------------------------------------------------------------
+
+/** State of a single stop in the upcoming-stops panel. */
+export type StopState = 'PASSED' | 'BOARDING' | 'PENDING' | 'JOURNEY_CANCELLED';
+
+/** A single stop in a train's upcoming stop sequence. */
+export interface StopSequenceItem {
+  station_name: string;
+  sequence: number;
+  /** Scheduled departure minutes since midnight (local Bangkok time). */
+  aimed_departure_minutes: number | null;
+  departure_day_offset: number;
+  delay_minutes: number;
+  state: StopState;
+}
+
+/** Full stop-sequence payload from GET /api/v1/trains/{id}/stopsequence. */
+export type TrainStopSequence = StopSequenceItem[];
+
+/** Message from /ws/trajectory endpoint (gateway). */
+export type TrajectoryWSMessage =
+  | { source: 'trajectory'; content: TrainTrajectory; timestamp: number }
+  | { source: 'deleted_vehicles'; content: number; timestamp: number }
+  | { source: 'keepalive'; timestamp: number };
+
+
+
 // UI state types
 export interface MapViewState {
   center: [number, number];

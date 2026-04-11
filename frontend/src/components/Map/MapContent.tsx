@@ -33,10 +33,10 @@ import 'leaflet/dist/leaflet.css';
 import { FullScreen as LeafletFullScreen } from 'leaflet.fullscreen';
 import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 
-import { useRoutes, useStations, useTrainPositions, useInitialPositions } from '@/lib/hooks';
+import { useRoutes, useStations, useTrainPositions, useInitialPositions, useTrainTrajectories } from '@/lib/hooks';
 import { getRouteColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import { getWebSocketClient } from '@/lib/websocket';
+import { getWebSocketClient, getTrajectoryClient } from '@/lib/websocket';
 import { useMapTopicStore } from '@/lib/stores/map-topic-store';
 import CanvasTrainLayer from './CanvasTrainLayer';
 import TrainMarker from './TrainMarker';
@@ -181,6 +181,7 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
   const { data: stationsData } = useStations();
   const { positions: wsPositions, isConnected } = useTrainPositions();
   const { data: apiPositions } = useInitialPositions();
+  const { trajectories } = useTrainTrajectories();
   const bboxRef = useRef<string>('');
 
   // Topic store
@@ -243,13 +244,13 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
   const tileUrl = activeTopic.tileUrl || 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
   const tileAttribution = activeTopic.tileAttribution || '';
 
-  // BBOX change handler
+  // BBOX change handler — sends to both position and trajectory WS clients
   const handleBBoxChange = useCallback((bbox: string) => {
     bboxRef.current = bbox;
-    const client = getWebSocketClient();
-    if (client.isConnected()) {
-      client.sendBBox(bbox);
-    }
+    const posClient = getWebSocketClient();
+    if (posClient.isConnected()) posClient.sendBBox(bbox);
+    const trajClient = getTrajectoryClient();
+    if (trajClient.isConnected()) trajClient.sendBBox(bbox);
   }, []);
 
   // Permalink: persist selected train in URL
@@ -346,6 +347,7 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
         {!useDomTrains && generalization.trainMode !== 'hidden' && (
           <CanvasTrainLayer
             positions={canvasTrains}
+            trajectories={trajectories}
             selectedTrainId={selectedTrainId}
             onTrainSelect={onTrainSelect}
           />
@@ -372,6 +374,24 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
             onSelect={onTrainSelect}
           />
         )}
+
+        {/* Selected train full trajectory polyline (geops pattern: show full route on select) */}
+        {selectedTrainId && trajectories.get(selectedTrainId) && (() => {
+          const traj = trajectories.get(selectedTrainId)!;
+          const coords = traj.geometry.coordinates.map(
+            ([lon, lat]) => [lat, lon] as [number, number],
+          );
+          return (
+            <Polyline
+              key={`traj-${selectedTrainId}`}
+              positions={coords}
+              color={traj.properties.line.color}
+              weight={4}
+              opacity={0.9}
+              dashArray="8 4"
+            />
+          );
+        })()}
       </MapContainer>
 
       {/* Layer tree overlay (trafimage-maps LayerTree pattern) */}

@@ -260,3 +260,186 @@ async def test_get_all_active_trains_reads_all_batches() -> None:
 
     assert len(positions) == 101
     assert calls == [(0, 100), (100, 100)]
+
+
+# ---------------------------------------------------------------------------
+# Great Circle bearing tests
+# ---------------------------------------------------------------------------
+
+
+def test_heading_north() -> None:
+    """A point directly north should give ~0°."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    heading = service._calculate_heading((100.0, 13.0), (100.0, 14.0))
+    assert abs(heading - 0.0) < 1.0, f"Expected ~0 (North), got {heading}"
+
+
+def test_heading_east() -> None:
+    """A point directly east should give ~90°."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    heading = service._calculate_heading((100.0, 13.0), (101.0, 13.0))
+    assert abs(heading - 90.0) < 2.0, f"Expected ~90 (East), got {heading}"
+
+
+def test_heading_south() -> None:
+    """A point directly south should give ~180°."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    heading = service._calculate_heading((100.0, 14.0), (100.0, 13.0))
+    assert abs(heading - 180.0) < 1.0, f"Expected ~180 (South), got {heading}"
+
+
+def test_heading_west() -> None:
+    """A point directly west should give ~270°."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    heading = service._calculate_heading((101.0, 13.0), (100.0, 13.0))
+    assert abs(heading - 270.0) < 2.0, f"Expected ~270 (West), got {heading}"
+
+
+def test_heading_same_point_returns_zero() -> None:
+    """Same point should return 0°, not raise."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    assert service._calculate_heading((100.0, 13.0), (100.0, 13.0)) == 0.0
+
+
+# ---------------------------------------------------------------------------
+# geops TrackerTrajectory field tests
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_trajectory_is_geojson_feature(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """get_train_trajectory() must return a GeoJSON Feature with type='Feature'."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 11 * 60)
+
+    train = Train(id=1, train_number="1", train_type="special_express")
+    service._tts_delays[train.train_number] = 0
+    schedules = [
+        Schedule(
+            train_id=1,
+            station_name="Bangkok",
+            departure_time=time(10, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=0,
+            day_of_week=None,
+            route_progress=0.0,
+        ),
+        Schedule(
+            train_id=1,
+            station_name="Chiang Mai",
+            arrival_time=time(14, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=1,
+            day_of_week=None,
+            route_progress=1.0,
+        ),
+    ]
+
+    traj = await service.get_train_trajectory(
+        train,
+        schedules,
+        route_coords=[[0.0, 0.0], [10.0, 0.0]],
+        route_distance_km=1000.0,
+    )
+
+    assert traj is not None
+    assert traj["type"] == "Feature"
+    props = traj["properties"]
+    assert "delay" in props                          # seconds
+    assert "delay_minutes" in props                  # minutes (legacy)
+    assert props["delay"] == props["delay_minutes"] * 60
+    assert "state" in props
+    assert props["state"] in ("BOARDING", "DRIVING", "JOURNEY_CANCELLED")
+    assert props["type"] == "rail"
+    assert "tenant" in props
+    assert "timestamp" in props
+    assert props["has_journey"] is True
+    assert props["has_realtime"] is True
+    assert props["has_realtime_journey"] is True
+    assert isinstance(props["gen_range"], list)
+    assert "graph" in props
+    assert "operator_provides_realtime_journey" in props
+    assert "route_identifier" in props
+    assert "line" in props
+    line = props["line"]
+    assert "id" in line
+    assert "tags" in line
+
+
+# ---------------------------------------------------------------------------
+# Stop-sequence tests
+# ---------------------------------------------------------------------------
+
+
+def test_get_stop_sequence_states(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """get_stop_sequence() should correctly label PASSED, BOARDING and PENDING stops."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    train = Train(id=1, train_number="1", train_type="ordinary")
+    schedules = [
+        Schedule(
+            train_id=1,
+            station_name="Bangkok",
+            departure_time=time(10, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=0,
+            day_of_week=None,
+        ),
+        Schedule(
+            train_id=1,
+            station_name="Ayutthaya",
+            arrival_time=time(11, 0),
+            departure_time=time(11, 5),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=1,
+            day_of_week=None,
+        ),
+        Schedule(
+            train_id=1,
+            station_name="Chiang Mai",
+            arrival_time=time(15, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=2,
+            day_of_week=None,
+        ),
+    ]
+
+    # Current time = 11:04 — Ayutthaya is BOARDING, Bangkok PASSED, Chiang Mai PENDING
+    seq = service.get_stop_sequence(train, schedules, delay=0, current_minutes=11 * 60 + 4)
+
+    assert len(seq) == 3
+    states = {s["station_name"]: s["state"] for s in seq}
+    assert states["Bangkok"] == "PASSED"
+    assert states["Ayutthaya"] == "BOARDING"
+    assert states["Chiang Mai"] == "PENDING"
+
+
+@pytest.mark.asyncio
+async def test_get_all_active_train_data_returns_three_lists() -> None:
+    """get_all_active_train_data() should return (positions, trajectories, stop_sequences)."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+
+    async def fake_get_all_with_route(skip: int = 0, limit: int = 100) -> list[Train]:
+        if skip == 0:
+            return [Train(id=1, train_number="1", train_type="ordinary", current_route_id=None)]
+        return []
+
+    async def fake_get_by_trains(train_ids: list[int]) -> dict[int, list[Schedule]]:
+        return {}
+
+    service.train_repo.get_all_with_route = fake_get_all_with_route  # type: ignore[method-assign]
+    service.schedule_repo.get_by_trains = fake_get_by_trains  # type: ignore[method-assign]
+
+    positions, trajectories, stop_sequences = await service.get_all_active_train_data()
+
+    assert isinstance(positions, list)
+    assert isinstance(trajectories, list)
+    assert isinstance(stop_sequences, dict)

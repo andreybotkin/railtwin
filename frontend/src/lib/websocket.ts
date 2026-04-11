@@ -1,13 +1,17 @@
 /**
- * WebSocket client for real-time train position updates.
+ * WebSocket clients for real-time train position and trajectory updates.
  *
  * Best practices from geops/mobility-toolbox-js:
  * - Visibility API: pause WS when tab is hidden, resume on return
  * - BBOX command: send visible map bounds for server-side filtering
  * - Ping/keepalive with exponential backoff reconnect
+ *
+ * Two clients available:
+ * - TrainWebSocketClient (/ws/trains) — position snapshots every N seconds
+ * - TrajectoryWebSocketClient (/ws/trajectory) — geops time_intervals for smooth animation
  */
 
-import type { WebSocketMessage, TrainPositionUpdate } from '@/types';
+import type { WebSocketMessage, TrainPositionUpdate, TrainTrajectory, TrajectoryWSMessage } from '@/types';
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8002';
 
@@ -263,4 +267,174 @@ export function getWebSocketClient(): TrainWebSocketClient {
     wsClient = new TrainWebSocketClient();
   }
   return wsClient;
+}
+
+// ---------------------------------------------------------------------------
+// TrajectoryWebSocketClient — geops mobility-toolbox-js RealtimeEngine pattern
+// Connects to /ws/trajectory and maintains a Map<trainId, TrainTrajectory>.
+// Uses time_intervals for frame-accurate position interpolation without polling.
+// ---------------------------------------------------------------------------
+
+type TrajectoryUpdateHandler = (trajectories: Map<number, TrainTrajectory>) => void;
+
+/**
+ * WebSocket client for geops-compatible trajectory data.
+ *
+ * Protocol (mirrors geops WebSocketAPI / RealtimeEngine):
+ *   Server → Client:
+ *     {"source":"trajectory","content":<trajectory>,"timestamp":<ms>}
+ *     {"source":"deleted_vehicles","content":<train_id>,"timestamp":<ms>}
+ *   Client → Server:
+ *     BBOX minLon,minLat,maxLon,maxLat
+ *     PING
+ *     RESET
+ *
+ * TODO (deferred, see geops RealtimeEngine):
+ *   - Subscribe/unsubscribe individual vehicle channels (GET/SUB/DEL)
+ *   - permessage-deflate compression for large payloads
+ */
+export class TrajectoryWebSocketClient {
+  private ws: WebSocket | null = null;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 1000;
+  private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+  private shouldReconnect = true;
+  private currentBBox: string | null = null;
+  private visibilityHandler: (() => void) | null = null;
+
+  /** In-memory trajectory dictionary — mirrors geops client-side state */
+  readonly trajectories = new Map<number, TrainTrajectory>();
+
+  private updateHandlers = new Set<TrajectoryUpdateHandler>();
+
+  connect(): void {
+    if (this.ws?.readyState === WebSocket.OPEN) return;
+    this.shouldReconnect = true;
+
+    try {
+      this.ws = new WebSocket(`${WS_BASE_URL}/ws/trajectory`);
+
+      this.ws.onopen = () => {
+        this.reconnectAttempts = 0;
+        this.startHeartbeat();
+        this.setupVisibilityHandler();
+        if (this.currentBBox) {
+          this.ws!.send(`BBOX ${this.currentBBox}`);
+        }
+      };
+
+      this.ws.onmessage = (event) => {
+        try {
+          const msg: TrajectoryWSMessage = JSON.parse(event.data);
+          if (msg.source === 'trajectory') {
+            const t = msg.content;
+            this.trajectories.set(t.properties.train_id, t);
+            this.notifyHandlers();
+          } else if (msg.source === 'deleted_vehicles') {
+            this.trajectories.delete(msg.content);
+            this.notifyHandlers();
+          }
+          // keepalive: ignore silently
+        } catch {
+          // Malformed message — ignore
+        }
+      };
+
+      this.ws.onerror = () => { /* silent */ };
+
+      this.ws.onclose = () => {
+        this.stopHeartbeat();
+        if (this.shouldReconnect) {
+          this.scheduleReconnect();
+        }
+      };
+    } catch {
+      // WS constructor can throw in SSR context
+    }
+  }
+
+  disconnect(): void {
+    this.shouldReconnect = false;
+    this.stopHeartbeat();
+    this.teardownVisibilityHandler();
+    if (this.ws) { this.ws.close(); this.ws = null; }
+    this.trajectories.clear();
+  }
+
+  sendBBox(bbox: string): void {
+    this.currentBBox = bbox;
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(`BBOX ${bbox}`);
+    }
+  }
+
+  /** Register a callback that receives the full trajectory map on any change. */
+  onUpdate(handler: TrajectoryUpdateHandler): () => void {
+    this.updateHandlers.add(handler);
+    return () => { this.updateHandlers.delete(handler); };
+  }
+
+  isConnected(): boolean {
+    return this.ws?.readyState === WebSocket.OPEN;
+  }
+
+  private notifyHandlers(): void {
+    const snap = new Map(this.trajectories);
+    this.updateHandlers.forEach((h) => h(snap));
+  }
+
+  private scheduleReconnect(): void {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) return;
+    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts++);
+    setTimeout(() => this.connect(), delay);
+  }
+
+  private startHeartbeat(): void {
+    this.heartbeatInterval = setInterval(() => {
+      if (this.ws?.readyState === WebSocket.OPEN) this.ws.send('PING');
+    }, HEARTBEAT_INTERVAL_MS);
+  }
+
+  private stopHeartbeat(): void {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+  }
+
+  private setupVisibilityHandler(): void {
+    if (typeof document === 'undefined') return;
+    this.visibilityHandler = () => {
+      if (document.hidden) {
+        this.stopHeartbeat();
+      } else {
+        if (this.ws?.readyState === WebSocket.OPEN) {
+          this.startHeartbeat();
+          if (this.currentBBox) this.ws.send(`BBOX ${this.currentBBox}`);
+        } else if (this.shouldReconnect) {
+          this.reconnectAttempts = 0;
+          this.connect();
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  private teardownVisibilityHandler(): void {
+    if (this.visibilityHandler && typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.visibilityHandler = null;
+    }
+  }
+}
+
+// Singleton trajectory client
+let trajectoryClient: TrajectoryWebSocketClient | null = null;
+
+export function getTrajectoryClient(): TrajectoryWebSocketClient {
+  if (!trajectoryClient) {
+    trajectoryClient = new TrajectoryWebSocketClient();
+  }
+  return trajectoryClient;
 }

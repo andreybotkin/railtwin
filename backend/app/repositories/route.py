@@ -4,6 +4,9 @@ This module provides repository methods for Route model operations
 including geospatial queries using PostGIS.
 """
 
+import json
+import time as _time
+
 from geoalchemy2.functions import ST_AsGeoJSON
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +21,12 @@ class RouteRepository(BaseRepository[Route]):
 
     Provides CRUD operations and geospatial queries for routes.
     """
+
+    # Class-level geometry cache: route_id -> (coords, distance_km)
+    # Shared across all RouteRepository instances; route geometry is static.
+    _geometry_cache: dict[int, tuple[list, float | None]] = {}
+    _geometry_cache_expires: float = 0.0
+    _GEOMETRY_CACHE_TTL: float = 300.0  # 5 minutes
 
     def __init__(self, session: AsyncSession) -> None:
         """Initialize route repository.
@@ -84,6 +93,63 @@ class RouteRepository(BaseRepository[Route]):
             route._geojson = row[1]
             return route
         return None
+
+    async def get_geometry_bulk(
+        self,
+        route_ids: list[int],
+    ) -> dict[int, tuple[list, float | None]]:
+        """Get route geometries for multiple routes in one query.
+
+        Uses a class-level in-memory cache (TTL 300 s) because route geometry
+        is static — avoids repeated PostGIS round-trips every update cycle.
+
+        Args:
+            route_ids: List of route IDs to fetch.
+
+        Returns:
+            Dict mapping route_id -> (coords_list, distance_km | None).
+        """
+        if not route_ids:
+            return {}
+        now = _time.monotonic()
+
+        if now < RouteRepository._geometry_cache_expires:
+            cached = {
+                rid: RouteRepository._geometry_cache[rid]
+                for rid in route_ids
+                if rid in RouteRepository._geometry_cache
+            }
+            missing = [rid for rid in route_ids if rid not in RouteRepository._geometry_cache]
+        else:
+            RouteRepository._geometry_cache.clear()
+            cached = {}
+            missing = list(route_ids)
+
+        if not missing:
+            return cached
+
+        result = await self.session.execute(
+            select(
+                Route.id,
+                ST_AsGeoJSON(Route.line_geometry).label("geojson"),
+                Route.distance_km,
+            ).where(Route.id.in_(missing))
+        )
+        fetched: dict[int, tuple[list, float | None]] = {}
+        for row in result.all():
+            route_id, geojson_str, distance_km = row
+            coords: list = []
+            if geojson_str:
+                geojson = json.loads(geojson_str)
+                coords = geojson.get("coordinates", [])
+            dist = float(distance_km) if distance_km is not None else None
+            fetched[route_id] = (coords, dist)
+
+        RouteRepository._geometry_cache.update(fetched)
+        if fetched:
+            RouteRepository._geometry_cache_expires = now + RouteRepository._GEOMETRY_CACHE_TTL
+
+        return {**cached, **fetched}
 
     async def get_by_type(
         self,

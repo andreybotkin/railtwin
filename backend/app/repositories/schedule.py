@@ -70,6 +70,34 @@ class ScheduleRepository(BaseRepository[Schedule]):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
+    async def get_by_trains(
+        self,
+        train_ids: list[int],
+    ) -> dict[int, list["Schedule"]]:
+        """Get all schedules for multiple trains in one query (bulk optimisation).
+
+        Args:
+            train_ids: List of train IDs.
+
+        Returns:
+            Dict mapping train_id -> list[Schedule] ordered by sequence.
+        """
+        if not train_ids:
+            return {}
+        result = await self.session.execute(
+            select(Schedule)
+            .options(
+                selectinload(Schedule.train),
+                selectinload(Schedule.station),
+            )
+            .where(Schedule.train_id.in_(train_ids))
+            .order_by(Schedule.train_id, Schedule.sequence)
+        )
+        grouped: dict[int, list[Schedule]] = {}
+        for schedule in result.scalars().all():
+            grouped.setdefault(schedule.train_id, []).append(schedule)
+        return grouped
+
     async def get_by_station(
         self,
         station_id: int,
