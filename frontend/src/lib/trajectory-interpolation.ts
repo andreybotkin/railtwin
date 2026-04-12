@@ -14,7 +14,7 @@
  * @see https://github.com/geops/mobility-toolbox-js/blob/master/src/common/utils/renderTrajectories.ts
  */
 
-import type { TrainTrajectory } from '@/types';
+import type { TrainPositionUpdate, TrainTrajectory } from '@/types';
 
 /** Result of position interpolation at a given moment. */
 export interface VehiclePosition {
@@ -128,6 +128,49 @@ export function getVehiclePosition(
 
   const [lon, lat] = interpolateLineString(coords, geomFrac);
   return { lon, lat, rotation };
+}
+
+/**
+ * Build a train-position snapshot from a trajectory payload.
+ *
+ * The trajectory already contains the metadata the map needs for popups and
+ * route highlighting, while the exact current coordinates come from
+ * `getVehiclePosition()`.
+ */
+export function buildPositionFromTrajectory(
+  trajectory: TrainTrajectory,
+  nowMs: number,
+): TrainPositionUpdate | null {
+  const vehiclePosition = getVehiclePosition(nowMs, trajectory);
+  if (!vehiclePosition) {
+    return null;
+  }
+
+  const props = trajectory.properties;
+  return {
+    train_id: props.train_id,
+    train_number: props.train_number,
+    train_type: props.train_type,
+    route_id: props.route_id,
+    location: {
+      type: 'Point',
+      coordinates: [vehiclePosition.lon, vehiclePosition.lat],
+    },
+    speed: props.speed ?? null,
+    heading: vehiclePosition.rotation,
+    status: props.status ?? 'moving',
+    delay_minutes: props.delay_minutes,
+    next_station: props.next_station,
+    prev_station: props.prev_station,
+    eta_next_station: props.eta_next_station ?? null,
+    progress: props.progress ?? 0,
+    route_progress: props.route_progress ?? undefined,
+    segment_progress: props.segment_progress ?? undefined,
+    current_edge_id: props.current_edge_id,
+    graph_from_station_id: props.graph_from_station_id,
+    graph_to_station_id: props.graph_to_station_id,
+    topology_version: props.topology_version,
+  };
 }
 
 /**

@@ -25,3 +25,7 @@ class ScheduleDomainService:
     async def assign_routes(self) -> int:
         """Assign routes to trains without one, based on station overlap."""
         return await self._repo.assign_routes_by_station_match()
+
+    async def bind_route_stations(self) -> int:
+        """Bind schedule rows to the route-specific stop sequence."""
+        return await self._repo.bind_route_stations_for_assigned_trains()

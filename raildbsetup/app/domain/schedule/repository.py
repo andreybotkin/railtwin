@@ -31,3 +31,8 @@ class ScheduleRepository(ABC):
         Returns the number of trains updated.
         """
         ...
+
+    @abstractmethod
+    async def bind_route_stations_for_assigned_trains(self) -> int:
+        """Bind schedules to route_stations and populate route_progress."""
+        ...

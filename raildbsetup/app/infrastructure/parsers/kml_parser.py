@@ -92,6 +92,17 @@ def _parse_coords(text: str) -> list[tuple[float, float]]:
     return pts
 
 
+def _normalize_coords(coords: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    normalized: list[tuple[float, float]] = []
+    for coord in coords:
+        if normalized and normalized[-1] == coord:
+            continue
+        normalized.append(coord)
+    if len(normalized) > 2 and normalized[0] == normalized[-1]:
+        normalized.pop()
+    return normalized
+
+
 def _extract_color(style_url: str | None) -> str | None:
     if style_url:
         m = _STYLE_COLOR_RE.search(style_url)
@@ -125,6 +136,14 @@ def _style_url(pm: ET.Element) -> str | None:
     return el.text.strip() if el is not None and el.text else None
 
 
+def _iter_line_strings(pm: ET.Element) -> list[ET.Element]:
+    line_strings = list(pm.findall(_tag("LineString")))
+    multi_geometry = pm.find(_tag("MultiGeometry"))
+    if multi_geometry is not None:
+        line_strings.extend(multi_geometry.findall(f".//{_tag('LineString')}"))
+    return line_strings
+
+
 def parse_kml_bytes(kml_bytes: bytes) -> tuple[list[RouteData], list[StationData]]:
     """Parse KML bytes and return (routes, stations) as domain entities."""
     root = ET.fromstring(kml_bytes)
@@ -144,11 +163,10 @@ def parse_kml_bytes(kml_bytes: bytes) -> tuple[list[RouteData], list[StationData
             pm_name = _pm_name(pm)
             style_url = _style_url(pm)
 
-            ls = pm.find(_tag("LineString"))
-            if ls is not None:
+            for ls in _iter_line_strings(pm):
                 coords_el = ls.find(_tag("coordinates"))
                 if coords_el is not None and coords_el.text:
-                    coords = _parse_coords(coords_el.text)
+                    coords = _normalize_coords(_parse_coords(coords_el.text))
                     if len(coords) >= 2:
                         final_rt = _name_type(pm_name) or rt
                         color = _extract_color(style_url) or DEFAULT_COLOR.get(
@@ -202,3 +220,45 @@ def parse_kml_bytes(kml_bytes: bytes) -> tuple[list[RouteData], list[StationData
                     )
 
     return routes, stations
+
+
+def parse_kml_routes(kml_bytes: bytes) -> list[RouteData]:
+    """Parse KML bytes and return only routes (LineStrings), ignoring Point placemarks.
+
+    Use this when station data is loaded from a separate source (e.g. JSON).
+    """
+    root = ET.fromstring(kml_bytes)
+    document = root.find(_tag("Document")) or root
+
+    routes: list[RouteData] = []
+
+    for folder in document.findall(_tag("Folder")):
+        name_el = folder.find(_tag("name"))
+        folder_name = (
+            name_el.text.strip() if name_el is not None and name_el.text else "Unknown"
+        )
+        rt = _folder_type(folder_name)
+
+        for pm in folder.findall(_tag("Placemark")):
+            pm_name = _pm_name(pm)
+            style_url = _style_url(pm)
+            for ls in _iter_line_strings(pm):
+                coords_el = ls.find(_tag("coordinates"))
+                if coords_el is None or not coords_el.text:
+                    continue
+                coords = _normalize_coords(_parse_coords(coords_el.text))
+                if len(coords) < 2:
+                    continue
+                final_rt = _name_type(pm_name) or rt
+                color = _extract_color(style_url) or DEFAULT_COLOR.get(final_rt, "#546E7A")
+                routes.append(
+                    RouteData(
+                        name=pm_name,
+                        route_type=final_rt,
+                        color=color,
+                        coords=coords,
+                        folder=folder_name,
+                    )
+                )
+
+    return routes

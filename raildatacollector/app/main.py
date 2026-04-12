@@ -21,8 +21,8 @@ from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
 import redis.asyncio as aioredis
-import sqlalchemy as sa
 from fastapi import FastAPI
+from sqlalchemy import select
 
 from app.api.v1.router import router as v1_router
 from app.application.scheduler import (
@@ -37,7 +37,7 @@ logger = get_logger(__name__)
 
 
 async def _wait_for_db(max_attempts: int = 20, delay: float = 5.0) -> None:
-    """Retry until the database is accessible and has station data.
+    """Retry until the database is accessible and station-graph topology exists.
 
     The ``raildbsetup`` service populates the schema before this service
     starts (docker-compose dependency).  This function is a safety
@@ -46,8 +46,20 @@ async def _wait_for_db(max_attempts: int = 20, delay: float = 5.0) -> None:
     for attempt in range(1, max_attempts + 1):
         try:
             async with get_session_factory()() as session:
-                await session.execute(sa.text("SELECT 1 FROM stations LIMIT 1"))
-            logger.info("Database is ready")
+                from app.infrastructure.database.tables import (
+                    t_network_edges,
+                    t_stations,
+                    t_topology_metadata,
+                )
+
+                await session.execute(select(t_stations.c.id).limit(1))
+                topology_row = await session.execute(
+                    select(t_topology_metadata.c.topology_version).limit(1)
+                )
+                edge_row = await session.execute(select(t_network_edges.c.id).limit(1))
+                if topology_row.scalar_one_or_none() is None or edge_row.scalar_one_or_none() is None:
+                    raise RuntimeError("Station-graph topology not ready yet")
+            logger.info("Database and station-graph topology are ready")
             return
         except Exception as exc:
             logger.warning(

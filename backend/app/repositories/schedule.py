@@ -59,6 +59,7 @@ class ScheduleRepository(BaseRepository[Schedule]):
             .options(
                 selectinload(Schedule.train),
                 selectinload(Schedule.station),
+                selectinload(Schedule.route_station),
             )
             .where(Schedule.train_id == train_id)
             .order_by(Schedule.sequence)
@@ -89,6 +90,7 @@ class ScheduleRepository(BaseRepository[Schedule]):
             .options(
                 selectinload(Schedule.train),
                 selectinload(Schedule.station),
+                selectinload(Schedule.route_station),
             )
             .where(Schedule.train_id.in_(train_ids))
             .order_by(Schedule.train_id, Schedule.sequence)

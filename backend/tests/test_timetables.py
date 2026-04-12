@@ -352,6 +352,10 @@ async def test_trajectory_is_geojson_feature(
     assert "delay" in props                          # seconds
     assert "delay_minutes" in props                  # minutes (legacy)
     assert props["delay"] == props["delay_minutes"] * 60
+    assert props["route_id"] == train.current_route_id
+    assert props["status"] in ("moving", "at_station")
+    assert props["progress"] is not None
+    assert props["route_progress"] is not None
     assert "state" in props
     assert props["state"] in ("BOARDING", "DRIVING", "JOURNEY_CANCELLED")
     assert props["type"] == "rail"
@@ -443,3 +447,66 @@ async def test_get_all_active_train_data_returns_three_lists() -> None:
     assert isinstance(positions, list)
     assert isinstance(trajectories, list)
     assert isinstance(stop_sequences, dict)
+
+
+@pytest.mark.asyncio
+async def test_get_all_active_train_data_can_skip_trajectory_generation() -> None:
+    """Position-only cache refreshes should skip heavy trajectory generation."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+
+    async def fake_get_all_with_route(skip: int = 0, limit: int = 100) -> list[Train]:
+        if skip == 0:
+            return [Train(id=1, train_number="1", train_type="ordinary", current_route_id=1)]
+        return []
+
+    async def fake_get_by_trains(train_ids: list[int]) -> dict[int, list[Schedule]]:
+        return {
+            1: [
+                Schedule(
+                    train_id=1,
+                    station_name="Bangkok",
+                    departure_time=time(10, 0),
+                    arrival_day_offset=0,
+                    departure_day_offset=0,
+                    sequence=0,
+                    day_of_week=None,
+                    route_progress=0.0,
+                ),
+                Schedule(
+                    train_id=1,
+                    station_name="Ayutthaya",
+                    arrival_time=time(11, 0),
+                    arrival_day_offset=0,
+                    departure_day_offset=0,
+                    sequence=1,
+                    day_of_week=None,
+                    route_progress=1.0,
+                ),
+            ]
+        }
+
+    service.train_repo.get_all_with_route = fake_get_all_with_route  # type: ignore[method-assign]
+    service.schedule_repo.get_by_trains = fake_get_by_trains  # type: ignore[method-assign]
+    async def fake_get_graph_geometry_bulk(
+        route_ids: list[int],
+    ) -> dict[int, dict[str, object]]:
+        return {
+            route_id: {
+                "coords": [[0.0, 0.0], [1.0, 1.0]],
+                "distance_km": 10.0,
+                "segments": [],
+            }
+            for route_id in route_ids
+        }
+
+    service.route_repo.get_graph_geometry_bulk = fake_get_graph_geometry_bulk  # type: ignore[method-assign]
+    service._get_candidate_current_minutes = lambda schedules: 10 * 60 + 30  # type: ignore[method-assign]
+
+    positions, trajectories, stop_sequences = await service.get_all_active_train_data(
+        include_trajectories=False,
+        include_stop_sequences=False,
+    )
+
+    assert len(positions) == 1
+    assert trajectories == []
+    assert stop_sequences == {}

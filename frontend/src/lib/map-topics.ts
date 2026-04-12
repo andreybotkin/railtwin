@@ -44,6 +44,22 @@ function makeTrainLayers(visible: boolean) {
   ];
 }
 
+function makeInfrastructureLayers(visible: boolean) {
+  return [
+    {
+      key: 'infrastructure-tracks',
+      name: 'Track Network Graph',
+      nameKey: 'layers.infrastructureTracks',
+      category: 'infrastructure' as const,
+      visible,
+      opacity: 0.8,
+      minZoom: 7,
+      description: 'Station-to-station directed track segments (network topology graph)',
+      icon: '🛤️',
+    },
+  ];
+}
+
 // ── Topics ──────────────────────────────────────────────────────────
 
 export const DEFAULT_TOPICS: MapTopic[] = [
@@ -59,6 +75,7 @@ export const DEFAULT_TOPICS: MapTopic[] = [
       ...makeRouteLayers(true),
       ...makeStationLayers(true),
       ...makeTrainLayers(true),
+      ...makeInfrastructureLayers(false),
     ],
   },
   {
@@ -73,6 +90,7 @@ export const DEFAULT_TOPICS: MapTopic[] = [
       ...makeRouteLayers(true),
       ...makeStationLayers(true),
       ...makeTrainLayers(true),
+      ...makeInfrastructureLayers(false),
     ],
   },
   {
@@ -87,6 +105,7 @@ export const DEFAULT_TOPICS: MapTopic[] = [
       ...makeRouteLayers(true),
       ...makeStationLayers(true),
       ...makeTrainLayers(true),
+      ...makeInfrastructureLayers(false),
     ],
   },
 ];
@@ -96,10 +115,13 @@ export const DEFAULT_TOPICS: MapTopic[] = [
 // At low zoom → minimal detail, canvas dots
 // At high zoom → full detail, DOM markers
 
+// NOTE: station codes in the DB are Thai script (e.g. 'กท.'), not Latin.
+// 'major-only' mode was removed because the old Latin-code MAJOR_STATIONS set
+// never matched anything. Stations are now visible from zoom 5 as clusters.
 export const ZOOM_GENERALIZATION: ZoomGeneralization[] = [
   {
     minZoom: 0,
-    maxZoom: 5,
+    maxZoom: 4,
     stationMode: 'hidden',
     trainMode: 'canvas-dots',
     routeMode: 'simplified',
@@ -107,12 +129,12 @@ export const ZOOM_GENERALIZATION: ZoomGeneralization[] = [
     trainRadius: 3,
   },
   {
-    minZoom: 6,
+    minZoom: 5,
     maxZoom: 7,
-    stationMode: 'major-only',
+    stationMode: 'clustered',
     trainMode: 'canvas-dots',
     routeMode: 'full',
-    stationRadius: 6,
+    stationRadius: 5,
     trainRadius: 4,
   },
   {

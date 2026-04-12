@@ -1,4 +1,4 @@
-"""Read real train schedules from individual raw JSON files and from the seed file.
+"""Read canonical train schedules from individual raw JSON files.
 
 Raw file naming convention: ``{route_type}_train{number}.json``
     e.g. ``eastern_train280.json`` → route_type=eastern, train_number=280
@@ -16,18 +16,6 @@ Raw file format::
       ]
     }
 
-Seed file format (schedules_seed.json)::
-
-    {
-      "trains": [
-        {
-          "train_number": "4",
-          "train_type": "special_express",
-          "route_type": "northern",
-          "schedules": [{"station_name": "...", "sequence": 0, ...}]
-        }
-      ]
-    }
 """
 
 import json
@@ -63,6 +51,60 @@ _ROUTE_NAME_MAP = {
 }
 
 
+def _time_to_minutes(value: str | None) -> int | None:
+    if value is None:
+        return None
+    hours_text, minutes_text = value.split(":", 1)
+    return int(hours_text) * 60 + int(minutes_text)
+
+
+def _infer_day_offsets(
+    timetable: list[dict],
+) -> list[tuple[int, int]]:
+    offsets: list[tuple[int, int]] = []
+    current_offset = 0
+    last_absolute_minutes: int | None = None
+
+    for entry in timetable:
+        arrival = _parse_time_value(entry.get("arrival"))
+        departure = _parse_time_value(entry.get("departure"))
+        arrival_minutes = _time_to_minutes(arrival)
+        departure_minutes = _time_to_minutes(departure)
+
+        arrival_offset = current_offset
+        if arrival_minutes is not None:
+            while (
+                last_absolute_minutes is not None
+                and arrival_minutes + arrival_offset * 1440 < last_absolute_minutes
+            ):
+                arrival_offset += 1
+            arrival_absolute = arrival_minutes + arrival_offset * 1440
+        else:
+            arrival_absolute = None
+
+        departure_offset = arrival_offset
+        reference_absolute = arrival_absolute if arrival_absolute is not None else last_absolute_minutes
+        if departure_minutes is not None:
+            while (
+                reference_absolute is not None
+                and departure_minutes + departure_offset * 1440 < reference_absolute
+            ):
+                departure_offset += 1
+            departure_absolute = departure_minutes + departure_offset * 1440
+        else:
+            departure_absolute = None
+
+        current_offset = max(current_offset, arrival_offset, departure_offset)
+        if departure_absolute is not None:
+            last_absolute_minutes = departure_absolute
+        elif arrival_absolute is not None:
+            last_absolute_minutes = arrival_absolute
+
+        offsets.append((arrival_offset, departure_offset))
+
+    return offsets
+
+
 def _infer_train_type(name: str) -> str:
     name_lower = name.lower()
     for keyword, train_type in _TRAIN_TYPE_KEYWORDS:
@@ -88,7 +130,16 @@ def _parse_time_value(value: str | None) -> str | None:
     if not value:
         return None
     stripped = value.strip()
-    if stripped in ("-", "", "N/A", "n/a"):
+    if stripped.lower() in {
+        "-",
+        "",
+        "n/a",
+        "origin",
+        "final stop",
+        "terminus",
+        "start",
+        "end",
+    }:
         return None
     return stripped
 
@@ -115,13 +166,16 @@ def _parse_raw_file(path: Path) -> TrainData | None:
     train_type = _infer_train_type(name)
 
     stops: list[ScheduleStopData] = []
-    for seq, entry in enumerate(raw.get("timetable", [])):
+    timetable = raw.get("timetable", [])
+    day_offsets = _infer_day_offsets(timetable)
+    for seq, entry in enumerate(timetable):
         station_name = (entry.get("station") or "").strip()
         if not station_name:
             continue
 
         arrival = _parse_time_value(entry.get("arrival"))
         departure = _parse_time_value(entry.get("departure"))
+        arrival_day_offset, departure_day_offset = day_offsets[seq]
 
         if arrival is None and departure is None:
             continue
@@ -132,8 +186,8 @@ def _parse_raw_file(path: Path) -> TrainData | None:
                 sequence=seq,
                 arrival_time=arrival,
                 departure_time=departure,
-                arrival_day_offset=0,
-                departure_day_offset=0,
+                arrival_day_offset=arrival_day_offset,
+                departure_day_offset=departure_day_offset,
                 day_of_week=list(range(7)),
                 platform=None,
                 distance_from_origin_km=None,
@@ -199,55 +253,3 @@ def read_all_raw_schedules(raw_dir: Path | None = None) -> list[TrainData]:
     return trains
 
 
-def read_seed_schedules(seed_path: Path | None = None) -> list[TrainData]:
-    """Read trains from the merged seed JSON file (schedules_seed.json).
-
-    Fallback when raw directory is empty or missing.
-    """
-    if seed_path is None:
-        seed_path = settings.schedule_seed_path
-
-    if not seed_path.exists():
-        logger.warning("Seed schedule file not found", path=str(seed_path))
-        return []
-
-    try:
-        data = json.loads(seed_path.read_text(encoding="utf-8"))
-    except Exception as exc:
-        logger.error("Cannot read seed file", path=str(seed_path), error=str(exc))
-        return []
-
-    trains: list[TrainData] = []
-    for t in data.get("trains", []):
-        stops = [
-            ScheduleStopData(
-                station_name=s["station_name"],
-                sequence=s["sequence"],
-                arrival_time=_parse_time_value(s.get("arrival_time")),
-                departure_time=_parse_time_value(s.get("departure_time")),
-                arrival_day_offset=s.get("arrival_day_offset", 0),
-                departure_day_offset=s.get("departure_day_offset", 0),
-                day_of_week=s.get("day_of_week", list(range(7))),
-                platform=s.get("platform"),
-                distance_from_origin_km=s.get("distance_from_origin_km"),
-            )
-            for s in t.get("schedules", [])
-        ]
-        if not stops:
-            continue
-        trains.append(
-            TrainData(
-                train_number=str(t["train_number"]),
-                train_type=t.get("train_type", "ordinary"),
-                route_type=t.get("route_type", "other"),
-                name=t.get("name"),
-                operator=t.get("operator", "State Railway of Thailand"),
-                source="seed_file",
-                source_url=str(seed_path),
-                service_notes=t.get("service_notes"),
-                stops=stops,
-            )
-        )
-
-    logger.info("Seed schedules loaded", trains=len(trains), path=str(seed_path))
-    return trains

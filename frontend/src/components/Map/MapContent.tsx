@@ -16,14 +16,13 @@
 
 'use client';
 
-import { useEffect, useMemo, useCallback, useRef, useState } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import {
   MapContainer,
   TileLayer,
   Polyline,
   Popup,
   ScaleControl,
-  CircleMarker,
   useMap,
   useMapEvents,
 } from 'react-leaflet';
@@ -33,10 +32,11 @@ import 'leaflet/dist/leaflet.css';
 import { FullScreen as LeafletFullScreen } from 'leaflet.fullscreen';
 import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 
-import { useRoutes, useStations, useTrainPositions, useInitialPositions, useTrainTrajectories } from '@/lib/hooks';
+import { useRoutes, useStations, useTrainTrajectories, useNetworkEdges } from '@/lib/hooks';
 import { getRouteColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import { getWebSocketClient, getTrajectoryClient } from '@/lib/websocket';
+import { getTrajectoryClient } from '@/lib/websocket';
+import { buildPositionFromTrajectory } from '@/lib/trajectory-interpolation';
 import { useMapTopicStore } from '@/lib/stores/map-topic-store';
 import CanvasTrainLayer from './CanvasTrainLayer';
 import TrainMarker from './TrainMarker';
@@ -54,9 +54,6 @@ L.Icon.Default.mergeOptions({
 // Thailand center coordinates
 const THAILAND_CENTER: [number, number] = [15.87, 100.9925];
 const INITIAL_ZOOM = 6;
-
-// Major station codes (used in generalization)
-const MAJOR_STATIONS = new Set(['BKK', 'BSG', 'CNX', 'HDY', 'UBN', 'NKI', 'PSL', 'NKR', 'SRT']);
 
 interface MapContentProps {
   className?: string;
@@ -179,37 +176,45 @@ function LocateControl() {
 export default function MapContent({ className, selectedTrainId, onTrainSelect }: MapContentProps) {
   const { data: routesData } = useRoutes();
   const { data: stationsData } = useStations();
-  const { positions: wsPositions, isConnected } = useTrainPositions();
-  const { data: apiPositions } = useInitialPositions();
   const { trajectories } = useTrainTrajectories();
-  const bboxRef = useRef<string>('');
+  const { data: networkEdgesData } = useNetworkEdges();
 
   // Topic store
   const activeTopic = useMapTopicStore((s) => s.getActiveTopic());
   const generalization = useMapTopicStore((s) => s.generalization);
   const isLayerVisible = useMapTopicStore((s) => s.isLayerVisible);
 
-  // Use WebSocket positions if connected, otherwise fall back to API
   const trainPositions = useMemo(() => {
-    if (isConnected && wsPositions.length > 0) {
-      return wsPositions;
-    }
-    return apiPositions || [];
-  }, [isConnected, wsPositions, apiPositions]);
+    const nowMs = Date.now();
+    return Array.from(trajectories.values())
+      .map((trajectory) => buildPositionFromTrajectory(trajectory, nowMs))
+      .filter((position): position is NonNullable<typeof position> => position !== null);
+  }, [trajectories]);
 
   const routes = routesData?.items || [];
   const stations = stationsData?.items || [];
+  const displayNetworkEdges = useMemo(() => {
+    const features = networkEdgesData?.features || [];
+    const seen = new Set<string>();
+    return features.filter((edge) => {
+      const props = edge.properties;
+      const fromStationId = props.from_station_id ?? props.from_node_id;
+      const toStationId = props.to_station_id ?? props.to_node_id;
+      const key = [Math.min(fromStationId, toStationId), Math.max(fromStationId, toStationId)].join(':');
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }, [networkEdgesData]);
 
   // --- Generalization: filter stations by zoom level ---
   const visibleStations = useMemo(() => {
-    switch (generalization.stationMode) {
-      case 'hidden':
-        return [];
-      case 'major-only':
-        return stations.filter((s) => MAJOR_STATIONS.has(s.code));
-      default:
-        return stations;
-    }
+    if (generalization.stationMode === 'hidden') return [];
+    // 'major-only' mode was retired — station codes in DB are Thai-script and won't
+    // match any English constants. All stations are now shown (clustered at low zoom).
+    return stations;
   }, [stations, generalization.stationMode]);
 
   // --- Generalization: filter trains by type based on layer visibility ---
@@ -246,9 +251,6 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
 
   // BBOX change handler — sends to both position and trajectory WS clients
   const handleBBoxChange = useCallback((bbox: string) => {
-    bboxRef.current = bbox;
-    const posClient = getWebSocketClient();
-    if (posClient.isConnected()) posClient.sendBBox(bbox);
     const trajClient = getTrajectoryClient();
     if (trajClient.isConnected()) trajClient.sendBBox(bbox);
   }, []);
@@ -291,6 +293,23 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
           attribution={tileAttribution}
           url={tileUrl}
         />
+
+        {/* Network topology track segments — infrastructure layer (off by default) */}
+        {isLayerVisible('infrastructure-tracks') &&
+          displayNetworkEdges.map((edge, idx) => {
+            const coords = edge.geometry.coordinates.map(
+              ([lon, lat]) => [lat, lon] as [number, number],
+            );
+            return (
+              <Polyline
+                key={`ne-${idx}`}
+                positions={coords}
+                color="#555555"
+                weight={2}
+                opacity={0.7}
+              />
+            );
+          })}
 
         {/* Railway routes — filtered by layer tree, highlight selected train's route */}
         {generalization.routeMode !== 'hidden' &&
@@ -361,6 +380,7 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
               <TrainMarker
                 key={position.train_id}
                 position={position}
+                trajectory={trajectories.get(position.train_id)}
                 isSelected={false}
                 onSelect={onTrainSelect}
               />
@@ -369,7 +389,9 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
         {/* Selected train always uses rich DOM marker for popup/interaction */}
         {selectedTrainPosition && (
           <TrainMarker
+            key={selectedTrainId}
             position={selectedTrainPosition}
+            trajectory={trajectories.get(selectedTrainPosition.train_id)}
             isSelected={true}
             onSelect={onTrainSelect}
           />

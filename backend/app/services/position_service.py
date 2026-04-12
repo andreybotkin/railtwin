@@ -16,11 +16,49 @@ from app.services import geo_utils, schedule_utils
 __all__ = ["build_train_position"]
 
 
+def _find_active_route_segment(
+    schedules: list[Schedule],
+    route_segments: list[dict[str, Any]] | None,
+    prev_stop: Schedule,
+    next_stop: Schedule,
+) -> dict[str, Any] | None:
+    if not route_segments:
+        return None
+
+    next_route_station = getattr(next_stop, "route_station", None)
+    next_edge_id = getattr(next_route_station, "edge_id", None)
+    if next_edge_id is not None:
+        for segment in route_segments:
+            if segment.get("edge_id") == int(next_edge_id):
+                return segment
+
+    prev_station_id = prev_stop.station_id
+    next_station_id = next_stop.station_id
+    if prev_station_id is None or next_station_id is None:
+        return None
+    return next(
+        (
+            segment
+            for segment in route_segments
+            if segment.get("from_station_id") == int(prev_station_id)
+            and segment.get("to_station_id") == int(next_station_id)
+        ),
+        None,
+    )
+
+
+def _minutes_to_hhmm(minutes: float) -> str:
+    """Convert fractional minutes-since-midnight to 'HH:MM' string (handles day overflow)."""
+    total = int(round(minutes)) % (24 * 60)
+    return f"{total // 60:02d}:{total % 60:02d}"
+
+
 def build_train_position(
     train: Train,
     schedules: list[Schedule],
     route_coords: list[list[float]] | None,
     route_distance_km: float | None = None,
+    route_segments: list[dict[str, Any]] | None = None,
     *,
     delay: int,
     current_minutes: float,
@@ -85,8 +123,37 @@ def build_train_position(
     start_p = 0.0
     end_p = 1.0
     heading: float
+    overall_progress = progress
+    current_edge_id: int | None = None
+    graph_from_station_id: int | None = None
+    graph_to_station_id: int | None = None
+    segment_length_km: float | None = None
 
-    if route_coords and len(route_coords) >= 2:
+    active_segment = _find_active_route_segment(
+        schedules,
+        route_segments,
+        prev_stop,
+        next_stop,
+    )
+
+    if active_segment and active_segment.get("coords") and len(active_segment["coords"]) >= 2:
+        segment_coords = active_segment["coords"]
+        lon, lat = geo_utils.interpolate_position(segment_coords, progress)
+        head_p = min(1.0, progress + 0.01)
+        nlon, nlat = geo_utils.interpolate_position(segment_coords, head_p)
+        heading = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
+        current_edge_id = int(active_segment["edge_id"])
+        graph_from_station_id = int(active_segment["from_station_id"])
+        graph_to_station_id = int(active_segment["to_station_id"])
+        segment_length_km = float(active_segment.get("length_km") or 0.0)
+        if route_distance_km and route_distance_km > 0:
+            overall_progress = (
+                float(active_segment.get("start_km") or 0.0)
+                + segment_length_km * progress
+            ) / route_distance_km
+        else:
+            overall_progress = progress
+    elif route_coords and len(route_coords) >= 2:
         total_stops = len(schedules)
         prev_index = next(
             (i for i, s in enumerate(schedules) if s is prev_stop), 0
@@ -122,7 +189,9 @@ def build_train_position(
     # 4. Estimate speed                                                    #
     # ------------------------------------------------------------------ #
     avg_speed = 60.0
-    if route_coords and segment_duration > 0:
+    if segment_length_km is not None and segment_duration > 0:
+        avg_speed = segment_length_km / (segment_duration / 60)
+    elif route_coords and segment_duration > 0:
         dist_km = geo_utils.segment_distance_km(route_coords, start_p, end_p)
         if dist_km > 0:
             avg_speed = dist_km / (segment_duration / 60)
@@ -133,6 +202,7 @@ def build_train_position(
         "train_id": train.id,
         "train_number": train.train_number,
         "train_type": train.train_type,
+        "route_id": train.current_route_id,
         "location": {"type": "Point", "coordinates": [lon, lat]},
         "speed": round(avg_speed, 1),
         "heading": round(heading, 1),
@@ -144,5 +214,11 @@ def build_train_position(
         "prev_station": (
             prev_stop.station.name if prev_stop.station else prev_stop.station_name
         ),
+        "eta_next_station": _minutes_to_hhmm(next_minutes),
         "progress": round(progress * 100, 1),
+        "route_progress": round(max(0.0, min(1.0, overall_progress)), 6),
+        "segment_progress": round(progress, 6),
+        "current_edge_id": current_edge_id,
+        "graph_from_station_id": graph_from_station_id,
+        "graph_to_station_id": graph_to_station_id,
     }

@@ -27,6 +27,14 @@ export default function HomePage() {
   const [selectedTrainId, setSelectedTrainId] = useState<number | null>(null);
   const [showLeftPanel, setShowLeftPanel] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(false);
+
+  // When a train is selected from the map, automatically open the info panel
+  const handleTrainSelect = useCallback((id: number | null) => {
+    setSelectedTrainId(id);
+    if (id !== null) {
+      setShowLeftPanel(true);
+    }
+  }, []);
   const [themeOpen, setThemeOpen] = useState(false);
   const themeRef = useRef<HTMLDivElement>(null);
   const activeTopicKey = useMapTopicStore((s) => s.activeTopicKey);
@@ -153,14 +161,14 @@ export default function HomePage() {
           {showLeftPanel && (
             <TrainInfoPanel
               selectedTrainId={selectedTrainId}
-              onTrainSelect={setSelectedTrainId}
+              onTrainSelect={handleTrainSelect}
             />
           )}
         </aside>
 
         {/* Map */}
         <main className="relative flex-1 min-w-0">
-          <MapContainer className="absolute inset-0" selectedTrainId={selectedTrainId} onTrainSelect={setSelectedTrainId} />
+          <MapContainer className="absolute inset-0" selectedTrainId={selectedTrainId} onTrainSelect={handleTrainSelect} />
 
           {/* Map overlay info */}
           <div className="absolute bottom-2 left-2 right-2 rounded-lg bg-background/90 p-2 text-xs shadow-lg backdrop-blur sm:bottom-4 sm:left-4 sm:right-auto sm:p-3 sm:text-sm">
@@ -231,7 +239,7 @@ export default function HomePage() {
           <div className="h-[calc(100%-3rem)]">
             <TrainInfoPanel
               selectedTrainId={selectedTrainId}
-              onTrainSelect={setSelectedTrainId}
+              onTrainSelect={handleTrainSelect}
             />
           </div>
         </aside>

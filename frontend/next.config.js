@@ -1,3 +1,4 @@
+const path = require('path');
 const createNextIntlPlugin = require('next-intl/plugin');
 const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
@@ -6,10 +7,10 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
-  eslint: {
-    ignoreDuringBuilds: true,
+  turbopack: {
+    root: path.resolve(__dirname),
   },
-  
+
   // Environment variables available on client
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
@@ -18,7 +19,12 @@ const nextConfig = {
 
   // Image optimization
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
     unoptimized: true,
   },
 

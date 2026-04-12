@@ -5,10 +5,12 @@ import json
 import time as _time
 
 from redis.asyncio import Redis
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.models.database.models import TopologyMetadata
 from app.services.simulation import TrainSimulationService
 
 logger = get_logger(__name__)
@@ -25,6 +27,8 @@ REDIS_STOPSEQUENCE_TTL = 3600           # 1 hour — stop sequences change slowl
 # Metrics key for monitoring cycle health
 REDIS_METRICS_KEY = "system:position_cache:metrics"
 REDIS_METRICS_TTL = 60
+REDIS_TOPOLOGY_METADATA_KEY = "system:topology:metadata"
+REDIS_TOPOLOGY_METADATA_TTL = 3600
 
 
 class PositionCacheUpdater:
@@ -41,11 +45,18 @@ class PositionCacheUpdater:
         session_factory: async_sessionmaker,
         redis_client: Redis,
         interval_seconds: int,
+        trajectory_interval_seconds: int,
     ) -> None:
         self._session_factory = session_factory
         self._redis = redis_client
         self._interval_seconds = interval_seconds
+        self._trajectory_interval_seconds = max(
+            interval_seconds,
+            trajectory_interval_seconds,
+        )
         self._task: asyncio.Task | None = None
+        self._last_trajectory_refresh = 0.0
+        self._topology_payload: dict[str, str | int | float | None] | None = None
 
     async def _run(self) -> None:
         while True:
@@ -53,6 +64,11 @@ class PositionCacheUpdater:
             active_trains = 0
             error_count = 0
             try:
+                refresh_trajectories = (
+                    self._last_trajectory_refresh == 0.0
+                    or (tick_start - self._last_trajectory_refresh)
+                    >= self._trajectory_interval_seconds
+                )
                 async with self._session_factory() as session:
                     simulation_service = TrainSimulationService(
                         session,
@@ -60,9 +76,55 @@ class PositionCacheUpdater:
                     )
                     # Single-pass: TTS delays loaded once, schedules/geometry bulk-loaded
                     positions, trajectories, stop_sequences = (
-                        await simulation_service.get_all_active_train_data()
+                        await simulation_service.get_all_active_train_data(
+                            include_trajectories=refresh_trajectories,
+                            include_stop_sequences=refresh_trajectories,
+                        )
                     )
+                    topology_metadata = None
+                    if refresh_trajectories or self._topology_payload is None:
+                        topology_metadata = (
+                            await session.execute(
+                                select(TopologyMetadata)
+                                .order_by(TopologyMetadata.built_at.desc())
+                                .limit(1)
+                            )
+                        ).scalar_one_or_none()
                 active_trains = len(positions)
+
+                topology_payload = self._topology_payload
+                if topology_metadata is not None:
+                    topology_payload = {
+                        "topology_version": topology_metadata.topology_version,
+                        "physical_nodes_count": topology_metadata.physical_nodes_count,
+                        "physical_edges_count": topology_metadata.physical_edges_count,
+                        "station_nodes_count": topology_metadata.station_nodes_count,
+                        "physical_components_count": topology_metadata.physical_components_count,
+                        "station_components_count": topology_metadata.station_components_count,
+                        "operational_links_count": topology_metadata.operational_links_count,
+                        "main_component_station_count": topology_metadata.main_component_station_count,
+                        "disconnected_station_count": topology_metadata.disconnected_station_count,
+                        "unsnapped_station_count": topology_metadata.unsnapped_station_count,
+                        "max_snap_distance_m": (
+                            float(topology_metadata.max_snap_distance_m)
+                            if topology_metadata.max_snap_distance_m is not None
+                            else None
+                        ),
+                        "built_at": topology_metadata.built_at.isoformat(),
+                    }
+                    self._topology_payload = topology_payload
+
+                if refresh_trajectories:
+                    self._last_trajectory_refresh = tick_start
+
+                if topology_payload is not None:
+                    for position in positions:
+                        position["topology_version"] = topology_payload["topology_version"]
+                    if refresh_trajectories:
+                        for trajectory in trajectories:
+                            trajectory.setdefault("properties", {})["topology_version"] = (
+                                topology_payload["topology_version"]
+                            )
 
                 # Write all Redis keys in one pipeline round-trip
                 pipe = self._redis.pipeline()
@@ -71,24 +133,31 @@ class PositionCacheUpdater:
                     REDIS_POSITIONS_TTL,
                     json.dumps(positions, default=str),
                 )
-                pipe.setex(
-                    REDIS_TRAJECTORIES_KEY,
-                    REDIS_TRAJECTORIES_TTL,
-                    json.dumps(trajectories, default=str),
-                )
-                for traj in trajectories:
-                    train_id = traj["properties"]["train_id"]
+                if refresh_trajectories:
                     pipe.setex(
-                        f"train:trajectory:{train_id}",
-                        REDIS_INDIVIDUAL_TRAJECTORY_TTL,
-                        json.dumps(traj, default=str),
+                        REDIS_TRAJECTORIES_KEY,
+                        REDIS_TRAJECTORIES_TTL,
+                        json.dumps(trajectories, default=str),
                     )
-                for train_id, seq in stop_sequences.items():
-                    pipe.setex(
-                        f"train:stopsequence:{train_id}",
-                        REDIS_STOPSEQUENCE_TTL,
-                        json.dumps(seq, default=str),
-                    )
+                    for traj in trajectories:
+                        train_id = traj["properties"]["train_id"]
+                        pipe.setex(
+                            f"train:trajectory:{train_id}",
+                            REDIS_INDIVIDUAL_TRAJECTORY_TTL,
+                            json.dumps(traj, default=str),
+                        )
+                    for train_id, seq in stop_sequences.items():
+                        pipe.setex(
+                            f"train:stopsequence:{train_id}",
+                            REDIS_STOPSEQUENCE_TTL,
+                            json.dumps(seq, default=str),
+                        )
+                    if topology_payload is not None:
+                        pipe.setex(
+                            REDIS_TOPOLOGY_METADATA_KEY,
+                            REDIS_TOPOLOGY_METADATA_TTL,
+                            json.dumps(topology_payload, default=str),
+                        )
                 await pipe.execute()
 
             except Exception as exc:
@@ -117,7 +186,11 @@ class PositionCacheUpdater:
     def start(self) -> None:
         if self._task is None or self._task.done():
             self._task = asyncio.create_task(self._run(), name="position_cache_updater")
-            logger.info("PositionCacheUpdater started", interval=self._interval_seconds)
+            logger.info(
+                "PositionCacheUpdater started",
+                interval=self._interval_seconds,
+                trajectory_interval=self._trajectory_interval_seconds,
+            )
 
     async def stop(self) -> None:
         if self._task and not self._task.done():
@@ -137,5 +210,6 @@ def build_position_cache_updater(
     return PositionCacheUpdater(
         session_factory=session_factory,
         redis_client=redis_client,
-        interval_seconds=settings.ws_heartbeat_interval,
+        interval_seconds=settings.get_position_cache_interval_seconds(),
+        trajectory_interval_seconds=settings.trajectory_refresh_interval_seconds,
     )

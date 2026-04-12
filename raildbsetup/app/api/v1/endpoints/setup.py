@@ -43,9 +43,28 @@ async def trigger_schedules(
 
 
 @router.post(
+    "/topology",
+    summary="Re-build network topology graph",
+    description=(
+        "Re-derives the railway network graph (network_nodes, network_edges, "
+        "route_edges) from the existing routes & stations data. "
+        "Use ``force=true`` to rebuild even if a graph already exists."
+    ),
+)
+async def trigger_topology(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    force: bool = False,
+) -> dict:
+    runner = request.app.state.runner
+    background_tasks.add_task(runner.run_network_topology, force)
+    return {"message": "Network topology build triggered", "force": force}
+
+
+@router.post(
     "/all",
     summary="Re-run full initialization",
-    description="Re-runs the complete initialization sequence (railroad + schedules).",
+    description="Re-runs the complete initialization sequence (railroad + topology + schedules).",
 )
 async def trigger_all(
     request: Request,

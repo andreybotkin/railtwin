@@ -1,8 +1,8 @@
 """APScheduler configuration for RailDataCollector.
 
 Jobs:
-  - update_schedules  — monthly (1st, 10:00 Asia/Bangkok): fetch timetable,
-                        save to DB + JSON file + Redis.
+    - update_schedules  — monthly (1st, 10:00 Asia/Bangkok): fetch timetable,
+                                                save to JSON cache + Redis.
   - update_delays     — every 30 minutes: fetch real-time delays from TTS,
                         store in Redis.
 
@@ -22,8 +22,6 @@ from app.application.use_cases.update_schedules import UpdateSchedulesUseCase
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.infrastructure.database.repositories.delays import RedisDelayRepository
-from app.infrastructure.database.repositories.schedule import SqlScheduleRepository
-from app.infrastructure.database.session import get_session_factory
 
 logger = get_logger(__name__)
 
@@ -49,15 +47,10 @@ def get_status() -> dict[str, dict[str, Any]]:
 
 
 async def run_update_schedules() -> None:
-    """Periodic job: fetch fresh timetable, upsert to DB, cache to file + Redis."""
+    """Periodic job: refresh timetable cache without touching the database."""
     _status["schedules"]["last_run"] = datetime.utcnow().isoformat()
     try:
-        async with get_session_factory()() as session:
-            async with session.begin():
-                result = await UpdateSchedulesUseCase(
-                    SqlScheduleRepository(session),
-                    redis_client=_redis_client,
-                ).execute()
+        result = await UpdateSchedulesUseCase(redis_client=_redis_client).execute()
         _status["schedules"]["last_result"] = result
     except Exception as exc:
         logger.error("Schedule update job failed", error=str(exc))

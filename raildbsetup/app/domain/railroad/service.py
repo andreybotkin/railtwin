@@ -9,16 +9,13 @@ class RailroadDomainService:
         self._repo = repository
 
     async def is_initialized(self) -> bool:
-        """Return True if the database already contains station records."""
-        return await self._repo.count_stations() > 0
+        """Return True if the database already contains both routes and stations."""
+        return await self._repo.count_routes() > 0 and await self._repo.count_stations() > 0
 
-    async def replace_network(
-        self,
-        routes: list[RouteData],
-        stations: list[StationData],
-    ) -> tuple[int, int]:
-        """Replace the entire railroad network dataset.
+    async def replace_routes(self, routes: list[RouteData]) -> int:
+        """Replace the canonical route geometry dataset."""
+        return await self._repo.replace_routes(routes)
 
-        Returns (routes_inserted, stations_inserted).
-        """
-        return await self._repo.replace_all(routes, stations)
+    async def replace_stations(self, stations: list[StationData]) -> int:
+        """Replace the canonical station dataset."""
+        return await self._repo.replace_stations(stations)

@@ -13,7 +13,8 @@ import { useEffect, useMemo, useRef, useCallback } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
-import type { TrainPositionUpdate } from '@/types';
+import type { TrainPositionUpdate, TrainTrajectory } from '@/types';
+import { getVehiclePosition } from '@/lib/trajectory-interpolation';
 import {
   formatSpeed,
   formatDelay,
@@ -47,11 +48,12 @@ function getDelayRingSize(delayMinutes: number): number {
 
 interface TrainMarkerProps {
   position: TrainPositionUpdate;
+  trajectory?: TrainTrajectory;
   isSelected?: boolean;
   onSelect?: (id: number | null) => void;
 }
 
-export default function TrainMarker({ position, isSelected, onSelect }: TrainMarkerProps) {
+export default function TrainMarker({ position, trajectory, isSelected, onSelect }: TrainMarkerProps) {
   const markerRef = useRef<L.Marker>(null);
   // Current displayed position (lat, lon) — updated by rAF, not React state
   const displayPosRef = useRef<[number, number]>([
@@ -62,6 +64,23 @@ export default function TrainMarker({ position, isSelected, onSelect }: TrainMar
 
   // Smoothly animate marker from current displayed position to new target via rAF + setLatLng.
   useEffect(() => {
+    if (trajectory) {
+      cancelAnimationFrame(animRef.current);
+
+      const step = () => {
+        const vehiclePosition = getVehiclePosition(Date.now(), trajectory);
+        if (vehiclePosition) {
+          const nextPos: [number, number] = [vehiclePosition.lat, vehiclePosition.lon];
+          displayPosRef.current = nextPos;
+          markerRef.current?.setLatLng(nextPos);
+        }
+        animRef.current = requestAnimationFrame(step);
+      };
+
+      animRef.current = requestAnimationFrame(step);
+      return () => cancelAnimationFrame(animRef.current);
+    }
+
     const targetLat = position.location.coordinates[1];
     const targetLon = position.location.coordinates[0];
     const [startLat, startLon] = displayPosRef.current;
@@ -82,11 +101,27 @@ export default function TrainMarker({ position, isSelected, onSelect }: TrainMar
 
     animRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(animRef.current);
-  }, [position.location.coordinates[0], position.location.coordinates[1]]);
+  }, [
+    position.location.coordinates[0],
+    position.location.coordinates[1],
+    trajectory,
+  ]);
 
   const handleClick = useCallback(() => {
     onSelect?.(isSelected ? null : position.train_id);
   }, [onSelect, isSelected, position.train_id]);
+
+  // Auto-open the Leaflet popup whenever this marker becomes the selected train.
+  // This ensures clicking a canvas train (which becomes a DOM marker) immediately
+  // shows info without requiring a second click.
+  useEffect(() => {
+    if (isSelected && markerRef.current) {
+      // Small delay so the marker is fully mounted in the DOM first.
+      const timer = setTimeout(() => markerRef.current?.openPopup(), 80);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [isSelected]);
 
   // Create custom icon with delay color coding (pattern from mobility-toolbox-js realtimeDelayStyle)
   const icon = useMemo(() => {
@@ -135,7 +170,14 @@ export default function TrainMarker({ position, isSelected, onSelect }: TrainMar
       ref={markerRef}
       position={displayPosRef.current}
       icon={icon}
-      eventHandlers={{ click: handleClick }}
+      eventHandlers={{
+        click: (e) => {
+          // Stop the click from bubbling to the map so the canvas click
+          // handler does NOT re-fire and accidentally switch selection.
+          L.DomEvent.stopPropagation(e.originalEvent);
+          handleClick();
+        },
+      }}
     >
       <Popup>
         <div className="min-w-[200px] space-y-2">
@@ -169,7 +211,14 @@ export default function TrainMarker({ position, isSelected, onSelect }: TrainMar
 
             {position.next_station && (
               <div className="pt-2 border-t">
-                <span className="text-muted-foreground">Next station:</span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-muted-foreground">Next station:</span>
+                  {position.eta_next_station && (
+                    <span className="text-xs font-semibold tabular-nums">
+                      {position.eta_next_station}
+                    </span>
+                  )}
+                </div>
                 <p className="font-medium">{position.next_station}</p>
               </div>
             )}
@@ -177,7 +226,7 @@ export default function TrainMarker({ position, isSelected, onSelect }: TrainMar
             {position.progress !== undefined && (
               <div className="pt-1">
                 <div className="flex justify-between text-xs">
-                  <span>Journey progress</span>
+                  <span>Progress to next station</span>
                   <span>{position.progress}%</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden mt-1">

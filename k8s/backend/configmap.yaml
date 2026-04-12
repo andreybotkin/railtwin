@@ -16,3 +16,5 @@ data:
   CORS_ORIGINS: "http://localhost:3000,https://rthfi.com,https://www.rthfi.com"
   RATE_LIMIT_PER_MINUTE: "100"
   WS_HEARTBEAT_INTERVAL: "5"
+  POSITION_CACHE_INTERVAL_SECONDS: "5"
+  TRAJECTORY_REFRESH_INTERVAL_SECONDS: "20"

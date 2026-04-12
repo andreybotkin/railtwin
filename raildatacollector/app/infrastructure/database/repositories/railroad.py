@@ -1,12 +1,24 @@
 import hashlib
+import math
 import re
 
 import sqlalchemy as sa
+from geoalchemy2 import WKTElement
+from geoalchemy2.functions import ST_Distance, ST_LineLocatePoint, ST_X, ST_Y
+from geoalchemy2.types import Geography
+from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
 from app.domain.railroad.entities import RouteData, StationData
 from app.domain.railroad.repository import RailroadRepository
+from app.infrastructure.database.tables import (
+    t_route_stations,
+    t_routes,
+    t_schedules,
+    t_stations,
+)
 
 logger = get_logger(__name__)
 
@@ -29,43 +41,45 @@ def _make_station_code(name: str) -> str:
     return clean[:3] + suffix
 
 
-class SqlRailroadRepository(RailroadRepository):
-    """SQLAlchemy implementation of the railroad network repository.
+def _approx_distance_km(coords: list[tuple[float, float]]) -> float:
+    """Approximate total route length in km (simple degree-based estimation)."""
+    total = 0.0
+    for i in range(len(coords) - 1):
+        dlon = coords[i + 1][0] - coords[i][0]
+        dlat = coords[i + 1][1] - coords[i][1]
+        total += math.sqrt(dlon**2 + dlat**2) * 111.0
+    return total
 
-    Uses raw SQL (via sqlalchemy.text) and PostGIS spatial functions,
-    matching the approach used in the original load_kml_data.py script.
-    """
+
+class SqlRailroadRepository(RailroadRepository):
+    """SQLAlchemy 2 + GeoAlchemy2 implementation of the railroad network repository."""
 
     def __init__(self, session: AsyncSession) -> None:
         self._s = session
 
     async def count_stations(self) -> int:
-        result = await self._s.execute(sa.text("SELECT COUNT(*) FROM stations"))
-        return result.scalar() or 0
+        result = await self._s.execute(select(func.count()).select_from(t_stations))
+        return result.scalar_one() or 0
 
     async def count_routes(self) -> int:
-        result = await self._s.execute(sa.text("SELECT COUNT(*) FROM routes"))
-        return result.scalar() or 0
+        result = await self._s.execute(select(func.count()).select_from(t_routes))
+        return result.scalar_one() or 0
 
     async def replace_all(
         self,
         routes: list[RouteData],
         stations: list[StationData],
     ) -> tuple[int, int]:
-        # Clear dependent data first; schedules reference stations/route_stations
+        # Clear dependent data first (FK order: schedules → route_stations → routes/stations)
         logger.info("Clearing existing railroad data")
-        await self._s.execute(sa.text("DELETE FROM schedules"))
-        await self._s.execute(sa.text("DELETE FROM route_stations"))
-        await self._s.execute(sa.text("DELETE FROM routes"))
-        await self._s.execute(sa.text("DELETE FROM stations"))
+        await self._s.execute(delete(t_schedules))
+        await self._s.execute(delete(t_route_stations))
+        await self._s.execute(delete(t_routes))
+        await self._s.execute(delete(t_stations))
 
         stations_count = await self._insert_stations(stations)
         routes_count = await self._insert_routes(routes)
         return routes_count, stations_count
-
-    # ---------------------------------------------------------------------- #
-    # Private helpers                                                          #
-    # ---------------------------------------------------------------------- #
 
     async def _insert_stations(self, stations: list[StationData]) -> int:
         station_id_map: dict[str, int] = {}
@@ -83,27 +97,22 @@ class SqlRailroadRepository(RailroadRepository):
                 counter += 1
             seen_codes.add(code)
 
-            row = await self._s.execute(
-                sa.text("""
-                    INSERT INTO stations
-                        (name, code, location, province, facilities)
-                    VALUES (
-                        :name, :code,
-                        ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
-                        :province,
-                        cast(:facilities AS jsonb)
-                    )
-                    RETURNING id
-                    """),
-                {
-                    "name": s.name,
-                    "code": code,
-                    "lon": s.lon,
-                    "lat": s.lat,
-                    "province": s.folder or None,
-                    "facilities": '{"parking": false, "toilet": true, "wifi": false}',
-                },
+            point = WKTElement(f"POINT({s.lon} {s.lat})", srid=4326)
+            stmt = (
+                pg_insert(t_stations)
+                .values(
+                    name=s.name,
+                    name_th=s.name_th or None,
+                    code=code,
+                    location=point,
+                    source_route_type=s.route_type or None,
+                    city=s.district or None,
+                    province=s.folder or None,
+                    facilities={"parking": False, "toilet": True, "wifi": False},
+                )
+                .returning(t_stations.c.id)
             )
+            row = await self._s.execute(stmt)
             station_id_map[s.name] = row.scalar_one()
 
         logger.info("Stations inserted", count=len(station_id_map))
@@ -116,25 +125,21 @@ class SqlRailroadRepository(RailroadRepository):
             wkt = f"LINESTRING({coord_str})"
             distance_km = _approx_distance_km(r.coords)
 
-            row = await self._s.execute(
-                sa.text("""
-                    INSERT INTO routes
-                        (name, name_th, route_type, distance_km, color, line_geometry)
-                    VALUES (
-                        :name, NULL, :route_type, :distance_km, :color,
-                        ST_SetSRID(ST_GeomFromText(:geom), 4326)
-                    )
-                    RETURNING id
-                    """),
-                {
-                    "name": r.name,
-                    "route_type": r.route_type,
-                    "distance_km": round(distance_km, 2),
-                    "color": r.color or DEFAULT_COLOR.get(r.route_type, "#546E7A"),
-                    "geom": wkt,
-                },
+            line_geom = WKTElement(wkt, srid=4326)
+            stmt = (
+                pg_insert(t_routes)
+                .values(
+                    name=r.name,
+                    name_th=None,
+                    route_type=r.route_type,
+                    distance_km=round(distance_km, 2),
+                    color=r.color or DEFAULT_COLOR.get(r.route_type, "#546E7A"),
+                    line_geometry=line_geom,
+                )
+                .returning(t_routes.c.id)
             )
-            route_id = row.scalar_one()
+            result = await self._s.execute(stmt)
+            route_id = result.scalar_one()
             inserted += 1
             await self._assign_stations_to_route(route_id, wkt, distance_km, r.coords)
 
@@ -153,66 +158,48 @@ class SqlRailroadRepository(RailroadRepository):
         min_lat = min(c[1] for c in coords) - 0.5
         max_lat = max(c[1] for c in coords) + 0.5
 
-        nearby = await self._s.execute(
-            sa.text("""
-                SELECT id
-                FROM stations
-                WHERE ST_X(location::geometry) BETWEEN :min_lon AND :max_lon
-                  AND ST_Y(location::geometry) BETWEEN :min_lat AND :max_lat
-                  AND ST_Distance(
-                          location::geography,
-                          ST_SetSRID(ST_GeomFromText(:geom), 4326)::geography
-                      ) < 2000
-                """),
-            {
-                "geom": wkt,
-                "min_lon": min_lon,
-                "max_lon": max_lon,
-                "min_lat": min_lat,
-                "max_lat": max_lat,
-            },
+        line_geom = WKTElement(wkt, srid=4326)
+
+        # Bbox pre-filter + 2 km distance filter
+        nearby_stmt = (
+            select(t_stations.c.id)
+            .where(
+                ST_X(t_stations.c.location) >= min_lon,
+                ST_X(t_stations.c.location) <= max_lon,
+                ST_Y(t_stations.c.location) >= min_lat,
+                ST_Y(t_stations.c.location) <= max_lat,
+                ST_Distance(
+                    sa.cast(t_stations.c.location, Geography()),
+                    sa.cast(line_geom, Geography()),
+                )
+                < 2000,
+            )
         )
-        nearby_ids = [row[0] for row in nearby.fetchall()]
+        nearby_result = await self._s.execute(nearby_stmt)
+        nearby_ids = [row[0] for row in nearby_result.fetchall()]
         if not nearby_ids:
             return
 
-        ordered = await self._s.execute(
-            sa.text("""
-                SELECT s.id,
-                       ST_LineLocatePoint(
-                           ST_SetSRID(ST_GeomFromText(:geom), 4326),
-                           s.location::geometry
-                       ) AS frac
-                FROM stations s
-                WHERE s.id = ANY(:ids)
-                ORDER BY frac
-                """),
-            {"geom": wkt, "ids": nearby_ids},
+        # Order stations by their fractional position along the route
+        frac_expr = ST_LineLocatePoint(line_geom, t_stations.c.location)
+        ordered_stmt = (
+            select(t_stations.c.id, frac_expr.label("frac"))
+            .where(t_stations.c.id.in_(nearby_ids))
+            .order_by(frac_expr)
         )
-        for seq, row in enumerate(ordered.fetchall()):
+        ordered = (await self._s.execute(ordered_stmt)).fetchall()
+
+        for seq, row in enumerate(ordered):
             st_id, frac = row[0], float(row[1])
             dist_from_start = round(frac * distance_km, 2)
             await self._s.execute(
-                sa.text("""
-                    INSERT INTO route_stations
-                        (route_id, station_id, sequence, distance_from_start)
-                    VALUES (:route_id, :station_id, :sequence, :distance)
-                    ON CONFLICT DO NOTHING
-                    """),
-                {
-                    "route_id": route_id,
-                    "station_id": st_id,
-                    "sequence": seq,
-                    "distance": dist_from_start,
-                },
+                pg_insert(t_route_stations)
+                .values(
+                    route_id=route_id,
+                    station_id=st_id,
+                    sequence=seq,
+                    distance_from_start=dist_from_start,
+                )
+                .on_conflict_do_nothing()
             )
 
-
-def _approx_distance_km(coords: list[tuple[float, float]]) -> float:
-    """Crude great-circle approximation using degree-to-km conversion."""
-    total = 0.0
-    for i in range(1, len(coords)):
-        dlon = (coords[i][0] - coords[i - 1][0]) * 111.0 * 0.9
-        dlat = (coords[i][1] - coords[i - 1][1]) * 111.0
-        total += (dlon**2 + dlat**2) ** 0.5
-    return total

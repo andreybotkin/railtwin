@@ -13,6 +13,8 @@ import type {
   StationSchedule,
   PaginatedResponse,
   TrainPositionUpdate,
+  NetworkEdgeCollection,
+  NetworkGraph,
 } from '@/types';
 
 // API base URL from environment
@@ -225,6 +227,30 @@ export const scheduleApi = {
       `/schedules/station/${stationId}/upcoming`,
       { params: { limit } }
     );
+    return response.data;
+  },
+};
+
+// Network topology API
+export const networkApi = {
+  /**
+   * Get network edges as GeoJSON FeatureCollection, optionally filtered by BBOX.
+   * BBOX format: [minLon, minLat, maxLon, maxLat]
+   */
+  getEdges: async (bbox?: [number, number, number, number]): Promise<NetworkEdgeCollection> => {
+    const params: Record<string, number> = {};
+    if (bbox) {
+      [params.min_lon, params.min_lat, params.max_lon, params.max_lat] = bbox;
+    }
+    const response = await api.get<NetworkEdgeCollection>('/network/edges', { params });
+    return response.data;
+  },
+
+  /**
+   * Get network graph summary (node/edge counts).
+   */
+  getGraph: async (): Promise<NetworkGraph> => {
+    const response = await api.get<NetworkGraph>('/network/graph');
     return response.data;
   },
 };

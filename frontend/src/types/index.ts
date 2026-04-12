@@ -119,8 +119,19 @@ export interface TrainPositionUpdate {
   delay_minutes: number;
   next_station: string | null;
   prev_station: string | null;
+  /** Estimated arrival at next station in "HH:MM" format (Bangkok time). */
+  eta_next_station: string | null;
+  /** Progress between previous and next station: 0–100. */
   progress: number;
+  /** Progress along the whole route polyline: 0..1. */
+  route_progress?: number;
+  /** Progress along the current station-to-station graph edge: 0..1. */
+  segment_progress?: number;
+  current_edge_id?: number | null;
+  graph_from_station_id?: number | null;
+  graph_to_station_id?: number | null;
   route_id: number | null;
+  topology_version?: string;
 }
 
 // Schedule types
@@ -197,6 +208,7 @@ export interface TrainTrajectoryProperties {
   train_id: number;
   train_number: string;
   train_type: TrainType;
+  route_id: number | null;
   route_identifier: string;
   // Delay
   /** Delay in minutes (legacy / display). */
@@ -206,6 +218,17 @@ export interface TrainTrajectoryProperties {
   // Context
   next_station: string | null;
   prev_station: string | null;
+  speed?: number | null;
+  status?: TrainStatus;
+  eta_next_station?: string | null;
+  progress?: number | null;
+  route_progress?: number | null;
+  segment_progress?: number | null;
+  current_edge_id?: number | null;
+  graph_from_station_id?: number | null;
+  graph_to_station_id?: number | null;
+  route_distance_km?: number | null;
+  topology_version?: string;
   /** Geops-compatible time_intervals for temporal position interpolation. */
   time_intervals: TimeInterval[];
   line: TrainTrajectoryLine;
@@ -266,6 +289,59 @@ export type TrajectoryWSMessage =
   | { source: 'keepalive'; timestamp: number };
 
 
+
+// ---------------------------------------------------------------------------
+// Network topology types (railway graph edges and nodes)
+// ---------------------------------------------------------------------------
+
+/** Properties of a single directed network edge GeoJSON feature. */
+export interface NetworkEdgeProperties {
+  from_node_id: number;
+  to_node_id: number;
+  from_station_id: number;
+  to_station_id: number;
+  length_m: number;
+  edge_kind?: string | null;
+  component_id?: number | null;
+  route_type: RouteType | null;
+  line_name: string | null;
+}
+
+/** GeoJSON Feature representing one directed track segment. */
+export interface NetworkEdgeFeature {
+  type: 'Feature';
+  geometry: GeoJSONLineString;
+  properties: NetworkEdgeProperties;
+}
+
+/** GeoJSON FeatureCollection returned by GET /api/v1/network/edges. */
+export interface NetworkEdgeCollection {
+  type: 'FeatureCollection';
+  features: NetworkEdgeFeature[];
+}
+
+/** Properties of a single network node GeoJSON feature. */
+export interface NetworkNodeProperties {
+  station_id: number;
+  station_name: string;
+  station_code: string;
+}
+
+/** GeoJSON Feature representing one station node in the graph. */
+export interface NetworkNodeFeature {
+  type: 'Feature';
+  geometry: GeoJSONPoint;
+  properties: NetworkNodeProperties;
+}
+
+/** Summary graph returned by GET /api/v1/network/graph. */
+export interface NetworkGraph {
+  node_count: number;
+  edge_count: number;
+  physical_edge_count: number;
+  adjacency: Record<string, number[]>;
+  physical_adjacency: Record<string, number[]>;
+}
 
 // UI state types
 export interface MapViewState {

@@ -152,6 +152,9 @@ export class TrainWebSocketClient {
    * Start heartbeat to keep connection alive.
    */
   private startHeartbeat(): void {
+    if (this.heartbeatInterval) {
+      return;
+    }
     this.heartbeatInterval = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send('ping');
@@ -302,6 +305,8 @@ export class TrajectoryWebSocketClient {
   private shouldReconnect = true;
   private currentBBox: string | null = null;
   private visibilityHandler: (() => void) | null = null;
+  private notifyFrameId: number | null = null;
+  private notifyTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   /** In-memory trajectory dictionary — mirrors geops client-side state */
   readonly trajectories = new Map<number, TrainTrajectory>();
@@ -330,10 +335,10 @@ export class TrajectoryWebSocketClient {
           if (msg.source === 'trajectory') {
             const t = msg.content;
             this.trajectories.set(t.properties.train_id, t);
-            this.notifyHandlers();
+            this.scheduleNotify();
           } else if (msg.source === 'deleted_vehicles') {
             this.trajectories.delete(msg.content);
-            this.notifyHandlers();
+            this.scheduleNotify();
           }
           // keepalive: ignore silently
         } catch {
@@ -358,6 +363,7 @@ export class TrajectoryWebSocketClient {
     this.shouldReconnect = false;
     this.stopHeartbeat();
     this.teardownVisibilityHandler();
+    this.cancelScheduledNotify();
     if (this.ws) { this.ws.close(); this.ws = null; }
     this.trajectories.clear();
   }
@@ -384,6 +390,36 @@ export class TrajectoryWebSocketClient {
     this.updateHandlers.forEach((h) => h(snap));
   }
 
+  private scheduleNotify(): void {
+    if (this.notifyFrameId !== null || this.notifyTimeoutId !== null) {
+      return;
+    }
+
+    if (typeof window === 'undefined' || document.hidden) {
+      this.notifyTimeoutId = setTimeout(() => {
+        this.notifyTimeoutId = null;
+        this.notifyHandlers();
+      }, 50);
+      return;
+    }
+
+    this.notifyFrameId = window.requestAnimationFrame(() => {
+      this.notifyFrameId = null;
+      this.notifyHandlers();
+    });
+  }
+
+  private cancelScheduledNotify(): void {
+    if (this.notifyFrameId !== null && typeof window !== 'undefined') {
+      window.cancelAnimationFrame(this.notifyFrameId);
+      this.notifyFrameId = null;
+    }
+    if (this.notifyTimeoutId !== null) {
+      clearTimeout(this.notifyTimeoutId);
+      this.notifyTimeoutId = null;
+    }
+  }
+
   private scheduleReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) return;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts++);
@@ -391,6 +427,9 @@ export class TrajectoryWebSocketClient {
   }
 
   private startHeartbeat(): void {
+    if (this.heartbeatInterval) {
+      return;
+    }
     this.heartbeatInterval = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) this.ws.send('PING');
     }, HEARTBEAT_INTERVAL_MS);

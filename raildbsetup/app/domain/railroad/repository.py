@@ -17,14 +17,11 @@ class RailroadRepository(ABC):
         ...
 
     @abstractmethod
-    async def replace_all(
-        self,
-        routes: list[RouteData],
-        stations: list[StationData],
-    ) -> tuple[int, int]:
-        """Replace all railroad data atomically.
+    async def replace_routes(self, routes: list[RouteData]) -> int:
+        """Replace the canonical route geometries loaded from the KML file."""
+        ...
 
-        Clears existing routes, stations, route_stations, and schedules
-        then inserts fresh data. Returns (routes_inserted, stations_inserted).
-        """
+    @abstractmethod
+    async def replace_stations(self, stations: list[StationData]) -> int:
+        """Replace the canonical station locations loaded from the JSON file."""
         ...

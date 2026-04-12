@@ -141,10 +141,21 @@ def get_stop_progress(
     """Resolve a stop's progress fraction (0.0–1.0) along the route.
 
     Priority order:
+    1. ``schedule.route_station.distance_from_start / route_distance_km``.
     1. ``schedule.route_progress`` (stored explicitly).
     2. ``schedule.distance_from_origin_km / route_distance_km``.
     3. Linear interpolation by stop index.
     """
+    route_station = getattr(schedule, "route_station", None)
+    if (
+        route_station is not None
+        and route_station.distance_from_start is not None
+        and route_distance_km
+    ):
+        return min(
+            1.0,
+            max(0.0, float(route_station.distance_from_start) / route_distance_km),
+        )
     if schedule.route_progress is not None:
         return float(schedule.route_progress)
     if schedule.distance_from_origin_km is not None and route_distance_km:

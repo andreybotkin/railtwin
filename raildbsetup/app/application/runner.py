@@ -13,9 +13,14 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from app.application.use_cases.build_network_topology import (
+    BuildNetworkTopologyUseCase,
+    TopologyBuildResult,
+)
 from app.application.use_cases.init_railroad import InitRailroadUseCase, RailroadInitResult
 from app.application.use_cases.init_schedules import InitSchedulesUseCase, ScheduleInitResult
 from app.core.logging import get_logger
+from app.infrastructure.database.repositories.network import SqlNetworkRepository
 from app.infrastructure.database.repositories.railroad import SqlRailroadRepository
 from app.infrastructure.database.session import get_session_factory
 
@@ -61,7 +66,7 @@ class SetupRunner:
         self._error = error
 
     async def run_all(self) -> dict[str, Any]:
-        """Run complete initialization: migrations → railroad → schedules."""
+        """Run complete initialization: migrations → railroad → topology → schedules."""
         async with self._lock:
             self._is_ready = False
             self._is_failed = False
@@ -81,11 +86,20 @@ class SetupRunner:
             logger.error("Railroad initialization failed, aborting", error=self._error)
             return {"migrations": migration_result, "railroad": railroad_result}
 
+        topology_result = await self.run_network_topology()
+        if topology_result.get("error"):
+            # Topology failure is non-fatal: log and continue to schedules.
+            logger.warning(
+                "Network topology build failed – continuing without graph",
+                error=topology_result["error"],
+            )
+
         schedule_result = await self.run_schedules()
 
         self._status = {
             "migrations": migration_result,
             "railroad": railroad_result,
+            "topology": topology_result,
             "schedules": schedule_result,
         }
         self._is_ready = True
@@ -133,6 +147,23 @@ class SetupRunner:
             self._status["railroad"] = d
             return d
 
+    async def run_network_topology(self, force: bool = False) -> dict[str, Any]:
+        self._current_step = "network_topology"
+        try:
+            async with get_session_factory()() as session:
+                async with session.begin():
+                    result: TopologyBuildResult = await BuildNetworkTopologyUseCase(
+                        SqlNetworkRepository(session)
+                    ).execute(force=force)
+            d = _result_to_dict(result)
+            self._status["topology"] = d
+            return d
+        except Exception as exc:
+            logger.error("Network topology raised unexpected exception", error=str(exc))
+            d = {"success": False, "error": str(exc)}
+            self._status["topology"] = d
+            return d
+
     async def run_schedules(self) -> dict[str, Any]:
         self._current_step = "schedules"
         try:
@@ -149,7 +180,9 @@ class SetupRunner:
             return d
 
 
-def _result_to_dict(result: RailroadInitResult | ScheduleInitResult) -> dict[str, Any]:
+def _result_to_dict(
+    result: RailroadInitResult | ScheduleInitResult | TopologyBuildResult,
+) -> dict[str, Any]:
     d = asdict(result)
     # Remove None values for clean JSON output
     return {k: v for k, v in d.items() if v is not None}

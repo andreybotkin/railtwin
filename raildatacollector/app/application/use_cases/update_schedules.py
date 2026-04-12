@@ -1,11 +1,13 @@
-"""Use case: periodic (daily) update of train schedules from timetable sources.
+"""Use case: periodic update of timetable cache from external timetable sources.
 
 On each run:
   1. Fetches the latest timetable (local cache → TTS remote).
-  2. Upserts train and schedule records in the database.
-  3. Saves the timetable as a dated JSON file in schedule/.
-  4. Caches per-train schedule data in Redis (TTL 48 h) so the backend
+    2. Saves the timetable as a dated JSON file in schedule/.
+    3. Caches per-train schedule data in Redis (TTL 48 h) so the backend
      simulation can query timetable data without hitting the database.
+
+The database remains owned by raildbsetup and is seeded only from
+raildbsetup/schedule/raw/*.json.
 """
 
 import json
@@ -16,8 +18,6 @@ import redis.asyncio as aioredis
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.domain.schedule.entities import TrainData
-from app.domain.schedule.repository import ScheduleRepository
-from app.domain.schedule.service import ScheduleDomainService
 from app.infrastructure.scrapers.timetable_scraper import fetch_timetable
 
 logger = get_logger(__name__)
@@ -55,12 +55,7 @@ def _serialize_train(train: TrainData) -> str:
 
 
 class UpdateSchedulesUseCase:
-    def __init__(
-        self,
-        repository: ScheduleRepository,
-        redis_client: aioredis.Redis | None = None,
-    ) -> None:
-        self._svc = ScheduleDomainService(repository)
+    def __init__(self, redis_client: aioredis.Redis | None = None) -> None:
         self._redis = redis_client
 
     async def execute(self) -> dict:
@@ -70,14 +65,15 @@ class UpdateSchedulesUseCase:
             logger.warning("No timetable data available, schedule update skipped")
             return {"success": False, "reason": "no_data"}
 
-        count = await self._svc.upsert_trains(trains)
-        logger.info("Schedules updated in DB", trains=count)
-
         if self._redis is not None:
             cached = await self._cache_to_redis(trains)
             logger.info("Schedules cached in Redis", trains=cached)
 
-        return {"success": True, "trains_updated": count, "redis_cached": self._redis is not None}
+        return {
+            "success": True,
+            "trains_cached": len(trains),
+            "redis_cached": self._redis is not None,
+        }
 
     async def _cache_to_redis(self, trains: list[TrainData]) -> int:
         """Store per-train schedule data in Redis with a 48 h TTL."""

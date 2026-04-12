@@ -9,7 +9,13 @@ class StationData:
     lon: float
     lat: float
     folder: str = ""
+    source_line: str = ""
     route_type: str = "other"
+    # Enriched fields from thai_railway_stations_full.json
+    name_th: str = ""
+    code: str = ""
+    station_class: str = ""
+    district: str = ""
 
     def validate(self) -> list[str]:
         """Return list of validation errors (empty = valid)."""

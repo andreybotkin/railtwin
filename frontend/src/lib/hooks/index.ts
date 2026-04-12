@@ -2,13 +2,14 @@
  * Custom React hooks for the application.
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { startTransition, useEffect, useState, useCallback, useRef } from 'react';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import {
   stationApi,
   routeApi,
   trainApi,
   scheduleApi,
+  networkApi,
 } from '@/lib/api/client';
 import { getWebSocketClient, TrainWebSocketClient, getTrajectoryClient } from '@/lib/websocket';
 import type {
@@ -21,6 +22,7 @@ import type {
   TrainPositionUpdate,
   TrainTrajectory,
   PaginatedResponse,
+  NetworkEdgeCollection,
 } from '@/types';
 
 /**
@@ -169,7 +171,9 @@ export function useTrainTrajectories(): {
     const client = getTrajectoryClient();
 
     const unsub = client.onUpdate((updated) => {
-      setTrajectories(new Map(updated));
+      startTransition(() => {
+        setTrajectories(new Map(updated));
+      });
       if (!isConnected) setIsConnected(true);
     });
 
@@ -194,6 +198,21 @@ export function useStationSearch(query: string): UseQueryResult<Station[]> {
     queryFn: () => stationApi.search(query),
     enabled: query.length >= 2,
     staleTime: 60 * 1000,
+  });
+}
+
+/**
+ * Hook for fetching network topology edges as GeoJSON FeatureCollection.
+ * Optionally filtered by viewport BBOX [minLon, minLat, maxLon, maxLat].
+ * Data is refreshed every 10 minutes (static infrastructure data changes rarely).
+ */
+export function useNetworkEdges(
+  bbox?: [number, number, number, number]
+): UseQueryResult<NetworkEdgeCollection> {
+  return useQuery({
+    queryKey: ['network-edges', bbox ? bbox.join(',') : 'all'],
+    queryFn: () => networkApi.getEdges(bbox),
+    staleTime: 10 * 60 * 1000,
   });
 }
 

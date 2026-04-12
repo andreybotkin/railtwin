@@ -23,6 +23,51 @@ from app.services import geo_utils, schedule_utils
 
 __all__ = ["build_train_trajectory", "build_stop_sequence"]
 
+
+def _minutes_to_hhmm(minutes: float) -> str:
+    """Convert fractional minutes-since-midnight to 'HH:MM' string."""
+    total = int(round(minutes)) % (24 * 60)
+    return f"{total // 60:02d}:{total % 60:02d}"
+
+
+def _find_initial_route_segment(
+    schedules: list[Schedule],
+    route_segments: list[dict[str, Any]] | None,
+    current_minutes: float,
+    delay: int,
+) -> dict[str, Any] | None:
+    if not route_segments or len(schedules) < 2:
+        return None
+
+    prev_stop: Schedule | None = None
+    next_stop: Schedule | None = None
+    for i, schedule in enumerate(schedules):
+        dep_mins = schedule_utils.get_schedule_minutes(schedule, prefer_departure=True)
+        if dep_mins is None:
+            continue
+        if dep_mins + delay > current_minutes:
+            next_stop = schedule
+            if i > 0:
+                prev_stop = schedules[i - 1]
+            break
+        prev_stop = schedule
+
+    if prev_stop is None or next_stop is None:
+        return None
+
+    next_route_station = getattr(next_stop, "route_station", None)
+    next_edge_id = getattr(next_route_station, "edge_id", None)
+    if next_edge_id is not None:
+        return next(
+            (
+                segment
+                for segment in route_segments
+                if segment.get("edge_id") == int(next_edge_id)
+            ),
+            None,
+        )
+    return None
+
 # Train-type colours — must match ``TYPE_COLORS`` in the frontend.
 _TRAIN_TYPE_COLORS: dict[str, str] = {
     "special_express": "#E53935",
@@ -36,6 +81,7 @@ def build_train_trajectory(
     schedules: list[Schedule],
     route_coords: list[list[float]] | None,
     route_distance_km: float | None = None,
+    route_segments: list[dict[str, Any]] | None = None,
     *,
     delay: int,
     current_minutes: float,
@@ -78,6 +124,12 @@ def build_train_trajectory(
     prev_stop_name: str | None = None
     next_stop_name: str | None = None
     first_valid = True
+    current_speed: float | None = None
+    current_status = "moving"
+    current_eta_next_station: str | None = None
+    current_progress_pct: float | None = None
+    current_route_progress: float | None = None
+    current_segment_progress: float | None = None
 
     for step in range(step_count):
         step_unix_ms = now_unix_ms + step * _step * 1000
@@ -126,7 +178,34 @@ def build_train_trajectory(
             else max(0.0, min(1.0, (step_minutes - prev_mins) / segment_duration))
         )
 
-        if route_coords and len(route_coords) >= 2:
+        segment_length_km: float | None = None
+        overall_progress = progress
+
+        active_segment = None
+        if route_segments:
+            active_segment = _find_initial_route_segment(
+                schedules,
+                route_segments,
+                step_minutes,
+                delay,
+            )
+
+        if active_segment and active_segment.get("coords") and len(active_segment["coords"]) >= 2:
+            segment_coords = active_segment["coords"]
+            lon, lat = geo_utils.interpolate_position(segment_coords, progress)
+            head_frac = min(1.0, progress + 0.01)
+            nlon, nlat = geo_utils.interpolate_position(segment_coords, head_frac)
+            rotation = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
+            segment_length_km = float(active_segment.get("length_km") or 0.0)
+            if route_distance_km and route_distance_km > 0:
+                overall_progress = (
+                    float(active_segment.get("start_km") or 0.0)
+                    + segment_length_km * progress
+                ) / route_distance_km
+            else:
+                overall_progress = progress
+            geom_frac = max(0.0, min(1.0, overall_progress))
+        elif route_coords and len(route_coords) >= 2:
             total_stops = len(schedules)
             prev_index = next(
                 (idx for idx, s in enumerate(schedules) if s is prev_stop), 0
@@ -142,11 +221,17 @@ def build_train_trajectory(
                 next_stop, next_index, total_stops, route_distance_km
             )
             geom_frac = start_p + (end_p - start_p) * progress
+            overall_progress = geom_frac
 
             lon, lat = geo_utils.interpolate_position(route_coords, geom_frac)
             head_frac = min(1.0, max(geom_frac + 0.005, end_p))
             nlon, nlat = geo_utils.interpolate_position(route_coords, head_frac)
             rotation = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
+
+            if segment_duration > 0:
+                dist_km = geo_utils.segment_distance_km(route_coords, start_p, end_p)
+                if dist_km > 0:
+                    segment_length_km = dist_km
         else:
             # Fallback: straight-line interpolation between station points.
             if prev_stop.station is None or next_stop.station is None:
@@ -161,6 +246,15 @@ def build_train_trajectory(
             )
             geom_frac = len(fallback_coords) / max(step_count - 1, 1)
             fallback_coords.append([lon, lat])
+
+        if step == 0:
+            if segment_length_km is not None and segment_duration > 0:
+                current_speed = round(segment_length_km / (segment_duration / 60), 1)
+            current_status = "at_station" if progress < 0.05 or progress > 0.95 else "moving"
+            current_eta_next_station = _minutes_to_hhmm(next_mins)
+            current_progress_pct = round(progress * 100, 1)
+            current_route_progress = round(max(0.0, min(1.0, overall_progress)), 6)
+            current_segment_progress = round(progress, 6)
 
         bounds_min_lon = min(bounds_min_lon, lon)
         bounds_min_lat = min(bounds_min_lat, lat)
@@ -186,6 +280,12 @@ def build_train_trajectory(
     first_frac = time_intervals[0][1]
     last_frac = time_intervals[-1][1]
     state = "BOARDING" if first_frac < 0.05 or last_frac > 0.95 else "DRIVING"
+    initial_segment = _find_initial_route_segment(
+        schedules,
+        route_segments,
+        current_minutes,
+        delay,
+    )
 
     return {
         "type": "Feature",
@@ -195,6 +295,7 @@ def build_train_trajectory(
             "train_id": train.id,
             "train_number": train.train_number,
             "train_type": train.train_type,
+            "route_id": train.current_route_id,
             "route_identifier": train.train_number,
             # Temporal position data (geops TrackerTrajectory pattern)
             # time_intervals: [[unix_ms, geom_frac, rotation_deg], ...]
@@ -208,6 +309,26 @@ def build_train_trajectory(
             # Context
             "next_station": next_stop_name,
             "prev_station": prev_stop_name,
+            "speed": current_speed,
+            "status": current_status,
+            "eta_next_station": current_eta_next_station,
+            "progress": current_progress_pct,
+            "route_progress": current_route_progress,
+            "segment_progress": current_segment_progress,
+            "current_edge_id": (
+                int(initial_segment["edge_id"]) if initial_segment is not None else None
+            ),
+            "graph_from_station_id": (
+                int(initial_segment["from_station_id"])
+                if initial_segment is not None
+                else None
+            ),
+            "graph_to_station_id": (
+                int(initial_segment["to_station_id"])
+                if initial_segment is not None
+                else None
+            ),
+            "route_distance_km": route_distance_km,
             # Delay — both units for compatibility
             "delay_minutes": delay,  # legacy / display
             "delay": delay * 60,  # geops standard (seconds)

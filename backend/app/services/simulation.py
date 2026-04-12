@@ -98,6 +98,7 @@ class TrainSimulationService:
         schedules: list[Schedule],
         route_coords: list[list[float]] | None,
         route_distance_km: float | None = None,
+        route_segments: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any] | None:
         """Calculate a current position snapshot for a single train."""
         current_minutes = self._get_candidate_current_minutes(schedules)
@@ -109,6 +110,7 @@ class TrainSimulationService:
             schedules,
             route_coords,
             route_distance_km,
+            route_segments,
             delay=delay,
             current_minutes=current_minutes,
         )
@@ -119,6 +121,7 @@ class TrainSimulationService:
         schedules: list[Schedule],
         route_coords: list[list[float]] | None,
         route_distance_km: float | None = None,
+        route_segments: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any] | None:
         """Generate a geops-compatible trajectory object with ``time_intervals``."""
         current_minutes = self._get_candidate_current_minutes(schedules)
@@ -130,6 +133,7 @@ class TrainSimulationService:
             schedules,
             route_coords,
             route_distance_km,
+            route_segments,
             delay=delay,
             current_minutes=current_minutes,
         )
@@ -169,10 +173,22 @@ class TrainSimulationService:
                 schedules = await self.schedule_repo.get_by_train(train.id)
                 if not schedules:
                     continue
-                route_coords, route_distance_km = await self._load_route(train)
-                pos = await self.get_train_position(
-                    train, schedules, route_coords, route_distance_km
-                )
+                route_coords, route_distance_km, route_segments = await self._load_route(train)
+                if route_segments:
+                    pos = await self.get_train_position(
+                        train,
+                        schedules,
+                        route_coords,
+                        route_distance_km,
+                        route_segments=route_segments,
+                    )
+                else:
+                    pos = await self.get_train_position(
+                        train,
+                        schedules,
+                        route_coords,
+                        route_distance_km,
+                    )
                 if pos:
                     positions.append(pos)
 
@@ -201,10 +217,22 @@ class TrainSimulationService:
                 schedules = await self.schedule_repo.get_by_train(train.id)
                 if not schedules:
                     continue
-                route_coords, route_distance_km = await self._load_route(train)
-                traj = await self.get_train_trajectory(
-                    train, schedules, route_coords, route_distance_km
-                )
+                route_coords, route_distance_km, route_segments = await self._load_route(train)
+                if route_segments:
+                    traj = await self.get_train_trajectory(
+                        train,
+                        schedules,
+                        route_coords,
+                        route_distance_km,
+                        route_segments=route_segments,
+                    )
+                else:
+                    traj = await self.get_train_trajectory(
+                        train,
+                        schedules,
+                        route_coords,
+                        route_distance_km,
+                    )
                 if traj:
                     trajectories.append(traj)
 
@@ -216,6 +244,9 @@ class TrainSimulationService:
 
     async def get_all_active_train_data(
         self,
+        *,
+        include_trajectories: bool = True,
+        include_stop_sequences: bool = True,
     ) -> tuple[
         list[dict[str, Any]],
         list[dict[str, Any]],
@@ -260,7 +291,7 @@ class TrainSimulationService:
                 {t.current_route_id for t in trains if t.current_route_id}
             )
             geometry_by_route = (
-                await self.route_repo.get_geometry_bulk(route_ids)
+                await self.route_repo.get_graph_geometry_bulk(route_ids)
                 if route_ids
                 else {}
             )
@@ -272,13 +303,15 @@ class TrainSimulationService:
 
                 route_coords: list[list[float]] | None = None
                 route_distance_km: float | None = None
+                route_segments: list[dict[str, Any]] | None = None
                 if (
                     train.current_route_id
                     and train.current_route_id in geometry_by_route
                 ):
-                    route_coords, route_distance_km = geometry_by_route[
-                        train.current_route_id
-                    ]
+                    route_payload = geometry_by_route[train.current_route_id]
+                    route_coords = route_payload.get("coords")
+                    route_distance_km = route_payload.get("distance_km")
+                    route_segments = route_payload.get("segments")
                     if not route_coords:
                         route_coords = None
 
@@ -292,28 +325,32 @@ class TrainSimulationService:
                     schedules,
                     route_coords,
                     route_distance_km,
+                    route_segments,
                     delay=delay,
                     current_minutes=current_minutes,
                 )
                 if pos:
                     positions.append(pos)
 
-                traj = build_train_trajectory(
-                    train,
-                    schedules,
-                    route_coords,
-                    route_distance_km,
-                    delay=delay,
-                    current_minutes=current_minutes,
-                )
-                if traj:
-                    trajectories.append(traj)
+                if include_trajectories:
+                    traj = build_train_trajectory(
+                        train,
+                        schedules,
+                        route_coords,
+                        route_distance_km,
+                        route_segments,
+                        delay=delay,
+                        current_minutes=current_minutes,
+                    )
+                    if traj:
+                        trajectories.append(traj)
 
-                seq = build_stop_sequence(
-                    schedules, delay=delay, current_minutes=current_minutes
-                )
-                if seq:
-                    stop_sequences[train.id] = seq
+                if include_stop_sequences:
+                    seq = build_stop_sequence(
+                        schedules, delay=delay, current_minutes=current_minutes
+                    )
+                    if seq:
+                        stop_sequences[train.id] = seq
 
             if len(trains) < batch_size:
                 break
@@ -340,14 +377,26 @@ class TrainSimulationService:
 
     async def _load_route(
         self, train: Train
-    ) -> tuple[list[list[float]] | None, float | None]:
+    ) -> tuple[list[list[float]] | None, float | None, list[dict[str, Any]] | None]:
         """Load route geometry for a single train (used by legacy bulk methods)."""
         if not train.current_route_id:
-            return None, None
-        route = await self.route_repo.get_by_id_with_geometry(train.current_route_id)
-        if route and hasattr(route, "_geojson") and route._geojson:
-            geojson = json.loads(route._geojson)
-            coords = geojson.get("coordinates", [])
-            dist_km = float(route.distance_km) if route.distance_km else None
-            return coords, dist_km
-        return None, None
+            return None, None, None
+        route_payload = None
+        try:
+            route_payload = (
+                await self.route_repo.get_graph_geometry_bulk([train.current_route_id])
+            ).get(train.current_route_id)
+        except Exception:
+            route_payload = None
+        if route_payload is None:
+            route = await self.route_repo.get_by_id_with_geometry(train.current_route_id)
+            if route and hasattr(route, "_geojson") and route._geojson:
+                geojson = json.loads(route._geojson)
+                coords = geojson.get("coordinates", [])
+                dist_km = float(route.distance_km) if route.distance_km else None
+                return coords, dist_km, None
+            return None, None, None
+        coords = route_payload.get("coords") or None
+        dist_km = route_payload.get("distance_km")
+        segments = route_payload.get("segments") or None
+        return coords, dist_km, segments

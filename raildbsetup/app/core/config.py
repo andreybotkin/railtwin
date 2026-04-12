@@ -29,19 +29,28 @@ class Settings(BaseSettings):
     kml_local_path: Path = (
         _DEFAULT_BASE / "railroad" / "20260410RailwayMapofThailand.kml"
     )
-    schedule_raw_dir: Path = _DEFAULT_BASE / "schedule" / "raw"
-    schedule_seed_path: Path = _DEFAULT_BASE / "schedule" / "schedules_seed.json"
-
-    # Remote KML fallback (only used if local file is absent)
-    kml_remote_url: str = (
-        "https://www.google.com/maps/d/kml"
-        "?mid=1E6wO3YeI2OZwvSaRGc-pPbUEYchbFdY&forcekml=1"
+    stations_json_path: Path = (
+        _DEFAULT_BASE / "railroad" / "thai_railway_stations_full.json"
     )
+    schedule_raw_dir: Path = _DEFAULT_BASE / "schedule" / "raw"
 
     # Validation thresholds
     min_routes_expected: int = 1
     min_stations_expected: int = 10
     min_trains_expected: int = 1
+
+    # Network topology settings
+    # Maximum distance (metres) between a station point and a route LineString
+    # for the station to be considered part of that route.
+    # Increased from 500 → 2000 because many JSON station coordinates are offset
+    # a few hundred metres from the KML track lines.
+    topology_snap_distance_m: float = 2000.0
+    # Route rebuild tolerance: stations are considered part of a route when the
+    # route LineString passes close enough to the station point.
+    topology_route_match_distance_m: float = 25.0
+    # Numerical epsilon used when ordering station projections on a route and
+    # when extracting non-zero station-to-station edge segments.
+    topology_fraction_epsilon: float = 1e-6
 
 
 settings = Settings()
