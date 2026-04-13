@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from app.models.database.models import Schedule, Station, Train
 from app.schemas.schedule import ScheduleCreate
+from app.services import trajectory_service
 from app.services.simulation import TrainSimulationService
 
 
@@ -500,7 +501,9 @@ async def test_get_all_active_train_data_can_skip_trajectory_generation() -> Non
         }
 
     service.route_repo.get_graph_geometry_bulk = fake_get_graph_geometry_bulk  # type: ignore[method-assign]
-    service._get_candidate_current_minutes = lambda schedules: 10 * 60 + 30  # type: ignore[method-assign]
+    service._get_candidate_current_minutes_with_delay = (  # type: ignore[method-assign]
+        lambda schedules, delay=0: 10 * 60 + 30
+    )
 
     positions, trajectories, stop_sequences = await service.get_all_active_train_data(
         include_trajectories=False,
@@ -510,3 +513,156 @@ async def test_get_all_active_train_data_can_skip_trajectory_generation() -> Non
     assert len(positions) == 1
     assert trajectories == []
     assert stop_sequences == {}
+
+
+@pytest.mark.asyncio
+async def test_trajectory_contains_station_dwell_events(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Trajectory should contain exact arrival/departure markers for station dwell."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 10 * 60 + 58)
+    monkeypatch.setattr(trajectory_service._time, "time", lambda: 1000.0)
+    monkeypatch.setattr(
+        trajectory_service.settings,
+        "trajectory_lookahead_seconds",
+        600,
+    )
+    monkeypatch.setattr(
+        trajectory_service.settings,
+        "trajectory_step_seconds",
+        60,
+    )
+
+    train = Train(id=7, train_number="7", train_type="rapid")
+    service._tts_delays[train.train_number] = 0
+    schedules = [
+        Schedule(
+            train_id=7,
+            station_name="Bangkok",
+            departure_time=time(10, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=0,
+            day_of_week=None,
+            route_progress=0.0,
+        ),
+        Schedule(
+            train_id=7,
+            station_name="Ayutthaya",
+            arrival_time=time(11, 0),
+            departure_time=time(11, 5),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=1,
+            day_of_week=None,
+            route_progress=0.5,
+        ),
+        Schedule(
+            train_id=7,
+            station_name="Chiang Mai",
+            arrival_time=time(12, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=2,
+            day_of_week=None,
+            route_progress=1.0,
+        ),
+    ]
+
+    trajectory = await service.get_train_trajectory(
+        train,
+        schedules,
+        route_coords=[[0.0, 0.0], [10.0, 0.0]],
+        route_distance_km=1000.0,
+    )
+
+    assert trajectory is not None
+    props = trajectory["properties"]
+    events = {
+        (event["station_name"], event["event_type"]): event
+        for event in props["schedule_events"]
+    }
+    assert events[("Ayutthaya", "arrival")]["timestamp"] == 1_120_000
+    assert events[("Ayutthaya", "departure")]["timestamp"] == 1_420_000
+    assert events[("Ayutthaya", "arrival")]["coordinates"] == [5.0, 0.0]
+
+    time_intervals = {
+        interval[0]: interval[1]
+        for interval in props["time_intervals"]
+    }
+    assert time_intervals[1_120_000] == 0.5
+    assert time_intervals[1_420_000] == 0.5
+
+
+@pytest.mark.asyncio
+async def test_trajectory_schedule_events_shift_with_delay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Arrival and departure markers should shift by the current train delay."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 11 * 60 + 4)
+    monkeypatch.setattr(trajectory_service._time, "time", lambda: 1000.0)
+    monkeypatch.setattr(
+        trajectory_service.settings,
+        "trajectory_lookahead_seconds",
+        600,
+    )
+    monkeypatch.setattr(
+        trajectory_service.settings,
+        "trajectory_step_seconds",
+        60,
+    )
+
+    train = Train(id=8, train_number="8", train_type="ordinary")
+    service._tts_delays[train.train_number] = 7
+    schedules = [
+        Schedule(
+            train_id=8,
+            station_name="Bangkok",
+            departure_time=time(10, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=0,
+            day_of_week=None,
+            route_progress=0.0,
+        ),
+        Schedule(
+            train_id=8,
+            station_name="Ayutthaya",
+            arrival_time=time(11, 0),
+            departure_time=time(11, 5),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=1,
+            day_of_week=None,
+            route_progress=0.5,
+        ),
+        Schedule(
+            train_id=8,
+            station_name="Chiang Mai",
+            arrival_time=time(12, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=2,
+            day_of_week=None,
+            route_progress=1.0,
+        ),
+    ]
+
+    trajectory = await service.get_train_trajectory(
+        train,
+        schedules,
+        route_coords=[[0.0, 0.0], [10.0, 0.0]],
+        route_distance_km=1000.0,
+    )
+
+    assert trajectory is not None
+    events = trajectory["properties"]["schedule_events"]
+    ayutthaya_events = {
+        event["event_type"]: event for event in events if event["station_name"] == "Ayutthaya"
+    }
+    assert ayutthaya_events["arrival"]["timestamp"] == 1_180_000
+    assert ayutthaya_events["departure"]["timestamp"] == 1_480_000
+    assert ayutthaya_events["arrival"]["adjusted_minutes"] == 11 * 60 + 7
+    assert ayutthaya_events["departure"]["adjusted_minutes"] == 11 * 60 + 12

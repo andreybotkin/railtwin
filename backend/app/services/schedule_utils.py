@@ -18,6 +18,7 @@ __all__ = [
     "time_to_minutes",
     "get_current_time_minutes",
     "get_schedule_minutes",
+    "get_arrival_departure_minutes",
     "candidate_current_minutes",
     "get_stop_progress",
 ]
@@ -84,9 +85,32 @@ def get_schedule_minutes(
     return None
 
 
+def get_arrival_departure_minutes(
+    schedule: Schedule,
+) -> tuple[int | None, int | None]:
+    """Return absolute arrival/departure minutes for a stop, if available."""
+    arrival_minutes = None
+    departure_minutes = None
+
+    if schedule.arrival_time is not None:
+        arrival_minutes = (
+            time_to_minutes(schedule.arrival_time)
+            + int(schedule.arrival_day_offset) * 24 * 60
+        )
+
+    if schedule.departure_time is not None:
+        departure_minutes = (
+            time_to_minutes(schedule.departure_time)
+            + int(schedule.departure_day_offset) * 24 * 60
+        )
+
+    return arrival_minutes, departure_minutes
+
+
 def candidate_current_minutes(
     schedules: list[Schedule],
     current_minutes: float,
+    delay: int = 0,
 ) -> float | None:
     """Match *current_minutes* against today's or yesterday's service window.
 
@@ -108,6 +132,9 @@ def candidate_current_minutes(
     last_arrival = get_schedule_minutes(schedules[-1], prefer_departure=False)
     if first_departure is None or last_arrival is None:
         return None
+
+    first_departure += delay
+    last_arrival += delay
 
     now_dt = datetime.now(timezone.utc) + BANGKOK_OFFSET  # noqa: UP017
     current_weekday = now_dt.weekday()

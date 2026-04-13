@@ -93,10 +93,10 @@ class Settings(BaseSettings):
     # WebSocket settings
     ws_heartbeat_interval: int = 5  # seconds
     position_cache_interval_seconds: int | None = None
-    trajectory_refresh_interval_seconds: int = 20
+    trajectory_refresh_interval_seconds: int = 10
 
     # Trajectory generation settings (geops mobility-toolbox-js pattern)
-    trajectory_lookahead_seconds: int = 180  # seconds of future movement in time_intervals
+    trajectory_lookahead_seconds: int = 600  # seconds of future movement in time_intervals
     trajectory_step_seconds: int = 10        # time_interval point spacing
 
     # geops compatibility

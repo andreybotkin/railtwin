@@ -122,10 +122,10 @@ export const ZOOM_GENERALIZATION: ZoomGeneralization[] = [
   {
     minZoom: 0,
     maxZoom: 4,
-    stationMode: 'hidden',
+    stationMode: 'clustered',
     trainMode: 'canvas-dots',
     routeMode: 'simplified',
-    stationRadius: 0,
+    stationRadius: 5,
     trainRadius: 3,
   },
   {

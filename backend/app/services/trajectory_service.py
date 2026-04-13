@@ -24,49 +24,240 @@ from app.services import geo_utils, schedule_utils
 __all__ = ["build_train_trajectory", "build_stop_sequence"]
 
 
+def _is_dwell_window(
+    schedule: Schedule,
+    *,
+    current_minutes: float,
+    delay: int,
+) -> bool:
+    arrival_minutes, departure_minutes = schedule_utils.get_arrival_departure_minutes(schedule)
+    if arrival_minutes is None or departure_minutes is None:
+        return False
+    if departure_minutes <= arrival_minutes:
+        return False
+
+    adjusted_arrival = arrival_minutes + delay
+    adjusted_departure = departure_minutes + delay
+    return adjusted_arrival <= current_minutes <= adjusted_departure
+
+
+def _merge_segment_coordinates(segments: list[list[list[float]]]) -> list[list[float]]:
+    merged: list[list[float]] = []
+    for coordinates in segments:
+        if not coordinates:
+            continue
+        if not merged:
+            merged.extend(coordinates)
+            continue
+        if merged[-1] == coordinates[0]:
+            merged.extend(coordinates[1:])
+        else:
+            merged.extend(coordinates)
+    return merged
+
+
+def _segment_total_distance_km(route_segments: list[dict[str, Any]] | None) -> float | None:
+    if not route_segments:
+        return None
+    last_end = route_segments[-1].get("end_km")
+    if last_end is None:
+        return None
+    return float(last_end)
+
+
+def _segment_for_route_progress(
+    route_segments: list[dict[str, Any]] | None,
+    route_progress: float,
+) -> dict[str, Any] | None:
+    if not route_segments:
+        return None
+
+    total_distance_km = _segment_total_distance_km(route_segments)
+    if not total_distance_km or total_distance_km <= 0:
+        return None
+
+    target_distance_km = max(0.0, min(total_distance_km, route_progress * total_distance_km))
+    epsilon = 1e-6
+
+    for segment in route_segments:
+        start_km = float(segment.get("start_km") or 0.0)
+        end_km = float(segment.get("end_km") or start_km)
+        if start_km - epsilon <= target_distance_km <= end_km + epsilon:
+            return segment
+
+    return route_segments[-1]
+
+
+def _build_subroute_coords(
+    route_segments: list[dict[str, Any]] | None,
+    start_progress: float,
+    end_progress: float,
+) -> list[list[float]] | None:
+    if not route_segments:
+        return None
+
+    total_distance_km = _segment_total_distance_km(route_segments)
+    if not total_distance_km or total_distance_km <= 0:
+        return None
+
+    start_distance_km = max(0.0, min(total_distance_km, start_progress * total_distance_km))
+    end_distance_km = max(0.0, min(total_distance_km, end_progress * total_distance_km))
+    epsilon = 1e-6
+
+    overlapping_segments = [
+        segment.get("coords", [])
+        for segment in route_segments
+        if float(segment.get("end_km") or 0.0) > start_distance_km + epsilon
+        and float(segment.get("start_km") or 0.0) < end_distance_km - epsilon
+    ]
+    if not overlapping_segments:
+        return None
+    return _merge_segment_coordinates(overlapping_segments)
+
+
 def _minutes_to_hhmm(minutes: float) -> str:
     """Convert fractional minutes-since-midnight to 'HH:MM' string."""
     total = int(round(minutes)) % (24 * 60)
     return f"{total // 60:02d}:{total % 60:02d}"
 
 
-def _find_initial_route_segment(
+def _station_name(schedule: Schedule) -> str:
+    return (schedule.station.name if schedule.station else None) or schedule.station_name
+
+
+def _absolute_event_minutes(
+    schedule: Schedule,
+    *,
+    event_type: str,
+) -> int | None:
+    if event_type == "arrival":
+        if schedule.arrival_time is None:
+            return None
+        return (
+            schedule_utils.time_to_minutes(schedule.arrival_time)
+            + int(schedule.arrival_day_offset) * 24 * 60
+        )
+
+    if schedule.departure_time is None:
+        return None
+    return (
+        schedule_utils.time_to_minutes(schedule.departure_time)
+        + int(schedule.departure_day_offset) * 24 * 60
+    )
+
+
+def _rotation_at_fraction(
+    route_coords: list[list[float]] | None,
+    geom_fraction: float,
+    fallback_rotation: float = 0.0,
+) -> float:
+    if not route_coords or len(route_coords) < 2:
+        return fallback_rotation
+
+    anchor_frac = max(0.0, min(1.0, geom_fraction))
+    if anchor_frac >= 0.995:
+        start_frac = max(0.0, anchor_frac - 0.005)
+        end_frac = anchor_frac
+    else:
+        start_frac = anchor_frac
+        end_frac = min(1.0, anchor_frac + 0.005)
+
+    from_coord = geo_utils.interpolate_position(route_coords, start_frac)
+    to_coord = geo_utils.interpolate_position(route_coords, end_frac)
+    return geo_utils.great_circle_bearing(from_coord, to_coord)
+
+
+def _stop_coordinate(
+    schedule: Schedule,
+    geom_fraction: float,
+    route_coords: list[list[float]] | None,
+) -> list[float] | None:
+    if route_coords and len(route_coords) >= 2:
+        lon, lat = geo_utils.interpolate_position(route_coords, geom_fraction)
+        return [round(lon, 6), round(lat, 6)]
+
+    if schedule.station is None:
+        return None
+
+    point = to_shape(schedule.station.location)
+    return [round(float(point.x), 6), round(float(point.y), 6)]
+
+
+def _build_schedule_events(
     schedules: list[Schedule],
-    route_segments: list[dict[str, Any]] | None,
+    *,
+    route_coords: list[list[float]] | None,
+    route_distance_km: float | None,
     current_minutes: float,
     delay: int,
-) -> dict[str, Any] | None:
-    if not route_segments or len(schedules) < 2:
-        return None
+    now_unix_ms: int,
+    lookahead_seconds: int,
+) -> tuple[list[list[float]], list[dict[str, Any]]]:
+    anchor_intervals: list[list[float]] = []
+    schedule_events: list[dict[str, Any]] = []
+    total_stops = len(schedules)
 
-    prev_stop: Schedule | None = None
-    next_stop: Schedule | None = None
-    for i, schedule in enumerate(schedules):
-        dep_mins = schedule_utils.get_schedule_minutes(schedule, prefer_departure=True)
-        if dep_mins is None:
-            continue
-        if dep_mins + delay > current_minutes:
-            next_stop = schedule
-            if i > 0:
-                prev_stop = schedules[i - 1]
-            break
-        prev_stop = schedule
-
-    if prev_stop is None or next_stop is None:
-        return None
-
-    next_route_station = getattr(next_stop, "route_station", None)
-    next_edge_id = getattr(next_route_station, "edge_id", None)
-    if next_edge_id is not None:
-        return next(
-            (
-                segment
-                for segment in route_segments
-                if segment.get("edge_id") == int(next_edge_id)
+    for index, schedule in enumerate(schedules):
+        geom_fraction = max(
+            0.0,
+            min(
+                1.0,
+                schedule_utils.get_stop_progress(
+                    schedule,
+                    index,
+                    total_stops,
+                    route_distance_km,
+                ),
             ),
-            None,
         )
-    return None
+        rotation = round(_rotation_at_fraction(route_coords, geom_fraction), 1)
+        coordinates = _stop_coordinate(schedule, geom_fraction, route_coords)
+
+        for event_type in ("arrival", "departure"):
+            event_minutes = _absolute_event_minutes(schedule, event_type=event_type)
+            if event_minutes is None:
+                continue
+
+            adjusted_minutes = event_minutes + delay
+            offset_seconds = (adjusted_minutes - current_minutes) * 60
+            if offset_seconds < 0 or offset_seconds > lookahead_seconds:
+                continue
+
+            timestamp_ms = now_unix_ms + int(round(offset_seconds * 1000))
+            anchor_intervals.append(
+                [timestamp_ms, round(geom_fraction, 6), rotation]
+            )
+            schedule_events.append(
+                {
+                    "timestamp": timestamp_ms,
+                    "event_type": event_type,
+                    "station_name": _station_name(schedule),
+                    "geom_fraction": round(geom_fraction, 6),
+                    "coordinates": coordinates,
+                    "aimed_minutes": event_minutes,
+                    "adjusted_minutes": adjusted_minutes,
+                    "delay_minutes": delay,
+                }
+            )
+
+    schedule_events.sort(key=lambda event: event["timestamp"])
+    return anchor_intervals, schedule_events
+
+
+def _merge_time_intervals(
+    sampled_intervals: list[list[float]],
+    anchor_intervals: list[list[float]],
+) -> list[list[float]]:
+    merged_by_timestamp: dict[int, list[float]] = {
+        int(interval[0]): interval for interval in sampled_intervals
+    }
+    for interval in anchor_intervals:
+        merged_by_timestamp[int(interval[0])] = interval
+    return [
+        merged_by_timestamp[timestamp]
+        for timestamp in sorted(merged_by_timestamp)
+    ]
+
 
 # Train-type colours — must match ``TYPE_COLORS`` in the frontend.
 _TRAIN_TYPE_COLORS: dict[str, str] = {
@@ -131,6 +322,16 @@ def build_train_trajectory(
     current_route_progress: float | None = None
     current_segment_progress: float | None = None
 
+    anchor_intervals, schedule_events = _build_schedule_events(
+        schedules,
+        route_coords=route_coords,
+        route_distance_km=route_distance_km,
+        current_minutes=current_minutes,
+        delay=delay,
+        now_unix_ms=now_unix_ms,
+        lookahead_seconds=_lookahead,
+    )
+
     for step in range(step_count):
         step_unix_ms = now_unix_ms + step * _step * 1000
         step_minutes = current_minutes + step * _step / 60.0
@@ -177,35 +378,16 @@ def build_train_trajectory(
             if segment_duration <= 0
             else max(0.0, min(1.0, (step_minutes - prev_mins) / segment_duration))
         )
+        is_dwelling = _is_dwell_window(
+            next_stop,
+            current_minutes=step_minutes,
+            delay=delay,
+        )
 
         segment_length_km: float | None = None
         overall_progress = progress
 
-        active_segment = None
-        if route_segments:
-            active_segment = _find_initial_route_segment(
-                schedules,
-                route_segments,
-                step_minutes,
-                delay,
-            )
-
-        if active_segment and active_segment.get("coords") and len(active_segment["coords"]) >= 2:
-            segment_coords = active_segment["coords"]
-            lon, lat = geo_utils.interpolate_position(segment_coords, progress)
-            head_frac = min(1.0, progress + 0.01)
-            nlon, nlat = geo_utils.interpolate_position(segment_coords, head_frac)
-            rotation = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
-            segment_length_km = float(active_segment.get("length_km") or 0.0)
-            if route_distance_km and route_distance_km > 0:
-                overall_progress = (
-                    float(active_segment.get("start_km") or 0.0)
-                    + segment_length_km * progress
-                ) / route_distance_km
-            else:
-                overall_progress = progress
-            geom_frac = max(0.0, min(1.0, overall_progress))
-        elif route_coords and len(route_coords) >= 2:
+        if route_coords and len(route_coords) >= 2:
             total_stops = len(schedules)
             prev_index = next(
                 (idx for idx, s in enumerate(schedules) if s is prev_stop), 0
@@ -223,9 +405,10 @@ def build_train_trajectory(
             geom_frac = start_p + (end_p - start_p) * progress
             overall_progress = geom_frac
 
-            lon, lat = geo_utils.interpolate_position(route_coords, geom_frac)
-            head_frac = min(1.0, max(geom_frac + 0.005, end_p))
-            nlon, nlat = geo_utils.interpolate_position(route_coords, head_frac)
+            active_coords = _build_subroute_coords(route_segments, start_p, end_p) or route_coords
+            lon, lat = geo_utils.interpolate_position(active_coords, progress)
+            head_frac = min(1.0, progress + 0.005)
+            nlon, nlat = geo_utils.interpolate_position(active_coords, head_frac)
             rotation = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
 
             if segment_duration > 0:
@@ -248,9 +431,11 @@ def build_train_trajectory(
             fallback_coords.append([lon, lat])
 
         if step == 0:
-            if segment_length_km is not None and segment_duration > 0:
+            if is_dwelling:
+                current_speed = 0.0
+            elif segment_length_km is not None and segment_duration > 0:
                 current_speed = round(segment_length_km / (segment_duration / 60), 1)
-            current_status = "at_station" if progress < 0.05 or progress > 0.95 else "moving"
+            current_status = "at_station" if is_dwelling or progress < 0.05 or progress > 0.95 else "moving"
             current_eta_next_station = _minutes_to_hhmm(next_mins)
             current_progress_pct = round(progress * 100, 1)
             current_route_progress = round(max(0.0, min(1.0, overall_progress)), 6)
@@ -266,6 +451,8 @@ def build_train_trajectory(
     if not time_intervals:
         return None
 
+    time_intervals = _merge_time_intervals(time_intervals, anchor_intervals)
+
     # Build GeoJSON geometry.
     if route_coords and len(route_coords) >= 2:
         geometry: dict[str, Any] = {"type": "LineString", "coordinates": route_coords}
@@ -280,12 +467,7 @@ def build_train_trajectory(
     first_frac = time_intervals[0][1]
     last_frac = time_intervals[-1][1]
     state = "BOARDING" if first_frac < 0.05 or last_frac > 0.95 else "DRIVING"
-    initial_segment = _find_initial_route_segment(
-        schedules,
-        route_segments,
-        current_minutes,
-        delay,
-    )
+    initial_segment = _segment_for_route_progress(route_segments, first_frac)
 
     return {
         "type": "Feature",
@@ -300,6 +482,7 @@ def build_train_trajectory(
             # Temporal position data (geops TrackerTrajectory pattern)
             # time_intervals: [[unix_ms, geom_frac, rotation_deg], ...]
             "time_intervals": time_intervals,
+            "schedule_events": schedule_events,
             "bounds": [
                 bounds_min_lon,
                 bounds_min_lat,
@@ -379,15 +562,28 @@ def build_stop_sequence(
     """
     result: list[dict[str, Any]] = []
     for s in schedules:
-        dep_mins = schedule_utils.get_schedule_minutes(s, prefer_departure=True)
-        arr_mins = schedule_utils.get_schedule_minutes(s, prefer_departure=False)
+        arr_mins, dep_mins = schedule_utils.get_arrival_departure_minutes(s)
         stop_mins = dep_mins if dep_mins is not None else arr_mins
         if stop_mins is None:
             continue
-        delayed_stop = stop_mins + delay
-        if delayed_stop + 1 < current_minutes:
+
+        adjusted_arrival = arr_mins + delay if arr_mins is not None else None
+        adjusted_departure = dep_mins + delay if dep_mins is not None else None
+        adjusted_stop = stop_mins + delay
+        adjusted_reference = (
+            adjusted_departure if adjusted_departure is not None else adjusted_arrival
+        )
+
+        if (
+            adjusted_arrival is not None
+            and adjusted_departure is not None
+            and adjusted_departure > adjusted_arrival
+            and adjusted_arrival <= current_minutes <= adjusted_departure
+        ):
+            state = "BOARDING"
+        elif adjusted_reference is not None and adjusted_reference + 1 < current_minutes:
             state = "PASSED"
-        elif abs(delayed_stop - current_minutes) <= 2:
+        elif abs(adjusted_stop - current_minutes) <= 2:
             state = "BOARDING"
         else:
             state = "PENDING"

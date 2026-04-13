@@ -5,11 +5,11 @@
 import { startTransition, useEffect, useState, useCallback, useRef } from 'react';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import {
+  mapApi,
   stationApi,
   routeApi,
   trainApi,
   scheduleApi,
-  networkApi,
 } from '@/lib/api/client';
 import { getWebSocketClient, TrainWebSocketClient, getTrajectoryClient } from '@/lib/websocket';
 import type {
@@ -89,7 +89,9 @@ export function useStationSchedule(
 /**
  * Hook for real-time train positions via WebSocket.
  */
-export function useTrainPositions(): {
+export function useTrainPositions(
+  bbox?: string | null,
+): {
   positions: TrainPositionUpdate[];
   isConnected: boolean;
   error: string | null;
@@ -134,16 +136,25 @@ export function useTrainPositions(): {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !bbox) return;
+    const client = wsClientRef.current ?? getWebSocketClient();
+    client.sendBBox(bbox);
+  }, [bbox]);
+
   return { positions, isConnected, error };
 }
 
 /**
  * Hook for initial train positions (REST API fallback).
  */
-export function useInitialPositions(): UseQueryResult<TrainPositionUpdate[]> {
+export function useInitialPositions(
+  bbox?: string | null,
+): UseQueryResult<TrainPositionUpdate[]> {
   return useQuery({
-    queryKey: ['train-positions'],
-    queryFn: () => trainApi.getAllPositions(),
+    queryKey: ['train-positions', bbox ?? 'no-bbox'],
+    queryFn: () => trainApi.getAllPositions(bbox!),
+    enabled: Boolean(bbox),
     refetchInterval: 30000, // Refetch every 30 seconds as fallback
     staleTime: 10000,
   });
@@ -190,6 +201,21 @@ export function useTrainTrajectories(): {
 }
 
 /**
+ * Hook for loading static map infrastructure data once per page load.
+ */
+export function useStaticMapData(): UseQueryResult<{
+  stations: Station[];
+  network_edges: NetworkEdgeCollection;
+}> {
+  return useQuery({
+    queryKey: ['map-static-data'],
+    queryFn: () => mapApi.getStaticData(),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+}
+
+/**
  * Hook for searching stations.
  */
 export function useStationSearch(query: string): UseQueryResult<Station[]> {
@@ -198,21 +224,6 @@ export function useStationSearch(query: string): UseQueryResult<Station[]> {
     queryFn: () => stationApi.search(query),
     enabled: query.length >= 2,
     staleTime: 60 * 1000,
-  });
-}
-
-/**
- * Hook for fetching network topology edges as GeoJSON FeatureCollection.
- * Optionally filtered by viewport BBOX [minLon, minLat, maxLon, maxLat].
- * Data is refreshed every 10 minutes (static infrastructure data changes rarely).
- */
-export function useNetworkEdges(
-  bbox?: [number, number, number, number]
-): UseQueryResult<NetworkEdgeCollection> {
-  return useQuery({
-    queryKey: ['network-edges', bbox ? bbox.join(',') : 'all'],
-    queryFn: () => networkApi.getEdges(bbox),
-    staleTime: 10 * 60 * 1000,
   });
 }
 

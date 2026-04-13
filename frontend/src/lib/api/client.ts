@@ -14,7 +14,6 @@ import type {
   PaginatedResponse,
   TrainPositionUpdate,
   NetworkEdgeCollection,
-  NetworkGraph,
 } from '@/types';
 
 // API base URL from environment
@@ -158,8 +157,10 @@ export const trainApi = {
   /**
    * Get current positions of all active trains.
    */
-  getAllPositions: async (): Promise<TrainPositionUpdate[]> => {
-    const response = await api.get<TrainPositionUpdate[]>('/trains/positions');
+  getAllPositions: async (bbox: string): Promise<TrainPositionUpdate[]> => {
+    const response = await api.get<TrainPositionUpdate[]>('/trains/positions', {
+      params: { bbox },
+    });
     return response.data;
   },
 };
@@ -231,26 +232,16 @@ export const scheduleApi = {
   },
 };
 
-// Network topology API
-export const networkApi = {
+export const mapApi = {
   /**
-   * Get network edges as GeoJSON FeatureCollection, optionally filtered by BBOX.
-   * BBOX format: [minLon, minLat, maxLon, maxLat]
+   * Get the complete railway map (all stations + all edges) from Redis via gateway.
+   * Single request — no pagination, no database round-trips.
    */
-  getEdges: async (bbox?: [number, number, number, number]): Promise<NetworkEdgeCollection> => {
-    const params: Record<string, number> = {};
-    if (bbox) {
-      [params.min_lon, params.min_lat, params.max_lon, params.max_lat] = bbox;
-    }
-    const response = await api.get<NetworkEdgeCollection>('/network/edges', { params });
-    return response.data;
-  },
-
-  /**
-   * Get network graph summary (node/edge counts).
-   */
-  getGraph: async (): Promise<NetworkGraph> => {
-    const response = await api.get<NetworkGraph>('/network/graph');
+  getStaticData: async (): Promise<{
+    stations: Station[];
+    network_edges: NetworkEdgeCollection;
+  }> => {
+    const response = await api.get<{ stations: Station[]; network_edges: NetworkEdgeCollection }>('/map/all');
     return response.data;
   },
 };

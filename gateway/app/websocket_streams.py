@@ -26,6 +26,8 @@ async def _send_trajectory_delta(
     trajectories: list[dict[str, Any]],
     last_versions: dict[int, int],
     now_ms: int,
+    *,
+    force_resend: bool = False,
 ) -> dict[int, int]:
     current_versions: dict[int, int] = {}
 
@@ -33,7 +35,7 @@ async def _send_trajectory_delta(
         train_id = int(trajectory["properties"]["train_id"])
         version = _trajectory_version(trajectory)
         current_versions[train_id] = version
-        if last_versions.get(train_id) != version:
+        if force_resend or last_versions.get(train_id) != version:
             await websocket.send_json(
                 {"source": "trajectory", "content": trajectory, "timestamp": now_ms}
             )
@@ -65,7 +67,7 @@ async def stream_positions(
         payload: dict[str, Any]
 
         if train_id is None:
-            filtered = filter_positions(positions, client_bbox)
+            filtered = [] if client_bbox is None else filter_positions(positions, client_bbox)
             payload = {
                 "type": "positions",
                 "data": filtered,
@@ -82,7 +84,10 @@ async def stream_positions(
 
         serialized = json.dumps(payload, sort_keys=True, default=str)
         if serialized != last_payload:
-            await websocket.send_json(payload)
+            try:
+                await websocket.send_json(payload)
+            except Exception:
+                return
             last_payload = serialized
 
         keepalive_counter += 1
@@ -102,6 +107,8 @@ async def stream_positions(
                 logger.debug("WS BBOX updated: %s", client_bbox)
         except asyncio.TimeoutError:
             continue
+        except Exception:
+            return
 
 
 async def stream_trajectories(
@@ -115,19 +122,25 @@ async def stream_trajectories(
     client_bbox: str | None = None
     last_versions: dict[int, int] = {}
     keepalive_counter = 0
+    force_resend = False
 
     update_interval_s = max(1, update_interval_seconds)
 
     while True:
         trajectories = await read_trajectories()
-        filtered = filter_trajectories(trajectories, client_bbox)
+        filtered = [] if client_bbox is None else filter_trajectories(trajectories, client_bbox)
         now_ms = int(asyncio.get_running_loop().time() * 1000)
-        last_versions = await _send_trajectory_delta(
-            websocket,
-            filtered,
-            last_versions,
-            now_ms,
-        )
+        try:
+            last_versions = await _send_trajectory_delta(
+                websocket,
+                filtered,
+                last_versions,
+                now_ms,
+                force_resend=force_resend,
+            )
+        except Exception:
+            return
+        force_resend = False
         keepalive_counter += 1
         if keepalive_counter >= 3:
             keepalive_counter = 0
@@ -147,14 +160,16 @@ async def stream_trajectories(
                     await websocket.send_text("pong")
                 elif message == "RESET":
                     client_bbox = None
-                    last_versions = {}
+                    force_resend = True
                     break
                 elif message.startswith("BBOX "):
                     client_bbox = message[5:].strip() or None
-                    last_versions = {}
+                    force_resend = True
                     break
             except asyncio.TimeoutError:
                 continue
+            except Exception:
+                return
 
 
 async def stream_stopsequence(
@@ -178,7 +193,10 @@ async def stream_stopsequence(
         }
         serialized = json.dumps(payload, sort_keys=True, default=str)
         if serialized != last_payload:
-            await websocket.send_json(payload)
+            try:
+                await websocket.send_json(payload)
+            except Exception:
+                return
             last_payload = serialized
 
         keepalive_counter += 1
@@ -199,3 +217,5 @@ async def stream_stopsequence(
                 await websocket.send_text("pong")
         except asyncio.TimeoutError:
             continue
+        except Exception:
+            return

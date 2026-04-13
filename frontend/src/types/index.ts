@@ -320,6 +320,28 @@ export interface NetworkEdgeCollection {
   features: NetworkEdgeFeature[];
 }
 
+export interface TopologyMetadata {
+  topology_version: string;
+  physical_nodes_count: number;
+  physical_edges_count: number;
+  station_nodes_count: number;
+  physical_components_count: number;
+  station_components_count: number;
+  operational_links_count: number;
+  main_component_station_count: number;
+  disconnected_station_count: number;
+  unsnapped_station_count: number;
+  max_snap_distance_m: number | null;
+  built_at: string;
+}
+
+export interface MapViewportResponse {
+  bbox: string;
+  topology: TopologyMetadata | null;
+  stations: Station[];
+  network_edges: NetworkEdgeCollection;
+}
+
 /** Properties of a single network node GeoJSON feature. */
 export interface NetworkNodeProperties {
   station_id: number;

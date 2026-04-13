@@ -3,6 +3,7 @@
 import asyncio
 import json
 import time as _time
+from typing import Any
 
 from redis.asyncio import Redis
 from sqlalchemy import select
@@ -11,24 +12,48 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.models.database.models import TopologyMetadata
+from app.repositories.network import NetworkRepository
+from app.repositories.station import StationRepository
 from app.services.simulation import TrainSimulationService
 
 logger = get_logger(__name__)
 
 REDIS_POSITIONS_KEY = "train:positions:latest"
 REDIS_TRAJECTORIES_KEY = "train:trajectories:latest"
+REDIS_POSITION_KEY_PREFIX = "train:position:"
 REDIS_POSITIONS_TTL = 30
 # Trajectories cover LOOKAHEAD_SECONDS ahead; refresh before they expire.
 # TTL is set a bit longer than the update interval to handle slow cycles.
 REDIS_TRAJECTORIES_TTL = 90
 # Individual trajectory/stopsequence keys for direct lookups by train_id
-REDIS_INDIVIDUAL_TRAJECTORY_TTL = 330   # lookahead (300 s) + 30 s buffer
+REDIS_INDIVIDUAL_TRAJECTORY_TTL = settings.trajectory_lookahead_seconds + 60
 REDIS_STOPSEQUENCE_TTL = 3600           # 1 hour — stop sequences change slowly
+REDIS_MAP_STATIONS_KEY = "map:stations:all"
+REDIS_MAP_NETWORK_EDGES_KEY = "map:network_edges:all"
 # Metrics key for monitoring cycle health
 REDIS_METRICS_KEY = "system:position_cache:metrics"
 REDIS_METRICS_TTL = 60
 REDIS_TOPOLOGY_METADATA_KEY = "system:topology:metadata"
 REDIS_TOPOLOGY_METADATA_TTL = 3600
+
+
+def _serialize_station(station: Any) -> dict[str, Any]:
+    geojson = json.loads(getattr(station, "_geojson", "{}"))
+    return {
+        "id": station.id,
+        "name": station.name,
+        "name_th": station.name_th,
+        "code": station.code,
+        "location": {
+            "type": "Point",
+            "coordinates": geojson.get("coordinates", [0, 0]),
+        },
+        "city": station.city,
+        "province": station.province,
+        "facilities": station.facilities,
+        "created_at": station.created_at.isoformat(),
+        "updated_at": station.updated_at.isoformat(),
+    }
 
 
 class PositionCacheUpdater:
@@ -57,6 +82,7 @@ class PositionCacheUpdater:
         self._task: asyncio.Task | None = None
         self._last_trajectory_refresh = 0.0
         self._topology_payload: dict[str, str | int | float | None] | None = None
+        self._static_map_topology_version: str | None = None
 
     async def _run(self) -> None:
         while True:
@@ -69,6 +95,7 @@ class PositionCacheUpdater:
                     or (tick_start - self._last_trajectory_refresh)
                     >= self._trajectory_interval_seconds
                 )
+                static_map_payloads: tuple[dict[str, Any], list[dict[str, Any]]] | None = None
                 async with self._session_factory() as session:
                     simulation_service = TrainSimulationService(
                         session,
@@ -90,6 +117,30 @@ class PositionCacheUpdater:
                                 .limit(1)
                             )
                         ).scalar_one_or_none()
+
+                    topology_version = (
+                        topology_metadata.topology_version
+                        if topology_metadata is not None
+                        else self._topology_payload["topology_version"]
+                        if self._topology_payload is not None
+                        else None
+                    )
+
+                    if (
+                        topology_version is not None
+                        and topology_version != self._static_map_topology_version
+                    ):
+                        network_repo = NetworkRepository(session)
+                        station_repo = StationRepository(session)
+                        stations = await station_repo.get_all_with_location(skip=0, limit=10_000)
+                        static_map_payloads = (
+                            {
+                                "type": "FeatureCollection",
+                                "features": await network_repo.get_all_edges(),
+                            },
+                            [_serialize_station(station) for station in stations],
+                        )
+                        self._static_map_topology_version = str(topology_version)
                 active_trains = len(positions)
 
                 topology_payload = self._topology_payload
@@ -133,6 +184,12 @@ class PositionCacheUpdater:
                     REDIS_POSITIONS_TTL,
                     json.dumps(positions, default=str),
                 )
+                for position in positions:
+                    pipe.setex(
+                        f"{REDIS_POSITION_KEY_PREFIX}{position['train_id']}",
+                        REDIS_POSITIONS_TTL,
+                        json.dumps(position, default=str),
+                    )
                 if refresh_trajectories:
                     pipe.setex(
                         REDIS_TRAJECTORIES_KEY,
@@ -158,6 +215,16 @@ class PositionCacheUpdater:
                             REDIS_TOPOLOGY_METADATA_TTL,
                             json.dumps(topology_payload, default=str),
                         )
+                if static_map_payloads is not None:
+                    network_edges_payload, stations_payload = static_map_payloads
+                    pipe.set(
+                        REDIS_MAP_NETWORK_EDGES_KEY,
+                        json.dumps(network_edges_payload, default=str),
+                    )
+                    pipe.set(
+                        REDIS_MAP_STATIONS_KEY,
+                        json.dumps(stations_payload, default=str),
+                    )
                 await pipe.execute()
 
             except Exception as exc:

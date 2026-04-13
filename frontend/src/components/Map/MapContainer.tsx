@@ -22,9 +22,15 @@ interface MapContainerProps {
   className?: string;
   selectedTrainId?: number | null;
   onTrainSelect?: (id: number | null) => void;
+  onViewportChange?: (bbox: string) => void;
 }
 
-export default function MapContainer({ className, selectedTrainId, onTrainSelect }: MapContainerProps) {
+export default function MapContainer({
+  className,
+  selectedTrainId,
+  onTrainSelect,
+  onViewportChange,
+}: MapContainerProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -39,5 +45,12 @@ export default function MapContainer({ className, selectedTrainId, onTrainSelect
     );
   }
 
-  return <MapContent className={className} selectedTrainId={selectedTrainId} onTrainSelect={onTrainSelect} />;
+  return (
+    <MapContent
+      className={className}
+      selectedTrainId={selectedTrainId}
+      onTrainSelect={onTrainSelect}
+      onViewportChange={onViewportChange}
+    />
+  );
 }

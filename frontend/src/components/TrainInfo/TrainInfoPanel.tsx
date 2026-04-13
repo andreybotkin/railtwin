@@ -23,18 +23,20 @@ function getDelayColor(delayMinutes: number): string {
 interface TrainInfoPanelProps {
   onTrainSelect?: (trainId: number | null) => void;
   selectedTrainId?: number | null;
+  bbox?: string | null;
 }
 
 export default function TrainInfoPanel({
   onTrainSelect,
   selectedTrainId,
+  bbox,
 }: TrainInfoPanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const { positions: wsPositions, isConnected } = useTrainPositions();
-  const { data: apiPositions } = useInitialPositions();
+  const { positions: wsPositions, isConnected } = useTrainPositions(bbox);
+  const { data: apiPositions } = useInitialPositions(bbox);
 
   const positions = useMemo(() => {
-    if (isConnected && wsPositions.length > 0) {
+    if (isConnected) {
       return wsPositions;
     }
     return apiPositions || [];

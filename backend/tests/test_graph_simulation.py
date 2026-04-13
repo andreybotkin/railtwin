@@ -78,3 +78,142 @@ async def test_simulation_prefers_graph_edge_segment_when_available(
     assert position["graph_to_station_id"] == 20
     assert position["location"]["coordinates"][0] == pytest.approx(3.0, abs=0.01)
     assert position["location"]["coordinates"][1] == pytest.approx(5.0, abs=0.01)
+
+
+@pytest.mark.asyncio
+async def test_simulation_uses_full_subroute_between_service_stops(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A service interval that spans multiple physical segments must use the full subroute."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 11 * 60)
+
+    train = Train(id=5, train_number="305", train_type="rapid")
+    service._tts_delays[train.train_number] = 0
+    schedules = [
+        Schedule(
+            train_id=5,
+            station_id=10,
+            station_name="Alpha",
+            departure_time=time(10, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=0,
+            day_of_week=None,
+            route_progress=0.0,
+            route_station=RouteStation(route_id=1, station_id=10, sequence=0, distance_from_start=0.0),
+        ),
+        Schedule(
+            train_id=5,
+            station_id=30,
+            station_name="Gamma",
+            arrival_time=time(12, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=1,
+            day_of_week=None,
+            route_progress=1.0,
+            route_station=RouteStation(route_id=1, station_id=30, sequence=2, edge_id=2, distance_from_start=20.0),
+        ),
+    ]
+
+    position = await service.get_train_position(
+        train,
+        schedules,
+        route_coords=[[0.0, 0.0], [20.0, 0.0]],
+        route_distance_km=20.0,
+        route_segments=[
+            {
+                "edge_id": 1,
+                "from_station_id": 10,
+                "to_station_id": 20,
+                "length_km": 10.0,
+                "start_km": 0.0,
+                "end_km": 10.0,
+                "coords": [[0.0, 0.0], [10.0, 0.0]],
+            },
+            {
+                "edge_id": 2,
+                "from_station_id": 20,
+                "to_station_id": 30,
+                "length_km": 10.0,
+                "start_km": 10.0,
+                "end_km": 20.0,
+                "coords": [[10.0, 0.0], [20.0, 0.0]],
+            },
+        ],
+    )
+
+    assert position is not None
+    assert position["location"]["coordinates"][0] == pytest.approx(10.0, abs=0.01)
+    assert position["current_edge_id"] in {1, 2}
+
+
+@pytest.mark.asyncio
+async def test_trajectory_uses_full_subroute_between_service_stops(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Trajectory movement must cover the whole service interval, not only the last physical edge."""
+    service = TrainSimulationService(session=None)  # type: ignore[arg-type]
+    monkeypatch.setattr(service, "_get_current_time_minutes", lambda: 10 * 60)
+
+    train = Train(id=6, train_number="306", train_type="rapid")
+    service._tts_delays[train.train_number] = 0
+    schedules = [
+        Schedule(
+            train_id=6,
+            station_id=10,
+            station_name="Alpha",
+            departure_time=time(10, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=0,
+            day_of_week=None,
+            route_progress=0.0,
+            route_station=RouteStation(route_id=1, station_id=10, sequence=0, distance_from_start=0.0),
+        ),
+        Schedule(
+            train_id=6,
+            station_id=30,
+            station_name="Gamma",
+            arrival_time=time(12, 0),
+            arrival_day_offset=0,
+            departure_day_offset=0,
+            sequence=1,
+            day_of_week=None,
+            route_progress=1.0,
+            route_station=RouteStation(route_id=1, station_id=30, sequence=2, edge_id=2, distance_from_start=20.0),
+        ),
+    ]
+
+    trajectory = await service.get_train_trajectory(
+        train,
+        schedules,
+        route_coords=[[0.0, 0.0], [20.0, 0.0]],
+        route_distance_km=20.0,
+        route_segments=[
+            {
+                "edge_id": 1,
+                "from_station_id": 10,
+                "to_station_id": 20,
+                "length_km": 10.0,
+                "start_km": 0.0,
+                "end_km": 10.0,
+                "coords": [[0.0, 0.0], [10.0, 0.0]],
+            },
+            {
+                "edge_id": 2,
+                "from_station_id": 20,
+                "to_station_id": 30,
+                "length_km": 10.0,
+                "start_km": 10.0,
+                "end_km": 20.0,
+                "coords": [[10.0, 0.0], [20.0, 0.0]],
+            },
+        ],
+    )
+
+    assert trajectory is not None
+    intervals = trajectory["properties"]["time_intervals"]
+    assert intervals[0][1] == pytest.approx(0.0, abs=1e-6)
+    assert 0.05 < intervals[-1][1] < 0.2

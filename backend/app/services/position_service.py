@@ -16,35 +16,95 @@ from app.services import geo_utils, schedule_utils
 __all__ = ["build_train_position"]
 
 
-def _find_active_route_segment(
-    schedules: list[Schedule],
+def _is_dwell_window(
+    schedule: Schedule,
+    *,
+    current_minutes: float,
+    delay: int,
+) -> bool:
+    arrival_minutes, departure_minutes = schedule_utils.get_arrival_departure_minutes(schedule)
+    if arrival_minutes is None or departure_minutes is None:
+        return False
+    if departure_minutes <= arrival_minutes:
+        return False
+
+    adjusted_arrival = arrival_minutes + delay
+    adjusted_departure = departure_minutes + delay
+    return adjusted_arrival <= current_minutes <= adjusted_departure
+
+
+def _merge_segment_coordinates(segments: list[list[list[float]]]) -> list[list[float]]:
+    merged: list[list[float]] = []
+    for coordinates in segments:
+        if not coordinates:
+            continue
+        if not merged:
+            merged.extend(coordinates)
+            continue
+        if merged[-1] == coordinates[0]:
+            merged.extend(coordinates[1:])
+        else:
+            merged.extend(coordinates)
+    return merged
+
+
+def _segment_total_distance_km(route_segments: list[dict[str, Any]] | None) -> float | None:
+    if not route_segments:
+        return None
+    last_end = route_segments[-1].get("end_km")
+    if last_end is None:
+        return None
+    return float(last_end)
+
+
+def _segment_for_route_progress(
     route_segments: list[dict[str, Any]] | None,
-    prev_stop: Schedule,
-    next_stop: Schedule,
+    route_progress: float,
 ) -> dict[str, Any] | None:
     if not route_segments:
         return None
 
-    next_route_station = getattr(next_stop, "route_station", None)
-    next_edge_id = getattr(next_route_station, "edge_id", None)
-    if next_edge_id is not None:
-        for segment in route_segments:
-            if segment.get("edge_id") == int(next_edge_id):
-                return segment
-
-    prev_station_id = prev_stop.station_id
-    next_station_id = next_stop.station_id
-    if prev_station_id is None or next_station_id is None:
+    total_distance_km = _segment_total_distance_km(route_segments)
+    if not total_distance_km or total_distance_km <= 0:
         return None
-    return next(
-        (
-            segment
-            for segment in route_segments
-            if segment.get("from_station_id") == int(prev_station_id)
-            and segment.get("to_station_id") == int(next_station_id)
-        ),
-        None,
-    )
+
+    target_distance_km = max(0.0, min(total_distance_km, route_progress * total_distance_km))
+    epsilon = 1e-6
+
+    for segment in route_segments:
+        start_km = float(segment.get("start_km") or 0.0)
+        end_km = float(segment.get("end_km") or start_km)
+        if start_km - epsilon <= target_distance_km <= end_km + epsilon:
+            return segment
+
+    return route_segments[-1]
+
+
+def _build_subroute_coords(
+    route_segments: list[dict[str, Any]] | None,
+    start_progress: float,
+    end_progress: float,
+) -> list[list[float]] | None:
+    if not route_segments:
+        return None
+
+    total_distance_km = _segment_total_distance_km(route_segments)
+    if not total_distance_km or total_distance_km <= 0:
+        return None
+
+    start_distance_km = max(0.0, min(total_distance_km, start_progress * total_distance_km))
+    end_distance_km = max(0.0, min(total_distance_km, end_progress * total_distance_km))
+    epsilon = 1e-6
+
+    overlapping_segments = [
+        segment.get("coords", [])
+        for segment in route_segments
+        if float(segment.get("end_km") or 0.0) > start_distance_km + epsilon
+        and float(segment.get("start_km") or 0.0) < end_distance_km - epsilon
+    ]
+    if not overlapping_segments:
+        return None
+    return _merge_segment_coordinates(overlapping_segments)
 
 
 def _minutes_to_hhmm(minutes: float) -> str:
@@ -116,6 +176,11 @@ def build_train_position(
         if segment_duration <= 0
         else max(0.0, min(1.0, (current_minutes - prev_minutes) / segment_duration))
     )
+    is_dwelling = _is_dwell_window(
+        next_stop,
+        current_minutes=current_minutes,
+        delay=delay,
+    )
 
     # ------------------------------------------------------------------ #
     # 3. Compute (lon, lat) and heading                                    #
@@ -129,31 +194,7 @@ def build_train_position(
     graph_to_station_id: int | None = None
     segment_length_km: float | None = None
 
-    active_segment = _find_active_route_segment(
-        schedules,
-        route_segments,
-        prev_stop,
-        next_stop,
-    )
-
-    if active_segment and active_segment.get("coords") and len(active_segment["coords"]) >= 2:
-        segment_coords = active_segment["coords"]
-        lon, lat = geo_utils.interpolate_position(segment_coords, progress)
-        head_p = min(1.0, progress + 0.01)
-        nlon, nlat = geo_utils.interpolate_position(segment_coords, head_p)
-        heading = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
-        current_edge_id = int(active_segment["edge_id"])
-        graph_from_station_id = int(active_segment["from_station_id"])
-        graph_to_station_id = int(active_segment["to_station_id"])
-        segment_length_km = float(active_segment.get("length_km") or 0.0)
-        if route_distance_km and route_distance_km > 0:
-            overall_progress = (
-                float(active_segment.get("start_km") or 0.0)
-                + segment_length_km * progress
-            ) / route_distance_km
-        else:
-            overall_progress = progress
-    elif route_coords and len(route_coords) >= 2:
+    if route_coords and len(route_coords) >= 2:
         total_stops = len(schedules)
         prev_index = next(
             (i for i, s in enumerate(schedules) if s is prev_stop), 0
@@ -168,11 +209,19 @@ def build_train_position(
             next_stop, next_index, total_stops, route_distance_km
         )
         overall_progress = start_p + (end_p - start_p) * progress
-        lon, lat = geo_utils.interpolate_position(route_coords, overall_progress)
 
-        head_p = min(1.0, max(overall_progress + 0.01, end_p))
-        nlon, nlat = geo_utils.interpolate_position(route_coords, head_p)
+        active_coords = _build_subroute_coords(route_segments, start_p, end_p) or route_coords
+        lon, lat = geo_utils.interpolate_position(active_coords, progress)
+
+        head_p = min(1.0, progress + 0.01)
+        nlon, nlat = geo_utils.interpolate_position(active_coords, head_p)
         heading = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
+
+        current_segment = _segment_for_route_progress(route_segments, overall_progress)
+        if current_segment is not None:
+            current_edge_id = int(current_segment["edge_id"])
+            graph_from_station_id = int(current_segment["from_station_id"])
+            graph_to_station_id = int(current_segment["to_station_id"])
     else:
         # Fallback: straight-line interpolation between station coordinates.
         if prev_stop.station is None or next_stop.station is None:
@@ -189,14 +238,14 @@ def build_train_position(
     # 4. Estimate speed                                                    #
     # ------------------------------------------------------------------ #
     avg_speed = 60.0
-    if segment_length_km is not None and segment_duration > 0:
-        avg_speed = segment_length_km / (segment_duration / 60)
+    if is_dwelling:
+        avg_speed = 0.0
     elif route_coords and segment_duration > 0:
         dist_km = geo_utils.segment_distance_km(route_coords, start_p, end_p)
         if dist_km > 0:
             avg_speed = dist_km / (segment_duration / 60)
 
-    status = "at_station" if progress < 0.05 or progress > 0.95 else "moving"
+    status = "at_station" if is_dwelling or progress < 0.05 or progress > 0.95 else "moving"
 
     return {
         "train_id": train.id,

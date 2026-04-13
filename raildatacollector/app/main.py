@@ -105,10 +105,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await redis_client.aclose()
     logger.info("RailDataCollector shutdown complete")
 
-    sched.shutdown(wait=False)
-    await redis_client.aclose()
-    logger.info("RailDataCollector shutdown complete")
-
 
 app = FastAPI(
     title=settings.app_name,

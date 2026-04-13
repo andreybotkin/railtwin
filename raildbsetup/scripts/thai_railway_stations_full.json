@@ -1,7 +1,7 @@
 {
   "source": "Wikipedia - List of railway stations in Thailand (as of Sep 2021)",
   "operator": "State Railway of Thailand (SRT) / การรถไฟแห่งประเทศไทย",
-  "total_stations": 366,
+  "total_stations": 577,
   "network_length_km": 4044,
   "gauge": "1000mm (metre gauge)",
   "station_classes": {
@@ -28,9 +28,9 @@
       "line": "Southern",
       "district": "Cho-airong",
       "province": "Narathiwat",
-      "lat": 6.3667,
-      "lon": 101.55,
-      "coord_source": "estimated"
+      "lat": 6.1665272,
+      "lon": 101.8315099,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Aranyaprathet",
@@ -64,9 +64,9 @@
       "line": "Northeastern",
       "district": "Chai Badan",
       "province": "Lopburi",
-      "lat": 15.2333,
-      "lon": 101.1,
-      "coord_source": "estimated"
+      "lat": 15.1356396,
+      "lon": 101.0436172,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Aviation Academy",
@@ -76,9 +76,9 @@
       "line": "Southern",
       "district": "Kamphaeng Saen",
       "province": "Nakhon Pathom",
-      "lat": 14.0167,
-      "lon": 100.0333,
-      "coord_source": "estimated"
+      "lat": 14.0870057,
+      "lon": 99.9566919,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ayutthaya",
@@ -124,9 +124,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.5018,
-      "lon": 100.1812,
-      "coord_source": "estimated"
+      "lat": 13.5015479,
+      "lon": 100.1804413,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Bung",
@@ -161,9 +161,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.5333,
-      "lon": 100.2833,
-      "coord_source": "estimated"
+      "lat": 13.5247682,
+      "lon": 100.240265,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Chimphli",
@@ -173,9 +173,9 @@
       "line": "Southern",
       "district": "Taling Chan",
       "province": "Bangkok",
-      "lat": 13.7828,
-      "lon": 100.4367,
-      "coord_source": "estimated"
+      "lat": 13.7991608,
+      "lon": 100.4205975,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Chong Tai",
@@ -197,9 +197,9 @@
       "line": "Northeastern",
       "district": "Lam Sonthi",
       "province": "Lopburi",
-      "lat": 15.0,
-      "lon": 101.2,
-      "coord_source": "estimated"
+      "lat": 15.2626301,
+      "lon": 101.3363414,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Dan",
@@ -234,9 +234,9 @@
       "line": "Southern",
       "district": "Bang Klam",
       "province": "Songkhla",
-      "lat": 7.0167,
-      "lon": 100.4667,
-      "coord_source": "estimated"
+      "lat": 7.0476108,
+      "lon": 100.432637,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Don Klang",
@@ -246,9 +246,9 @@
       "line": "Northern, Northeastern",
       "district": "Uthai",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.2667,
-      "lon": 100.5667,
-      "coord_source": "estimated"
+      "lat": 14.4157114,
+      "lon": 100.6596028,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Don Rak",
@@ -258,9 +258,9 @@
       "line": "Southern",
       "district": "Phunphin",
       "province": "Surat Thani",
-      "lat": 9.1208,
-      "lon": 99.1712,
-      "coord_source": "estimated"
+      "lat": 9.1210346,
+      "lon": 99.1732275,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Don Riap",
@@ -270,9 +270,9 @@
       "line": "Southern",
       "district": "Phunphin",
       "province": "Surat Thani",
-      "lat": 9.13,
-      "lon": 99.155,
-      "coord_source": "estimated"
+      "lat": 9.078788,
+      "lon": 99.0446728,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Don Yai",
@@ -294,9 +294,9 @@
       "line": "Eastern",
       "district": "Prachantakham",
       "province": "Prachinburi",
-      "lat": 14.0333,
-      "lon": 101.4833,
-      "coord_source": "estimated"
+      "lat": 14.0404999,
+      "lon": 101.5988489,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Dong Phlong",
@@ -366,9 +366,9 @@
       "line": "Eastern",
       "district": "Bang Lamung",
       "province": "Chonburi",
-      "lat": 12.95,
-      "lon": 100.8833,
-      "coord_source": "estimated"
+      "lat": 12.8263019,
+      "lon": 100.9214409,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Huai Taen",
@@ -378,9 +378,9 @@
       "line": "Southern",
       "district": "Khao Chaison",
       "province": "Phatthalung",
-      "lat": 7.55,
-      "lon": 100.1,
-      "coord_source": "estimated"
+      "lat": 7.5051343,
+      "lon": 100.1162694,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Huai Yoong",
@@ -390,9 +390,9 @@
       "line": "Southern",
       "district": "Phra Phrom",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.2822,
-      "lon": 99.9431,
-      "coord_source": "estimated"
+      "lat": 8.2866626,
+      "lon": 99.9432941,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kaeng",
@@ -402,9 +402,9 @@
       "line": "Eastern",
       "district": "Mueang",
       "province": "Sa Kaeo",
-      "lat": 13.7833,
-      "lon": 102.0833,
-      "coord_source": "estimated"
+      "lat": 13.9172199,
+      "lon": 101.9690793,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kalan",
@@ -414,9 +414,9 @@
       "line": "Northeastern",
       "district": "Sikhoraphum",
       "province": "Surin",
-      "lat": 14.8833,
-      "lon": 103.8,
-      "coord_source": "estimated"
+      "lat": 14.9737514,
+      "lon": 103.8533067,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kalong",
@@ -426,9 +426,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.4873,
-      "lon": 100.1378,
-      "coord_source": "estimated"
+      "lat": 13.4872587,
+      "lon": 100.1376696,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kao Ngiu",
@@ -438,9 +438,9 @@
       "line": "Northeastern",
       "district": "Bua Yai",
       "province": "Nakhon Ratchasima",
-      "lat": 15.535,
-      "lon": 102.22,
-      "coord_source": "estimated"
+      "lat": 15.6054333,
+      "lon": 102.2941322,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kao",
@@ -450,9 +450,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Kanchanaburi",
-      "lat": 14.0167,
-      "lon": 99.5,
-      "coord_source": "estimated"
+      "lat": 13.973147,
+      "lon": 99.3153485,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khai Thai",
@@ -462,9 +462,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Phatthalung",
-      "lat": 7.6,
-      "lon": 100.0833,
-      "coord_source": "estimated"
+      "lat": 7.5548176,
+      "lon": 100.103383,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khanai",
@@ -474,9 +474,9 @@
       "line": "Southern",
       "district": "Phunphin",
       "province": "Surat Thani",
-      "lat": 9.0942,
-      "lon": 99.0846,
-      "coord_source": "estimated"
+      "lat": 9.094037,
+      "lon": 99.0843363,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khlo",
@@ -486,9 +486,9 @@
       "line": "Northeastern",
       "district": "Kanthararom",
       "province": "Sisaket",
-      "lat": 15.1072,
-      "lon": 104.5042,
-      "coord_source": "estimated"
+      "lat": 15.1071517,
+      "lon": 104.5042048,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khok Krabuang",
@@ -498,9 +498,9 @@
       "line": "Northeastern",
       "district": "Ban Lueam",
       "province": "Nakhon Ratchasima",
-      "lat": 15.525,
-      "lon": 102.06,
-      "coord_source": "estimated"
+      "lat": 15.6070156,
+      "lon": 102.1646688,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khok Ma",
@@ -510,9 +510,9 @@
       "line": "Southern",
       "district": "Pathio",
       "province": "Chumphon",
-      "lat": 10.6292,
-      "lon": 99.2281,
-      "coord_source": "estimated"
+      "lat": 10.6526122,
+      "lon": 99.2740425,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khom",
@@ -522,9 +522,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.563,
-      "lon": 100.3135,
-      "coord_source": "estimated"
+      "lat": 13.5629977,
+      "lon": 100.3135539,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khon Hat",
@@ -534,9 +534,9 @@
       "line": "Southern",
       "district": "Cha-uat",
       "province": "Nakhon Si Thammarat",
-      "lat": 7.95,
-      "lon": 100.04,
-      "coord_source": "estimated"
+      "lat": 7.855173,
+      "lon": 100.0286524,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khon",
@@ -546,9 +546,9 @@
       "line": "Northern",
       "district": "Phichai",
       "province": "Uttaradit",
-      "lat": 17.3667,
-      "lon": 100.1667,
-      "coord_source": "estimated"
+      "lat": 17.1994741,
+      "lon": 100.0792858,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khron",
@@ -558,9 +558,9 @@
       "line": "Southern",
       "district": "Sawi",
       "province": "Chumphon",
-      "lat": 10.2417,
-      "lon": 99.0833,
-      "coord_source": "estimated"
+      "lat": 10.2804319,
+      "lon": 99.0964616,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Khu Bua",
@@ -570,9 +570,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Ratchaburi",
-      "lat": 13.4797,
-      "lon": 99.8197,
-      "coord_source": "estimated"
+      "lat": 13.4918773,
+      "lon": 99.8284098,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Klap",
@@ -582,9 +582,9 @@
       "line": "Northern",
       "district": "Nong Don",
       "province": "Saraburi",
-      "lat": 14.6333,
-      "lon": 100.8,
-      "coord_source": "estimated"
+      "lat": 14.7207202,
+      "lon": 100.6783748,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kloi",
@@ -594,9 +594,9 @@
       "line": "Northeastern",
       "district": "Bamnet Narong",
       "province": "Chaiyaphum",
-      "lat": 15.5333,
-      "lon": 101.75,
-      "coord_source": "estimated"
+      "lat": 15.479546,
+      "lon": 101.7081364,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Klong Luk Border",
@@ -607,9 +607,9 @@
       "district": "Aranyaprathet",
       "province": "Sa Kaeo",
       "notes": "Border with Cambodia",
-      "lat": 13.6592,
-      "lon": 102.5631,
-      "coord_source": "estimated"
+      "lat": 13.662873,
+      "lon": 102.5484453,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kluay",
@@ -619,9 +619,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Ratchaburi",
-      "lat": 13.5053,
-      "lon": 99.8217,
-      "coord_source": "estimated"
+      "lat": 13.5883376,
+      "lon": 99.8156164,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ko Daeng",
@@ -631,9 +631,9 @@
       "line": "Eastern",
       "district": "Kabin Buri",
       "province": "Prachinburi",
-      "lat": 13.9667,
-      "lon": 101.6667,
-      "coord_source": "estimated"
+      "lat": 14.0073655,
+      "lon": 101.6790675,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ko Muk",
@@ -643,9 +643,9 @@
       "line": "Southern",
       "district": "Tha Chana",
       "province": "Surat Thani",
-      "lat": 9.5167,
-      "lon": 99.1167,
-      "coord_source": "estimated"
+      "lat": 9.5095174,
+      "lon": 99.173338,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ko Pring",
@@ -655,9 +655,9 @@
       "line": "Southern",
       "district": "Thung Song",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.1833,
-      "lon": 99.6833,
-      "coord_source": "estimated"
+      "lat": 8.2132622,
+      "lon": 99.6449462,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ko",
@@ -667,9 +667,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Nakhon Ratchasima",
-      "lat": 15.0046,
-      "lon": 102.139,
-      "coord_source": "estimated"
+      "lat": 15.004157,
+      "lon": 102.1384666,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ko Rang",
@@ -679,9 +679,9 @@
       "line": "Northeastern",
       "district": "Chai Badan",
       "province": "Lopburi",
-      "lat": 15.25,
-      "lon": 101.1167,
-      "coord_source": "estimated"
+      "lat": 15.2790836,
+      "lon": 101.220711,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ko Yai",
@@ -691,9 +691,9 @@
       "line": "Southern",
       "district": "Khuan Niang",
       "province": "Songkhla",
-      "lat": 6.9167,
-      "lon": 100.5,
-      "coord_source": "estimated"
+      "lat": 7.1459449,
+      "lon": 100.3852631,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Koei Chen",
@@ -703,9 +703,9 @@
       "line": "Southern",
       "district": "Ron Phibun",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.2,
-      "lon": 100.1,
-      "coord_source": "estimated"
+      "lat": 8.1885946,
+      "lon": 99.8997959,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kok Kwaow",
@@ -715,9 +715,9 @@
       "line": "Northern",
       "district": "Takhli",
       "province": "Nakhon Sawan",
-      "lat": 15.2833,
-      "lon": 100.4,
-      "coord_source": "estimated"
+      "lat": 15.1414681,
+      "lon": 100.4420215,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kradon",
@@ -727,9 +727,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Nakhon Ratchasima",
-      "lat": 14.9667,
-      "lon": 102.1167,
-      "coord_source": "estimated"
+      "lat": 15.1042237,
+      "lon": 102.1869891,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Kraphi",
@@ -739,9 +739,9 @@
       "line": "Northeastern",
       "district": "Bua Yai",
       "province": "Nakhon Ratchasima",
-      "lat": 15.55,
-      "lon": 102.2,
-      "coord_source": "estimated"
+      "lat": 15.6018122,
+      "lon": 102.2761209,
+      "coord_source": "osm_en"
     },
     {
       "name_en": "Ban Krut",
@@ -763,9 +763,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.5419,
-      "lon": 100.2699,
-      "coord_source": "estimated"
+      "lat": 13.5419156,
+      "lon": 100.2700042,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Lueam",
@@ -787,9 +787,9 @@
       "line": "Northern, Northeastern",
       "district": "Phra Nakhon Si Ayutthaya",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.2833,
-      "lon": 100.5667,
-      "coord_source": "estimated"
+      "lat": 14.3841019,
+      "lon": 100.597101,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Mai",
@@ -799,9 +799,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Phitsanulok",
-      "lat": 16.8167,
-      "lon": 100.2667,
-      "coord_source": "estimated"
+      "lat": 16.6901016,
+      "lon": 100.2729108,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Mai Samrong",
@@ -811,9 +811,9 @@
       "line": "Northeastern",
       "district": "Sikhio",
       "province": "Nakhon Ratchasima",
-      "lat": 14.8833,
-      "lon": 101.7167,
-      "coord_source": "estimated"
+      "lat": 14.868326,
+      "lon": 101.6437321,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Makha",
@@ -823,9 +823,9 @@
       "line": "Northeastern",
       "district": "Non Sung",
       "province": "Nakhon Ratchasima",
-      "lat": 15.1833,
-      "lon": 102.2667,
-      "coord_source": "estimated"
+      "lat": 15.2811036,
+      "lon": 102.2952689,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Makok Tai",
@@ -835,9 +835,9 @@
       "line": "Southern",
       "district": "Khuan Khanun",
       "province": "Phatthalung",
-      "lat": 7.535,
-      "lon": 100.07,
-      "coord_source": "estimated"
+      "lat": 7.7015358,
+      "lon": 100.0790956,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Mi",
@@ -871,9 +871,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.4766,
-      "lon": 100.1033,
-      "coord_source": "estimated"
+      "lat": 13.4768509,
+      "lon": 100.1025404,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Na Khwang",
@@ -883,9 +883,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.4865,
-      "lon": 100.1223,
-      "coord_source": "estimated"
+      "lat": 13.4860562,
+      "lon": 100.1211351,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Na",
@@ -895,9 +895,9 @@
       "line": "Southern",
       "district": "Ban Na Doem",
       "province": "Surat Thani",
-      "lat": 8.9442,
-      "lon": 99.2506,
-      "coord_source": "estimated"
+      "lat": 8.8865728,
+      "lon": 99.3104517,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Nang Long",
@@ -907,9 +907,9 @@
       "line": "Southern",
       "district": "Cha-uat",
       "province": "Nakhon Si Thammarat",
-      "lat": 7.9016,
-      "lon": 100.012,
-      "coord_source": "estimated"
+      "lat": 7.9016238,
+      "lon": 100.0118198,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Niam",
@@ -919,9 +919,9 @@
       "line": "Northeastern",
       "district": "Uthumphon Phisai",
       "province": "Sisaket",
-      "lat": 15.1259,
-      "lon": 104.2247,
-      "coord_source": "estimated"
+      "lat": 15.1259574,
+      "lon": 104.2246212,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Nikhom",
@@ -931,9 +931,9 @@
       "line": "Southern",
       "district": "Khok Pho",
       "province": "Pattani",
-      "lat": 6.8267,
-      "lon": 101.1367,
-      "coord_source": "estimated"
+      "lat": 6.7602595,
+      "lon": 101.0499766,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Non Phueng",
@@ -943,9 +943,9 @@
       "line": "Northeastern",
       "district": "Kanthararom",
       "province": "Sisaket",
-      "lat": 15.21,
-      "lon": 104.24,
-      "coord_source": "estimated"
+      "lat": 15.1073105,
+      "lon": 104.6219342,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Nong Bua",
@@ -955,9 +955,9 @@
       "line": "Northeastern",
       "district": "Phatthana Nikhom",
       "province": "Lopburi",
-      "lat": 15.0,
-      "lon": 101.2667,
-      "coord_source": "estimated"
+      "lat": 14.8976816,
+      "lon": 101.0519994,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Nong Kan Nga",
@@ -967,9 +967,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Nakhon Ratchasima",
-      "lat": 14.975,
-      "lon": 102.105,
-      "coord_source": "estimated"
+      "lat": 15.1290891,
+      "lon": 102.2060051,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Nong Kham",
@@ -979,9 +979,9 @@
       "line": "Northeastern",
       "district": "Noen Sa-nga",
       "province": "Chaiyaphum",
-      "lat": 15.6833,
-      "lon": 101.6667,
-      "coord_source": "estimated"
+      "lat": 15.5830984,
+      "lon": 102.0560986,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Nong Prue Pong",
@@ -991,9 +991,9 @@
       "line": "Northeastern",
       "district": "Ban Lueam",
       "province": "Nakhon Ratchasima",
-      "lat": 15.56,
-      "lon": 102.06,
-      "coord_source": "estimated"
+      "lat": 15.6019414,
+      "lon": 102.2173739,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Nong Sriwichai",
@@ -1003,9 +1003,9 @@
       "line": "Eastern",
       "district": "Prachantakham",
       "province": "Prachinburi",
-      "lat": 14.0333,
-      "lon": 101.5,
-      "coord_source": "estimated"
+      "lat": 14.0326716,
+      "lon": 101.617804,
+      "coord_source": "osm_fuzzy_th_0.86"
     },
     {
       "name_en": "Ban Nong Tat",
@@ -1015,9 +1015,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Buriram",
-      "lat": 14.9833,
-      "lon": 103.0667,
-      "coord_source": "estimated"
+      "lat": 15.0208755,
+      "lon": 103.0211625,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pa Kai",
@@ -1027,9 +1027,9 @@
       "line": "Southern",
       "district": "Pak Tho",
       "province": "Ratchaburi",
-      "lat": 13.4333,
-      "lon": 99.8333,
-      "coord_source": "estimated"
+      "lat": 13.4118109,
+      "lon": 99.8388019,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pa Wai",
@@ -1039,9 +1039,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Lopburi",
-      "lat": 14.8,
-      "lon": 100.6167,
-      "coord_source": "estimated"
+      "lat": 14.7594533,
+      "lon": 100.6432369,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pak Chap",
@@ -1051,9 +1051,9 @@
       "line": "Northeastern",
       "district": "Bamnet Narong",
       "province": "Chaiyaphum",
-      "lat": 15.5167,
-      "lon": 101.7167,
-      "coord_source": "estimated"
+      "lat": 15.435778,
+      "lon": 101.5936993,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pak Phli",
@@ -1063,9 +1063,9 @@
       "line": "Eastern",
       "district": "Pak Phli",
       "province": "Nakhon Nayok",
-      "lat": 14.0333,
-      "lon": 101.1667,
-      "coord_source": "estimated"
+      "lat": 14.0741571,
+      "lon": 101.3153331,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Patae",
@@ -1075,9 +1075,9 @@
       "line": "Southern",
       "district": "Raman",
       "province": "Yala",
-      "lat": 6.5333,
-      "lon": 101.3333,
-      "coord_source": "estimated"
+      "lat": 6.4976729,
+      "lon": 101.3929222,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Phachi Junction",
@@ -1101,9 +1101,9 @@
       "district": "Mueang",
       "province": "Saraburi",
       "notes": "Freight-only",
-      "lat": 14.5833,
-      "lon": 101.05,
-      "coord_source": "estimated"
+      "lat": 14.5487424,
+      "lon": 100.9830144,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Phai",
@@ -1125,9 +1125,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Nakhon Ratchasima",
-      "lat": 14.986,
-      "lon": 102.1929,
-      "coord_source": "estimated"
+      "lat": 14.9858888,
+      "lon": 102.1929714,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Phlu Ta Luang",
@@ -1137,9 +1137,9 @@
       "line": "Eastern",
       "district": "Sattahip",
       "province": "Chonburi",
-      "lat": 12.6722,
-      "lon": 100.8847,
-      "coord_source": "estimated"
+      "lat": 12.7045627,
+      "lon": 100.9722522,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pho",
@@ -1149,9 +1149,9 @@
       "line": "Northern, Northeastern",
       "district": "Bang Pa-in",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.2,
-      "lon": 100.5667,
-      "coord_source": "estimated"
+      "lat": 14.2821511,
+      "lon": 100.5886751,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Phra Phut",
@@ -1161,9 +1161,9 @@
       "line": "Northeastern",
       "district": "Chaloem Phra Kiat",
       "province": "Nakhon Ratchasima",
-      "lat": 14.97,
-      "lon": 102.125,
-      "coord_source": "estimated"
+      "lat": 14.9956633,
+      "lon": 102.2262286,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Phrom Saeng",
@@ -1173,9 +1173,9 @@
       "line": "Eastern",
       "district": "Kabin Buri",
       "province": "Prachinburi",
-      "lat": 13.9667,
-      "lon": 101.7,
-      "coord_source": "estimated"
+      "lat": 14.0224971,
+      "lon": 101.6423802,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Phru Krachaeng",
@@ -1185,9 +1185,9 @@
       "line": "Southern",
       "district": "Wiang Sa",
       "province": "Surat Thani",
-      "lat": 8.7833,
-      "lon": 99.3167,
-      "coord_source": "estimated"
+      "lat": 8.5932542,
+      "lon": 99.4212647,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pin",
@@ -1209,9 +1209,9 @@
       "line": "Northern",
       "district": "Tha Ruea",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.3667,
-      "lon": 100.6,
-      "coord_source": "estimated"
+      "lat": 14.5300799,
+      "lon": 100.7259501,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pokpaek",
@@ -1221,9 +1221,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Saraburi",
-      "lat": 14.55,
-      "lon": 100.95,
-      "coord_source": "estimated"
+      "lat": 14.522363,
+      "lon": 100.8642978,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pong Kom",
@@ -1233,9 +1233,9 @@
       "line": "Eastern",
       "district": "Watthana Nakhon",
       "province": "Sa Kaeo",
-      "lat": 13.75,
-      "lon": 102.25,
-      "coord_source": "estimated"
+      "lat": 13.7246802,
+      "lon": 102.3805079,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pong",
@@ -1257,9 +1257,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Kanchanaburi",
-      "lat": 14.0167,
-      "lon": 99.5167,
-      "coord_source": "estimated"
+      "lat": 13.9586699,
+      "lon": 99.3449767,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Pu Pong",
@@ -1269,9 +1269,9 @@
       "line": "Southern",
       "district": "Sai Yok",
       "province": "Kanchanaburi",
-      "lat": 14.1667,
-      "lon": 98.9167,
-      "coord_source": "estimated"
+      "lat": 14.2159282,
+      "lon": 99.0890079,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Rai",
@@ -1281,9 +1281,9 @@
       "line": "Northeastern",
       "district": "Bua Yai",
       "province": "Nakhon Ratchasima",
-      "lat": 15.54,
-      "lon": 102.225,
-      "coord_source": "estimated"
+      "lat": 15.4975227,
+      "lon": 102.3646319,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Sa Khrok",
@@ -1293,9 +1293,9 @@
       "line": "Northeastern",
       "district": "Bua Yai",
       "province": "Nakhon Ratchasima",
-      "lat": 15.545,
-      "lon": 102.23,
-      "coord_source": "estimated"
+      "lat": 15.6044548,
+      "lon": 102.3117991,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Sai Thong",
@@ -1305,9 +1305,9 @@
       "line": "Southern",
       "district": "Bang Saphan Noi",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.1333,
-      "lon": 99.4333,
-      "coord_source": "estimated"
+      "lat": 10.9988459,
+      "lon": 99.3904498,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Salaeng Phan",
@@ -1317,9 +1317,9 @@
       "line": "Northeastern",
       "district": "Lam Plai Mat",
       "province": "Buriram",
-      "lat": 14.9167,
-      "lon": 102.8167,
-      "coord_source": "estimated"
+      "lat": 15.0268075,
+      "lon": 102.9919894,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Salo Bukit Yuaerae",
@@ -1329,9 +1329,9 @@
       "line": "Southern",
       "district": "Rueso",
       "province": "Narathiwat",
-      "lat": 6.2833,
-      "lon": 101.7333,
-      "coord_source": "estimated"
+      "lat": 6.3581707,
+      "lon": 101.5383676,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Sang",
@@ -1341,9 +1341,9 @@
       "line": "Eastern",
       "district": "Ban Sang",
       "province": "Prachinburi",
-      "lat": 14.0,
-      "lon": 101.3,
-      "coord_source": "estimated"
+      "lat": 14.0151534,
+      "lon": 101.2028807,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Sap Somboon",
@@ -1353,9 +1353,9 @@
       "line": "Southern",
       "district": "Pathio",
       "province": "Chumphon",
-      "lat": 10.65,
-      "lon": 99.2167,
-      "coord_source": "estimated"
+      "lat": 10.8081752,
+      "lon": 99.348515,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Sok Rang",
@@ -1365,9 +1365,9 @@
       "line": "Northeastern",
       "district": "Bua Yai",
       "province": "Nakhon Ratchasima",
-      "lat": 15.55,
-      "lon": 102.205,
-      "coord_source": "estimated"
+      "lat": 15.5984539,
+      "lon": 102.3513598,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Song",
@@ -1377,9 +1377,9 @@
       "line": "Southern",
       "district": "Wiang Sa",
       "province": "Surat Thani",
-      "lat": 8.7697,
-      "lon": 99.3217,
-      "coord_source": "estimated"
+      "lat": 8.6335944,
+      "lon": 99.3724273,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Sunthra",
@@ -1389,9 +1389,9 @@
       "line": "Southern",
       "district": "Khuan Khanun",
       "province": "Phatthalung",
-      "lat": 7.55,
-      "lon": 100.0667,
-      "coord_source": "estimated"
+      "lat": 7.780556,
+      "lon": 100.0620071,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ta Noen",
@@ -1401,9 +1401,9 @@
       "line": "Northeastern",
       "district": "Noen Sa-nga",
       "province": "Chaiyaphum",
-      "lat": 15.6833,
-      "lon": 101.65,
-      "coord_source": "estimated"
+      "lat": 15.5772825,
+      "lon": 102.0207498,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Tae",
@@ -1413,9 +1413,9 @@
       "line": "Northeastern",
       "district": "Uthumphon Phisai",
       "province": "Sisaket",
-      "lat": 15.1199,
-      "lon": 104.1732,
-      "coord_source": "estimated"
+      "lat": 15.1198441,
+      "lon": 104.1730193,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Takhli",
@@ -1425,9 +1425,9 @@
       "line": "Northern",
       "district": "Takhli",
       "province": "Nakhon Sawan",
-      "lat": 15.2606,
-      "lon": 100.3894,
-      "coord_source": "estimated"
+      "lat": 15.25294,
+      "lon": 100.3514746,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Tako",
@@ -1437,9 +1437,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Buriram",
-      "lat": 14.9833,
-      "lon": 103.1,
-      "coord_source": "estimated"
+      "lat": 14.9907404,
+      "lon": 103.145723,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Teng Nam",
@@ -1449,9 +1449,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Phitsanulok",
-      "lat": 16.7833,
-      "lon": 100.2667,
-      "coord_source": "estimated"
+      "lat": 16.8554916,
+      "lon": 100.2666171,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Tha Chang",
@@ -1461,9 +1461,9 @@
       "line": "Southern",
       "district": "Phra Phrom",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.3292,
-      "lon": 99.9418,
-      "coord_source": "estimated"
+      "lat": 8.3290148,
+      "lon": 99.9417809,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Thap Chang",
@@ -1473,9 +1473,9 @@
       "line": "Eastern",
       "district": "Prawet",
       "province": "Bangkok",
-      "lat": 13.7164,
-      "lon": 100.6453,
-      "coord_source": "estimated"
+      "lat": 13.7328881,
+      "lon": 100.6908166,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Thon",
@@ -1485,9 +1485,9 @@
       "line": "Northeastern",
       "district": "Warin Chamrap",
       "province": "Ubon Ratchathani",
-      "lat": 15.1667,
-      "lon": 104.8333,
-      "coord_source": "estimated"
+      "lat": 15.1182462,
+      "lon": 104.7213763,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Thung Khai",
@@ -1497,9 +1497,9 @@
       "line": "Southern",
       "district": "Cha-uat",
       "province": "Nakhon Si Thammarat",
-      "lat": 7.895,
-      "lon": 100.01,
-      "coord_source": "estimated"
+      "lat": 7.9940311,
+      "lon": 99.986741,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Thung Lo",
@@ -1509,9 +1509,9 @@
       "line": "Southern",
       "district": "Chaloem Phra Kiat",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.2833,
-      "lon": 99.9833,
-      "coord_source": "estimated"
+      "lat": 8.2222369,
+      "lon": 99.921567,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Thung Luang",
@@ -1521,9 +1521,9 @@
       "line": "Southern",
       "district": "Phunphin",
       "province": "Surat Thani",
-      "lat": 9.14,
-      "lon": 99.16,
-      "coord_source": "estimated"
+      "lat": 9.1041094,
+      "lon": 99.1175078,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Thung Pho Junction",
@@ -1534,9 +1534,9 @@
       "district": "Phunphin",
       "province": "Surat Thani",
       "notes": "Junction for Southern Main Line and Khiri Rat Nikhom Branch",
-      "lat": 9.1211,
-      "lon": 99.2016,
-      "coord_source": "estimated"
+      "lat": 9.1210468,
+      "lon": 99.2016282,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Ton Don",
@@ -1546,9 +1546,9 @@
       "line": "Southern",
       "district": "Khao Chaison",
       "province": "Phatthalung",
-      "lat": 7.5,
-      "lon": 100.1167,
-      "coord_source": "estimated"
+      "lat": 7.5311325,
+      "lon": 100.1095298,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Trok Kae",
@@ -1558,9 +1558,9 @@
       "line": "Southern",
       "district": "Cha-uat",
       "province": "Nakhon Si Thammarat",
-      "lat": 7.91,
-      "lon": 100.01,
-      "coord_source": "estimated"
+      "lat": 7.876722,
+      "lon": 100.019001,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Tum",
@@ -1570,9 +1570,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Phitsanulok",
-      "lat": 16.8,
-      "lon": 100.2667,
-      "coord_source": "estimated"
+      "lat": 16.9089905,
+      "lon": 100.2504351,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Tun",
@@ -1582,9 +1582,9 @@
       "line": "Southern",
       "district": "Cha-uat",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.061,
-      "lon": 99.9612,
-      "coord_source": "estimated"
+      "lat": 8.0606432,
+      "lon": 99.961299,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Wa Tabaek",
@@ -1594,9 +1594,9 @@
       "line": "Northeastern",
       "district": "Thep Sathit",
       "province": "Chaiyaphum",
-      "lat": 15.4833,
-      "lon": 101.5833,
-      "coord_source": "estimated"
+      "lat": 15.3971958,
+      "lon": 101.4535189,
+      "coord_source": "nominatim"
     },
     {
       "name_en": "Ban Wang Chai",
@@ -1606,9 +1606,9 @@
       "line": "Northeastern",
       "district": "Nam Phong",
       "province": "Khon Kaen",
-      "lat": 16.6333,
-      "lon": 102.7667,
-      "coord_source": "estimated"
+      "lat": 16.6787527,
+      "lon": 102.8460197,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ban Yang",
@@ -1618,9 +1618,9 @@
       "line": "Southern",
       "district": "Khiri Rat Nikhom",
       "province": "Surat Thani",
-      "lat": 9.1667,
-      "lon": 98.9333,
-      "coord_source": "estimated"
+      "lat": 9.0475291,
+      "lon": 98.9785605,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bandai Ma",
@@ -1630,9 +1630,9 @@
       "line": "Northeastern",
       "district": "Pak Chong",
       "province": "Nakhon Ratchasima",
-      "lat": 14.6403,
-      "lon": 101.3328,
-      "coord_source": "estimated"
+      "lat": 14.6728925,
+      "lon": 101.3694444,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Bamru",
@@ -1642,9 +1642,9 @@
       "line": "Southern",
       "district": "Bang Phlat",
       "province": "Bangkok",
-      "lat": 13.7858,
-      "lon": 100.4797,
-      "coord_source": "estimated"
+      "lat": 13.7920391,
+      "lon": 100.4775107,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Bon",
@@ -1654,9 +1654,9 @@
       "line": "Maeklong",
       "district": "Bang Bon",
       "province": "Bangkok",
-      "lat": 13.6478,
-      "lon": 100.3878,
-      "coord_source": "estimated"
+      "lat": 13.6664849,
+      "lon": 100.4288556,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Chak",
@@ -1666,9 +1666,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Phetchaburi",
-      "lat": 13.1097,
-      "lon": 99.9389,
-      "coord_source": "estimated"
+      "lat": 13.6967721,
+      "lon": 100.605357,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Kaeo",
@@ -1678,9 +1678,9 @@
       "line": "Southern",
       "district": "Bang Kaeo",
       "province": "Phatthalung",
-      "lat": 7.4328,
-      "lon": 100.1136,
-      "coord_source": "estimated"
+      "lat": 7.4220091,
+      "lon": 100.1672346,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Khem",
@@ -1690,9 +1690,9 @@
       "line": "Southern",
       "district": "Amphawa",
       "province": "Samut Songkhram",
-      "lat": 13.385,
-      "lon": 99.985,
-      "coord_source": "estimated"
+      "lat": 13.2979208,
+      "lon": 99.8534803,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Klam",
@@ -1702,9 +1702,9 @@
       "line": "Southern",
       "district": "Bang Klam",
       "province": "Songkhla",
-      "lat": 7.0297,
-      "lon": 100.4703,
-      "coord_source": "estimated"
+      "lat": 7.0876974,
+      "lon": 100.4154354,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Krachao",
@@ -1714,9 +1714,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.5158,
-      "lon": 100.2142,
-      "coord_source": "estimated"
+      "lat": 13.5087416,
+      "lon": 100.1974875,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Krathum",
@@ -1726,9 +1726,9 @@
       "line": "Northern",
       "district": "Bang Krathum",
       "province": "Phitsanulok",
-      "lat": 16.9619,
-      "lon": 100.2878,
-      "coord_source": "estimated"
+      "lat": 16.5766834,
+      "lon": 100.2990041,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Lamung",
@@ -1738,9 +1738,9 @@
       "line": "Eastern",
       "district": "Bang Lamung",
       "province": "Chonburi",
-      "lat": 12.9481,
-      "lon": 100.8872,
-      "coord_source": "estimated"
+      "lat": 13.0344892,
+      "lon": 100.9400616,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Mun Nak",
@@ -1750,9 +1750,9 @@
       "line": "Northern",
       "district": "Bang Mun Nak",
       "province": "Phichit",
-      "lat": 16.0381,
-      "lon": 100.5394,
-      "coord_source": "estimated"
+      "lat": 16.0285797,
+      "lon": 100.381161,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Nam Jued",
@@ -1762,9 +1762,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.53,
-      "lon": 100.25,
-      "coord_source": "estimated"
+      "lat": 13.6051039,
+      "lon": 100.3602877,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Nam Priao",
@@ -1774,9 +1774,9 @@
       "line": "Eastern",
       "district": "Bang Nam Priao",
       "province": "Chachoengsao",
-      "lat": 13.77,
-      "lon": 101.2233,
-      "coord_source": "estimated"
+      "lat": 13.8500565,
+      "lon": 101.1019996,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Pa-in",
@@ -1786,9 +1786,9 @@
       "line": "Northern, Northeastern",
       "district": "Bang Pa-in",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.2292,
-      "lon": 100.5692,
-      "coord_source": "estimated"
+      "lat": 14.2393509,
+      "lon": 100.5845885,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Phra",
@@ -1798,9 +1798,9 @@
       "line": "Eastern",
       "district": "Si Racha",
       "province": "Chonburi",
-      "lat": 13.2333,
-      "lon": 100.9667,
-      "coord_source": "estimated"
+      "lat": 13.2357646,
+      "lon": 100.9535761,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Ramat",
@@ -1810,9 +1810,9 @@
       "line": "Southern",
       "district": "Taling Chan",
       "province": "Bangkok",
-      "lat": 13.7817,
-      "lon": 100.4383,
-      "coord_source": "estimated"
+      "lat": 13.7784563,
+      "lon": 100.4535109,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Saphan Noi",
@@ -1822,9 +1822,9 @@
       "line": "Southern",
       "district": "Bang Saphan Noi",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.1486,
-      "lon": 99.4442,
-      "coord_source": "estimated"
+      "lat": 11.0857887,
+      "lon": 99.4498617,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Saphan Yai",
@@ -1834,9 +1834,9 @@
       "line": "Southern",
       "district": "Bang Saphan",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.2344,
-      "lon": 99.52,
-      "coord_source": "estimated"
+      "lat": 11.2133382,
+      "lon": 99.5088906,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Si Khot",
@@ -1846,9 +1846,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.525,
-      "lon": 100.22,
-      "coord_source": "estimated"
+      "lat": 13.515796,
+      "lon": 100.21431,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Son",
@@ -1858,9 +1858,9 @@
       "line": "Southern",
       "district": "Bang Sue",
       "province": "Bangkok",
-      "lat": 13.8028,
-      "lon": 100.5186,
-      "coord_source": "estimated"
+      "lat": 13.8221332,
+      "lon": 100.534213,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Sue Junction",
@@ -1870,9 +1870,9 @@
       "line": "Northern, Northeastern, Southern",
       "district": "Bang Sue",
       "province": "Bangkok",
-      "lat": 13.8019,
-      "lon": 100.5233,
-      "coord_source": "estimated"
+      "lat": 13.8041606,
+      "lon": 100.5399136,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Thorat",
@@ -1882,9 +1882,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.5467,
-      "lon": 100.2817,
-      "coord_source": "estimated"
+      "lat": 13.4942482,
+      "lon": 100.1600937,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bang Toei",
@@ -1894,9 +1894,9 @@
       "line": "Eastern",
       "district": "Mueang",
       "province": "Chachoengsao",
-      "lat": 13.7,
-      "lon": 101.0667,
-      "coord_source": "estimated"
+      "lat": 13.7006834,
+      "lon": 101.0186611,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bangkok (Hua Lamphong)",
@@ -1919,9 +1919,9 @@
       "line": "Southern",
       "district": "Phunphin",
       "province": "Surat Thani",
-      "lat": 9.01,
-      "lon": 99.2694,
-      "coord_source": "estimated"
+      "lat": 9.0102709,
+      "lon": 99.2696409,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bo Nok",
@@ -1931,9 +1931,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.8533,
-      "lon": 99.7956,
-      "coord_source": "estimated"
+      "lat": 12.0037673,
+      "lon": 99.8583773,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bo Takhro",
@@ -1943,9 +1943,9 @@
       "line": "Southern",
       "district": "Pak Tho",
       "province": "Ratchaburi",
-      "lat": 13.4103,
-      "lon": 99.8314,
-      "coord_source": "estimated"
+      "lat": 13.4411378,
+      "lon": 99.83501,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bu Rusi",
@@ -1955,9 +1955,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Surin",
-      "lat": 14.8833,
-      "lon": 103.4833,
-      "coord_source": "estimated"
+      "lat": 14.8899487,
+      "lon": 103.5763229,
+      "coord_source": "osm_fuzzy_th_0.83"
     },
     {
       "name_en": "Bu Yai",
@@ -1968,9 +1968,9 @@
       "district": "Kaeng Khoi",
       "province": "Saraburi",
       "notes": "Freight only",
-      "lat": 14.58,
-      "lon": 101.02,
-      "coord_source": "estimated"
+      "lat": 14.4282723,
+      "lon": 101.0062401,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bua Yai Junction",
@@ -1993,9 +1993,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Nakhon Sawan",
-      "lat": 15.6667,
-      "lon": 100.1667,
-      "coord_source": "estimated"
+      "lat": 15.7241235,
+      "lon": 100.2109066,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bueng Phra",
@@ -2005,9 +2005,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Phitsanulok",
-      "lat": 16.8333,
-      "lon": 100.2833,
-      "coord_source": "estimated"
+      "lat": 16.7481115,
+      "lon": 100.2640645,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bukit",
@@ -2017,9 +2017,9 @@
       "line": "Southern",
       "district": "Cho-airong",
       "province": "Narathiwat",
-      "lat": 6.3833,
-      "lon": 101.5667,
-      "coord_source": "estimated"
+      "lat": 6.1983072,
+      "lon": 101.8188778,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Bung Wai",
@@ -2029,9 +2029,9 @@
       "line": "Northeastern",
       "district": "Warin Chamrap",
       "province": "Ubon Ratchathani",
-      "lat": 15.1853,
-      "lon": 104.8267,
-      "coord_source": "estimated"
+      "lat": 15.1561825,
+      "lon": 104.7895869,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Buriram",
@@ -2054,9 +2054,9 @@
       "line": "Southern",
       "district": "Bang Saphan",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.2608,
-      "lon": 99.505,
-      "coord_source": "estimated"
+      "lat": 11.1409967,
+      "lon": 99.4731886,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Cha-am",
@@ -2091,9 +2091,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Phatthalung",
-      "lat": 7.615,
-      "lon": 100.085,
-      "coord_source": "estimated"
+      "lat": 7.6752508,
+      "lon": 100.0806575,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chaiya",
@@ -2103,9 +2103,9 @@
       "line": "Southern",
       "district": "Chaiya",
       "province": "Surat Thani",
-      "lat": 9.3781,
-      "lon": 99.1931,
-      "coord_source": "estimated"
+      "lat": 9.388465,
+      "lon": 99.1953268,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chakkarat",
@@ -2115,9 +2115,9 @@
       "line": "Northeastern",
       "district": "Chakkarat",
       "province": "Nakhon Ratchasima",
-      "lat": 15.0217,
-      "lon": 102.3056,
-      "coord_source": "estimated"
+      "lat": 15.0127766,
+      "lon": 102.4104258,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chalerm Kanchana",
@@ -2127,9 +2127,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Sisaket",
-      "lat": 15.1167,
-      "lon": 104.3167,
-      "coord_source": "estimated"
+      "lat": 15.1069135,
+      "lon": 104.3933431,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chana",
@@ -2139,9 +2139,9 @@
       "line": "Southern",
       "district": "Chana",
       "province": "Songkhla",
-      "lat": 6.8767,
-      "lon": 100.7439,
-      "coord_source": "estimated"
+      "lat": 6.9092194,
+      "lon": 100.7401095,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chansen",
@@ -2151,9 +2151,9 @@
       "line": "Northern",
       "district": "Takhli",
       "province": "Nakhon Sawan",
-      "lat": 15.3431,
-      "lon": 100.3947,
-      "coord_source": "estimated"
+      "lat": 15.1220657,
+      "lon": 100.4597141,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chanthuk",
@@ -2163,9 +2163,9 @@
       "line": "Northeastern",
       "district": "Pak Chong",
       "province": "Nakhon Ratchasima",
-      "lat": 14.6528,
-      "lon": 101.3853,
-      "coord_source": "estimated"
+      "lat": 14.8144387,
+      "lon": 101.493403,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Charansanitwong",
@@ -2175,9 +2175,9 @@
       "line": "Southern",
       "district": "Bangkok Noi",
       "province": "Bangkok",
-      "lat": 13.7672,
-      "lon": 100.4856,
-      "coord_source": "estimated"
+      "lat": 13.7631788,
+      "lon": 100.4725817,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chatturat",
@@ -2188,9 +2188,9 @@
       "district": "Chatturat",
       "province": "Chaiyaphum",
       "notes": "Main station for Chaiyaphum Province",
-      "lat": 15.6325,
-      "lon": 101.6367,
-      "coord_source": "estimated"
+      "lat": 15.5556672,
+      "lon": 101.8399555,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Cha-uat",
@@ -2200,9 +2200,9 @@
       "line": "Southern",
       "district": "Cha-uat",
       "province": "Nakhon Si Thammarat",
-      "lat": 7.9014,
-      "lon": 100.0108,
-      "coord_source": "estimated"
+      "lat": 7.967133,
+      "lon": 99.9977115,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chawang",
@@ -2212,9 +2212,9 @@
       "line": "Southern",
       "district": "Chawang",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.4589,
-      "lon": 99.4836,
-      "coord_source": "estimated"
+      "lat": 8.4206392,
+      "lon": 99.5083719,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chet Samian",
@@ -2224,9 +2224,9 @@
       "line": "Southern",
       "district": "Photharam",
       "province": "Ratchaburi",
-      "lat": 13.6353,
-      "lon": 99.82,
-      "coord_source": "estimated"
+      "lat": 13.6364385,
+      "lon": 99.8212699,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chiang Mai",
@@ -2249,9 +2249,9 @@
       "line": "Northern, Northeastern",
       "district": "Bang Pa-in",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.1381,
-      "lon": 100.5981,
-      "coord_source": "estimated"
+      "lat": 14.1313359,
+      "lon": 100.5820064,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chiang Rak",
@@ -2261,9 +2261,9 @@
       "line": "Northern, Northeastern",
       "district": "Khlong Luang",
       "province": "Pathum Thani",
-      "lat": 14.0758,
-      "lon": 100.6278,
-      "coord_source": "estimated"
+      "lat": 14.055337,
+      "lon": 100.5923849,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Cho-airong",
@@ -2273,9 +2273,9 @@
       "line": "Southern",
       "district": "Cho-airong",
       "province": "Narathiwat",
-      "lat": 6.4578,
-      "lon": 101.5781,
-      "coord_source": "estimated"
+      "lat": 6.23586,
+      "lon": 101.8005797,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chitralada",
@@ -2286,9 +2286,9 @@
       "district": "Dusit",
       "province": "Bangkok",
       "notes": "Royal use only",
-      "lat": 13.7681,
-      "lon": 100.5192,
-      "coord_source": "estimated"
+      "lat": 13.7665394,
+      "lon": 100.5247073,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chom Thong",
@@ -2298,9 +2298,9 @@
       "line": "Maeklong",
       "district": "Chom Thong",
       "province": "Bangkok",
-      "lat": 13.6817,
-      "lon": 100.4672,
-      "coord_source": "estimated"
+      "lat": 13.7018278,
+      "lon": 100.465136,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chonburi",
@@ -2323,9 +2323,9 @@
       "line": "Northern",
       "district": "Takhli",
       "province": "Nakhon Sawan",
-      "lat": 15.34,
-      "lon": 100.4428,
-      "coord_source": "estimated"
+      "lat": 15.1649528,
+      "lon": 100.4204895,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chong Khaep",
@@ -2335,9 +2335,9 @@
       "line": "Southern",
       "district": "Sai Yok",
       "province": "Kanchanaburi",
-      "lat": 14.1833,
-      "lon": 98.9167,
-      "coord_source": "estimated"
+      "lat": 14.1679228,
+      "lon": 99.1005791,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chong Khao",
@@ -2347,9 +2347,9 @@
       "line": "Southern",
       "district": "Ron Phibun",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.175,
-      "lon": 100.0783,
-      "coord_source": "estimated"
+      "lat": 8.1423926,
+      "lon": 99.7690996,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chong Samran",
@@ -2359,9 +2359,9 @@
       "line": "Northeastern",
       "district": "Thep Sathit",
       "province": "Chaiyaphum",
-      "lat": 15.5,
-      "lon": 101.5833,
-      "coord_source": "estimated"
+      "lat": 15.3521079,
+      "lon": 101.3869595,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chuk Samet",
@@ -2371,9 +2371,9 @@
       "line": "Eastern",
       "district": "Sattahip",
       "province": "Chonburi",
-      "lat": 12.6556,
-      "lon": 100.9208,
-      "coord_source": "estimated"
+      "lat": 12.6247647,
+      "lon": 100.9216077,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Chumphon",
@@ -2396,9 +2396,9 @@
       "line": "Northern",
       "district": "Chum Saeng",
       "province": "Nakhon Sawan",
-      "lat": 15.5781,
-      "lon": 100.2944,
-      "coord_source": "estimated"
+      "lat": 15.8946494,
+      "lon": 100.3101192,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Den Chai",
@@ -2472,9 +2472,9 @@
       "district": "Kaeng Khoi",
       "province": "Saraburi",
       "notes": "Junction",
-      "lat": 14.5869,
-      "lon": 101.0356,
-      "coord_source": "estimated"
+      "lat": 14.5874804,
+      "lon": 101.0053349,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Kanchanaburi",
@@ -2497,9 +2497,9 @@
       "line": "Southern",
       "district": "Kantang",
       "province": "Trang",
-      "lat": 7.4089,
-      "lon": 99.5175,
-      "coord_source": "estimated"
+      "lat": 7.4109021,
+      "lon": 99.5145938,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khon Kaen",
@@ -2613,9 +2613,9 @@
       "line": "Southern",
       "district": "Sai Yok",
       "province": "Kanchanaburi",
-      "lat": 14.2364,
-      "lon": 98.8547,
-      "coord_source": "estimated"
+      "lat": 14.2321281,
+      "lon": 99.0678579,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Nong Khai",
@@ -2626,9 +2626,9 @@
       "district": "Mueang",
       "province": "Nong Khai",
       "notes": "Main station, border with Laos",
-      "lat": 17.8783,
-      "lon": 102.7442,
-      "coord_source": "estimated"
+      "lat": 17.8644642,
+      "lon": 102.7309677,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Nong Pladuk Junction",
@@ -2639,9 +2639,9 @@
       "district": "Ban Pong",
       "province": "Ratchaburi",
       "notes": "Junction",
-      "lat": 13.8039,
-      "lon": 99.8886,
-      "coord_source": "estimated"
+      "lat": 13.8176406,
+      "lon": 99.9108884,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Padang Besar",
@@ -2652,9 +2652,9 @@
       "district": "Sadao",
       "province": "Songkhla",
       "notes": "Border with Malaysia",
-      "lat": 6.6622,
-      "lon": 100.3256,
-      "coord_source": "estimated"
+      "lat": 6.6688351,
+      "lon": 100.324497,
+      "coord_source": "nominatim"
     },
     {
       "name_en": "Pak Chong",
@@ -2664,9 +2664,9 @@
       "line": "Northeastern",
       "district": "Pak Chong",
       "province": "Nakhon Ratchasima",
-      "lat": 14.7122,
-      "lon": 101.4217,
-      "coord_source": "estimated"
+      "lat": 14.7050481,
+      "lon": 101.4105911,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pattani",
@@ -2677,9 +2677,9 @@
       "district": "Khok Pho",
       "province": "Pattani",
       "notes": "Main station",
-      "lat": 6.8244,
-      "lon": 101.18,
-      "coord_source": "estimated"
+      "lat": 6.7290309,
+      "lon": 101.0944873,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pattaya",
@@ -2689,9 +2689,9 @@
       "line": "Eastern",
       "district": "Bang Lamung",
       "province": "Chonburi",
-      "lat": 12.9244,
-      "lon": 100.8764,
-      "coord_source": "estimated"
+      "lat": 12.940201,
+      "lon": 100.9094181,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Phatthalung",
@@ -2702,9 +2702,9 @@
       "district": "Mueang",
       "province": "Phatthalung",
       "notes": "Main station",
-      "lat": 7.6158,
-      "lon": 100.0814,
-      "coord_source": "estimated"
+      "lat": 7.6209574,
+      "lon": 100.0857001,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Phetchaburi",
@@ -2715,9 +2715,9 @@
       "district": "Mueang",
       "province": "Phetchaburi",
       "notes": "Main station",
-      "lat": 13.1164,
-      "lon": 99.9467,
-      "coord_source": "estimated"
+      "lat": 13.7491853,
+      "lon": 100.5634165,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Phitsanulok",
@@ -2728,9 +2728,9 @@
       "district": "Mueang",
       "province": "Phitsanulok",
       "notes": "Main station",
-      "lat": 16.8258,
-      "lon": 100.2658,
-      "coord_source": "estimated"
+      "lat": 16.8149757,
+      "lon": 100.2657009,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Prachinburi",
@@ -2741,9 +2741,9 @@
       "district": "Mueang",
       "province": "Prachinburi",
       "notes": "Main station",
-      "lat": 14.0453,
-      "lon": 101.3719,
-      "coord_source": "estimated"
+      "lat": 14.0709368,
+      "lon": 101.3736795,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Prachuap Khiri Khan",
@@ -2754,9 +2754,9 @@
       "district": "Mueang",
       "province": "Prachuap Khiri Khan",
       "notes": "Main station",
-      "lat": 11.8078,
-      "lon": 99.7975,
-      "coord_source": "estimated"
+      "lat": 11.8077762,
+      "lon": 99.7937417,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ratchaburi",
@@ -2767,9 +2767,9 @@
       "district": "Mueang",
       "province": "Ratchaburi",
       "notes": "Main station",
-      "lat": 13.5447,
-      "lon": 99.8317,
-      "coord_source": "estimated"
+      "lat": 13.5305802,
+      "lon": 99.8242617,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sa Kaeo",
@@ -2780,9 +2780,9 @@
       "district": "Mueang",
       "province": "Sa Kaeo",
       "notes": "Main station",
-      "lat": 13.8069,
-      "lon": 102.0669,
-      "coord_source": "estimated"
+      "lat": 13.8272286,
+      "lon": 102.0751732,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Saraburi",
@@ -2793,9 +2793,9 @@
       "district": "Mueang",
       "province": "Saraburi",
       "notes": "Main station",
-      "lat": 14.5318,
-      "lon": 100.9106,
-      "coord_source": "estimated"
+      "lat": 14.5273879,
+      "lon": 100.916216,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sisaket",
@@ -2806,9 +2806,9 @@
       "district": "Mueang",
       "province": "Sisaket",
       "notes": "Main station",
-      "lat": 15.1131,
-      "lon": 104.3219,
-      "coord_source": "estimated"
+      "lat": 15.1163243,
+      "lon": 104.3273597,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Su-ngai Kolok",
@@ -2819,9 +2819,9 @@
       "district": "Su-ngai Kolok",
       "province": "Narathiwat",
       "notes": "Border with Malaysia",
-      "lat": 6.0286,
-      "lon": 101.9658,
-      "coord_source": "estimated"
+      "lat": 6.025835,
+      "lon": 101.9648997,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Suphan Buri",
@@ -2832,9 +2832,9 @@
       "district": "Mueang",
       "province": "Suphan Buri",
       "notes": "Main station",
-      "lat": 14.4672,
-      "lon": 100.1136,
-      "coord_source": "estimated"
+      "lat": 14.465631,
+      "lon": 100.0950009,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Surat Thani",
@@ -2845,9 +2845,9 @@
       "district": "Phunphin",
       "province": "Surat Thani",
       "notes": "Main station",
-      "lat": 9.1361,
-      "lon": 99.1592,
-      "coord_source": "estimated"
+      "lat": 9.1041506,
+      "lon": 99.230419,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Surin",
@@ -2858,9 +2858,9 @@
       "district": "Mueang",
       "province": "Surin",
       "notes": "Main station",
-      "lat": 14.8811,
-      "lon": 103.4906,
-      "coord_source": "estimated"
+      "lat": 14.8915918,
+      "lon": 103.4939967,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Trang",
@@ -2871,9 +2871,9 @@
       "district": "Mueang",
       "province": "Trang",
       "notes": "Main station",
-      "lat": 7.5406,
-      "lon": 99.6122,
-      "coord_source": "estimated"
+      "lat": 7.5544139,
+      "lon": 99.6044951,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ubon Ratchathani",
@@ -2884,9 +2884,9 @@
       "district": "Warin Chamrap",
       "province": "Ubon Ratchathani",
       "notes": "Main station",
-      "lat": 15.2264,
-      "lon": 104.8581,
-      "coord_source": "estimated"
+      "lat": 15.2006718,
+      "lon": 104.8585546,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Udon Thani",
@@ -2897,9 +2897,9 @@
       "district": "Mueang",
       "province": "Udon Thani",
       "notes": "Main station",
-      "lat": 17.4147,
-      "lon": 102.7878,
-      "coord_source": "estimated"
+      "lat": 17.4041726,
+      "lon": 102.8055689,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Uttaradit",
@@ -2910,9 +2910,9 @@
       "district": "Mueang",
       "province": "Uttaradit",
       "notes": "Main station",
-      "lat": 17.6253,
-      "lon": 100.1011,
-      "coord_source": "estimated"
+      "lat": 17.6203598,
+      "lon": 100.0972647,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Yala",
@@ -2923,9 +2923,9 @@
       "district": "Mueang",
       "province": "Yala",
       "notes": "Main station",
-      "lat": 6.5389,
-      "lon": 101.2753,
-      "coord_source": "estimated"
+      "lat": 6.5604967,
+      "lon": 101.2930041,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Thung Song Junction",
@@ -2936,9 +2936,9 @@
       "district": "Thung Song",
       "province": "Nakhon Si Thammarat",
       "notes": "Junction for Kantang Branch",
-      "lat": 8.1678,
-      "lon": 99.6803,
-      "coord_source": "estimated"
+      "lat": 8.1707443,
+      "lon": 99.6794995,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Thanon Chira Junction",
@@ -2949,9 +2949,9 @@
       "district": "Mueang",
       "province": "Nakhon Ratchasima",
       "notes": "Junction",
-      "lat": 14.9706,
-      "lon": 102.0944,
-      "coord_source": "estimated"
+      "lat": 14.9678193,
+      "lon": 102.1018736,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Don Sai",
@@ -2961,9 +2961,9 @@
       "line": "Southern",
       "district": "Thap Sakae",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.4833,
-      "lon": 99.625,
-      "coord_source": "estimated"
+      "lat": 11.4569016,
+      "lon": 99.6063103,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Don Si Non",
@@ -2973,9 +2973,9 @@
       "line": "Eastern",
       "district": "Ban Pho",
       "province": "Chachoengsao",
-      "lat": 13.7167,
-      "lon": 101.05,
-      "coord_source": "estimated"
+      "lat": 13.6010025,
+      "lon": 101.1088784,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Don Thong",
@@ -2985,9 +2985,9 @@
       "line": "Southern",
       "district": "Bang Pla Ma",
       "province": "Suphan Buri",
-      "lat": 14.5,
-      "lon": 100.1333,
-      "coord_source": "estimated"
+      "lat": 14.3098367,
+      "lon": 100.0163668,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Don Thup",
@@ -2997,9 +2997,9 @@
       "line": "Southern",
       "district": "Tha Chana",
       "province": "Surat Thani",
-      "lat": 9.4978,
-      "lon": 99.1361,
-      "coord_source": "estimated"
+      "lat": 9.634762,
+      "lon": 99.1551482,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Don Ya Nang",
@@ -3009,9 +3009,9 @@
       "line": "Northern",
       "district": "Phachi",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.4667,
-      "lon": 100.65,
-      "coord_source": "estimated"
+      "lat": 14.4797237,
+      "lon": 100.728397,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Dong Maku",
@@ -3021,9 +3021,9 @@
       "line": "Northern",
       "district": "Takhli",
       "province": "Nakhon Sawan",
-      "lat": 15.3083,
-      "lon": 100.3667,
-      "coord_source": "estimated"
+      "lat": 15.3054778,
+      "lon": 100.331565,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Dong Takhop",
@@ -3033,9 +3033,9 @@
       "line": "Northern",
       "district": "Bang Mun Nak",
       "province": "Phichit",
-      "lat": 16.0167,
-      "lon": 100.4833,
-      "coord_source": "estimated"
+      "lat": 16.1386774,
+      "lon": 100.4148126,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Han Kong",
@@ -3045,9 +3045,9 @@
       "line": "Southern",
       "district": "Pak Phayun",
       "province": "Phatthalung",
-      "lat": 7.3628,
-      "lon": 100.2167,
-      "coord_source": "estimated"
+      "lat": 7.3156585,
+      "lon": 100.2521323,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Han Thao",
@@ -3057,9 +3057,9 @@
       "line": "Southern",
       "district": "Pak Phayun",
       "province": "Phatthalung",
-      "lat": 7.3472,
-      "lon": 100.2,
-      "coord_source": "estimated"
+      "lat": 7.2932387,
+      "lon": 100.2720479,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hang Chat",
@@ -3069,9 +3069,9 @@
       "line": "Northern",
       "district": "Hang Chat",
       "province": "Lampang",
-      "lat": 18.3169,
-      "lon": 99.3639,
-      "coord_source": "estimated"
+      "lat": 18.336169,
+      "lon": 99.3695614,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hin Dat",
@@ -3081,9 +3081,9 @@
       "line": "Northeastern",
       "district": "Huai Thalaeng",
       "province": "Nakhon Ratchasima",
-      "lat": 15.25,
-      "lon": 102.3833,
-      "coord_source": "estimated"
+      "lat": 15.0028698,
+      "lon": 102.5656695,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hin Kong",
@@ -3093,9 +3093,9 @@
       "line": "Southern",
       "district": "Bang Saphan",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.25,
-      "lon": 99.5167,
-      "coord_source": "estimated"
+      "lat": 11.1623143,
+      "lon": 99.4751456,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hin Lap",
@@ -3105,9 +3105,9 @@
       "line": "Northeastern",
       "district": "Muak Lek",
       "province": "Saraburi",
-      "lat": 14.6547,
-      "lon": 101.115,
-      "coord_source": "estimated"
+      "lat": 14.6631982,
+      "lon": 101.1332776,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hin Son",
@@ -3117,9 +3117,9 @@
       "line": "Northeastern",
       "district": "Kaeng Khoi",
       "province": "Saraburi",
-      "lat": 14.5917,
-      "lon": 101.0464,
-      "coord_source": "estimated"
+      "lat": 14.741291,
+      "lon": 101.0510772,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ho Krai",
@@ -3129,9 +3129,9 @@
       "line": "Northern",
       "district": "Bang Mun Nak",
       "province": "Phichit",
-      "lat": 16.05,
-      "lon": 100.4917,
-      "coord_source": "estimated"
+      "lat": 16.0820508,
+      "lon": 100.4056695,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hua Dong",
@@ -3141,9 +3141,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Phichit",
-      "lat": 16.3678,
-      "lon": 100.3867,
-      "coord_source": "estimated"
+      "lat": 16.3392934,
+      "lon": 100.4031372,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hua Mak",
@@ -3153,9 +3153,9 @@
       "line": "Eastern",
       "district": "Suan Luang",
       "province": "Bangkok",
-      "lat": 13.7411,
-      "lon": 100.5992,
-      "coord_source": "estimated"
+      "lat": 13.7383682,
+      "lon": 100.6397382,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hua Mat",
@@ -3165,9 +3165,9 @@
       "line": "Southern",
       "district": "Lamae",
       "province": "Chumphon",
-      "lat": 10.33,
-      "lon": 99.12,
-      "coord_source": "estimated"
+      "lat": 9.8321709,
+      "lon": 99.0839583,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hua Ngiu",
@@ -3177,9 +3177,9 @@
       "line": "Northern",
       "district": "Phayuha Khiri",
       "province": "Nakhon Sawan",
-      "lat": 15.4667,
-      "lon": 100.375,
-      "coord_source": "estimated"
+      "lat": 15.427277,
+      "lon": 100.2194591,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hua Takhe",
@@ -3189,9 +3189,9 @@
       "line": "Eastern",
       "district": "Lat Krabang",
       "province": "Bangkok",
-      "lat": 13.7233,
-      "lon": 100.7819,
-      "coord_source": "estimated"
+      "lat": 13.7282484,
+      "lon": 100.7829084,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Hua Wai",
@@ -3201,9 +3201,9 @@
       "line": "Northern",
       "district": "Takhli",
       "province": "Nakhon Sawan",
-      "lat": 15.25,
-      "lon": 100.3583,
-      "coord_source": "estimated"
+      "lat": 15.3492674,
+      "lon": 100.3127831,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Chot",
@@ -3213,9 +3213,9 @@
       "line": "Eastern",
       "district": "Watthana Nakhon",
       "province": "Sa Kaeo",
-      "lat": 13.75,
-      "lon": 102.235,
-      "coord_source": "estimated"
+      "lat": 13.770513,
+      "lon": 102.2312053,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Kaeo",
@@ -3225,9 +3225,9 @@
       "line": "Northern",
       "district": "Ban Mi",
       "province": "Lopburi",
-      "lat": 15.0333,
-      "lon": 100.5167,
-      "coord_source": "estimated"
+      "lat": 15.0702544,
+      "lon": 100.510629,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Ket",
@@ -3237,9 +3237,9 @@
       "line": "Northern",
       "district": "Taphan Hin",
       "province": "Phichit",
-      "lat": 16.2333,
-      "lon": 100.4167,
-      "coord_source": "estimated"
+      "lat": 16.2733137,
+      "lon": 100.4253862,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Khayung",
@@ -3249,9 +3249,9 @@
       "line": "Northeastern",
       "district": "Warin Chamrap",
       "province": "Ubon Ratchathani",
-      "lat": 15.1175,
-      "lon": 104.7736,
-      "coord_source": "estimated"
+      "lat": 15.1098032,
+      "lon": 104.6881416,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Koeng",
@@ -3261,9 +3261,9 @@
       "line": "Northeastern",
       "district": "Kumphawapi",
       "province": "Udon Thani",
-      "lat": 17.0175,
-      "lon": 102.8094,
-      "coord_source": "estimated"
+      "lat": 17.0422322,
+      "lon": 102.9279692,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Mut",
@@ -3273,9 +3273,9 @@
       "line": "Southern",
       "district": "Ban Na San",
       "province": "Surat Thani",
-      "lat": 8.8992,
-      "lon": 99.2617,
-      "coord_source": "estimated"
+      "lat": 8.8353416,
+      "lon": 99.3498793,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Prik",
@@ -3285,9 +3285,9 @@
       "line": "Southern",
       "district": "Chawang",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.5453,
-      "lon": 99.4658,
-      "coord_source": "estimated"
+      "lat": 8.5686473,
+      "lon": 99.4566341,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Rat",
@@ -3297,9 +3297,9 @@
       "line": "Northeastern",
       "district": "Huai Rat",
       "province": "Buriram",
-      "lat": 14.8511,
-      "lon": 103.0736,
-      "coord_source": "estimated"
+      "lat": 14.9727432,
+      "lon": 103.1900031,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Sak",
@@ -3309,9 +3309,9 @@
       "line": "Southern",
       "district": "Bang Saphan Noi",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.1175,
-      "lon": 99.4356,
-      "coord_source": "estimated"
+      "lat": 11.0304699,
+      "lon": 99.4143861,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Sam Phat",
@@ -3321,9 +3321,9 @@
       "line": "Northeastern",
       "district": "Prachaksinlapakhom",
       "province": "Udon Thani",
-      "lat": 17.2486,
-      "lon": 102.8231,
-      "coord_source": "estimated"
+      "lat": 17.2093598,
+      "lon": 102.9380964,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Sieo",
@@ -3333,9 +3333,9 @@
       "line": "Northeastern",
       "district": "Nam Phong",
       "province": "Khon Kaen",
-      "lat": 16.5706,
-      "lon": 102.7842,
-      "coord_source": "estimated"
+      "lat": 16.7569614,
+      "lon": 102.8708395,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Thalaeng",
@@ -3345,9 +3345,9 @@
       "line": "Northeastern",
       "district": "Huai Thalaeng",
       "province": "Nakhon Ratchasima",
-      "lat": 15.2619,
-      "lon": 102.4339,
-      "coord_source": "estimated"
+      "lat": 14.9993907,
+      "lon": 102.6467614,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Thap Than",
@@ -3357,9 +3357,9 @@
       "line": "Northeastern",
       "district": "Huai Thap Than",
       "province": "Sisaket",
-      "lat": 15.2889,
-      "lon": 104.1056,
-      "coord_source": "estimated"
+      "lat": 15.0590847,
+      "lon": 104.0300528,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Yang",
@@ -3369,9 +3369,9 @@
       "line": "Southern",
       "district": "Thap Sakae",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.6217,
-      "lon": 99.7542,
-      "coord_source": "estimated"
+      "lat": 11.6050706,
+      "lon": 99.6720204,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Huai Yot",
@@ -3381,9 +3381,9 @@
       "line": "Southern",
       "district": "Huai Yot",
       "province": "Trang",
-      "lat": 7.8014,
-      "lon": 99.6228,
-      "coord_source": "estimated"
+      "lat": 7.7860509,
+      "lon": 99.6381616,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Kabin Buri",
@@ -3393,9 +3393,9 @@
       "line": "Eastern",
       "district": "Kabin Buri",
       "province": "Prachinburi",
-      "lat": 13.9803,
-      "lon": 101.7083,
-      "coord_source": "estimated"
+      "lat": 13.9895143,
+      "lon": 101.7226862,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Kanthararom",
@@ -3405,9 +3405,9 @@
       "line": "Northeastern",
       "district": "Kanthararom",
       "province": "Sisaket",
-      "lat": 15.2258,
-      "lon": 104.2367,
-      "coord_source": "estimated"
+      "lat": 15.1072927,
+      "lon": 104.5783401,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khiri Rat Nikhom",
@@ -3417,9 +3417,9 @@
       "line": "Southern",
       "district": "Khiri Rat Nikhom",
       "province": "Surat Thani",
-      "lat": 9.1675,
-      "lon": 98.9319,
-      "coord_source": "estimated"
+      "lat": 9.0312699,
+      "lon": 98.9470674,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khlong Chandi",
@@ -3429,9 +3429,9 @@
       "line": "Southern",
       "district": "Chawang",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.4175,
-      "lon": 99.5089,
-      "coord_source": "estimated"
+      "lat": 8.3818587,
+      "lon": 99.5401192,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khlong Ngae",
@@ -3441,9 +3441,9 @@
       "line": "Southern",
       "district": "Sadao",
       "province": "Songkhla",
-      "lat": 6.7025,
-      "lon": 100.3567,
-      "coord_source": "estimated"
+      "lat": 6.7910126,
+      "lon": 100.4525186,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khlong Tan",
@@ -3453,9 +3453,9 @@
       "line": "Eastern",
       "district": "Huai Khwang",
       "province": "Bangkok",
-      "lat": 13.7361,
-      "lon": 100.5689,
-      "coord_source": "estimated"
+      "lat": 13.744339,
+      "lon": 100.5895169,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khao Chum Thong Junction",
@@ -3466,9 +3466,9 @@
       "district": "Ron Phibun",
       "province": "Nakhon Si Thammarat",
       "notes": "Junction for Southern Main and Nakhon Si Thammarat Branch",
-      "lat": 8.0667,
-      "lon": 100.075,
-      "coord_source": "estimated"
+      "lat": 8.1478375,
+      "lon": 99.8822058,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Krasang",
@@ -3478,9 +3478,9 @@
       "line": "Northeastern",
       "district": "Krasang",
       "province": "Buriram",
-      "lat": 14.9742,
-      "lon": 103.0444,
-      "coord_source": "estimated"
+      "lat": 14.9269209,
+      "lon": 103.3026903,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Kumphawapi",
@@ -3490,9 +3490,9 @@
       "line": "Northeastern",
       "district": "Kumphawapi",
       "province": "Udon Thani",
-      "lat": 17.1097,
-      "lon": 102.8756,
-      "coord_source": "estimated"
+      "lat": 17.1220424,
+      "lon": 102.9481029,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Laem Chabang",
@@ -3503,9 +3503,9 @@
       "district": "Si Racha",
       "province": "Chonburi",
       "notes": "Freight use only",
-      "lat": 13.0853,
-      "lon": 100.8917,
-      "coord_source": "estimated"
+      "lat": 13.0990761,
+      "lon": 100.8983441,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Lam Narai",
@@ -3515,9 +3515,9 @@
       "line": "Northeastern",
       "district": "Chai Badan",
       "province": "Lopburi",
-      "lat": 15.3553,
-      "lon": 101.1922,
-      "coord_source": "estimated"
+      "lat": 15.2200983,
+      "lon": 101.1395215,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Lam Plai Mat",
@@ -3527,9 +3527,9 @@
       "line": "Northeastern",
       "district": "Lam Plai Mat",
       "province": "Buriram",
-      "lat": 14.9147,
-      "lon": 102.7908,
-      "coord_source": "estimated"
+      "lat": 15.02451,
+      "lon": 102.8297065,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Lamae",
@@ -3539,9 +3539,9 @@
       "line": "Southern",
       "district": "Lamae",
       "province": "Chumphon",
-      "lat": 10.3611,
-      "lon": 99.1361,
-      "coord_source": "estimated"
+      "lat": 9.7747142,
+      "lon": 99.107713,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Lang Suan",
@@ -3551,9 +3551,9 @@
       "line": "Southern",
       "district": "Lang Suan",
       "province": "Chumphon",
-      "lat": 9.9528,
-      "lon": 99.08,
-      "coord_source": "estimated"
+      "lat": 9.9492883,
+      "lon": 99.0764176,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Lat Krabang",
@@ -3563,9 +3563,9 @@
       "line": "Eastern",
       "district": "Lat Krabang",
       "province": "Bangkok",
-      "lat": 13.7264,
-      "lon": 100.7453,
-      "coord_source": "estimated"
+      "lat": 13.7274829,
+      "lon": 100.7485565,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Luk Kae",
@@ -3575,9 +3575,9 @@
       "line": "Southern",
       "district": "Tha Maka",
       "province": "Kanchanaburi",
-      "lat": 13.9444,
-      "lon": 99.6481,
-      "coord_source": "estimated"
+      "lat": 13.8705578,
+      "lon": 99.8220991,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Makkasan",
@@ -3587,9 +3587,9 @@
       "line": "Eastern",
       "district": "Ratchathewi",
       "province": "Bangkok",
-      "lat": 13.7519,
-      "lon": 100.5592,
-      "coord_source": "estimated"
+      "lat": 13.753883,
+      "lon": 100.547371,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Map Kabao",
@@ -3599,9 +3599,9 @@
       "line": "Northeastern",
       "district": "Kaeng Khoi",
       "province": "Saraburi",
-      "lat": 14.6647,
-      "lon": 101.1006,
-      "coord_source": "estimated"
+      "lat": 14.618946,
+      "lon": 101.0836873,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Muak Lek",
@@ -3611,9 +3611,9 @@
       "line": "Northeastern",
       "district": "Muak Lek",
       "province": "Saraburi",
-      "lat": 14.6822,
-      "lon": 101.1422,
-      "coord_source": "estimated"
+      "lat": 14.6512518,
+      "lon": 101.1994149,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Mueang Khong",
@@ -3623,9 +3623,9 @@
       "line": "Northeastern",
       "district": "Khong",
       "province": "Nakhon Ratchasima",
-      "lat": 15.3403,
-      "lon": 102.2322,
-      "coord_source": "estimated"
+      "lat": 15.4450843,
+      "lon": 102.331268,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Mueang Phon",
@@ -3635,9 +3635,9 @@
       "line": "Northeastern",
       "district": "Phon",
       "province": "Khon Kaen",
-      "lat": 15.7222,
-      "lon": 102.5619,
-      "coord_source": "estimated"
+      "lat": 15.8196911,
+      "lon": 102.6005043,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Na San",
@@ -3647,9 +3647,9 @@
       "line": "Southern",
       "district": "Ban Na San",
       "province": "Surat Thani",
-      "lat": 8.9208,
-      "lon": 99.26,
-      "coord_source": "estimated"
+      "lat": 8.8012577,
+      "lon": 99.3622274,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Nam Phong",
@@ -3659,9 +3659,9 @@
       "line": "Northeastern",
       "district": "Nam Phong",
       "province": "Khon Kaen",
-      "lat": 16.6372,
-      "lon": 102.8164,
-      "coord_source": "estimated"
+      "lat": 16.7093642,
+      "lon": 102.8612221,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Non Sung",
@@ -3671,9 +3671,9 @@
       "line": "Northeastern",
       "district": "Non Sung",
       "province": "Nakhon Ratchasima",
-      "lat": 15.1733,
-      "lon": 102.2428,
-      "coord_source": "estimated"
+      "lat": 15.1768901,
+      "lon": 102.2481227,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pathio",
@@ -3683,9 +3683,9 @@
       "line": "Southern",
       "district": "Pathio",
       "province": "Chumphon",
-      "lat": 10.7,
-      "lon": 99.2331,
-      "coord_source": "estimated"
+      "lat": 10.7111859,
+      "lon": 99.3162929,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Phichai",
@@ -3695,9 +3695,9 @@
       "line": "Northern",
       "district": "Phichai",
       "province": "Uttaradit",
-      "lat": 17.3667,
-      "lon": 100.1728,
-      "coord_source": "estimated"
+      "lat": 17.2890332,
+      "lon": 100.0882507,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Phichit",
@@ -3708,9 +3708,9 @@
       "district": "Mueang",
       "province": "Phichit",
       "notes": "Main station for Phichit Province",
-      "lat": 16.4375,
-      "lon": 100.3489,
-      "coord_source": "estimated"
+      "lat": 16.4478097,
+      "lon": 100.3466037,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Photharam",
@@ -3720,9 +3720,9 @@
       "line": "Southern",
       "district": "Photharam",
       "province": "Ratchaburi",
-      "lat": 13.68,
-      "lon": 99.8244,
-      "coord_source": "estimated"
+      "lat": 13.6936859,
+      "lon": 99.8507326,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pran Buri",
@@ -3732,9 +3732,9 @@
       "line": "Southern",
       "district": "Pran Buri",
       "province": "Prachuap Khiri Khan",
-      "lat": 12.3811,
-      "lon": 99.9056,
-      "coord_source": "estimated"
+      "lat": 12.3764448,
+      "lon": 99.9261691,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Rangsit",
@@ -3744,9 +3744,9 @@
       "line": "Northern, Northeastern",
       "district": "Thanyaburi",
       "province": "Pathum Thani",
-      "lat": 13.9653,
-      "lon": 100.5966,
-      "coord_source": "estimated"
+      "lat": 13.990554,
+      "lon": 100.6023001,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ron Phibun",
@@ -3756,9 +3756,9 @@
       "line": "Southern",
       "district": "Ron Phibun",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.1947,
-      "lon": 100.0633,
-      "coord_source": "estimated"
+      "lat": 8.1541306,
+      "lon": 99.8407292,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Salaya",
@@ -3768,9 +3768,9 @@
       "line": "Southern",
       "district": "Phutthamonthon",
       "province": "Nakhon Pathom",
-      "lat": 13.7969,
-      "lon": 100.3197,
-      "coord_source": "estimated"
+      "lat": 13.8024806,
+      "lon": 100.3243619,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sam Sen",
@@ -3780,9 +3780,9 @@
       "line": "Northern, Northeastern, Southern",
       "district": "Dusit",
       "province": "Bangkok",
-      "lat": 13.7828,
-      "lon": 100.5172,
-      "coord_source": "estimated"
+      "lat": 13.7794403,
+      "lon": 100.529954,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Samran",
@@ -3792,9 +3792,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Khon Kaen",
-      "lat": 16.4158,
-      "lon": 102.8422,
-      "coord_source": "estimated"
+      "lat": 16.517094,
+      "lon": 102.8430467,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sawankhalok",
@@ -3805,9 +3805,9 @@
       "district": "Sawankhalok",
       "province": "Sukhothai",
       "notes": "Main station for Sukhothai Province",
-      "lat": 17.3017,
-      "lon": 99.8308,
-      "coord_source": "estimated"
+      "lat": 17.3146749,
+      "lon": 99.8323192,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sawi",
@@ -3817,9 +3817,9 @@
       "line": "Southern",
       "district": "Sawi",
       "province": "Chumphon",
-      "lat": 10.2794,
-      "lon": 99.0856,
-      "coord_source": "estimated"
+      "lat": 10.2363261,
+      "lon": 99.1048493,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Si Racha Junction",
@@ -3830,9 +3830,9 @@
       "district": "Si Racha",
       "province": "Chonburi",
       "notes": "Junction",
-      "lat": 13.1558,
-      "lon": 100.9231,
-      "coord_source": "estimated"
+      "lat": 13.1561998,
+      "lon": 100.9459405,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sikhio",
@@ -3842,9 +3842,9 @@
       "line": "Northeastern",
       "district": "Sikhio",
       "province": "Nakhon Ratchasima",
-      "lat": 14.8917,
-      "lon": 101.7106,
-      "coord_source": "estimated"
+      "lat": 14.8931154,
+      "lon": 101.7213478,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sikhoraphum",
@@ -3854,9 +3854,9 @@
       "line": "Northeastern",
       "district": "Sikhoraphum",
       "province": "Surin",
-      "lat": 14.8942,
-      "lon": 103.7711,
-      "coord_source": "estimated"
+      "lat": 14.9452046,
+      "lon": 103.7863978,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sila At",
@@ -3866,9 +3866,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Uttaradit",
-      "lat": 17.6258,
-      "lon": 100.0986,
-      "coord_source": "estimated"
+      "lat": 17.6392683,
+      "lon": 100.10104,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sung Noen",
@@ -3878,9 +3878,9 @@
       "line": "Northeastern",
       "district": "Sung Noen",
       "province": "Nakhon Ratchasima",
-      "lat": 14.8944,
-      "lon": 101.8183,
-      "coord_source": "estimated"
+      "lat": 14.8999202,
+      "lon": 101.8147138,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Su-ngai Padi",
@@ -3890,9 +3890,9 @@
       "line": "Southern",
       "district": "Su-ngai Padi",
       "province": "Narathiwat",
-      "lat": 6.1531,
-      "lon": 101.8531,
-      "coord_source": "estimated"
+      "lat": 6.0858661,
+      "lon": 101.8809445,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Tanyong Mat",
@@ -3903,9 +3903,9 @@
       "district": "Ra-ngae",
       "province": "Narathiwat",
       "notes": "Main station for Narathiwat Province",
-      "lat": 6.3953,
-      "lon": 101.6531,
-      "coord_source": "estimated"
+      "lat": 6.2924946,
+      "lon": 101.713793,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Taphan Hin",
@@ -3915,9 +3915,9 @@
       "line": "Northern",
       "district": "Taphan Hin",
       "province": "Phichit",
-      "lat": 16.2156,
-      "lon": 100.4119,
-      "coord_source": "estimated"
+      "lat": 16.2207012,
+      "lon": 100.424099,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Tha Ruea",
@@ -3927,9 +3927,9 @@
       "line": "Northern",
       "district": "Tha Ruea",
       "province": "Phra Nakhon Si Ayutthaya",
-      "lat": 14.3792,
-      "lon": 100.6083,
-      "coord_source": "estimated"
+      "lat": 14.5624355,
+      "lon": 100.7243967,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Thon Buri",
@@ -3939,9 +3939,9 @@
       "line": "Southern",
       "district": "Bangkok Noi",
       "province": "Bangkok",
-      "lat": 13.7525,
-      "lon": 100.4864,
-      "coord_source": "estimated"
+      "lat": 13.7605974,
+      "lon": 100.4787465,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Tron",
@@ -3951,9 +3951,9 @@
       "line": "Northern",
       "district": "Tron",
       "province": "Uttaradit",
-      "lat": 17.5792,
-      "lon": 100.1378,
-      "coord_source": "estimated"
+      "lat": 17.4833185,
+      "lon": 100.1093356,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Uthumphon Phisai",
@@ -3963,9 +3963,9 @@
       "line": "Northeastern",
       "district": "Uthumphon Phisai",
       "province": "Sisaket",
-      "lat": 15.1333,
-      "lon": 104.1431,
-      "coord_source": "estimated"
+      "lat": 15.1059962,
+      "lon": 104.1404286,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Wongwian Yai",
@@ -3975,9 +3975,9 @@
       "line": "Maeklong",
       "district": "Thon Buri",
       "province": "Bangkok",
-      "lat": 13.7219,
-      "lon": 100.4936,
-      "coord_source": "estimated"
+      "lat": 13.7243675,
+      "lon": 100.4912402,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Mahachai",
@@ -3987,9 +3987,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Sakhon",
-      "lat": 13.5472,
-      "lon": 100.2742,
-      "coord_source": "estimated"
+      "lat": 13.5462729,
+      "lon": 100.2766139,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Maeklong",
@@ -3999,9 +3999,9 @@
       "line": "Maeklong",
       "district": "Mueang",
       "province": "Samut Songkhram",
-      "lat": 13.4103,
-      "lon": 100.0017,
-      "coord_source": "estimated"
+      "lat": 13.4074854,
+      "lon": 99.9984292,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Prachantakham",
@@ -4011,9 +4011,9 @@
       "line": "Eastern",
       "district": "Prachantakham",
       "province": "Prachinburi",
-      "lat": 14.0669,
-      "lon": 101.5253,
-      "coord_source": "estimated"
+      "lat": 14.0631483,
+      "lon": 101.5186627,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Taling Chan Junction",
@@ -4024,9 +4024,9 @@
       "district": "Taling Chan",
       "province": "Bangkok",
       "notes": "Junction",
-      "lat": 13.7789,
-      "lon": 100.4375,
-      "coord_source": "estimated"
+      "lat": 13.7893537,
+      "lon": 100.440158,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Map Ammarit",
@@ -4036,9 +4036,9 @@
       "line": "Southern",
       "district": "Pathio",
       "province": "Chumphon",
-      "lat": 10.6719,
-      "lon": 99.2139,
-      "coord_source": "estimated"
+      "lat": 10.8693013,
+      "lon": 99.3425951,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Nakhon Chai Si",
@@ -4048,9 +4048,9 @@
       "line": "Southern",
       "district": "Nakhon Chai Si",
       "province": "Nakhon Pathom",
-      "lat": 13.7844,
-      "lon": 100.1833,
-      "coord_source": "estimated"
+      "lat": 13.8061763,
+      "lon": 100.176047,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Phrom Phiram",
@@ -4060,9 +4060,9 @@
       "line": "Northern",
       "district": "Phrom Phiram",
       "province": "Phitsanulok",
-      "lat": 17.0256,
-      "lon": 100.2361,
-      "coord_source": "estimated"
+      "lat": 17.0311693,
+      "lon": 100.2010978,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Raman",
@@ -4072,9 +4072,9 @@
       "line": "Southern",
       "district": "Raman",
       "province": "Yala",
-      "lat": 6.5472,
-      "lon": 101.3328,
-      "coord_source": "estimated"
+      "lat": 6.4769315,
+      "lon": 101.4318393,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khao Suan Kwang",
@@ -4084,9 +4084,9 @@
       "line": "Northeastern",
       "district": "Khao Suan Kwang",
       "province": "Khon Kaen",
-      "lat": 16.6294,
-      "lon": 102.7967,
-      "coord_source": "estimated"
+      "lat": 16.8500684,
+      "lon": 102.8765124,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khao Tao",
@@ -4096,9 +4096,9 @@
       "line": "Southern",
       "district": "Hua Hin",
       "province": "Prachuap Khiri Khan",
-      "lat": 12.4736,
-      "lon": 99.9461,
-      "coord_source": "estimated"
+      "lat": 12.4595676,
+      "lon": 99.9700404,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Kui Buri",
@@ -4108,9 +4108,9 @@
       "line": "Southern",
       "district": "Kui Buri",
       "province": "Prachuap Khiri Khan",
-      "lat": 12.0819,
-      "lon": 99.8556,
-      "coord_source": "estimated"
+      "lat": 12.0695533,
+      "lon": 99.8720733,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Saraphi",
@@ -4120,9 +4120,9 @@
       "line": "Northern",
       "district": "Saraphi",
       "province": "Chiang Mai",
-      "lat": 18.7542,
-      "lon": 99.0017,
-      "coord_source": "estimated"
+      "lat": 18.7101912,
+      "lon": 99.041803,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Samrong Thap",
@@ -4132,9 +4132,9 @@
       "line": "Northeastern",
       "district": "Samrong Thap",
       "province": "Surin",
-      "lat": 14.8967,
-      "lon": 103.6417,
-      "coord_source": "estimated"
+      "lat": 15.0209222,
+      "lon": 103.9405674,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Lam Chi",
@@ -4144,9 +4144,9 @@
       "line": "Northeastern",
       "district": "Mueang",
       "province": "Surin",
-      "lat": 14.8764,
-      "lon": 103.5325,
-      "coord_source": "estimated"
+      "lat": 14.8998501,
+      "lon": 103.4228262,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Thamen Chai",
@@ -4156,9 +4156,9 @@
       "line": "Northeastern",
       "district": "Lam Plai Mat",
       "province": "Buriram",
-      "lat": 14.955,
-      "lon": 102.675,
-      "coord_source": "estimated"
+      "lat": 15.0305257,
+      "lon": 102.9139059,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Mae Mo",
@@ -4168,9 +4168,9 @@
       "line": "Northern",
       "district": "Mae Mo",
       "province": "Lampang",
-      "lat": 18.3175,
-      "lon": 99.6592,
-      "coord_source": "estimated"
+      "lat": 18.2613977,
+      "lon": 99.7070391,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Mae Tha",
@@ -4180,9 +4180,9 @@
       "line": "Northern",
       "district": "Mae Tha",
       "province": "Lampang",
-      "lat": 18.3753,
-      "lon": 99.215,
-      "coord_source": "estimated"
+      "lat": 18.1999483,
+      "lon": 99.5566889,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khun Tan",
@@ -4192,9 +4192,9 @@
       "line": "Northern",
       "district": "Mae Tha",
       "province": "Lamphun",
-      "lat": 18.3622,
-      "lon": 99.2717,
-      "coord_source": "estimated"
+      "lat": 18.5005161,
+      "lon": 99.2653484,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pak Nam Pho",
@@ -4204,9 +4204,9 @@
       "line": "Northern",
       "district": "Mueang",
       "province": "Nakhon Sawan",
-      "lat": 15.7125,
-      "lon": 100.1456,
-      "coord_source": "estimated"
+      "lat": 15.7041661,
+      "lon": 100.1541562,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Thap Krit",
@@ -4216,9 +4216,9 @@
       "line": "Northern",
       "district": "Chum Saeng",
       "province": "Nakhon Sawan",
-      "lat": 15.5497,
-      "lon": 100.2586,
-      "coord_source": "estimated"
+      "lat": 15.7551421,
+      "lon": 100.2577093,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Non Sa-at",
@@ -4228,9 +4228,9 @@
       "line": "Northeastern",
       "district": "Non Sa-at",
       "province": "Udon Thani",
-      "lat": 17.2003,
-      "lon": 102.8711,
-      "coord_source": "estimated"
+      "lat": 16.9669984,
+      "lon": 102.8974029,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Nong Chok",
@@ -4240,9 +4240,9 @@
       "line": "Southern",
       "district": "Tha Yang",
       "province": "Phetchaburi",
-      "lat": 12.9631,
-      "lon": 99.9569,
-      "coord_source": "estimated"
+      "lat": 12.9533134,
+      "lon": 99.9665562,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Maruebo",
@@ -4252,9 +4252,9 @@
       "line": "Southern",
       "district": "Ra-ngae",
       "province": "Narathiwat",
-      "lat": 6.3519,
-      "lon": 101.6725,
-      "coord_source": "estimated"
+      "lat": 6.3348201,
+      "lon": 101.6386887,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Rueso",
@@ -4264,9 +4264,9 @@
       "line": "Southern",
       "district": "Rueso",
       "province": "Narathiwat",
-      "lat": 6.2981,
-      "lon": 101.7408,
-      "coord_source": "estimated"
+      "lat": 6.3939883,
+      "lon": 101.5153695,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Phan Thong",
@@ -4276,9 +4276,9 @@
       "line": "Eastern",
       "district": "Phan Thong",
       "province": "Chonburi",
-      "lat": 13.4378,
-      "lon": 101.0889,
-      "coord_source": "estimated"
+      "lat": 13.462977,
+      "lon": 101.0811134,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Tha Chana",
@@ -4288,9 +4288,9 @@
       "line": "Southern",
       "district": "Tha Chana",
       "province": "Surat Thani",
-      "lat": 9.5467,
-      "lon": 99.1319,
-      "coord_source": "estimated"
+      "lat": 9.5656451,
+      "lon": 99.1650513,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Tha Chang",
@@ -4300,9 +4300,9 @@
       "line": "Southern",
       "district": "Tha Chang",
       "province": "Surat Thani",
-      "lat": 9.3186,
-      "lon": 99.1708,
-      "coord_source": "estimated"
+      "lat": 9.2753412,
+      "lon": 99.1994232,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Thepha",
@@ -4312,9 +4312,9 @@
       "line": "Southern",
       "district": "Thepha",
       "province": "Songkhla",
-      "lat": 6.8228,
-      "lon": 100.9392,
-      "coord_source": "estimated"
+      "lat": 6.8238492,
+      "lon": 100.970371,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Ko Saba",
@@ -4324,9 +4324,9 @@
       "line": "Southern",
       "district": "Thepha",
       "province": "Songkhla",
-      "lat": 6.8419,
-      "lon": 100.8583,
-      "coord_source": "estimated"
+      "lat": 6.8641192,
+      "lon": 100.8789057,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khuan Niang",
@@ -4336,9 +4336,9 @@
       "line": "Southern",
       "district": "Khuan Niang",
       "province": "Songkhla",
-      "lat": 6.8625,
-      "lon": 100.5181,
-      "coord_source": "estimated"
+      "lat": 7.192323,
+      "lon": 100.3503621,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Na Muang",
@@ -4348,9 +4348,9 @@
       "line": "Southern",
       "district": "Na Mom",
       "province": "Songkhla",
-      "lat": 6.9436,
-      "lon": 100.49,
-      "coord_source": "estimated"
+      "lat": 6.9655539,
+      "lon": 100.5551915,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Khao Chaison",
@@ -4360,9 +4360,9 @@
       "line": "Southern",
       "district": "Khao Chaison",
       "province": "Phatthalung",
-      "lat": 7.4833,
-      "lon": 100.1733,
-      "coord_source": "estimated"
+      "lat": 7.4598356,
+      "lon": 100.1403981,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pak Khlong",
@@ -4372,9 +4372,9 @@
       "line": "Southern",
       "district": "Khuan Khanun",
       "province": "Phatthalung",
-      "lat": 7.55,
-      "lon": 100.0719,
-      "coord_source": "estimated"
+      "lat": 7.7371105,
+      "lon": 100.0769296,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pak Tho",
@@ -4384,9 +4384,9 @@
       "line": "Southern",
       "district": "Pak Tho",
       "province": "Ratchaburi",
-      "lat": 13.4236,
-      "lon": 99.8364,
-      "coord_source": "estimated"
+      "lat": 13.3743276,
+      "lon": 99.8436145,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Nong Saeng",
@@ -4396,9 +4396,9 @@
       "line": "Northeastern",
       "district": "Nong Saeng",
       "province": "Saraburi",
-      "lat": 14.6069,
-      "lon": 100.8547,
-      "coord_source": "estimated"
+      "lat": 14.4907749,
+      "lon": 100.784439,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Nong Don",
@@ -4408,9 +4408,9 @@
       "line": "Northern",
       "district": "Nong Don",
       "province": "Saraburi",
-      "lat": 14.6644,
-      "lon": 100.8106,
-      "coord_source": "estimated"
+      "lat": 14.6834114,
+      "lon": 100.7062069,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Sam Roi Yot",
@@ -4420,9 +4420,9 @@
       "line": "Southern",
       "district": "Sam Roi Yot",
       "province": "Prachuap Khiri Khan",
-      "lat": 12.2408,
-      "lon": 99.8922,
-      "coord_source": "estimated"
+      "lat": 12.2126233,
+      "lon": 99.8807861,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Thap Sakae",
@@ -4432,9 +4432,9 @@
       "line": "Southern",
       "district": "Thap Sakae",
       "province": "Prachuap Khiri Khan",
-      "lat": 11.5017,
-      "lon": 99.6583,
-      "coord_source": "estimated"
+      "lat": 11.4990935,
+      "lon": 99.623055,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Na Pradu",
@@ -4444,9 +4444,9 @@
       "line": "Southern",
       "district": "Khok Pho",
       "province": "Pattani",
-      "lat": 6.8531,
-      "lon": 101.1342,
-      "coord_source": "estimated"
+      "lat": 6.6829223,
+      "lon": 101.1432562,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Pak Tako",
@@ -4456,9 +4456,9 @@
       "line": "Southern",
       "district": "Thung Tako",
       "province": "Chumphon",
-      "lat": 10.5328,
-      "lon": 99.15,
-      "coord_source": "estimated"
+      "lat": 10.0919069,
+      "lon": 99.1023848,
+      "coord_source": "osm_th_raw"
     },
     {
       "name_en": "Na Bon",
@@ -4468,13 +4468,2840 @@
       "line": "Southern",
       "district": "Na Bon",
       "province": "Nakhon Si Thammarat",
-      "lat": 8.2222,
-      "lon": 99.8097,
-      "coord_source": "estimated"
+      "lat": 8.2658818,
+      "lon": 99.5960322,
+      "coord_source": "osm_th_raw"
+    },
+    {
+      "name_en": "Nong Suea",
+      "name_th": "หนองแสง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.0521964,
+      "lon": 101.5704863,
+      "coord_source": "osm_fuzzy_en_0.84",
+      "schedule_name": "Ban Nong Sua"
+    },
+    {
+      "name_en": "Huai Dua",
+      "name_th": "ห้วยเดื่อ",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7129193,
+      "lon": 102.4223798,
+      "coord_source": "osm_fuzzy_en_0.94",
+      "schedule_name": "Huai Dua"
+    },
+    {
+      "name_en": "Huai Khwang",
+      "name_th": "ห้วยขวาง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.7786878,
+      "lon": 100.5735662,
+      "coord_source": "osm_en",
+      "schedule_name": "Huai Khwang"
+    },
+    {
+      "name_en": "Huai Rahat",
+      "name_th": "ห้วยระหัด",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.5627436,
+      "lon": 102.4114143,
+      "coord_source": "osm_en",
+      "schedule_name": "Huai Rahat"
+    },
+    {
+      "name_en": "Huai Rai",
+      "name_th": "ห้วยไร่",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 17.8860118,
+      "lon": 100.0404497,
+      "coord_source": "osm_en",
+      "schedule_name": "Huai Rai"
+    },
+    {
+      "name_en": "Huai Rong",
+      "name_th": "ห้วยเกิ้ง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 17.0422322,
+      "lon": 102.9279692,
+      "coord_source": "osm_fuzzy_en_0.84",
+      "schedule_name": "Huai Rong"
+    },
+    {
+      "name_en": "Huai Sai Nua",
+      "name_th": "ห้วยทรายเหนือ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.703564,
+      "lon": 99.9502306,
+      "coord_source": "osm_fuzzy_en_0.96",
+      "schedule_name": "Huai Sai Nua"
+    },
+    {
+      "name_en": "Huai Sai Tai",
+      "name_th": "ห้วยทรายใต้",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.6677576,
+      "lon": 99.9487461,
+      "coord_source": "osm_en",
+      "schedule_name": "Huai Sai Tai"
+    },
+    {
+      "name_en": "Huai Yai Chiu",
+      "name_th": "ห้วยยายจิ๋ว",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.4245651,
+      "lon": 101.531124,
+      "coord_source": "osm_fuzzy_en_0.92",
+      "schedule_name": "Huai Yai Chiu"
+    },
+    {
+      "name_en": "Kabin Kao",
+      "name_th": "กบินทร์เก่า",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.9968406,
+      "lon": 101.7611728,
+      "coord_source": "osm_en",
+      "schedule_name": "Kabin Kao"
+    },
+    {
+      "name_en": "Kadae",
+      "name_th": "กะแด๊ะ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.3125881,
+      "lon": 101.6715966,
+      "coord_source": "osm_en",
+      "schedule_name": "Kadae"
+    },
+    {
+      "name_en": "Kadon Kho",
+      "name_th": "กะโดนค้อ",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.9219156,
+      "lon": 103.7269244,
+      "coord_source": "osm_en",
+      "schedule_name": "Kadon Kho"
+    },
+    {
+      "name_en": "Kaeng Suea Ten",
+      "name_th": "แก่งเสือเต้น",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8423132,
+      "lon": 101.0638116,
+      "coord_source": "osm_en",
+      "schedule_name": "Kaeng Sue Ten"
+    },
+    {
+      "name_en": "Khao Chi Chan Junction",
+      "name_th": "ชุมทางเขาชีจรรย์",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 12.7336884,
+      "lon": 100.9545837,
+      "coord_source": "osm_en",
+      "schedule_name": "Kao Chi Chan Junction"
+    },
+    {
+      "name_en": "Kapang",
+      "name_th": "กะปาง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.004444,
+      "lon": 99.642111,
+      "coord_source": "osm_en",
+      "schedule_name": "Kapang"
+    },
+    {
+      "name_en": "Kham Kling",
+      "name_th": "คำกลิ้ง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 17.3506559,
+      "lon": 102.8315646,
+      "coord_source": "osm_en",
+      "schedule_name": "Kham Kling"
+    },
+    {
+      "name_en": "Khan Kradai",
+      "name_th": "คั่นกระได",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.8712363,
+      "lon": 99.811052,
+      "coord_source": "osm_en",
+      "schedule_name": "Khan Kradai"
+    },
+    {
+      "name_en": "Khanthuli",
+      "name_th": "คันธุลี",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 9.6666081,
+      "lon": 99.1459021,
+      "coord_source": "osm_fuzzy_en_0.89",
+      "schedule_name": "Khan Thuli"
+    },
+    {
+      "name_en": "Khao Chai Rat",
+      "name_th": "เขาไชยราช",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.9582864,
+      "lon": 99.3643169,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Chaiyarat"
+    },
+    {
+      "name_en": "Khao Hin Dat",
+      "name_th": "เขาหินดาด",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.7155333,
+      "lon": 101.0089976,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Hin Dat"
+    },
+    {
+      "name_en": "Khao Hua Khwai",
+      "name_th": "เขาหัวควาย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 9.0559089,
+      "lon": 99.2560012,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Hua Khwai"
+    },
+    {
+      "name_en": "Khao Khok",
+      "name_th": "เขาคอก",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.6629167,
+      "lon": 101.0170703,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Khok"
+    },
+    {
+      "name_en": "Khao Lung",
+      "name_th": "เขาหลุง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 9.0457179,
+      "lon": 98.9982727,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Lung"
+    },
+    {
+      "name_en": "Khao Phanom Baek",
+      "name_th": "เขาพนมแบก",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 9.4706842,
+      "lon": 99.1793408,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Phanom Baek"
+    },
+    {
+      "name_en": "Khao Phlu",
+      "name_th": "เขาพลู",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.973437,
+      "lon": 99.2939772,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Phlu"
+    },
+    {
+      "name_en": "Khao Phrabat",
+      "name_th": "เขาพระบาท",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.2024409,
+      "lon": 100.9416248,
+      "coord_source": "osm_fuzzy_en_0.96",
+      "schedule_name": "Khao Phrabat"
+    },
+    {
+      "name_en": "Khao Pip",
+      "name_th": "เขาปีบ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.1351599,
+      "lon": 99.1040921,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Pip"
+    },
+    {
+      "name_en": "Khao Pun",
+      "name_th": "เขาปูน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.002982,
+      "lon": 99.5087909,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Pun"
+    },
+    {
+      "name_en": "Khao Suan Thurian",
+      "name_th": "เขาสวนทุเรียน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.1668222,
+      "lon": 99.1057626,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Suan Thurian"
+    },
+    {
+      "name_en": "Khao Sung",
+      "name_th": "เขาสูง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.7800392,
+      "lon": 101.0544809,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Sung"
+    },
+    {
+      "name_en": "Khao Thamon",
+      "name_th": "เขาทโมน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.039481,
+      "lon": 99.9597392,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Thamon"
+    },
+    {
+      "name_en": "Khao Yai Ka Ta",
+      "name_th": "เขายายกะตา",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.1737744,
+      "lon": 101.0689048,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Yai Ka Ta"
+    },
+    {
+      "name_en": "Khao Yoi",
+      "name_th": "เขาย้อย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.2395059,
+      "lon": 99.8610098,
+      "coord_source": "osm_en",
+      "schedule_name": "Khao Yoi"
+    },
+    {
+      "name_en": "Khlong Bang Phra",
+      "name_th": "คลองบางพระ",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7041552,
+      "lon": 100.9913951,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Bang Phra"
+    },
+    {
+      "name_en": "Khlong Bang Tan",
+      "name_th": "คลองบางตาล",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8212395,
+      "lon": 99.958662,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Bang Tan"
+    },
+    {
+      "name_en": "Khlong Chang",
+      "name_th": "คลองจัง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.2408432,
+      "lon": 99.621705,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Chang"
+    },
+    {
+      "name_en": "Khlong Khanan",
+      "name_th": "คลองขนาน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 9.8807626,
+      "lon": 99.0742678,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Khanan"
+    },
+    {
+      "name_en": "Khlong Khanan Chit",
+      "name_th": "คลองขนานจิตร",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8425312,
+      "lon": 101.5443176,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Khanan Chit"
+    },
+    {
+      "name_en": "Khlong Khut",
+      "name_th": "คลองขุด",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 9.2469629,
+      "lon": 99.1869023,
+      "coord_source": "osm_fuzzy_en_0.95",
+      "schedule_name": "Khlong Khut"
+    },
+    {
+      "name_en": "Khlong Kui",
+      "name_th": "คลองกุย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.2943774,
+      "lon": 99.5726232,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Kui"
+    },
+    {
+      "name_en": "Khlong Kwaeng Klan",
+      "name_th": "คลองแขวงกลั่น",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7072634,
+      "lon": 100.9666525,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Kwaeng Klan"
+    },
+    {
+      "name_en": "Khlong Luang Phaeng",
+      "name_th": "คลองหลวงแพ่ง",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7200739,
+      "lon": 100.8630607,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Luang Phaeng"
+    },
+    {
+      "name_en": "Khlong Maha Sawat",
+      "name_th": "คลองมหาสวัสดิ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8088548,
+      "lon": 100.2507309,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Maha Sawat"
+    },
+    {
+      "name_en": "Khlong Phai",
+      "name_th": "คลองไผ่",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8742742,
+      "lon": 101.5710511,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Phai"
+    },
+    {
+      "name_en": "Khlong Prap",
+      "name_th": "คลองปราบ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.7455991,
+      "lon": 99.3575691,
+      "coord_source": "osm_fuzzy_en_0.95",
+      "schedule_name": "Khlong Prap"
+    },
+    {
+      "name_en": "Khlong Sai",
+      "name_th": "คลองทราย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.6445041,
+      "lon": 101.2184587,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Sai"
+    },
+    {
+      "name_en": "Khlong Sip Kao Junction",
+      "name_th": "ชุมทางคลองสิบเก้า",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.9072169,
+      "lon": 101.1138463,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Sip Kao Junction"
+    },
+    {
+      "name_en": "Khlong Sun",
+      "name_th": "คลองสูญ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.6752867,
+      "lon": 99.3555534,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Sun"
+    },
+    {
+      "name_en": "Khlong Ta Khot",
+      "name_th": "คลองตาคด",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.7344531,
+      "lon": 99.8499673,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Ta Khot"
+    },
+    {
+      "name_en": "Khlong Udom Chonlajorn",
+      "name_th": "คลองอุดมชลจร",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.715861,
+      "lon": 100.8969339,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Udom Chonlajorn"
+    },
+    {
+      "name_en": "Khlong Wang Chang",
+      "name_th": "คลองวังช้าง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.7524393,
+      "lon": 99.3346742,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Wang Chang"
+    },
+    {
+      "name_en": "Khlong Ya",
+      "name_th": "คลองยา",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.9262458,
+      "lon": 99.3012301,
+      "coord_source": "osm_en",
+      "schedule_name": "Khlong Ya"
+    },
+    {
+      "name_en": "Khlong Yan",
+      "name_th": "คลองยา",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.9262458,
+      "lon": 99.3012301,
+      "coord_source": "osm_fuzzy_en_0.95",
+      "schedule_name": "Khlong Yan"
+    },
+    {
+      "name_en": "Khlong Yi Sip Et",
+      "name_th": "คลองยี่สิบเอ็ด",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.9386245,
+      "lon": 101.1271106,
+      "coord_source": "osm_fuzzy_en_0.90",
+      "schedule_name": "Khlong Yi Sip Et"
+    },
+    {
+      "name_en": "Khok Klhi",
+      "name_th": "โคกคลี",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.2745824,
+      "lon": 101.3691956,
+      "coord_source": "osm_sched",
+      "schedule_name": "Khok Khli"
+    },
+    {
+      "name_en": "Khok Khram",
+      "name_th": "โคกคราม",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.2505904,
+      "lon": 99.9427088,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Khram"
+    },
+    {
+      "name_en": "Khok Kruat",
+      "name_th": "โคกกรวด",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.9311964,
+      "lon": 101.9588749,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Kruat"
+    },
+    {
+      "name_en": "Khok Makok",
+      "name_th": "โคกมะกอก",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 14.0649298,
+      "lon": 101.4579158,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Makok"
+    },
+    {
+      "name_en": "Khok Sa-at",
+      "name_th": "โคกสะอาด",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8973861,
+      "lon": 101.7695422,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Sa-at"
+    },
+    {
+      "name_en": "Khok Saya",
+      "name_th": "โคกสยา",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.0338252,
+      "lon": 101.9163307,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Sahya"
+    },
+    {
+      "name_en": "Khok Sai",
+      "name_th": "โคกทราย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 7.2379031,
+      "lon": 100.3115482,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Sai"
+    },
+    {
+      "name_en": "Khok Salung",
+      "name_th": "โคกสลุง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.987146,
+      "lon": 101.0230995,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Salung"
+    },
+    {
+      "name_en": "Khok Ta Hom",
+      "name_th": "โคกตาหอม",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.4060802,
+      "lon": 99.5944197,
+      "coord_source": "osm_en",
+      "schedule_name": "Khok Ta Hom"
+    },
+    {
+      "name_en": "Khuan Hin Mui",
+      "name_th": "ควนหินมุ้ย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.0098378,
+      "lon": 99.0912635,
+      "coord_source": "osm_en",
+      "schedule_name": "Khuan Hin Mui"
+    },
+    {
+      "name_en": "Khuan Khiam",
+      "name_th": "ควนเคี่ยม",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 7.34724,
+      "lon": 100.2309929,
+      "coord_source": "osm_en",
+      "schedule_name": "Khuan Khiam"
+    },
+    {
+      "name_en": "Khuan Nong Khwa",
+      "name_th": "ควนหนองคว้า",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.1043111,
+      "lon": 99.9369431,
+      "coord_source": "osm_en",
+      "schedule_name": "Khuan Nong Khwa"
+    },
+    {
+      "name_en": "Khuan Phra",
+      "name_th": "ควนพระ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 7.3757216,
+      "lon": 100.2012519,
+      "coord_source": "osm_en",
+      "schedule_name": "Khuan Phra"
+    },
+    {
+      "name_en": "Klang Dong",
+      "name_th": "กลางดง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.6479174,
+      "lon": 101.25232,
+      "coord_source": "osm_en",
+      "schedule_name": "Klang Dong"
+    },
+    {
+      "name_en": "Ko Maha Mongkol",
+      "name_th": "เกาะมหามงคล",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.1553179,
+      "lon": 99.1069168,
+      "coord_source": "osm_fuzzy_en_0.90",
+      "schedule_name": "Ko Maha Mongkol"
+    },
+    {
+      "name_en": "Krabiat",
+      "name_th": "กระเบียด",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.5251812,
+      "lon": 99.4733724,
+      "coord_source": "osm_en",
+      "schedule_name": "Krabiat"
+    },
+    {
+      "name_en": "Kut Chik",
+      "name_th": "กุดจิก",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.905555,
+      "lon": 101.8822018,
+      "coord_source": "osm_en",
+      "schedule_name": "Kut Chik"
+    },
+    {
+      "name_en": "Laem Tanot",
+      "name_th": "แหลมโตนด",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 7.8133254,
+      "lon": 100.0473333,
+      "coord_source": "osm_en",
+      "schedule_name": "Laem Tanot"
+    },
+    {
+      "name_en": "Lak Chang",
+      "name_th": "หลักช้าง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.322138,
+      "lon": 99.5476544,
+      "coord_source": "osm_en",
+      "schedule_name": "Lak Chang"
+    },
+    {
+      "name_en": "Lalo",
+      "name_th": "ลาโละ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.3553992,
+      "lon": 101.5792567,
+      "coord_source": "osm_en",
+      "schedule_name": "Lalo"
+    },
+    {
+      "name_en": "Lat Bua Khao",
+      "name_th": "ลาดบัวขาว",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8613312,
+      "lon": 101.5961409,
+      "coord_source": "osm_en",
+      "schedule_name": "Lat Bua Khao"
+    },
+    {
+      "name_en": "Lumsum",
+      "name_th": "ลุ่มสุ่ม",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.0927304,
+      "lon": 99.1818224,
+      "coord_source": "osm_fuzzy_en_0.92",
+      "schedule_name": "Lumsum"
+    },
+    {
+      "name_en": "Mai Kaen",
+      "name_th": "ไม้แก่น",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.5116868,
+      "lon": 101.3683484,
+      "coord_source": "osm_en",
+      "schedule_name": "Mai Kaen"
+    },
+    {
+      "name_en": "Maluan",
+      "name_th": "มะลวน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 9.1653957,
+      "lon": 99.158984,
+      "coord_source": "osm_en",
+      "schedule_name": "Maluan"
+    },
+    {
+      "name_en": "Mamuang Song Ton",
+      "name_th": "มะม่วงสองต้น",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.3956273,
+      "lon": 99.9458698,
+      "coord_source": "osm_en",
+      "schedule_name": "Mamuang Song Ton"
+    },
+    {
+      "name_en": "Map Phra Chan",
+      "name_th": "มาบพระจันทร์",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 14.4022844,
+      "lon": 100.6320805,
+      "coord_source": "osm_en",
+      "schedule_name": "Map Phra Chan"
+    },
+    {
+      "name_en": "Mueang Thi",
+      "name_th": "เมืองที",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8937362,
+      "lon": 103.6550328,
+      "coord_source": "osm_en",
+      "schedule_name": "Muang Thi"
+    },
+    {
+      "name_en": "Na Cha-ang",
+      "name_th": "นาชะอัง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.5360126,
+      "lon": 99.206769,
+      "coord_source": "osm_en",
+      "schedule_name": "Na Cha-ang"
+    },
+    {
+      "name_en": "Na Kann",
+      "name_th": "นากาญจน์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.9334539,
+      "lon": 99.4477333,
+      "coord_source": "osm_sched",
+      "schedule_name": "Na Kan"
+    },
+    {
+      "name_en": "Na Phak Khuang",
+      "name_th": "นาผักขวง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.2588976,
+      "lon": 99.5310888,
+      "coord_source": "osm_en",
+      "schedule_name": "Na Phak Khuang"
+    },
+    {
+      "name_en": "Na Phu",
+      "name_th": "นาพู่",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 17.6198536,
+      "lon": 102.7727517,
+      "coord_source": "osm_en",
+      "schedule_name": "Na Phu"
+    },
+    {
+      "name_en": "Na Prue",
+      "name_th": "นาปรือ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 7.594,
+      "lon": 100.0932,
+      "coord_source": "unverified",
+      "schedule_name": "Na Pru"
+    },
+    {
+      "name_en": "Na Tha",
+      "name_th": "นาทา",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 17.8418383,
+      "lon": 102.7481592,
+      "coord_source": "osm_en",
+      "schedule_name": "Na Tha"
+    },
+    {
+      "name_en": "Nakhon Chum",
+      "name_th": "นครชุมน์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.7659756,
+      "lon": 99.8554475,
+      "coord_source": "osm_en",
+      "schedule_name": "Nakhon Chum"
+    },
+    {
+      "name_en": "Noen Sawat",
+      "name_th": "โนนสะอาด",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 16.9669984,
+      "lon": 102.8974029,
+      "coord_source": "osm_fuzzy_en_0.84",
+      "schedule_name": "Noen Sawat"
+    },
+    {
+      "name_en": "Noen Thua Paep",
+      "name_th": "เนินถั่วแปบ",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.309434,
+      "lon": 102.2983136,
+      "coord_source": "osm_en",
+      "schedule_name": "Noen Thua Paep"
+    },
+    {
+      "name_en": "Non Khro",
+      "name_th": "โนนคร้อ",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.52269,
+      "lon": 101.7720646,
+      "coord_source": "osm_en",
+      "schedule_name": "Non Khro"
+    },
+    {
+      "name_en": "Non Phayom",
+      "name_th": "โนนพยอม",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 16.6432565,
+      "lon": 102.8186144,
+      "coord_source": "osm_en",
+      "schedule_name": "Non Phayom"
+    },
+    {
+      "name_en": "Non Thong Lang",
+      "name_th": "โนนทองหลาง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.512801,
+      "lon": 102.3757797,
+      "coord_source": "osm_fuzzy_en_0.96",
+      "schedule_name": "Non Thong Lang"
+    },
+    {
+      "name_en": "Nong Bua Junction",
+      "name_th": "ชุมทางหนองบัว",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.5557708,
+      "lon": 100.9627994,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Bua Junction"
+    },
+    {
+      "name_en": "Nong Bua Lai",
+      "name_th": "หนองบัวลาย",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.6683098,
+      "lon": 102.4966394,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Bua Lai"
+    },
+    {
+      "name_en": "Nong Chim",
+      "name_th": "หนองฉิม",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.5717096,
+      "lon": 101.9527497,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Chim"
+    },
+    {
+      "name_en": "Nong Hin",
+      "name_th": "หนองหิน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.7421762,
+      "lon": 99.7675179,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Hin"
+    },
+    {
+      "name_en": "Nong Jik",
+      "name_th": "หนองจิก",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 7.9265993,
+      "lon": 100.0064179,
+      "coord_source": "osm_fuzzy_en_0.82",
+      "schedule_name": "Nong Jik"
+    },
+    {
+      "name_en": "Nong Kae",
+      "name_th": "หนองแก",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.5328272,
+      "lon": 99.96458,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Kae"
+    },
+    {
+      "name_en": "Nong Khaen",
+      "name_th": "หนองแคน",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.0863936,
+      "lon": 104.0943041,
+      "coord_source": "osm_fuzzy_en_0.95",
+      "schedule_name": "Nong Khaen"
+    },
+    {
+      "name_en": "Nong Nam Khun",
+      "name_th": "หนองน้ำขุ่น",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8818589,
+      "lon": 101.6717591,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Khai Nam"
+    },
+    {
+      "name_en": "Nong Khang",
+      "name_th": "หนองคาง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.2842612,
+      "lon": 99.8906083,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Khang"
+    },
+    {
+      "name_en": "Nong Khon Kwang",
+      "name_th": "หนองขอนกว้าง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 17.3752613,
+      "lon": 102.81311,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Khon Kwang"
+    },
+    {
+      "name_en": "Nong Krachap",
+      "name_th": "หนองกระจับ",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 14.0631131,
+      "lon": 101.4143568,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Krachap"
+    },
+    {
+      "name_en": "Nong Krathing",
+      "name_th": "หนองกระทิง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.0058898,
+      "lon": 102.7559092,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Krathing"
+    },
+    {
+      "name_en": "Nong Kuai",
+      "name_th": "หนองกวย",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.4737413,
+      "lon": 100.7572108,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Kuai"
+    },
+    {
+      "name_en": "Nong Maeo",
+      "name_th": "หนองแมว",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.1408111,
+      "lon": 102.2163301,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Maeo"
+    },
+    {
+      "name_en": "Nong Mai Luang",
+      "name_th": "หนองไม้เหลือง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.0046115,
+      "lon": 99.9624934,
+      "coord_source": "osm_fuzzy_en_0.97",
+      "schedule_name": "Nong Mai Luang"
+    },
+    {
+      "name_en": "Nong Makhuea",
+      "name_th": "หนองมะเขือ",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.7584027,
+      "lon": 102.5671728,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Makhua"
+    },
+    {
+      "name_en": "Nong Manorom",
+      "name_th": "หนองมโนรมย์",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.0131562,
+      "lon": 102.3467351,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Manorom"
+    },
+    {
+      "name_en": "Nong Mongkhon",
+      "name_th": "หนองมงคล",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.3042356,
+      "lon": 99.5452462,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Mongkhon"
+    },
+    {
+      "name_en": "Nong Nam Khao",
+      "name_th": "หนองน้ำขาว",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 14.0495091,
+      "lon": 101.2683341,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Nam Khao"
+    },
+    {
+      "name_en": "Nong Nian",
+      "name_th": "หนองเนียน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.5753782,
+      "lon": 99.2163731,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Nian"
+    },
+    {
+      "name_en": "Nong Phluang",
+      "name_th": "หนองพลวง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.5989463,
+      "lon": 102.2484774,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Phluang"
+    },
+    {
+      "name_en": "Nong Pho",
+      "name_th": "หนองโพ",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 15.3938345,
+      "lon": 100.2592545,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Pho"
+    },
+    {
+      "name_en": "Nong Pla Lai",
+      "name_th": "หนองปลาไหล",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.1892424,
+      "lon": 99.8719177,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Pla Lai"
+    },
+    {
+      "name_en": "Nong Sala",
+      "name_th": "หนองศาลา",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.9036673,
+      "lon": 99.9705603,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Sala"
+    },
+    {
+      "name_en": "Nong Sang",
+      "name_th": "หนองสัง",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.9807677,
+      "lon": 101.8253445,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Sang"
+    },
+    {
+      "name_en": "Nong Sida",
+      "name_th": "หนองสีดา",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.5161305,
+      "lon": 100.8247547,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Sida"
+    },
+    {
+      "name_en": "Nong Takai",
+      "name_th": "หนองตะไก้",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 17.2673053,
+      "lon": 102.8945569,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Takai"
+    },
+    {
+      "name_en": "Nong Teng",
+      "name_th": "หนองเต็ง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.9088171,
+      "lon": 103.3630781,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Teng"
+    },
+    {
+      "name_en": "Nong Tom",
+      "name_th": "หนองตม",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 17.1001417,
+      "lon": 100.1634161,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Tom"
+    },
+    {
+      "name_en": "Nong Waeng",
+      "name_th": "หนองแวง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.1070248,
+      "lon": 104.4391457,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Waeng"
+    },
+    {
+      "name_en": "Nong Wiwat",
+      "name_th": "หนองวิวัฒน์",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 14.5056014,
+      "lon": 100.7271563,
+      "coord_source": "osm_en",
+      "schedule_name": "Nong Wiwat"
+    },
+    {
+      "name_en": "Pa Phai",
+      "name_th": "ป่าไผ่",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.2672682,
+      "lon": 101.75983,
+      "coord_source": "osm_en",
+      "schedule_name": "Pa Phai"
+    },
+    {
+      "name_en": "Pa Rai",
+      "name_th": "ป่าไร่",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.6628854,
+      "lon": 101.1799219,
+      "coord_source": "osm_en",
+      "schedule_name": "Pa Rai"
+    },
+    {
+      "name_en": "Pa Sak Jolasid Dam",
+      "name_th": "เขื่อนป่าสักชลสิทธิ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.8668986,
+      "lon": 101.0620622,
+      "coord_source": "osm_fuzzy_en_0.97",
+      "schedule_name": "Pa Sak Jolasid Dam"
+    },
+    {
+      "name_en": "Paet Riu",
+      "name_th": "แปดริ้ว",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.6932968,
+      "lon": 101.0768045,
+      "coord_source": "osm_fuzzy_en_0.88",
+      "schedule_name": "Paet Riu"
+    },
+    {
+      "name_en": "Pang Asok",
+      "name_th": "ปางอโศก",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.6534984,
+      "lon": 101.2999403,
+      "coord_source": "osm_en",
+      "schedule_name": "Pang Asok"
+    },
+    {
+      "name_en": "Pang Ton Phueng",
+      "name_th": "ปางต้นผึ้ง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 17.7998769,
+      "lon": 100.076362,
+      "coord_source": "osm_en",
+      "schedule_name": "Pang Ton Phung"
+    },
+    {
+      "name_en": "Pattaya Tai",
+      "name_th": "พัทยาใต้",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 12.9084474,
+      "lon": 100.9012331,
+      "coord_source": "osm_en",
+      "schedule_name": "Pattaya Tai"
+    },
+    {
+      "name_en": "Phaendin Thong",
+      "name_th": "แผ่นดินทอง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.2502428,
+      "lon": 101.2605966,
+      "coord_source": "osm_en",
+      "schedule_name": "Phaendin Thong"
+    },
+    {
+      "name_en": "Phaya Thai",
+      "name_th": "พญาไท",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7569781,
+      "lon": 100.5338074,
+      "coord_source": "osm_en",
+      "schedule_name": "Phayathai"
+    },
+    {
+      "name_en": "Pho Than Klai Wachasit",
+      "name_th": "พ่อท่านคล้ายวาจาสิทธิ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.3733916,
+      "lon": 99.5436336,
+      "coord_source": "osm_fuzzy_en_0.98",
+      "schedule_name": "Pho Than Klai Wachasit"
+    },
+    {
+      "name_en": "Phon Songkhram",
+      "name_th": "พลสงคราม",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.3483047,
+      "lon": 102.3035469,
+      "coord_source": "osm_en",
+      "schedule_name": "Phon Songkhram"
+    },
+    {
+      "name_en": "Phra Kaeo",
+      "name_th": "พระแก้ว",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 14.4287017,
+      "lon": 100.6855474,
+      "coord_source": "osm_en",
+      "schedule_name": "Phra Kaeo"
+    },
+    {
+      "name_en": "Phra Prong",
+      "name_th": "พระปรง",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.9524985,
+      "lon": 101.9235056,
+      "coord_source": "osm_en",
+      "schedule_name": "Phra Prong"
+    },
+    {
+      "name_en": "Phrong Akat",
+      "name_th": "โพรงอากาศ",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.8089152,
+      "lon": 101.094369,
+      "coord_source": "osm_en",
+      "schedule_name": "Phrong Akat"
+    },
+    {
+      "name_en": "Phrong Maduea",
+      "name_th": "โพรงมะเดื่อ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8222782,
+      "lon": 99.992481,
+      "coord_source": "osm_fuzzy_en_0.96",
+      "schedule_name": "Phrong Madua"
+    },
+    {
+      "name_en": "Phruphi",
+      "name_th": "พรุพี",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.7085139,
+      "lon": 99.3535366,
+      "coord_source": "osm_fuzzy_en_0.93",
+      "schedule_name": "Phruphi"
+    },
+    {
+      "name_en": "Phu Khao Lat",
+      "name_th": "ภูเขาลาด",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.9561351,
+      "lon": 102.0237132,
+      "coord_source": "osm_fuzzy_en_0.96",
+      "schedule_name": "Phu Khao Lat"
+    },
+    {
+      "name_en": "Phuttamonthon Sai 2",
+      "name_th": "พุทธมณฑลสาย 2",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8000507,
+      "lon": 100.3950237,
+      "coord_source": "osm_fuzzy_en_0.97",
+      "schedule_name": "Phuttamonthon Sai 2"
+    },
+    {
+      "name_en": "Phra Chom Klao",
+      "name_th": "พระจอมเกล้า",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7281797,
+      "lon": 100.7754678,
+      "coord_source": "osm_en",
+      "schedule_name": "Pra Chom Klao"
+    },
+    {
+      "name_en": "Preng",
+      "name_th": "เปรง",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7123679,
+      "lon": 100.9249376,
+      "coord_source": "osm_en",
+      "schedule_name": "Preng"
+    },
+    {
+      "name_en": "Ramathibodi Hospital",
+      "name_th": "โรงพยาบาลรามาธิบดี",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7685073,
+      "lon": 100.5255047,
+      "coord_source": "osm_en",
+      "schedule_name": "Ramathibodi Hospital"
+    },
+    {
+      "name_en": "Sa Kosi Narai",
+      "name_th": "สระโกสินารายณ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8503382,
+      "lon": 99.8495351,
+      "coord_source": "osm_fuzzy_en_0.96",
+      "schedule_name": "Sa Kosi Narai"
+    },
+    {
+      "name_en": "Saeng Daet",
+      "name_th": "แสงแดด",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.4736982,
+      "lon": 99.1551651,
+      "coord_source": "osm_en",
+      "schedule_name": "Saeng Daet"
+    },
+    {
+      "name_en": "Sai Yai",
+      "name_th": "ใสใหญ่",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.1602892,
+      "lon": 99.7214699,
+      "coord_source": "osm_en",
+      "schedule_name": "Sai Yai"
+    },
+    {
+      "name_en": "Sa Kaeo Provincial Office",
+      "name_th": "ศูนย์ราชการจังหวัดสระแก้ว",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7996319,
+      "lon": 102.1392566,
+      "coord_source": "osm_en",
+      "schedule_name": "Sakaeo Govt Center"
+    },
+    {
+      "name_en": "Sala Din",
+      "name_th": "ศาลาดิน",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.7062265,
+      "lon": 102.5231332,
+      "coord_source": "osm_en",
+      "schedule_name": "Sala Din"
+    },
+    {
+      "name_en": "Sala Lamduan",
+      "name_th": "ศาลาลำดวน",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.8828519,
+      "lon": 102.0096136,
+      "coord_source": "osm_en",
+      "schedule_name": "Sala Lamduan"
+    },
+    {
+      "name_en": "Sala Thammasop",
+      "name_th": "ศาลาธรรมสพน์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8008757,
+      "lon": 100.3707398,
+      "coord_source": "osm_en",
+      "schedule_name": "Sala Thammasop"
+    },
+    {
+      "name_en": "Sam Krathai",
+      "name_th": "สามกระทาย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.1603909,
+      "lon": 99.8610696,
+      "coord_source": "osm_en",
+      "schedule_name": "Sam Krathai"
+    },
+    {
+      "name_en": "Sanam Chandra Palace",
+      "name_th": "พระราชวังสนามจันทร์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8238866,
+      "lon": 100.0413206,
+      "coord_source": "osm_en",
+      "schedule_name": "Sanam Chandra Palace"
+    },
+    {
+      "name_en": "Sap Muang",
+      "name_th": "ซับม่วง",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 14.7617422,
+      "lon": 101.4555114,
+      "coord_source": "osm_en",
+      "schedule_name": "Sap Muang"
+    },
+    {
+      "name_en": "Saphan Khwae Yai",
+      "name_th": "สะพานแควใหญ่",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.0431561,
+      "lon": 99.5049234,
+      "coord_source": "osm_en",
+      "schedule_name": "Saphan Kwae Yai"
+    },
+    {
+      "name_en": "Saphan Tham Krasae",
+      "name_th": "ถ้ำกระแซ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.1061329,
+      "lon": 99.1654635,
+      "coord_source": "unverified",
+      "schedule_name": "Saphan Tam Krasae"
+    },
+    {
+      "name_en": "Saphli",
+      "name_th": "สะพลี",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.6097029,
+      "lon": 99.2389373,
+      "coord_source": "osm_fuzzy_en_0.92",
+      "schedule_name": "Saphli"
+    },
+    {
+      "name_en": "Soi Wat Lan Boon",
+      "name_th": "ซอยวัดลานบุญ",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7296814,
+      "lon": 100.7181852,
+      "coord_source": "osm_en",
+      "schedule_name": "Soi Wat Lan Boon"
+    },
+    {
+      "name_en": "Suan Nong Nuch",
+      "name_th": "สวนนงนุช",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 12.7746754,
+      "lon": 100.9242303,
+      "coord_source": "osm_en",
+      "schedule_name": "Suan Nong Nuch"
+    },
+    {
+      "name_en": "Suan Son Pradiphat",
+      "name_th": "สวนสนประดิพัทธ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.4999283,
+      "lon": 99.9722806,
+      "coord_source": "osm_en",
+      "schedule_name": "Suan Soan Pradipat"
+    },
+    {
+      "name_en": "Sukhumvit 71",
+      "name_th": "สุขุมวิท 71",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7428046,
+      "lon": 100.6006736,
+      "coord_source": "osm_en",
+      "schedule_name": "Sukhumvit 71"
+    },
+    {
+      "name_en": "Suranarai",
+      "name_th": "สุรนารายณ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.07013,
+      "lon": 101.0172521,
+      "coord_source": "osm_en",
+      "schedule_name": "Suranarai"
+    },
+    {
+      "name_en": "Ta Paet",
+      "name_th": "ตาแปด",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.7800448,
+      "lon": 101.0269295,
+      "coord_source": "osm_en",
+      "schedule_name": "Ta Paet"
+    },
+    {
+      "name_en": "Talat Lam Narai",
+      "name_th": "ตลาดลำนารายณ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.2104969,
+      "lon": 101.130776,
+      "coord_source": "osm_en",
+      "schedule_name": "Talat Lam Narai"
+    },
+    {
+      "name_en": "Pattaya Floating Market",
+      "name_th": "ตลาดน้ำ 4 ภาค",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 12.8696752,
+      "lon": 100.909609,
+      "coord_source": "osm_en",
+      "schedule_name": "Talat Nam 4 Pak"
+    },
+    {
+      "name_en": "Thanon Songpol",
+      "name_th": "ถนนทรงพล",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8167441,
+      "lon": 99.877273,
+      "coord_source": "osm_fuzzy_en_0.87",
+      "schedule_name": "Tanon Songpol"
+    },
+    {
+      "name_en": "Tase",
+      "name_th": "ตาเซะ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.6146526,
+      "lon": 101.2580581,
+      "coord_source": "osm_en",
+      "schedule_name": "Tase"
+    },
+    {
+      "name_en": "Tha Chalaep",
+      "name_th": "ท่าแฉลบ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8122395,
+      "lon": 100.1317513,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Chalaep"
+    },
+    {
+      "name_en": "Tha Kasem",
+      "name_th": "ท่าเกษม",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7903475,
+      "lon": 102.1685781,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Kasem"
+    },
+    {
+      "name_en": "Tha Kilen",
+      "name_th": "ท่ากิเลน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.0405939,
+      "lon": 99.257234,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Kilen"
+    },
+    {
+      "name_en": "Tha Maenglak",
+      "name_th": "ท่าแมงลัก",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.8908467,
+      "lon": 100.805846,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Maenglak"
+    },
+    {
+      "name_en": "Tha Phra",
+      "name_th": "ท่าพระ",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7296466,
+      "lon": 100.4740422,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Phra"
+    },
+    {
+      "name_en": "Tha Ruea Noi",
+      "name_th": "ท่าเรือน้อย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.9562,
+      "lon": 99.7517548,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Rua Noi"
+    },
+    {
+      "name_en": "Tha Sak",
+      "name_th": "ท่าสัก",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 17.4113119,
+      "lon": 100.0974685,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Sak"
+    },
+    {
+      "name_en": "Tha Ta Suea",
+      "name_th": "ท่าตาเสือ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.0046913,
+      "lon": 99.2873536,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Ta Sua"
+    },
+    {
+      "name_en": "Tha Thong",
+      "name_th": "ท่าทอง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.0438934,
+      "lon": 99.0932623,
+      "coord_source": "osm_en",
+      "schedule_name": "Tha Thong"
+    },
+    {
+      "name_en": "Than Pho",
+      "name_th": "ทานพอ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.4672406,
+      "lon": 99.4919428,
+      "coord_source": "osm_en",
+      "schedule_name": "Thanpho"
+    },
+    {
+      "name_en": "Thi Wang",
+      "name_th": "ที่วัง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.0978292,
+      "lon": 99.6679751,
+      "coord_source": "osm_en",
+      "schedule_name": "Thi Wang"
+    },
+    {
+      "name_en": "Thung Kha",
+      "name_th": "ทุ่งคา",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.4025237,
+      "lon": 99.1377403,
+      "coord_source": "osm_en",
+      "schedule_name": "Thung Kha"
+    },
+    {
+      "name_en": "Thung Mamao",
+      "name_th": "ทุ่งมะเม่า",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.9216535,
+      "lon": 99.8196018,
+      "coord_source": "osm_en",
+      "schedule_name": "Thung Mamao"
+    },
+    {
+      "name_en": "Thung Pradu",
+      "name_th": "ทุ่งประดู่",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.5266045,
+      "lon": 99.6358286,
+      "coord_source": "osm_en",
+      "schedule_name": "Thung Pradu"
+    },
+    {
+      "name_en": "Thung Thong",
+      "name_th": "ทุ่งทอง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.9797447,
+      "lon": 99.6402703,
+      "coord_source": "osm_en",
+      "schedule_name": "Thung Thong"
+    },
+    {
+      "name_en": "To Deng",
+      "name_th": "โต๊ะเด็ง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.1190919,
+      "lon": 101.8583575,
+      "coord_source": "osm_fuzzy_en_0.92",
+      "schedule_name": "To Deng"
+    },
+    {
+      "name_en": "Ton Samrong",
+      "name_th": "ต้นสำโรง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8255586,
+      "lon": 100.091305,
+      "coord_source": "osm_en",
+      "schedule_name": "Ton Samrong"
+    },
+    {
+      "name_en": "Urupong",
+      "name_th": "อุรุพงษ์",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7585654,
+      "lon": 100.5263091,
+      "coord_source": "osm_fuzzy_en_0.93",
+      "schedule_name": "Urupong"
+    },
+    {
+      "name_en": "U Taphao",
+      "name_th": "อู่ตะเภา",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 12.6616827,
+      "lon": 100.9640231,
+      "coord_source": "unverified",
+      "schedule_name": "Utaphao"
+    },
+    {
+      "name_en": "Wang Duan",
+      "name_th": "วังด้วน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.6879245,
+      "lon": 99.7224194,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Duan"
+    },
+    {
+      "name_en": "Wang Ka-am",
+      "name_th": "วังกะอาม",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "",
+      "province": "",
+      "lat": 15.4984072,
+      "lon": 101.7401798,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Ka-am"
+    },
+    {
+      "name_en": "Wang Krot",
+      "name_th": "วังกรด",
+      "code": "",
+      "class": "Halt",
+      "line": "Northern",
+      "district": "",
+      "province": "",
+      "lat": 16.3989514,
+      "lon": 100.3894937,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Krot"
+    },
+    {
+      "name_en": "Wang Lan",
+      "name_th": "วังลาน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.9615645,
+      "lon": 99.4618096,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Lan"
+    },
+    {
+      "name_en": "Wang Pho",
+      "name_th": "วังโพ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.1202345,
+      "lon": 99.1395448,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Pho"
+    },
+    {
+      "name_en": "Wang Phong",
+      "name_th": "วังก์พง",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 12.4007827,
+      "lon": 99.9322068,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Phong"
+    },
+    {
+      "name_en": "Wang Sing",
+      "name_th": "วังสิงห์",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.0732058,
+      "lon": 99.2263435,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Sing"
+    },
+    {
+      "name_en": "Wang Takhian",
+      "name_th": "วังตะเคียน",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.9531039,
+      "lon": 99.3747712,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Takhian"
+    },
+    {
+      "name_en": "Wang Wua",
+      "name_th": "วังวัว",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 8.355674,
+      "lon": 99.9408891,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Wua"
+    },
+    {
+      "name_en": "Wang Yai",
+      "name_th": "วังใหญ่",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 14.1955825,
+      "lon": 99.0891995,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Yai"
+    },
+    {
+      "name_en": "Wang Yen",
+      "name_th": "วังเย็น",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.9432669,
+      "lon": 99.4158946,
+      "coord_source": "osm_en",
+      "schedule_name": "Wang Yen"
+    },
+    {
+      "name_en": "Wat Chang Hai",
+      "name_th": "วัดช้างให้",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.6673265,
+      "lon": 101.1703266,
+      "coord_source": "osm_en",
+      "schedule_name": "Wat Chang Hai"
+    },
+    {
+      "name_en": "Wat Khuan Mit",
+      "name_th": "วัดควนมีด",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 6.9720868,
+      "lon": 100.6663893,
+      "coord_source": "osm_en",
+      "schedule_name": "Wat Khuan Mit"
+    },
+    {
+      "name_en": "Wat Khuan Phayer",
+      "name_th": "วัดควนเผยอ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 7.2594839,
+      "lon": 100.299337,
+      "coord_source": "osm_fuzzy_en_0.94",
+      "schedule_name": "Wat Khuan Phayer"
+    },
+    {
+      "name_en": "Wat Ngiu Rai",
+      "name_th": "วัดงิ้วราย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8079539,
+      "lon": 100.2160471,
+      "coord_source": "osm_fuzzy_en_0.92",
+      "schedule_name": "Wat Ngiu Rai"
+    },
+    {
+      "name_en": "Wat Suwan",
+      "name_th": "วัดสุวรรณ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 13.8056747,
+      "lon": 100.2834246,
+      "coord_source": "osm_en",
+      "schedule_name": "Wat Suwan"
+    },
+    {
+      "name_en": "Watthana Nakhon",
+      "name_th": "วัฒนานคร",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.7412648,
+      "lon": 102.3231926,
+      "coord_source": "osm_en",
+      "schedule_name": "Watthana Nakhon"
+    },
+    {
+      "name_en": "Whagor",
+      "name_th": "หว้ากอ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 11.7176547,
+      "lon": 99.7539158,
+      "coord_source": "unverified",
+      "schedule_name": "Whagor"
+    },
+    {
+      "name_en": "Wisai",
+      "name_th": "วิสัย",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "",
+      "province": "",
+      "lat": 10.3282095,
+      "lon": 99.1116166,
+      "coord_source": "osm_en",
+      "schedule_name": "Wisai"
+    },
+    {
+      "name_en": "Yanasangwararam",
+      "name_th": "ญาณสังวราราม",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 12.8013992,
+      "lon": 100.9224543,
+      "coord_source": "osm_en",
+      "schedule_name": "Yanasangwararam"
+    },
+    {
+      "name_en": "Yommarat",
+      "name_th": "ยมราช",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.758628,
+      "lon": 100.5214744,
+      "coord_source": "osm_en",
+      "schedule_name": "Yommaraj"
+    },
+    {
+      "name_en": "Yothaka",
+      "name_th": "โยทะกา",
+      "code": "",
+      "class": "Halt",
+      "line": "Eastern",
+      "district": "",
+      "province": "",
+      "lat": 13.9708151,
+      "lon": 101.1495678,
+      "coord_source": "osm_en",
+      "schedule_name": "Yothaka"
+    },
+    {
+      "name_en": "Lop Buri 2 (Tha Wung)",
+      "name_th": "ลพบุรี 2 (ท่าวุ้ง)",
+      "code": "",
+      "class": "1",
+      "line": "Northern",
+      "district": "Tha Wung",
+      "province": "Lopburi",
+      "lat": 14.793574,
+      "lon": 100.5579818,
+      "coord_source": "nominatim",
+      "notes": "New elevated station on double-track line"
+    },
+    {
+      "name_en": "Vientiane (Khamsavath)",
+      "name_th": "เวียงจันทน์ (คำสะหวาด)",
+      "code": "",
+      "class": "1",
+      "line": "Northeastern",
+      "district": "",
+      "province": "Vientiane",
+      "lat": 17.9543,
+      "lon": 102.6331,
+      "coord_source": "unverified",
+      "notes": "Laos - international service"
     }
   ],
   "stations_with_coordinates": 366,
   "stations_without_coordinates": 0,
   "stations_verified_google": 46,
-  "stations_estimated": 320
+  "stations_estimated": 320,
+  "schedule_aliases": {
+    "Bangkok": "Bangkok (Hua Lamphong)",
+    "Bangkok (Krung Thep Aphiwat)": "Krung Thep Aphiwat Central Terminal",
+    "Asoke": "Asok",
+    "Buri Ram": "Buriram",
+    "Chon Buri": "Chonburi",
+    "Cho Ai Rong": "Cho-airong",
+    "Chumsaeng": "Chum Saeng",
+    "Si Sa Ket": "Sisaket",
+    "Sikhiu": "Sikhio",
+    "Su-Ngai Kolok": "Su-ngai Kolok",
+    "Su-Ngai Padi": "Su-ngai Padi",
+    "Ruso": "Rueso",
+    "Marubo": "Maruebo",
+    "Sala Ya": "Salaya",
+    "Pathiu": "Pathio",
+    "Padang Besar (Thai)": "Padang Besar",
+    "Prachin Buri": "Prachinburi",
+    "Nakhon Chaisi": "Nakhon Chai Si",
+    "Nong Pla Duk Junction": "Nong Pladuk Junction",
+    "Tha Rua": "Tha Ruea",
+    "Tha Rua Noi": "Tha Ruea Noi",
+    "Muang Khong": "Mueang Khong",
+    "Muang Phon": "Mueang Phon",
+    "Ban Kluai": "Ban Kluay",
+    "Ban Luam": "Ban Lueam",
+    "Ban Non Phung": "Ban Non Phueng",
+    "Ban Nong Gunngar": "Ban Nong Kan Nga",
+    "Ban Nong Pru Pong": "Ban Nong Prue Pong",
+    "Ban Plu Ta Luang": "Ban Phlu Ta Luang",
+    "Ban Suntara": "Ban Sunthra",
+    "Ban Tungkhai": "Ban Thung Khai",
+    "Ban Wa Tabaek (Thep Sa Thit)": "Ban Wa Tabaek",
+    "Banchimphli": "Ban Chimphli",
+    "Bang Nam Prieo": "Bang Nam Priao",
+    "Bang Toey": "Bang Toei",
+    "Ban Huai Kwang": "Ban Huai Khwang",
+    "Ban Huai Tan": "Ban Huai Taen",
+    "Ban Kloy": "Ban Kloi",
+    "Hanthao": "Han Thao",
+    "Hin Gong": "Hin Kong",
+    "Jaran Sanitwong": "Charansanitwong",
+    "Khan Thuli": "Khanthuli",
+    "Khao Chaiyarat": "Khao Chai Rat",
+    "Khiri Ratthanikhom": "Khiri Rat Nikhom",
+    "Khlong Chan Di": "Khlong Chandi",
+    "Kao Chi Chan Junction": "Khao Chi Chan Junction",
+    "Khok Sahya": "Khok Saya",
+    "Nong Makhua": "Nong Makhuea",
+    "Nong Sri Vichai": "Ban Nong Sriwichai",
+    "Pang Ton Phung": "Pang Ton Phueng",
+    "Phrong Madua": "Phrong Maduea",
+    "Pra Chom Klao": "Phra Chom Klao",
+    "Sakaeo Govt Center": "Sa Kaeo Provincial Office",
+    "Saphan Kwae Yai": "Saphan Khwae Yai",
+    "Saphan Tam Krasae": "Saphan Tham Krasae",
+    "Suan Soan Pradipat": "Suan Son Pradiphat",
+    "Tha Ta Sua": "Tha Ta Suea",
+    "Thung Mamao": "Thung Mamao",
+    "Utaphao": "U Taphao",
+    "Yommaraj": "Yommarat",
+    "Tanon Songpol": "Thanon Songpol",
+    "Na Kan": "Na Kann",
+    "Kaeng Sue Ten": "Kaeng Suea Ten",
+    "Na Pru": "Na Prue",
+    "Muang Thi": "Mueang Thi",
+    "Ban Nong Sua": "Nong Suea",
+    "Nong Khai Nam": "Nong Nam Khun",
+    "Khok Khli": "Khok Klhi",
+    "Lop Buri 2 (Tha Wung)": null,
+    "Talat Nam 4 Pak": "Pattaya Floating Market",
+    "Talat Nam 4 Pak *": "Pattaya Floating Market",
+    "Vientiane (Khamsavath)": null,
+    "Saphli": "Saphli",
+    "Thanpho": "Than Pho",
+    "Phayathai": "Phaya Thai",
+    "Thung Pradu": "Thung Pradu",
+    "Klong Kwaeng Klan": "Khlong Kwaeng Klan",
+    "Klong Udom Chonlajorn": "Khlong Udom Chonlajorn"
+  },
+  "coords_osm": 523,
+  "coords_google": 46,
+  "coords_nominatim": 3,
+  "coords_unverified": 5
 }

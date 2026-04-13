@@ -37,8 +37,13 @@ from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.redis_payloads import (
+    filter_feature_collection_by_bbox,
     filter_positions_by_bbox,
+    filter_stations_by_bbox,
     filter_trajectories_by_bbox,
+    parse_bbox,
+    read_map_network_edges,
+    read_map_stations,
     read_individual_trajectory,
     read_position,
     read_positions,
@@ -68,6 +73,8 @@ class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/0"
     ws_poll_interval: int = 5
     trajectory_poll_interval: int = 5
+    viewport_buffer_ratio: float = 0.1
+    viewport_min_buffer_degrees: float = 0.05
     cors_origins: Annotated[list[str], NoDecode] = [
         "http://localhost:3000",
         "http://localhost:8002",
@@ -141,6 +148,62 @@ app.add_middleware(
 )
 
 
+def _validate_bbox_or_raise(bbox: str) -> None:
+    if parse_bbox(bbox) is None:
+        raise HTTPException(
+            status_code=400,
+            detail="bbox must be a comma-separated minLon,minLat,maxLon,maxLat viewport",
+        )
+
+
+def _filter_positions_for_viewport(
+    positions: list[dict[str, Any]],
+    bbox: str,
+) -> list[dict[str, Any]]:
+    return filter_positions_by_bbox(
+        positions,
+        bbox,
+        buffer_ratio=settings.viewport_buffer_ratio,
+        min_buffer_degrees=settings.viewport_min_buffer_degrees,
+    )
+
+
+def _filter_trajectories_for_viewport(
+    trajectories: list[dict[str, Any]],
+    bbox: str,
+) -> list[dict[str, Any]]:
+    return filter_trajectories_by_bbox(
+        trajectories,
+        bbox,
+        buffer_ratio=settings.viewport_buffer_ratio,
+        min_buffer_degrees=settings.viewport_min_buffer_degrees,
+    )
+
+
+def _filter_stations_for_viewport(
+    stations: list[dict[str, Any]],
+    bbox: str,
+) -> list[dict[str, Any]]:
+    return filter_stations_by_bbox(
+        stations,
+        bbox,
+        buffer_ratio=settings.viewport_buffer_ratio,
+        min_buffer_degrees=settings.viewport_min_buffer_degrees,
+    )
+
+
+def _filter_network_for_viewport(
+    collection: dict[str, Any],
+    bbox: str,
+) -> dict[str, Any]:
+    return filter_feature_collection_by_bbox(
+        collection,
+        bbox,
+        buffer_ratio=settings.viewport_buffer_ratio,
+        min_buffer_degrees=settings.viewport_min_buffer_degrees,
+    )
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "healthy"}
@@ -162,11 +225,41 @@ async def get_topology_metadata() -> dict[str, Any]:
     return metadata
 
 
+@app.get("/api/v1/map/all")
+async def get_map_all() -> dict[str, Any]:
+    """Return the complete railway network map (all stations + all edges) from Redis.
+
+    No bbox filtering — returns the full dataset so the client can render the
+    entire network at startup without additional requests.
+    """
+    stations = await read_map_stations(redis_client)
+    network_edges = await read_map_network_edges(redis_client)
+    return {
+        "stations": stations,
+        "network_edges": network_edges,
+    }
+
+
+@app.get("/api/v1/map/viewport")
+async def get_map_viewport(bbox: str) -> dict[str, Any]:
+    _validate_bbox_or_raise(bbox)
+    stations = await read_map_stations(redis_client)
+    network_edges = await read_map_network_edges(redis_client)
+    topology = await read_topology_metadata(redis_client)
+    return {
+        "bbox": bbox,
+        "topology": topology,
+        "stations": _filter_stations_for_viewport(stations, bbox),
+        "network_edges": _filter_network_for_viewport(network_edges, bbox),
+    }
+
+
 @app.get("/api/v1/trains/positions")
-async def get_positions(bbox: str | None = None) -> list[dict[str, Any]]:
-    """Get all train positions, optionally filtered by bbox."""
+async def get_positions(bbox: str) -> list[dict[str, Any]]:
+    """Get active train positions for the current viewport plus a small buffer."""
+    _validate_bbox_or_raise(bbox)
     positions = await read_positions(redis_client)
-    return filter_positions_by_bbox(positions, bbox)
+    return _filter_positions_for_viewport(positions, bbox)
 
 
 @app.get("/api/v1/trains/{train_id}/position")
@@ -185,7 +278,7 @@ async def ws_trains(websocket: WebSocket) -> None:
         await stream_positions(
             websocket,
             read_positions=lambda: read_positions(redis_client),
-            filter_positions=filter_positions_by_bbox,
+            filter_positions=_filter_positions_for_viewport,
             ws_poll_interval=settings.ws_poll_interval,
             logger=logger,
         )
@@ -199,7 +292,7 @@ async def ws_single_train(websocket: WebSocket, train_id: int) -> None:
         await stream_positions(
             websocket,
             read_positions=lambda: read_positions(redis_client),
-            filter_positions=filter_positions_by_bbox,
+            filter_positions=_filter_positions_for_viewport,
             ws_poll_interval=settings.ws_poll_interval,
             logger=logger,
             train_id=train_id,
@@ -218,7 +311,7 @@ async def ws_trajectory(websocket: WebSocket) -> None:
         await stream_trajectories(
             websocket,
             read_trajectories=lambda: read_trajectories(redis_client),
-            filter_trajectories=filter_trajectories_by_bbox,
+            filter_trajectories=_filter_trajectories_for_viewport,
             update_interval_seconds=settings.trajectory_poll_interval,
         )
     except (WebSocketDisconnect, asyncio.CancelledError):
@@ -226,13 +319,14 @@ async def ws_trajectory(websocket: WebSocket) -> None:
 
 
 @app.get("/api/v1/trains/trajectories")
-async def get_trajectories(bbox: str | None = None) -> list[dict[str, Any]]:
-    """REST endpoint: get all active train trajectories, optionally filtered by bbox.
+async def get_trajectories(bbox: str) -> list[dict[str, Any]]:
+    """REST endpoint: get active train trajectories for the current viewport.
 
     Trajectory objects contain time_intervals for client-side temporal interpolation.
     """
+    _validate_bbox_or_raise(bbox)
     trajectories = await read_trajectories(redis_client)
-    return filter_trajectories_by_bbox(trajectories, bbox)
+    return _filter_trajectories_for_viewport(trajectories, bbox)
 
 
 @app.get("/api/v1/trains/{train_id}/trajectory")

@@ -27,6 +27,7 @@ export default function HomePage() {
   const [selectedTrainId, setSelectedTrainId] = useState<number | null>(null);
   const [showLeftPanel, setShowLeftPanel] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(false);
+  const [trainViewportBbox, setTrainViewportBbox] = useState<string | null>(null);
 
   // When a train is selected from the map, automatically open the info panel
   const handleTrainSelect = useCallback((id: number | null) => {
@@ -160,6 +161,7 @@ export default function HomePage() {
         >
           {showLeftPanel && (
             <TrainInfoPanel
+              bbox={trainViewportBbox}
               selectedTrainId={selectedTrainId}
               onTrainSelect={handleTrainSelect}
             />
@@ -168,7 +170,12 @@ export default function HomePage() {
 
         {/* Map */}
         <main className="relative flex-1 min-w-0">
-          <MapContainer className="absolute inset-0" selectedTrainId={selectedTrainId} onTrainSelect={handleTrainSelect} />
+          <MapContainer
+            className="absolute inset-0"
+            selectedTrainId={selectedTrainId}
+            onTrainSelect={handleTrainSelect}
+            onViewportChange={setTrainViewportBbox}
+          />
 
           {/* Map overlay info */}
           <div className="absolute bottom-2 left-2 right-2 rounded-lg bg-background/90 p-2 text-xs shadow-lg backdrop-blur sm:bottom-4 sm:left-4 sm:right-auto sm:p-3 sm:text-sm">
@@ -238,6 +245,7 @@ export default function HomePage() {
           </div>
           <div className="h-[calc(100%-3rem)]">
             <TrainInfoPanel
+              bbox={trainViewportBbox}
               selectedTrainId={selectedTrainId}
               onTrainSelect={handleTrainSelect}
             />

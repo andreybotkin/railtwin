@@ -1,227 +1,158 @@
 #!/usr/bin/env python3
 """
-Fetch exact coordinates for Thai railway stations from OpenStreetMap Overpass API
-and update the JSON file.
+Fetch exact coordinates for Thai railway stations from OpenStreetMap Overpass API.
 
 Usage:
     pip install requests
     python fetch_and_update_coords.py
 
-This script:
-1. Queries Overpass API for ALL railway stations/halts in Thailand
-2. Matches them with our station list by Thai name
-3. Updates coordinates in the JSON file
+Pipeline:
+1. Overpass API -> all railway nodes in Thailand
+2. Match by Thai name (raw + normalized) and English name (exact + fuzzy)
+3. Nominatim fallback for unmatched
+4. Preserves Google Places verified coords
 """
 
-import requests
-import json
-import re
-import time
-import sys
+import requests, json, time
 from difflib import SequenceMatcher
 
-# --- CONFIG ---
 INPUT_FILE = "thai_railway_stations_full.json"
-OUTPUT_FILE = "thai_railway_stations_full_geocoded.json"
+OUTPUT_FILE = "thai_railway_stations_full.json"
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
-# --- STEP 1: Query Overpass API ---
-def fetch_osm_stations():
-    """Fetch all railway stations and halts in Thailand from OSM"""
-    query = """
-    [out:json][timeout:180];
+def fetch_osm():
+    query = """[out:json][timeout:180];
     area["ISO3166-1"="TH"]->.a;
-    (
-      node["railway"="station"](area.a);
-      node["railway"="halt"](area.a);
-      node["railway"="stop"](area.a);
-    );
-    out body;
-    """
-    print("Fetching stations from Overpass API...")
-    resp = requests.get(OVERPASS_URL, params={"data": query}, timeout=200)
-    resp.raise_for_status()
-    data = resp.json()
-    
-    stations = []
-    for el in data.get("elements", []):
-        tags = el.get("tags", {})
-        name_th = tags.get("name:th", tags.get("name", ""))
-        name_en = tags.get("name:en", "")
-        stations.append({
-            "osm_id": el["id"],
-            "lat": el["lat"],
-            "lon": el["lon"],
-            "name_th": name_th,
-            "name_en": name_en,
-            "operator": tags.get("operator", ""),
-            "railway": tags.get("railway", ""),
-            "all_tags": tags,
-        })
-    
-    print(f"  Found {len(stations)} OSM railway nodes in Thailand")
-    return stations
+    (node["railway"="station"](area.a);node["railway"="halt"](area.a);node["railway"="stop"](area.a););
+    out body;"""
+    print("Fetching from Overpass API...")
+    r = requests.get(OVERPASS_URL, params={"data": query}, timeout=200)
+    r.raise_for_status()
+    nodes = []
+    for el in r.json().get("elements", []):
+        t = el.get("tags", {})
+        nodes.append({"lat": el["lat"], "lon": el["lon"],
+                       "name_th": t.get("name:th", t.get("name", "")),
+                       "name_en": t.get("name:en", "")})
+    print(f"  {len(nodes)} OSM nodes found")
+    return nodes
 
-# --- STEP 2: Match stations ---
-def normalize_thai(s):
-    """Normalize Thai station name for matching"""
-    s = s.strip()
-    # Remove common prefixes
-    for prefix in ["สถานีรถไฟ", "ชุมทาง", "ป้ายหยุดรถ"]:
-        s = s.replace(prefix, "").strip()
-    return s
+def norm(s):
+    s = s.strip().lower()
+    for p in ["สถานีรถไฟ","ชุมทาง","ป้ายหยุดรถ"]:
+        s = s.replace(p, "")
+    return s.strip()
 
-def similarity(a, b):
+def sim(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
-def match_stations(our_stations, osm_stations):
-    """Match our station list with OSM data"""
-    # Build lookup by Thai name
-    osm_by_th = {}
-    for osm in osm_stations:
-        name = normalize_thai(osm["name_th"])
-        if name:
-            osm_by_th[name] = osm
-    
-    # Build lookup by English name  
-    osm_by_en = {}
-    for osm in osm_stations:
-        name = osm["name_en"].strip()
-        if name:
-            osm_by_en[name.lower()] = osm
-    
-    matched = 0
-    unmatched = []
-    
-    for station in our_stations:
-        our_th = normalize_thai(station["name_th"])
-        our_en = station["name_en"].lower()
-        
-        # Try exact Thai name match
-        if our_th in osm_by_th:
-            osm = osm_by_th[our_th]
-            station["lat"] = round(osm["lat"], 7)
-            station["lon"] = round(osm["lon"], 7)
-            station["coord_source"] = "osm_exact_th"
+def match(stations, osm):
+    by_th = {norm(o["name_th"]): o for o in osm if o["name_th"].strip()}
+    by_th_raw = {o["name_th"].strip(): o for o in osm if o["name_th"].strip()}
+    by_en = {}
+    for o in osm:
+        n = o["name_en"].strip().lower()
+        if n and n not in by_en:
+            by_en[n] = o
+    matched, unmatched = 0, []
+    for s in stations:
+        if s.get("coord_source") == "google_places":
+            matched += 1; continue
+        th_raw = s.get("name_th","").strip()
+        th = norm(s.get("name_th",""))
+        en = s["name_en"].lower().strip()
+        sched = s.get("schedule_name","").lower().strip()
+        found = None
+        if th_raw and th_raw in by_th_raw:
+            found = by_th_raw[th_raw]; src = "osm_th_raw"
+        elif th and th in by_th:
+            found = by_th[th]; src = "osm_th"
+        elif en and en in by_en:
+            found = by_en[en]; src = "osm_en"
+        elif sched and sched in by_en:
+            found = by_en[sched]; src = "osm_sched"
+        else:
+            # fuzzy Thai
+            best, bf = 0, None
+            if th:
+                for k, o in by_th.items():
+                    sc = sim(th, k)
+                    if sc > best: best, bf = sc, o
+            if best > 0.80:
+                found = bf; src = f"osm_fuzzy_th_{best:.2f}"
+            else:
+                best, bf = 0, None
+                if en:
+                    for k, o in by_en.items():
+                        sc = sim(en, k)
+                        if sc > best: best, bf = sc, o
+                if best > 0.80:
+                    found = bf; src = f"osm_fuzzy_en_{best:.2f}"
+        if found:
+            s["lat"] = round(found["lat"], 7)
+            s["lon"] = round(found["lon"], 7)
+            s["coord_source"] = src
+            if not s.get("name_th") and found.get("name_th"):
+                s["name_th"] = found["name_th"]
             matched += 1
-            continue
-        
-        # Try exact English name match
-        if our_en in osm_by_en:
-            osm = osm_by_en[our_en]
-            station["lat"] = round(osm["lat"], 7)
-            station["lon"] = round(osm["lon"], 7)
-            station["coord_source"] = "osm_exact_en"
-            matched += 1
-            continue
-        
-        # Try fuzzy Thai name match
-        best_score = 0
-        best_osm = None
-        for osm_name, osm in osm_by_th.items():
-            score = similarity(our_th, osm_name)
-            if score > best_score:
-                best_score = score
-                best_osm = osm
-        
-        if best_score > 0.75:
-            station["lat"] = round(best_osm["lat"], 7)
-            station["lon"] = round(best_osm["lon"], 7)
-            station["coord_source"] = f"osm_fuzzy_th_{best_score:.2f}"
-            matched += 1
-            continue
-        
-        # Try fuzzy English name match
-        best_score = 0
-        best_osm = None
-        for osm_name, osm in osm_by_en.items():
-            score = similarity(our_en, osm_name)
-            if score > best_score:
-                best_score = score
-                best_osm = osm
-        
-        if best_score > 0.75:
-            station["lat"] = round(best_osm["lat"], 7)
-            station["lon"] = round(best_osm["lon"], 7)
-            station["coord_source"] = f"osm_fuzzy_en_{best_score:.2f}"
-            matched += 1
-            continue
-        
-        unmatched.append(station["name_en"])
-    
+        else:
+            unmatched.append(s["name_en"])
     return matched, unmatched
 
-# --- STEP 3: Fallback - Nominatim geocoding ---
-def geocode_nominatim(station):
-    """Geocode a single station using Nominatim"""
-    query = f"{station['name_th']} สถานีรถไฟ {station['province']}"
-    url = "https://nominatim.openstreetmap.org/search"
-    params = {
-        "q": query,
-        "format": "json",
-        "countrycodes": "TH",
-        "limit": 1,
-    }
-    headers = {"User-Agent": "ThaiRailwayStationsGeocoder/1.0"}
-    
-    try:
-        resp = requests.get(url, params=params, headers=headers, timeout=10)
-        results = resp.json()
-        if results:
-            return float(results[0]["lat"]), float(results[0]["lon"])
-    except Exception as e:
-        print(f"  Nominatim error for {station['name_en']}: {e}")
-    
+def nominatim(station):
+    queries = []
+    if station.get("name_th"):
+        queries.append(f"{station['name_th']} สถานีรถไฟ")
+    queries.append(f"{station['name_en']} railway station Thailand")
+    if station.get("province"):
+        queries.append(f"{station['name_en']} {station['province']} Thailand")
+    for q in queries:
+        try:
+            r = requests.get(NOMINATIM_URL, params={"q":q,"format":"json","countrycodes":"TH","limit":1},
+                             headers={"User-Agent":"ThaiRailGeocoder/1.0"}, timeout=10)
+            res = r.json()
+            if res:
+                lat, lon = float(res[0]["lat"]), float(res[0]["lon"])
+                if 5.5 < lat < 21 and 97 < lon < 106:
+                    return lat, lon
+        except Exception as e:
+            print(f"  Nominatim err {station['name_en']}: {e}")
+        time.sleep(1.1)
     return None, None
 
-# --- MAIN ---
 def main():
-    # Load our station data
     with open(INPUT_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
     stations = data["stations"]
-    print(f"Loaded {len(stations)} stations from {INPUT_FILE}")
-    
-    # Fetch OSM data
-    osm_stations = fetch_osm_stations()
-    
-    # Match
-    matched, unmatched = match_stations(stations, osm_stations)
-    print(f"\nMatched from OSM: {matched}/{len(stations)}")
-    print(f"Unmatched: {len(unmatched)}")
-    
-    # Fallback: Nominatim for unmatched
-    if unmatched:
-        print(f"\nGeocoding {len(unmatched)} unmatched stations via Nominatim...")
-        nom_matched = 0
-        for station in stations:
-            if station["name_en"] in unmatched:
-                lat, lon = geocode_nominatim(station)
-                if lat and lon:
-                    station["lat"] = round(lat, 7)
-                    station["lon"] = round(lon, 7)
-                    station["coord_source"] = "nominatim"
-                    nom_matched += 1
+    print(f"Loaded {len(stations)} stations")
+    osm = fetch_osm()
+    m, um = match(stations, osm)
+    print(f"OSM matched: {m}/{len(stations)}, unmatched: {len(um)}")
+    if um:
+        print(f"Nominatim for {len(um)} stations...")
+        nm = 0
+        for s in stations:
+            if s["name_en"] in um:
+                lat, lon = nominatim(s)
+                if lat:
+                    s["lat"], s["lon"] = round(lat,7), round(lon,7)
+                    s["coord_source"] = "nominatim"; nm += 1
+                    print(f"  + {s['name_en']}")
                 else:
-                    station["coord_source"] = "unverified"
-                time.sleep(1.1)  # Nominatim rate limit
-        
-        print(f"  Nominatim matched: {nom_matched}/{len(unmatched)}")
-    
-    # Update metadata
-    total_with = sum(1 for s in stations if s.get("coord_source", "").startswith("osm") or s.get("coord_source") == "nominatim")
-    data["stations_with_coordinates"] = len(stations)
-    data["stations_verified_from_osm"] = sum(1 for s in stations if s.get("coord_source", "").startswith("osm"))
-    data["coordinate_sources"] = "OpenStreetMap Overpass API + Nominatim fallback"
-    
-    # Save
+                    if s.get("coord_source") != "google_places":
+                        s["coord_source"] = "unverified"
+                    print(f"  - {s['name_en']}")
+        print(f"  Nominatim: {nm}/{len(um)}")
+    data["total_stations"] = len(stations)
+    osm_c = sum(1 for s in stations if str(s.get("coord_source","")).startswith("osm"))
+    data["coords_osm"] = osm_c
+    data["coords_google"] = sum(1 for s in stations if s.get("coord_source")=="google_places")
+    data["coords_nominatim"] = sum(1 for s in stations if s.get("coord_source")=="nominatim")
+    data["coords_unverified"] = sum(1 for s in stations if s.get("coord_source") in ("unverified","estimated","needs_geocoding"))
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    
-    print(f"\nSaved to {OUTPUT_FILE}")
-    print(f"  OSM verified: {data['stations_verified_from_osm']}")
-    print(f"  Total with coords: {data['stations_with_coordinates']}")
+    print(f"\nSaved {OUTPUT_FILE}: {len(stations)} stations, OSM={osm_c}, Google={data['coords_google']}, Nominatim={data['coords_nominatim']}, Unverified={data['coords_unverified']}")
 
 if __name__ == "__main__":
     main()

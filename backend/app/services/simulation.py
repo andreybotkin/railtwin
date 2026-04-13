@@ -73,9 +73,22 @@ class TrainSimulationService:
     def _get_candidate_current_minutes(
         self, schedules: list[Schedule]
     ) -> float | None:
-        """Wrapper so monkeypatching ``_get_current_time_minutes`` propagates here."""
+        """Backward-compatible wrapper without realtime delay correction."""
         return schedule_utils.candidate_current_minutes(
-            schedules, self._get_current_time_minutes()
+            schedules,
+            self._get_current_time_minutes(),
+        )
+
+    def _get_candidate_current_minutes_with_delay(
+        self,
+        schedules: list[Schedule],
+        delay: int,
+    ) -> float | None:
+        """Resolve the active service window after applying realtime deviation."""
+        return schedule_utils.candidate_current_minutes(
+            schedules,
+            self._get_current_time_minutes(),
+            delay=delay,
         )
 
     def _calculate_heading(
@@ -101,10 +114,13 @@ class TrainSimulationService:
         route_segments: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any] | None:
         """Calculate a current position snapshot for a single train."""
-        current_minutes = self._get_candidate_current_minutes(schedules)
+        delay = self._tts_delays.get(train.train_number, 0)
+        current_minutes = self._get_candidate_current_minutes_with_delay(
+            schedules,
+            delay,
+        )
         if current_minutes is None:
             return None
-        delay = self._tts_delays.get(train.train_number, 0)
         return build_train_position(
             train,
             schedules,
@@ -124,10 +140,13 @@ class TrainSimulationService:
         route_segments: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any] | None:
         """Generate a geops-compatible trajectory object with ``time_intervals``."""
-        current_minutes = self._get_candidate_current_minutes(schedules)
+        delay = self._tts_delays.get(train.train_number, 0)
+        current_minutes = self._get_candidate_current_minutes_with_delay(
+            schedules,
+            delay,
+        )
         if current_minutes is None:
             return None
-        delay = self._tts_delays.get(train.train_number, 0)
         return build_train_trajectory(
             train,
             schedules,
@@ -316,7 +335,10 @@ class TrainSimulationService:
                         route_coords = None
 
                 delay = self._tts_delays.get(train.train_number, 0)
-                current_minutes = self._get_candidate_current_minutes(schedules)
+                current_minutes = self._get_candidate_current_minutes_with_delay(
+                    schedules,
+                    delay,
+                )
                 if current_minutes is None:
                     continue
 

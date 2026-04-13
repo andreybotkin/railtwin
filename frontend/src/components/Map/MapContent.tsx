@@ -21,7 +21,6 @@ import {
   MapContainer,
   TileLayer,
   Polyline,
-  Popup,
   ScaleControl,
   useMap,
   useMapEvents,
@@ -32,10 +31,10 @@ import 'leaflet/dist/leaflet.css';
 import { FullScreen as LeafletFullScreen } from 'leaflet.fullscreen';
 import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 
-import { useRoutes, useStations, useTrainTrajectories, useNetworkEdges } from '@/lib/hooks';
+import { useStaticMapData, useTrainTrajectories } from '@/lib/hooks';
 import { getRouteColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import { getTrajectoryClient } from '@/lib/websocket';
+import { getTrajectoryClient, getWebSocketClient } from '@/lib/websocket';
 import { buildPositionFromTrajectory } from '@/lib/trajectory-interpolation';
 import { useMapTopicStore } from '@/lib/stores/map-topic-store';
 import CanvasTrainLayer from './CanvasTrainLayer';
@@ -59,6 +58,7 @@ interface MapContentProps {
   className?: string;
   selectedTrainId?: number | null;
   onTrainSelect?: (id: number | null) => void;
+  onViewportChange?: (bbox: string) => void;
 }
 
 /**
@@ -173,11 +173,14 @@ function LocateControl() {
   return null;
 }
 
-export default function MapContent({ className, selectedTrainId, onTrainSelect }: MapContentProps) {
-  const { data: routesData } = useRoutes();
-  const { data: stationsData } = useStations();
+export default function MapContent({
+  className,
+  selectedTrainId,
+  onTrainSelect,
+  onViewportChange,
+}: MapContentProps) {
+  const { data: staticMapData } = useStaticMapData();
   const { trajectories } = useTrainTrajectories();
-  const { data: networkEdgesData } = useNetworkEdges();
 
   // Topic store
   const activeTopic = useMapTopicStore((s) => s.getActiveTopic());
@@ -191,8 +194,8 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
       .filter((position): position is NonNullable<typeof position> => position !== null);
   }, [trajectories]);
 
-  const routes = routesData?.items || [];
-  const stations = stationsData?.items || [];
+  const stations = staticMapData?.stations || [];
+  const networkEdgesData = staticMapData?.network_edges;
   const displayNetworkEdges = useMemo(() => {
     const features = networkEdgesData?.features || [];
     const seen = new Set<string>();
@@ -227,8 +230,18 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
     });
   }, [trainPositions, isLayerVisible]);
 
-  // All routes are always visible
-  const visibleRoutes = routes;
+  const visibleRouteEdges = useMemo(
+    () =>
+      displayNetworkEdges.filter((edge) => {
+        const routeType = edge.properties.route_type;
+        if (routeType === 'northern') return isLayerVisible('routes-northern');
+        if (routeType === 'northeastern') return isLayerVisible('routes-northeastern');
+        if (routeType === 'southern') return isLayerVisible('routes-southern');
+        if (routeType === 'eastern') return isLayerVisible('routes-eastern');
+        return true;
+      }),
+    [displayNetworkEdges, isLayerVisible],
+  );
 
   // The selected train always shows as a rich DOM marker regardless of zoom
   const selectedTrainPosition = useMemo(
@@ -251,9 +264,10 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
 
   // BBOX change handler — sends to both position and trajectory WS clients
   const handleBBoxChange = useCallback((bbox: string) => {
-    const trajClient = getTrajectoryClient();
-    if (trajClient.isConnected()) trajClient.sendBBox(bbox);
-  }, []);
+    getTrajectoryClient().sendBBox(bbox);
+    getWebSocketClient().sendBBox(bbox);
+    onViewportChange?.(bbox);
+  }, [onViewportChange]);
 
   // Permalink: persist selected train in URL
   useEffect(() => {
@@ -307,39 +321,27 @@ export default function MapContent({ className, selectedTrainId, onTrainSelect }
                 color="#555555"
                 weight={2}
                 opacity={0.7}
+                interactive={false}
               />
             );
           })}
 
-        {/* Railway routes — filtered by layer tree, highlight selected train's route */}
+        {/* Railway network — route-colored topology edges from Redis-backed viewport API */}
         {generalization.routeMode !== 'hidden' &&
-          visibleRoutes.map((route) => {
-            if (!route.line_geometry?.coordinates) return null;
-
-            const positions = route.line_geometry.coordinates.map(
+          visibleRouteEdges.map((edge, idx) => {
+            const positions = edge.geometry.coordinates.map(
               (coord) => [coord[1], coord[0]] as [number, number],
             );
 
-            const isHighlighted = selectedTrainPosition?.route_id === route.id;
-
             return (
               <Polyline
-                key={route.id}
+                key={`route-edge-${idx}`}
                 positions={positions}
-                color={getRouteColor(route.route_type)}
-                weight={isHighlighted ? 7 : 4}
-                opacity={isHighlighted ? 1.0 : 0.7}
-              >
-                <Popup>
-                  <div className="min-w-[150px]">
-                    <h3 className="font-semibold">{route.name}</h3>
-                    {route.name_th && (
-                      <p className="text-sm text-muted-foreground">{route.name_th}</p>
-                    )}
-                    <p className="text-sm">Distance: {route.distance_km} km</p>
-                  </div>
-                </Popup>
-              </Polyline>
+                color={getRouteColor(edge.properties.route_type || '')}
+                weight={4}
+                opacity={0.75}
+                interactive={false}
+              />
             );
           })}
 
