@@ -81,23 +81,31 @@ class Settings(BaseSettings):
         "postgresql+asyncpg://postgres:postgres@localhost:5432/railway_db"
     )
 
-    @property
-    def database_url_sync(self) -> str:
-        """Get synchronous database URL for Alembic migrations."""
-        url = str(self.database_url)
-        return url.replace("+asyncpg", "")
-
     # Redis settings
     redis_url: str = "redis://localhost:6379/0"
 
     # Logging settings
-    log_level: str = "INFO"
+    log_level: str = "WARNING"
 
     # Rate limiting
     rate_limit_per_minute: int = 100
 
     # WebSocket settings
     ws_heartbeat_interval: int = 5  # seconds
+    position_cache_interval_seconds: int | None = None
+    trajectory_refresh_interval_seconds: int = 10
+
+    # Trajectory generation settings (geops mobility-toolbox-js pattern)
+    trajectory_lookahead_seconds: int = 600  # seconds of future movement in time_intervals
+    trajectory_step_seconds: int = 10        # time_interval point spacing
+
+    # geops compatibility
+    position_tenant: str = "thailand_railway"
+
+    def get_position_cache_interval_seconds(self) -> int:
+        """Return the effective cache refresh interval for position snapshots."""
+        interval = self.position_cache_interval_seconds or self.ws_heartbeat_interval
+        return max(1, interval)
 
 
 @lru_cache

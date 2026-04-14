@@ -2,15 +2,16 @@
  * Custom React hooks for the application.
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { startTransition, useEffect, useState, useCallback, useRef } from 'react';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import {
+  mapApi,
   stationApi,
   routeApi,
   trainApi,
   scheduleApi,
 } from '@/lib/api/client';
-import { getWebSocketClient, TrainWebSocketClient } from '@/lib/websocket';
+import { getWebSocketClient, TrainWebSocketClient, getTrajectoryClient } from '@/lib/websocket';
 import type {
   Station,
   Route,
@@ -19,7 +20,9 @@ import type {
   TrainSchedule,
   StationSchedule,
   TrainPositionUpdate,
+  TrainTrajectory,
   PaginatedResponse,
+  NetworkEdgeCollection,
 } from '@/types';
 
 /**
@@ -86,7 +89,9 @@ export function useStationSchedule(
 /**
  * Hook for real-time train positions via WebSocket.
  */
-export function useTrainPositions(): {
+export function useTrainPositions(
+  bbox?: string | null,
+): {
   positions: TrainPositionUpdate[];
   isConnected: boolean;
   error: string | null;
@@ -131,18 +136,82 @@ export function useTrainPositions(): {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !bbox) return;
+    const client = wsClientRef.current ?? getWebSocketClient();
+    client.sendBBox(bbox);
+  }, [bbox]);
+
   return { positions, isConnected, error };
 }
 
 /**
  * Hook for initial train positions (REST API fallback).
  */
-export function useInitialPositions(): UseQueryResult<TrainPositionUpdate[]> {
+export function useInitialPositions(
+  bbox?: string | null,
+): UseQueryResult<TrainPositionUpdate[]> {
   return useQuery({
-    queryKey: ['train-positions'],
-    queryFn: () => trainApi.getAllPositions(),
+    queryKey: ['train-positions', bbox ?? 'no-bbox'],
+    queryFn: () => trainApi.getAllPositions(bbox!),
+    enabled: Boolean(bbox),
     refetchInterval: 30000, // Refetch every 30 seconds as fallback
     staleTime: 10000,
+  });
+}
+
+/**
+ * Hook for geops-compatible train trajectories via WebSocket.
+ *
+ * Connects to /ws/trajectory and maintains a Map<trainId, TrainTrajectory>.
+ * Trajectories contain time_intervals so the caller can interpolate position at
+ * any moment with getVehiclePosition() — no additional round-trips needed.
+ *
+ * Pattern: geops/mobility-toolbox-js RealtimeEngine trajectory management.
+ */
+export function useTrainTrajectories(): {
+  trajectories: Map<number, TrainTrajectory>;
+  isConnected: boolean;
+} {
+  const [trajectories, setTrajectories] = useState<Map<number, TrainTrajectory>>(new Map());
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const client = getTrajectoryClient();
+
+    const unsub = client.onUpdate((updated) => {
+      startTransition(() => {
+        setTrajectories(new Map(updated));
+      });
+      if (!isConnected) setIsConnected(true);
+    });
+
+    client.connect();
+
+    return () => {
+      unsub();
+      client.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return { trajectories, isConnected };
+}
+
+/**
+ * Hook for loading static map infrastructure data once per page load.
+ */
+export function useStaticMapData(): UseQueryResult<{
+  stations: Station[];
+  network_edges: NetworkEdgeCollection;
+}> {
+  return useQuery({
+    queryKey: ['map-static-data'],
+    queryFn: () => mapApi.getStaticData(),
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 }
 

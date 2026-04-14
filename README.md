@@ -68,8 +68,9 @@ docker compose exec backend alembic upgrade head
 
 4. Access the application:
    - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
+   - Gateway API (for frontend): http://localhost:8002
+   - Backend API (internal): http://localhost:8000
+   - Backend API Docs: http://localhost:8000/docs
 
 ### Manual Setup
 
@@ -114,11 +115,11 @@ thailand-railway-digital-twin/
 | GET | `/api/v1/routes` | List all routes |
 | GET | `/api/v1/routes/{id}` | Get route with geometry |
 | GET | `/api/v1/trains` | List all trains |
-| GET | `/api/v1/trains/positions` | Get all train positions |
+| GET | `/api/v1/trains/positions` | Get all train positions (via gateway from Redis) |
 | GET | `/api/v1/schedules` | List schedules |
 | WS | `/ws/trains` | Real-time train positions |
 
-See full API documentation at `/docs` when running the backend.
+See full API documentation at `/docs` when running the backend. Frontend traffic should use the gateway service.
 
 ## Data Sources
 
@@ -136,6 +137,7 @@ kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/postgres/
 kubectl apply -f k8s/redis/
 kubectl apply -f k8s/backend/
+kubectl apply -f k8s/gateway/
 kubectl apply -f k8s/frontend/
 ```
 

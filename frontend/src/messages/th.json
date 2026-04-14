@@ -1,0 +1,83 @@
+{
+  "appTitle": "ระบบดิจิทัลทวินการรถไฟแห่งประเทศไทย",
+  "header": {
+    "toggleTrainPanel": "เปิด/ปิดแผงรถไฟ",
+    "toggleSchedulePanel": "เปิด/ปิดแผงตารางเดินรถ",
+    "toggleDarkMode": "เปลี่ยนโหมดมืด/สว่าง",
+    "language": "ภาษา"
+  },
+  "map": {
+    "northern": "สายเหนือ",
+    "northeastern": "สายตะวันออกเฉียงเหนือ",
+    "southern": "สายใต้",
+    "eastern": "สายตะวันออก",
+    "locateMe": "แสดงตำแหน่งของฉัน"
+  },
+  "trains": {
+    "title": "รถไฟ",
+    "train": "รถไฟ",
+    "speed": "ความเร็ว",
+    "delay": "ล่าช้า",
+    "onTime": "ตรงเวลา",
+    "nextStation": "สถานีถัดไป",
+    "journeyProgress": "ความคืบหน้าเส้นทาง",
+    "specialExpress": "ด่วนพิเศษ",
+    "rapid": "เร็ว",
+    "ordinary": "ธรรมดา",
+    "moving": "กำลังวิ่ง",
+    "stopped": "หยุด",
+    "atStation": "ที่สถานี",
+    "delayed": "ล่าช้า",
+    "searchPlaceholder": "ค้นหารถไฟ...",
+    "noTrainsFound": "ไม่พบรถไฟ",
+    "live": "สด",
+    "polling": "โพลลิ่ง"
+  },
+  "schedule": {
+    "title": "ตารางเดินรถ",
+    "routes": "เส้นทาง",
+    "stations": "สถานี",
+    "arrival": "ขาเข้า",
+    "departure": "ขาออก",
+    "platform": "ชานชาลา",
+    "distance": "ระยะทาง"
+  },
+  "station": {
+    "majorStation": "สถานีหลัก",
+    "parking": "ที่จอดรถ",
+    "wifi": "ไวไฟ",
+    "food": "อาหาร",
+    "atm": "ตู้เอทีเอ็ม"
+  },
+  "common": {
+    "loading": "กำลังโหลด...",
+    "error": "ข้อผิดพลาด",
+    "noData": "ไม่มีข้อมูล"
+  },
+  "topics": {
+    "railway": "ระบบเดินรถ",
+    "satellite": "มุมมองดาวเทียม",
+    "infrastructure": "โครงสร้างพื้นฐาน",
+    "dark": "โหมดกลางคืน"
+  },
+  "layers": {
+    "title": "ชั้นข้อมูล",
+    "theme": "ธีม",
+    "routes": "เส้นทาง",
+    "routeNorthern": "สายเหนือ",
+    "routeNortheastern": "สายตะวันออกเฉียงเหนือ",
+    "routeSouthern": "สายใต้",
+    "routeEastern": "สายตะวันออก",
+    "stations": "สถานี",
+    "stationsMajor": "สถานีหลัก",
+    "stationsAll": "สถานีทั้งหมด",
+    "trains": "รถไฟ",
+    "trainsSpecialExpress": "ด่วนพิเศษ",
+    "trainsRapid": "เร็ว",
+    "trainsOrdinary": "ธรรมดา"
+  },
+  "footer": {
+    "copyright": "© 2569 ระบบดิจิทัลทวินการรถไฟแห่งประเทศไทย",
+    "dataSource": "แหล่งข้อมูล: การรถไฟแห่งประเทศไทย (ร.ฟ.ท.)"
+  }
+}

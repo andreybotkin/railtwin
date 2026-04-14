@@ -120,8 +120,9 @@ def _parse_tts_data(data: Any) -> dict[str, int]:
             delay_minutes = int(delay)
         except (ValueError, TypeError):
             delay_minutes = 0
-        # Only store positive delays (trains that are late)
-        if delay_minutes > 0:
+        # Keep both delays and early departures so simulation reflects
+        # the actual running state against the timetable.
+        if delay_minutes != 0:
             delays[train_code] = delay_minutes
 
     return delays
@@ -137,8 +138,6 @@ async def store_delays_in_redis(
         redis_client: Async Redis client.
         delays: Dict mapping train_code to delay_minutes.
     """
-    if not delays:
-        return
     await redis_client.set(
         REDIS_DELAYS_KEY,
         json.dumps(delays),

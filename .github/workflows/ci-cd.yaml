@@ -9,6 +9,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'raildatacollector/**'
+      - 'gateway/**'
       - 'k8s/**'
       - '.github/workflows/ci-cd.yaml'
   pull_request:
@@ -17,6 +18,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'raildatacollector/**'
+      - 'gateway/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -36,6 +38,7 @@ jobs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
       raildatacollector: ${{ steps.changes.outputs.raildatacollector }}
+      gateway: ${{ steps.changes.outputs.gateway }}
       k8s: ${{ steps.changes.outputs.k8s }}
       build-matrix: ${{ steps.changes.outputs.build-matrix }}
       has-build-changes: ${{ steps.changes.outputs.has-build-changes }}
@@ -66,7 +69,8 @@ jobs:
             echo "frontend=true"          >> $GITHUB_OUTPUT
             echo "raildatacollector=true" >> $GITHUB_OUTPUT
             echo "k8s=true"               >> $GITHUB_OUTPUT
-            echo 'build-matrix=["backend","frontend","raildatacollector"]' >> $GITHUB_OUTPUT
+            echo "gateway=true"           >> $GITHUB_OUTPUT
+            echo 'build-matrix=["backend","frontend","raildatacollector","gateway"]' >> $GITHUB_OUTPUT
             echo "has-build-changes=true"                                  >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -80,21 +84,25 @@ jobs:
           FRONTEND_CHANGED=false
           RAILDATACOLLECTOR_CHANGED=false
           K8S_CHANGED=false
+          GATEWAY_CHANGED=false
 
           (echo "$CHANGED" | grep -q "^backend/"           || $WORKFLOW_CHANGED) && BACKEND_CHANGED=true
           (echo "$CHANGED" | grep -q "^frontend/"          || $WORKFLOW_CHANGED) && FRONTEND_CHANGED=true
           (echo "$CHANGED" | grep -q "^raildatacollector/" || $WORKFLOW_CHANGED) && RAILDATACOLLECTOR_CHANGED=true
+          (echo "$CHANGED" | grep -q "^gateway/" || $WORKFLOW_CHANGED) && GATEWAY_CHANGED=true
           echo "$CHANGED" | grep -q "^k8s/" && K8S_CHANGED=true
 
           echo "backend=$BACKEND_CHANGED"                   >> $GITHUB_OUTPUT
           echo "frontend=$FRONTEND_CHANGED"                 >> $GITHUB_OUTPUT
           echo "raildatacollector=$RAILDATACOLLECTOR_CHANGED" >> $GITHUB_OUTPUT
+          echo "gateway=$GATEWAY_CHANGED"                   >> $GITHUB_OUTPUT
           echo "k8s=$K8S_CHANGED"                           >> $GITHUB_OUTPUT
 
           MATRIX=()
           $BACKEND_CHANGED           && MATRIX+=("\"backend\"")
           $FRONTEND_CHANGED          && MATRIX+=("\"frontend\"")
           $RAILDATACOLLECTOR_CHANGED && MATRIX+=("\"raildatacollector\"")
+          $GATEWAY_CHANGED && MATRIX+=("\"gateway\"")
 
           if [ ${#MATRIX[@]} -gt 0 ]; then
             MATRIX_JSON="[$(IFS=,; echo "${MATRIX[*]}")]"
@@ -105,7 +113,7 @@ jobs:
             echo "has-build-changes=false" >> $GITHUB_OUTPUT
           fi
 
-          echo "Changed: backend=$BACKEND_CHANGED frontend=$FRONTEND_CHANGED raildatacollector=$RAILDATACOLLECTOR_CHANGED k8s=$K8S_CHANGED"
+          echo "Changed: backend=$BACKEND_CHANGED frontend=$FRONTEND_CHANGED raildatacollector=$RAILDATACOLLECTOR_CHANGED gateway=$GATEWAY_CHANGED k8s=$K8S_CHANGED"
 
   ##############################################################
   # 2a. Backend CI  (parallel with frontend-ci)

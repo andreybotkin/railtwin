@@ -13,10 +13,11 @@ import type {
   StationSchedule,
   PaginatedResponse,
   TrainPositionUpdate,
+  NetworkEdgeCollection,
 } from '@/types';
 
 // API base URL from environment
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
 
 /**
  * Create configured axios instance for API calls.
@@ -156,8 +157,10 @@ export const trainApi = {
   /**
    * Get current positions of all active trains.
    */
-  getAllPositions: async (): Promise<TrainPositionUpdate[]> => {
-    const response = await api.get<TrainPositionUpdate[]>('/trains/positions');
+  getAllPositions: async (bbox: string): Promise<TrainPositionUpdate[]> => {
+    const response = await api.get<TrainPositionUpdate[]>('/trains/positions', {
+      params: { bbox },
+    });
     return response.data;
   },
 };
@@ -225,6 +228,20 @@ export const scheduleApi = {
       `/schedules/station/${stationId}/upcoming`,
       { params: { limit } }
     );
+    return response.data;
+  },
+};
+
+export const mapApi = {
+  /**
+   * Get the complete railway map (all stations + all edges) from Redis via gateway.
+   * Single request — no pagination, no database round-trips.
+   */
+  getStaticData: async (): Promise<{
+    stations: Station[];
+    network_edges: NetworkEdgeCollection;
+  }> => {
+    const response = await api.get<{ stations: Station[]; network_edges: NetworkEdgeCollection }>('/map/all');
     return response.data;
   },
 };

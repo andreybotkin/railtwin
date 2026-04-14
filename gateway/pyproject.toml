@@ -1,0 +1,43 @@
+[project]
+name = "thailand-railway-gateway"
+version = "1.0.0"
+description = "Stateless Gateway for Thailand Railway Digital Twin"
+readme = "README.md"
+requires-python = ">=3.14"
+license = "MIT"
+authors = [{ name = "Thailand Railway Team" }]
+dependencies = [
+    "fastapi>=0.135.0",
+    "uvicorn[standard]>=0.44.0",
+    "pydantic-settings>=2.13.0",
+    "httpx>=0.28.0",
+    "redis>=7.0.0",
+    "structlog>=25.5.0",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "S", "B", "A", "C4", "DTZ", "T20", "RET", "SIM", "TCH", "ERA", "PTH"]
+ignore = ["E501", "S101", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101", "S105"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.mypy]
+python_version = "3.14"
+warn_unused_configs = true
+ignore_missing_imports = true

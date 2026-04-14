@@ -110,7 +110,7 @@ class TrainPositionBase(BaseModel):
     speed: float | None = Field(None, ge=0, le=300)
     heading: float | None = Field(None, ge=0, lt=360)
     status: str = Field(default="moving", max_length=20)
-    delay_minutes: int = Field(default=0, ge=0)
+    delay_minutes: int = Field(default=0)
 
 
 class TrainPositionCreate(TrainPositionBase):

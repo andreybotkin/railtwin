@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: raildbsetup-config
+  namespace: railway
+data:
+  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/railway_db"
+  LOG_LEVEL: "INFO"
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  KML_LOCAL_PATH: "/app/railroad/20260410RailwayMapofThailand.kml"
+  SCHEDULE_RAW_DIR: "/app/schedule/raw"
+  SCHEDULE_SEED_PATH: "/app/schedule/schedules_seed.json"
+  SETUP_PORT: "8003"
