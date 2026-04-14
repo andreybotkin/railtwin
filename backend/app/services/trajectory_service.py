@@ -192,9 +192,10 @@ def _build_schedule_events(
     delay: int,
     now_unix_ms: int,
     lookahead_seconds: int,
-) -> tuple[list[list[float]], list[dict[str, Any]]]:
+) -> tuple[list[list[float]], list[dict[str, Any]], list[list[Any]]]:
     anchor_intervals: list[list[float]] = []
     schedule_events: list[dict[str, Any]] = []
+    anchor_coordinate_timestamps: list[list[Any]] = []
     total_stops = len(schedules)
 
     for index, schedule in enumerate(schedules):
@@ -227,6 +228,10 @@ def _build_schedule_events(
             anchor_intervals.append(
                 [timestamp_ms, round(geom_fraction, 6), rotation]
             )
+            if coordinates is not None:
+                anchor_coordinate_timestamps.append(
+                    [timestamp_ms, coordinates, rotation]
+                )
             schedule_events.append(
                 {
                     "timestamp": timestamp_ms,
@@ -241,7 +246,8 @@ def _build_schedule_events(
             )
 
     schedule_events.sort(key=lambda event: event["timestamp"])
-    return anchor_intervals, schedule_events
+    anchor_coordinate_timestamps.sort(key=lambda item: int(item[0]))
+    return anchor_intervals, schedule_events, anchor_coordinate_timestamps
 
 
 def _merge_time_intervals(
@@ -257,6 +263,18 @@ def _merge_time_intervals(
         merged_by_timestamp[timestamp]
         for timestamp in sorted(merged_by_timestamp)
     ]
+
+
+def _merge_coordinate_timestamps(
+    sampled_points: list[list[Any]],
+    anchor_points: list[list[Any]],
+) -> list[list[Any]]:
+    merged_by_timestamp: dict[int, list[Any]] = {
+        int(point[0]): point for point in sampled_points
+    }
+    for point in anchor_points:
+        merged_by_timestamp[int(point[0])] = point
+    return [merged_by_timestamp[timestamp] for timestamp in sorted(merged_by_timestamp)]
 
 
 # Train-type colours — must match ``TYPE_COLORS`` in the frontend.
@@ -305,6 +323,7 @@ def build_train_trajectory(
     step_count = _lookahead // _step + 1
 
     time_intervals: list[list[float]] = []
+    coordinate_timestamps: list[list[Any]] = []
     fallback_coords: list[list[float]] = []
 
     bounds_min_lon = float("inf")
@@ -322,7 +341,7 @@ def build_train_trajectory(
     current_route_progress: float | None = None
     current_segment_progress: float | None = None
 
-    anchor_intervals, schedule_events = _build_schedule_events(
+    anchor_intervals, schedule_events, anchor_coordinate_timestamps = _build_schedule_events(
         schedules,
         route_coords=route_coords,
         route_distance_km=route_distance_km,
@@ -447,11 +466,18 @@ def build_train_trajectory(
         bounds_max_lat = max(bounds_max_lat, lat)
 
         time_intervals.append([step_unix_ms, round(geom_frac, 6), round(rotation, 1)])
+        coordinate_timestamps.append(
+            [step_unix_ms, [round(lon, 6), round(lat, 6)], round(rotation, 1)]
+        )
 
     if not time_intervals:
         return None
 
     time_intervals = _merge_time_intervals(time_intervals, anchor_intervals)
+    coordinate_timestamps = _merge_coordinate_timestamps(
+        coordinate_timestamps,
+        anchor_coordinate_timestamps,
+    )
 
     # Build GeoJSON geometry.
     if route_coords and len(route_coords) >= 2:
@@ -482,6 +508,7 @@ def build_train_trajectory(
             # Temporal position data (geops TrackerTrajectory pattern)
             # time_intervals: [[unix_ms, geom_frac, rotation_deg], ...]
             "time_intervals": time_intervals,
+            "coordinate_timestamps": coordinate_timestamps,
             "schedule_events": schedule_events,
             "bounds": [
                 bounds_min_lon,

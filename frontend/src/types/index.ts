@@ -190,6 +190,8 @@ export interface WebSocketMessage {
  *   rotation       — Heading in degrees (0 = North, clockwise)
  */
 export type TimeInterval = [number, number, number];
+/** [unix_ms, [lon, lat], rotation_degrees] */
+export type CoordinateTimestamp = [number, [number, number], number];
 
 export interface TrainTrajectoryLine {
   name: string;
@@ -231,6 +233,8 @@ export interface TrainTrajectoryProperties {
   topology_version?: string;
   /** Geops-compatible time_intervals for temporal position interpolation. */
   time_intervals: TimeInterval[];
+  /** Coordinate-first schema: [timestamp, [lon,lat], rotation] per sample. */
+  coordinate_timestamps?: CoordinateTimestamp[];
   line: TrainTrajectoryLine;
   /** BBOX of the visible trajectory segment: [minLon, minLat, maxLon, maxLat] */
   bounds: [number, number, number, number];

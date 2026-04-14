@@ -593,6 +593,12 @@ async def test_trajectory_contains_station_dwell_events(
     }
     assert time_intervals[1_120_000] == 0.5
     assert time_intervals[1_420_000] == 0.5
+    coordinate_timestamps = {
+        item[0]: item[1]
+        for item in props["coordinate_timestamps"]
+    }
+    assert coordinate_timestamps[1_120_000] == [5.0, 0.0]
+    assert coordinate_timestamps[1_420_000] == [5.0, 0.0]
 
 
 @pytest.mark.asyncio

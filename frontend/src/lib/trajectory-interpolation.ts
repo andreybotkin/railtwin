@@ -88,8 +88,34 @@ export function getVehiclePosition(
   nowMs: number,
   trajectory: TrainTrajectory,
 ): VehiclePosition | null {
-  const { time_intervals: intervals } = trajectory.properties;
+  const {
+    time_intervals: intervals,
+    coordinate_timestamps: coordinateTimestamps,
+  } = trajectory.properties;
   const coords = trajectory.geometry.coordinates as [number, number][];
+
+  if (coordinateTimestamps && coordinateTimestamps.length) {
+    const firstPoint = coordinateTimestamps[0];
+    const lastPoint = coordinateTimestamps[coordinateTimestamps.length - 1];
+
+    if (nowMs <= firstPoint[0]) {
+      return { lon: firstPoint[1][0], lat: firstPoint[1][1], rotation: firstPoint[2] };
+    }
+    if (nowMs >= lastPoint[0]) {
+      return { lon: lastPoint[1][0], lat: lastPoint[1][1], rotation: lastPoint[2] };
+    }
+
+    for (let j = 0; j < coordinateTimestamps.length - 1; j++) {
+      const [tStart, startCoord, rotStart] = coordinateTimestamps[j];
+      const [tEnd, endCoord] = coordinateTimestamps[j + 1];
+      if (tStart <= nowMs && nowMs <= tEnd) {
+        const timeFrac = (tEnd - tStart) > 0 ? (nowMs - tStart) / (tEnd - tStart) : 0;
+        const lon = startCoord[0] + timeFrac * (endCoord[0] - startCoord[0]);
+        const lat = startCoord[1] + timeFrac * (endCoord[1] - startCoord[1]);
+        return { lon, lat, rotation: rotStart };
+      }
+    }
+  }
 
   if (!intervals.length || !coords.length) return null;
 
@@ -180,6 +206,12 @@ export function buildPositionFromTrajectory(
  * geops `purgeOutOfDateTrajectories()` pattern.
  */
 export function isTrajectoryValid(trajectory: TrainTrajectory, nowMs: number): boolean {
+  const coordinateTimestamps = trajectory.properties.coordinate_timestamps;
+  if (coordinateTimestamps && coordinateTimestamps.length) {
+    const lastTime = coordinateTimestamps[coordinateTimestamps.length - 1][0];
+    return nowMs < lastTime + 5000;
+  }
+
   const intervals = trajectory.properties.time_intervals;
   if (!intervals.length) return false;
   const lastTime = intervals[intervals.length - 1][0];

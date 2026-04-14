@@ -223,6 +223,21 @@ def _trajectory_current_coordinate(
         return None
 
     props = trajectory.get("properties", {})
+    coordinate_timestamps = props.get("coordinate_timestamps")
+
+    if isinstance(coordinate_timestamps, list) and coordinate_timestamps:
+        first_point = coordinate_timestamps[0]
+        if (
+            isinstance(first_point, list)
+            and len(first_point) >= 2
+            and isinstance(first_point[1], list)
+            and len(first_point[1]) >= 2
+        ):
+            try:
+                return float(first_point[1][0]), float(first_point[1][1])
+            except (TypeError, ValueError):
+                pass
+
     time_intervals = props.get("time_intervals")
     geom_fraction = 0.0
 
