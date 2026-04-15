@@ -1,0 +1,9 @@
+# Root-level pyproject.toml
+# Prevents accidental pytest discovery across all microservices when run from
+# the project root.  Each service has its own pyproject.toml with testpaths.
+
+[tool.pytest.ini_options]
+# No tests should be collected from the root; run per-service instead.
+# Point to a non-existent path so nothing is collected.
+testpaths = []
+norecursedirs = ["simulation", "raildatacollector", "raildbsetup", "gateway", "frontend", "k8s", "docs"]

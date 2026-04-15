@@ -172,7 +172,7 @@ async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
 
 
-@app.get("/ready", tags=["Health"])
+@app.get("/ready", tags=["Health"], response_model=None)
 async def readiness_check() -> dict[str, str] | JSONResponse:
     """Readiness check endpoint.
 

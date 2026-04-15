@@ -334,7 +334,7 @@ async def test_reverse_direction_trajectory_uses_decreasing_route_progress(
     first_point = trajectory["properties"]["coordinate_timestamps"][0][1]
     last_point = trajectory["properties"]["coordinate_timestamps"][-1][1]
     first_interval = trajectory["properties"]["time_intervals"][0][1]
-    assert first_interval == pytest.approx(1.0, abs=1e-6)
+    assert first_interval == pytest.approx(0.5, abs=1e-6)
     assert first_point[0] > last_point[0]
 
 

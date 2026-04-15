@@ -208,53 +208,63 @@ async def test_get_all_active_trains_reads_all_batches() -> None:
     service = TrainSimulationService(session=None)  # type: ignore[arg-type]
     calls: list[tuple[int, int]] = []
 
-    async def fake_get_all_with_route(skip: int = 0, limit: int = 100) -> list[Train]:
+    async def fake_get_all_trains_for_simulation(
+        *, skip: int = 0, limit: int = 100
+    ) -> list[dict]:
         calls.append((skip, limit))
         if skip == 0:
             return [
-                Train(
-                    id=index,
-                    train_number=str(index),
-                    train_type="ordinary",
-                    current_route_id=1,
-                )
+                {
+                    "id": index,
+                    "train_number": str(index),
+                    "train_type": "ordinary",
+                    "current_route_id": 1,
+                }
                 for index in range(1, 101)
             ]
         if skip == 100:
             return [
-                Train(
-                    id=101,
-                    train_number="101",
-                    train_type="ordinary",
-                    current_route_id=1,
-                )
+                {
+                    "id": 101,
+                    "train_number": "101",
+                    "train_type": "ordinary",
+                    "current_route_id": 1,
+                }
             ]
         return []
 
-    async def fake_get_by_train(_train_id: int) -> list[Schedule]:
+    async def fake_get_train_schedule(train_id: int) -> list[dict]:
         return [
-            Schedule(
-                train_id=1,
-                station_name="Bangkok",
-                sequence=0,
-                day_of_week=None,
-            )
+            {
+                "id": 1,
+                "train_id": train_id,
+                "station_name": "Bangkok",
+                "sequence": 0,
+                "day_of_week": None,
+                "arrival_day_offset": 0,
+                "departure_day_offset": 0,
+            }
         ]
 
-    async def fake_get_by_id_with_geometry(_route_id: int) -> None:
-        return None
+    async def fake_get_route_geometry_bulk(route_ids: list[int]) -> dict:
+        return {}
+
+    class FakeReader:
+        get_all_trains_for_simulation = staticmethod(fake_get_all_trains_for_simulation)
+        get_train_schedule = staticmethod(fake_get_train_schedule)
+        get_route_geometry_bulk = staticmethod(fake_get_route_geometry_bulk)
+
+    service.reader = FakeReader()  # type: ignore[assignment]
 
     async def fake_get_train_position(
-        train: Train,
-        schedules: list[Schedule],
-        route_coords: list[list[float]] | None,
+        train: object,
+        schedules: list,
+        route_coords: list | None,
         route_distance_km: float | None = None,
+        route_segments: list | None = None,
     ) -> dict[str, int]:
-        return {"train_id": train.id}
+        return {"train_id": getattr(train, "id", 0)}
 
-    service.train_repo.get_all_with_route = fake_get_all_with_route  # type: ignore[method-assign]
-    service.schedule_repo.get_by_train = fake_get_by_train  # type: ignore[method-assign]
-    service.route_repo.get_by_id_with_geometry = fake_get_by_id_with_geometry  # type: ignore[method-assign]
     service.get_train_position = fake_get_train_position  # type: ignore[method-assign]
 
     positions = await service.get_all_active_trains()
@@ -434,20 +444,32 @@ async def test_get_all_active_train_data_returns_three_lists() -> None:
     """get_all_active_train_data() should return (positions, trajectories, stop_sequences)."""
     service = TrainSimulationService(session=None)  # type: ignore[arg-type]
 
-    async def fake_get_all_with_route(skip: int = 0, limit: int = 100) -> list[Train]:
+    async def fake_get_all_trains_for_simulation(
+        *, skip: int = 0, limit: int = 100
+    ) -> list[dict]:
         if skip == 0:
             return [
-                Train(
-                    id=1, train_number="1", train_type="ordinary", current_route_id=None
-                )
+                {
+                    "id": 1,
+                    "train_number": "1",
+                    "train_type": "ordinary",
+                    "current_route_id": None,
+                }
             ]
         return []
 
-    async def fake_get_by_trains(train_ids: list[int]) -> dict[int, list[Schedule]]:
+    async def fake_get_schedules_by_trains(train_ids: list[int]) -> dict:
         return {}
 
-    service.train_repo.get_all_with_route = fake_get_all_with_route  # type: ignore[method-assign]
-    service.schedule_repo.get_by_trains = fake_get_by_trains  # type: ignore[method-assign]
+    async def fake_get_route_geometry_bulk(route_ids: list[int]) -> dict:
+        return {}
+
+    class FakeReader:
+        get_all_trains_for_simulation = staticmethod(fake_get_all_trains_for_simulation)
+        get_schedules_by_trains = staticmethod(fake_get_schedules_by_trains)
+        get_route_geometry_bulk = staticmethod(fake_get_route_geometry_bulk)
+
+    service.reader = FakeReader()  # type: ignore[assignment]
 
     positions, trajectories, stop_sequences = await service.get_all_active_train_data()
 
@@ -461,43 +483,49 @@ async def test_get_all_active_train_data_can_skip_trajectory_generation() -> Non
     """Position-only cache refreshes should skip heavy trajectory generation."""
     service = TrainSimulationService(session=None)  # type: ignore[arg-type]
 
-    async def fake_get_all_with_route(skip: int = 0, limit: int = 100) -> list[Train]:
+    async def fake_get_all_trains_for_simulation(
+        *, skip: int = 0, limit: int = 100
+    ) -> list[dict]:
         if skip == 0:
             return [
-                Train(id=1, train_number="1", train_type="ordinary", current_route_id=1)
+                {
+                    "id": 1,
+                    "train_number": "1",
+                    "train_type": "ordinary",
+                    "current_route_id": 1,
+                }
             ]
         return []
 
-    async def fake_get_by_trains(train_ids: list[int]) -> dict[int, list[Schedule]]:
+    async def fake_get_schedules_by_trains(train_ids: list[int]) -> dict:
         return {
             1: [
-                Schedule(
-                    train_id=1,
-                    station_name="Bangkok",
-                    departure_time=time(10, 0),
-                    arrival_day_offset=0,
-                    departure_day_offset=0,
-                    sequence=0,
-                    day_of_week=None,
-                    route_progress=0.0,
-                ),
-                Schedule(
-                    train_id=1,
-                    station_name="Ayutthaya",
-                    arrival_time=time(11, 0),
-                    arrival_day_offset=0,
-                    departure_day_offset=0,
-                    sequence=1,
-                    day_of_week=None,
-                    route_progress=1.0,
-                ),
+                {
+                    "id": 1,
+                    "train_id": 1,
+                    "station_name": "Bangkok",
+                    "departure_time": "10:00",
+                    "arrival_day_offset": 0,
+                    "departure_day_offset": 0,
+                    "sequence": 0,
+                    "day_of_week": None,
+                    "route_progress": 0.0,
+                },
+                {
+                    "id": 2,
+                    "train_id": 1,
+                    "station_name": "Ayutthaya",
+                    "arrival_time": "11:00",
+                    "arrival_day_offset": 0,
+                    "departure_day_offset": 0,
+                    "sequence": 1,
+                    "day_of_week": None,
+                    "route_progress": 1.0,
+                },
             ]
         }
 
-    service.train_repo.get_all_with_route = fake_get_all_with_route  # type: ignore[method-assign]
-    service.schedule_repo.get_by_trains = fake_get_by_trains  # type: ignore[method-assign]
-
-    async def fake_get_graph_geometry_bulk(
+    async def fake_get_route_geometry_bulk(
         route_ids: list[int],
     ) -> dict[int, dict[str, object]]:
         return {
@@ -509,7 +537,12 @@ async def test_get_all_active_train_data_can_skip_trajectory_generation() -> Non
             for route_id in route_ids
         }
 
-    service.route_repo.get_graph_geometry_bulk = fake_get_graph_geometry_bulk  # type: ignore[method-assign]
+    class FakeReader:
+        get_all_trains_for_simulation = staticmethod(fake_get_all_trains_for_simulation)
+        get_schedules_by_trains = staticmethod(fake_get_schedules_by_trains)
+        get_route_geometry_bulk = staticmethod(fake_get_route_geometry_bulk)
+
+    service.reader = FakeReader()  # type: ignore[assignment]
     service._get_candidate_current_minutes_with_delay = (  # type: ignore[method-assign]
         lambda schedules, delay=0: 10 * 60 + 30
     )
