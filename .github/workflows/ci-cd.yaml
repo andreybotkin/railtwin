@@ -9,6 +9,7 @@ on:
       - 'simulation/**'
       - 'frontend/**'
       - 'raildatacollector/**'
+      - 'raildbsetup/**'
       - 'gateway/**'
       - 'k8s/**'
       - '.github/workflows/ci-cd.yaml'
@@ -17,6 +18,7 @@ on:
     paths:
       - 'simulation/**'
       - 'raildatacollector/**'
+      - 'raildbsetup/**'
       - 'gateway/**'
 
 concurrency:
@@ -37,6 +39,7 @@ jobs:
       simulation: ${{ steps.changes.outputs.simulation }}
       frontend: ${{ steps.changes.outputs.frontend }}
       raildatacollector: ${{ steps.changes.outputs.raildatacollector }}
+      raildbsetup: ${{ steps.changes.outputs.raildbsetup }}
       gateway: ${{ steps.changes.outputs.gateway }}
       k8s: ${{ steps.changes.outputs.k8s }}
       build-matrix: ${{ steps.changes.outputs.build-matrix }}
@@ -68,8 +71,9 @@ jobs:
             echo "frontend=true"          >> $GITHUB_OUTPUT
             echo "raildatacollector=true" >> $GITHUB_OUTPUT
             echo "k8s=true"               >> $GITHUB_OUTPUT
+            echo "raildbsetup=true"       >> $GITHUB_OUTPUT
             echo "gateway=true"           >> $GITHUB_OUTPUT
-            echo 'build-matrix=["simulation","frontend","raildatacollector","gateway"]' >> $GITHUB_OUTPUT
+            echo 'build-matrix=["simulation","frontend","raildatacollector","gateway","raildbsetup"]' >> $GITHUB_OUTPUT
             echo "has-build-changes=true"                                  >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -88,12 +92,14 @@ jobs:
           (echo "$CHANGED" | grep -q "^simulation/"           || $WORKFLOW_CHANGED) && SIMULATION_CHANGED=true
           (echo "$CHANGED" | grep -q "^frontend/"          || $WORKFLOW_CHANGED) && FRONTEND_CHANGED=true
           (echo "$CHANGED" | grep -q "^raildatacollector/" || $WORKFLOW_CHANGED) && RAILDATACOLLECTOR_CHANGED=true
+          (echo "$CHANGED" | grep -q "^raildbsetup/" || $WORKFLOW_CHANGED) && RAILDBSETUP_CHANGED=true
           (echo "$CHANGED" | grep -q "^gateway/" || $WORKFLOW_CHANGED) && GATEWAY_CHANGED=true
           echo "$CHANGED" | grep -q "^k8s/" && K8S_CHANGED=true
 
           echo "simulation=$SIMULATION_CHANGED"                   >> $GITHUB_OUTPUT
           echo "frontend=$FRONTEND_CHANGED"                 >> $GITHUB_OUTPUT
           echo "raildatacollector=$RAILDATACOLLECTOR_CHANGED" >> $GITHUB_OUTPUT
+          echo "raildbsetup=$RAILDBSETUP_CHANGED"           >> $GITHUB_OUTPUT
           echo "gateway=$GATEWAY_CHANGED"                   >> $GITHUB_OUTPUT
           echo "k8s=$K8S_CHANGED"                           >> $GITHUB_OUTPUT
 
@@ -101,6 +107,7 @@ jobs:
           $SIMULATION_CHANGED           && MATRIX+=("\"simulation\"")
           $FRONTEND_CHANGED          && MATRIX+=("\"frontend\"")
           $RAILDATACOLLECTOR_CHANGED && MATRIX+=("\"raildatacollector\"")
+          $RAILDBSETUP_CHANGED && MATRIX+=("\"raildbsetup\"")
           $GATEWAY_CHANGED && MATRIX+=("\"gateway\"")
 
           if [ ${#MATRIX[@]} -gt 0 ]; then
@@ -246,7 +253,59 @@ jobs:
           flags: raildatacollector
 
   ##############################################################
-  # 2c. Frontend CI  (parallel with simulation-ci)
+  # 2c. RailDbSetup CI
+  ##############################################################
+  raildbsetup-ci:
+    name: RailDbSetup CI
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.raildbsetup == 'true'
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ./raildbsetup
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-rds-${{ hashFiles('raildbsetup/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-rds-
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run linting (Ruff)
+        run: ruff check app tests
+
+      - name: Run formatting check (Black)
+        run: black --check app tests
+
+      - name: Run type checking (mypy)
+        run: mypy app
+
+      - name: Run tests
+        run: pytest --cov=app --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./raildbsetup/coverage.xml
+          flags: raildbsetup
+
+  ##############################################################
+  # 2d. Frontend CI  (parallel with simulation-ci)
   ##############################################################
   frontend-ci:
     name: Frontend CI
@@ -291,7 +350,7 @@ jobs:
   build-images:
     name: Build ${{ matrix.component }} image
     runs-on: ubuntu-latest
-    needs: [detect-changes, simulation-ci, raildatacollector-ci, frontend-ci]
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, frontend-ci]
     if: |
       always() &&
       github.event_name == 'push' &&
@@ -414,7 +473,7 @@ jobs:
   ##############################################################
   notify:
     name: Send Notifications
-    needs: [detect-changes, simulation-ci, raildatacollector-ci, frontend-ci, build-images]
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, frontend-ci, build-images]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -427,6 +486,7 @@ jobs:
             echo "emoji=⏭️" >> $GITHUB_OUTPUT
           elif [ "${{ needs.simulation-ci.result }}" = "failure" ] || \
                [ "${{ needs.raildatacollector-ci.result }}" = "failure" ] || \
+               [ "${{ needs.raildbsetup-ci.result }}" = "failure" ] || \
                [ "${{ needs.frontend-ci.result }}" = "failure" ] || \
                [ "${{ needs.build-images.result }}" = "failure" ]; then
             echo "status=❌ Failed" >> $GITHUB_OUTPUT
@@ -459,6 +519,7 @@ jobs:
             • Detect Changes: ${{ needs.detect-changes.result == 'success' && '✅' || '❌' }}
             • Simulation CI: ${{ needs.simulation-ci.result == 'success' && '✅' || needs.simulation-ci.result == 'failure' && '❌' || needs.simulation-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Raildatacollector CI: ${{ needs.raildatacollector-ci.result == 'success' && '✅' || needs.raildatacollector-ci.result == 'failure' && '❌' || needs.raildatacollector-ci.result == 'skipped' && '⏭️' || '⚠️' }}
+            • RailDbSetup CI: ${{ needs.raildbsetup-ci.result == 'success' && '✅' || needs.raildbsetup-ci.result == 'failure' && '❌' || needs.raildbsetup-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Frontend CI: ${{ needs.frontend-ci.result == 'success' && '✅' || needs.frontend-ci.result == 'failure' && '❌' || needs.frontend-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Build Images: ${{ needs.build-images.result == 'success' && '✅' || needs.build-images.result == 'failure' && '❌' || needs.build-images.result == 'skipped' && '⏭️' || '⚠️' }}
 

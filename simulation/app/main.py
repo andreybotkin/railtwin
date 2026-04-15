@@ -173,7 +173,7 @@ async def health_check() -> dict[str, str]:
 
 
 @app.get("/ready", tags=["Health"])
-async def readiness_check() -> dict[str, str]:
+async def readiness_check() -> dict[str, str] | JSONResponse:
     """Readiness check endpoint.
 
     Checks if the application is ready to receive traffic.

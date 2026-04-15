@@ -13,9 +13,10 @@ geops pattern:
 from __future__ import annotations
 
 import time as _time
-from typing import Any
+from typing import Any, cast
 
 from geoalchemy2.shape import to_shape
+from shapely.geometry import Point
 
 from app.core.config import settings
 from app.models.database.models import Schedule, Train
@@ -195,7 +196,7 @@ def _stop_coordinate(
     if schedule.station is None:
         return None
 
-    point = to_shape(schedule.station.location)
+    point = cast(Point, to_shape(schedule.station.location))
     return [round(float(point.x), 6), round(float(point.y), 6)]
 
 
@@ -465,8 +466,8 @@ def build_train_trajectory(
             # Fallback: straight-line interpolation between station points.
             if prev_stop.station is None or next_stop.station is None:
                 break
-            prev_pt = to_shape(prev_stop.station.location)
-            next_pt = to_shape(next_stop.station.location)
+            prev_pt = cast(Point, to_shape(prev_stop.station.location))
+            next_pt = cast(Point, to_shape(next_stop.station.location))
             lon = float(prev_pt.x) + (float(next_pt.x) - float(prev_pt.x)) * progress
             lat = float(prev_pt.y) + (float(next_pt.y) - float(prev_pt.y)) * progress
             rotation = geo_utils.great_circle_bearing(

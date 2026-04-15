@@ -1,14 +1,13 @@
 import hashlib
 import math
 import re
+from typing import TYPE_CHECKING
 
 from geoalchemy2 import WKTElement
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
-from app.domain.railroad.entities import RouteData, StationData
 from app.domain.railroad.repository import RailroadRepository
 from app.infrastructure.database.tables import (
     t_network_edges,
@@ -21,6 +20,11 @@ from app.infrastructure.database.tables import (
     t_stations,
     t_trains,
 )
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from app.domain.railroad.entities import RouteData, StationData
 
 logger = get_logger(__name__)
 
@@ -39,7 +43,9 @@ def _make_station_code(name: str) -> str:
     clean = re.sub(r"[^A-Za-z0-9]", "", name.upper())
     if len(clean) <= 5:
         return clean
-    suffix = hashlib.md5(clean.encode()).hexdigest()[:2].upper()
+    suffix = (
+        hashlib.md5(clean.encode(), usedforsecurity=False).hexdigest()[:2].upper()
+    )  # noqa: S324
     return clean[:3] + suffix
 
 
@@ -52,9 +58,12 @@ def _approx_distance_km(coords: list[tuple[float, float]]) -> float:
         lon2, lat2 = coords[index + 1]
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(
-            math.radians(lat2)
-        ) * math.sin(dlon / 2) ** 2
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(math.radians(lat1))
+            * math.cos(math.radians(lat2))
+            * math.sin(dlon / 2) ** 2
+        )
         total += earth_radius_km * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return total
 
@@ -109,7 +118,11 @@ class SqlRailroadRepository(RailroadRepository):
             if not station_key or station_key in inserted_ids:
                 continue
 
-            base_code = station.code.strip() if station.code else _make_station_code(station.name)
+            base_code = (
+                station.code.strip()
+                if station.code
+                else _make_station_code(station.name)
+            )
             code = base_code
             counter = 1
             while code in seen_codes:

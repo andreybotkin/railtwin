@@ -6,9 +6,10 @@ returns a serialisable ``dict`` (or ``None`` when the train is not active).
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from geoalchemy2.shape import to_shape
+from shapely.geometry import Point
 
 from app.models.database.models import Schedule, Train
 from app.services import geo_utils, schedule_utils
@@ -247,8 +248,8 @@ def build_train_position(
         # Fallback: straight-line interpolation between station coordinates.
         if prev_stop.station is None or next_stop.station is None:
             return None
-        prev_pt = to_shape(prev_stop.station.location)
-        next_pt = to_shape(next_stop.station.location)
+        prev_pt = cast(Point, to_shape(prev_stop.station.location))
+        next_pt = cast(Point, to_shape(next_stop.station.location))
         prev_c = (float(prev_pt.x), float(prev_pt.y))
         next_c = (float(next_pt.x), float(next_pt.y))
         lon = prev_c[0] + (next_c[0] - prev_c[0]) * progress

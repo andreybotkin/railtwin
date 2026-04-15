@@ -23,10 +23,13 @@ JSON schema expected:
 """
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from app.core.logging import get_logger
 from app.domain.railroad.entities import StationData
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 

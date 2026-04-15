@@ -341,6 +341,7 @@ class RedisReferenceDataLoader:
         trains: list[dict[str, Any]] = []
         schedules: list[dict[str, Any]] = []
         route_station_distances: dict[int, float | None] = {}
+        batch: list[Any]
 
         offset = 0
         while True:

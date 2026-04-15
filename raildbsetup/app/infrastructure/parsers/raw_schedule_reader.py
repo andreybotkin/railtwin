@@ -20,11 +20,14 @@ Raw file format::
 
 import json
 import re
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.domain.schedule.entities import ScheduleStopData, TrainData
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -63,7 +66,7 @@ def _parse_explicit_offset(entry: dict, prefix: str) -> int | None:
         raw_value = entry.get(f"{prefix}_{suffix}")
         if raw_value in (None, "", "-"):
             continue
-        return int(raw_value)
+        return int(str(raw_value))
     return None
 
 
@@ -103,7 +106,9 @@ def _infer_day_offsets(
             if explicit_departure_offset is not None
             else arrival_offset
         )
-        reference_absolute = arrival_absolute if arrival_absolute is not None else last_absolute_minutes
+        reference_absolute = (
+            arrival_absolute if arrival_absolute is not None else last_absolute_minutes
+        )
         if departure_minutes is not None:
             if explicit_departure_offset is None:
                 while (
@@ -272,4 +277,3 @@ def read_all_raw_schedules(raw_dir: Path | None = None) -> list[TrainData]:
         total=len(files),
     )
     return trains
-

@@ -8,16 +8,19 @@ Strategy:
 """
 
 from dataclasses import dataclass, field
-
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from typing import TYPE_CHECKING
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.domain.schedule.entities import TrainData
-from app.domain.schedule.repository import ScheduleRepository
 from app.domain.schedule.service import ScheduleDomainService
 from app.infrastructure.database.repositories.schedule import SqlScheduleRepository
 from app.infrastructure.parsers.raw_schedule_reader import read_all_raw_schedules
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    from app.domain.schedule.entities import TrainData
+    from app.domain.schedule.repository import ScheduleRepository
 
 logger = get_logger(__name__)
 
@@ -79,23 +82,24 @@ class InitSchedulesUseCase:
                 valid=len(valid_trains),
             )
 
-        logger.info("Replacing schedules from canonical raw files", trains_to_load=len(valid_trains))
+        logger.info(
+            "Replacing schedules from canonical raw files",
+            trains_to_load=len(valid_trains),
+        )
 
-        async with session_factory() as session:
-            async with session.begin():
-                repo = SqlScheduleRepository(session)
-                await repo.reset_source_timetable()
+        async with session_factory() as session, session.begin():
+            repo = SqlScheduleRepository(session)
+            await repo.reset_source_timetable()
 
         loaded = 0
         errors = 0
 
         for train in valid_trains:
             try:
-                async with session_factory() as session:
-                    async with session.begin():
-                        repo = SqlScheduleRepository(session)
-                        svc = ScheduleDomainService(repo)
-                        await svc.upsert_single_train(train)
+                async with session_factory() as session, session.begin():
+                    repo = SqlScheduleRepository(session)
+                    svc = ScheduleDomainService(repo)
+                    await svc.upsert_single_train(train)
                 loaded += 1
                 logger.debug(
                     "Train schedule saved",
@@ -120,12 +124,11 @@ class InitSchedulesUseCase:
         routes_assigned = 0
         route_stations_bound = 0
         try:
-            async with session_factory() as session:
-                async with session.begin():
-                    repo = SqlScheduleRepository(session)
-                    svc = ScheduleDomainService(repo)
-                    routes_assigned = await svc.assign_routes()
-                    route_stations_bound = await svc.bind_route_stations()
+            async with session_factory() as session, session.begin():
+                repo = SqlScheduleRepository(session)
+                svc = ScheduleDomainService(repo)
+                routes_assigned = await svc.assign_routes()
+                route_stations_bound = await svc.bind_route_stations()
             logger.info("Route assignment complete", trains_updated=routes_assigned)
         except Exception as exc:
             logger.error("Route assignment failed", error=str(exc))

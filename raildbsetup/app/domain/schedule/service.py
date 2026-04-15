@@ -1,5 +1,8 @@
-from app.domain.schedule.entities import TrainData
-from app.domain.schedule.repository import ScheduleRepository
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.domain.schedule.entities import TrainData
+    from app.domain.schedule.repository import ScheduleRepository
 
 
 class ScheduleDomainService:

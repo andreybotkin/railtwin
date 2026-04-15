@@ -1,15 +1,19 @@
 """Abstract repository interface for railway network topology."""
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from app.domain.railroad.network_entities import NetworkTopologyResult
+if TYPE_CHECKING:
+    from app.domain.railroad.network_entities import NetworkTopologyResult
 
 
 class NetworkRepository(ABC):
     """Persistence interface for the station-only railway graph."""
 
     @abstractmethod
-    async def build_topology(self, snap_distance_m: float = 500.0) -> NetworkTopologyResult:
+    async def build_topology(
+        self, snap_distance_m: float = 500.0
+    ) -> NetworkTopologyResult:
         """Build the full station-only network graph from routes and stations.
 
         This method is idempotent: it clears any existing topology data and
