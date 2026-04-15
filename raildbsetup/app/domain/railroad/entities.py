@@ -23,9 +23,13 @@ class StationData:
         if not self.name or not self.name.strip():
             errors.append("Station name is empty")
         if not (-90.0 <= self.lat <= 90.0):
-            errors.append(f"Station '{self.name}': latitude {self.lat} out of range [-90, 90]")
+            errors.append(
+                f"Station '{self.name}': latitude {self.lat} out of range [-90, 90]"
+            )
         if not (-180.0 <= self.lon <= 180.0):
-            errors.append(f"Station '{self.name}': longitude {self.lon} out of range [-180, 180]")
+            errors.append(
+                f"Station '{self.name}': longitude {self.lon} out of range [-180, 180]"
+            )
         return errors
 
 
@@ -39,10 +43,17 @@ class RouteData:
     coords: list[tuple[float, float]] = field(default_factory=list)
     folder: str = ""
 
-    VALID_ROUTE_TYPES = frozenset({
-        "northern", "northeastern", "western", "southern",
-        "eastern", "urban", "other",
-    })
+    VALID_ROUTE_TYPES = frozenset(
+        {
+            "northern",
+            "northeastern",
+            "western",
+            "southern",
+            "eastern",
+            "urban",
+            "other",
+        }
+    )
 
     def validate(self) -> list[str]:
         """Return list of validation errors (empty = valid)."""
@@ -50,7 +61,9 @@ class RouteData:
         if not self.name or not self.name.strip():
             errors.append("Route name is empty")
         if len(self.coords) < 2:
-            errors.append(f"Route '{self.name}': fewer than 2 coordinates ({len(self.coords)})")
+            errors.append(
+                f"Route '{self.name}': fewer than 2 coordinates ({len(self.coords)})"
+            )
         if self.route_type not in self.VALID_ROUTE_TYPES:
             errors.append(
                 f"Route '{self.name}': unknown route_type '{self.route_type}'; "

@@ -35,7 +35,7 @@
 ### Phase A (1–2 weeks): Stabilization
 - Eliminate all TypeScript errors and keep `type-check` green in CI.
 - Fix ESLint setup (`@typescript-eslint/eslint-plugin` + `.eslintrc` alignment).
-- Add backend/frontend startup smoke tests to CI.
+- Add simulation/frontend startup smoke tests to CI.
 
 ### Phase B (2–4 weeks): Reliability and Observability
 - Add metrics (latency, error rate, reconnect rate).

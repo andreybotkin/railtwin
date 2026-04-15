@@ -4,7 +4,7 @@ import re
 
 import sqlalchemy as sa
 from geoalchemy2 import WKTElement
-from geoalchemy2.functions import ST_Distance, ST_LineLocatePoint, ST_X, ST_Y
+from geoalchemy2.functions import ST_X, ST_Y, ST_Distance, ST_LineLocatePoint
 from geoalchemy2.types import Geography
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -161,19 +161,16 @@ class SqlRailroadRepository(RailroadRepository):
         line_geom = WKTElement(wkt, srid=4326)
 
         # Bbox pre-filter + 2 km distance filter
-        nearby_stmt = (
-            select(t_stations.c.id)
-            .where(
-                ST_X(t_stations.c.location) >= min_lon,
-                ST_X(t_stations.c.location) <= max_lon,
-                ST_Y(t_stations.c.location) >= min_lat,
-                ST_Y(t_stations.c.location) <= max_lat,
-                ST_Distance(
-                    sa.cast(t_stations.c.location, Geography()),
-                    sa.cast(line_geom, Geography()),
-                )
-                < 2000,
+        nearby_stmt = select(t_stations.c.id).where(
+            ST_X(t_stations.c.location) >= min_lon,
+            ST_X(t_stations.c.location) <= max_lon,
+            ST_Y(t_stations.c.location) >= min_lat,
+            ST_Y(t_stations.c.location) <= max_lat,
+            ST_Distance(
+                sa.cast(t_stations.c.location, Geography()),
+                sa.cast(line_geom, Geography()),
             )
+            < 2000,
         )
         nearby_result = await self._s.execute(nearby_stmt)
         nearby_ids = [row[0] for row in nearby_result.fetchall()]
@@ -202,4 +199,3 @@ class SqlRailroadRepository(RailroadRepository):
                 )
                 .on_conflict_do_nothing()
             )
-

@@ -146,7 +146,7 @@ def _iter_line_strings(pm: ET.Element) -> list[ET.Element]:
 
 def parse_kml_bytes(kml_bytes: bytes) -> tuple[list[RouteData], list[StationData]]:
     """Parse KML bytes and return (routes, stations) as domain entities."""
-    root = ET.fromstring(kml_bytes)
+    root = ET.fromstring(kml_bytes)  # noqa: S314
     document = root.find(_tag("Document")) or root
 
     routes: list[RouteData] = []
@@ -227,7 +227,7 @@ def parse_kml_routes(kml_bytes: bytes) -> list[RouteData]:
 
     Use this when station data is loaded from a separate source (e.g. JSON).
     """
-    root = ET.fromstring(kml_bytes)
+    root = ET.fromstring(kml_bytes)  # noqa: S314
     document = root.find(_tag("Document")) or root
 
     routes: list[RouteData] = []
@@ -250,7 +250,9 @@ def parse_kml_routes(kml_bytes: bytes) -> list[RouteData]:
                 if len(coords) < 2:
                     continue
                 final_rt = _name_type(pm_name) or rt
-                color = _extract_color(style_url) or DEFAULT_COLOR.get(final_rt, "#546E7A")
+                color = _extract_color(style_url) or DEFAULT_COLOR.get(
+                    final_rt, "#546E7A"
+                )
                 routes.append(
                     RouteData(
                         name=pm_name,

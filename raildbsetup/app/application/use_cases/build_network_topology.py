@@ -11,12 +11,15 @@ routes / stations data.
 """
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.domain.railroad.network_entities import NetworkTopologyResult
 from app.domain.railroad.network_service import NetworkDomainService
-from app.infrastructure.database.repositories.network import SqlNetworkRepository
+
+if TYPE_CHECKING:
+    from app.domain.railroad.network_entities import NetworkTopologyResult
+    from app.infrastructure.database.repositories.network import SqlNetworkRepository
 
 logger = get_logger(__name__)
 

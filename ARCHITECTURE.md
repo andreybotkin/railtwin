@@ -2,7 +2,7 @@
 
 ## System Overview
 
-The Thailand Railway Digital Twin is a web application that provides real-time visualization of Thailand's railway network. The system consists of three main components: a FastAPI backend, a Next.js frontend, and a PostgreSQL database with PostGIS extension.
+The Thailand Railway Digital Twin is a web application that provides real-time visualization of Thailand's railway network. The system consists of three main components: a FastAPI simulation service, a Next.js frontend, and a PostgreSQL database with PostGIS extension.
 
 ## Architecture Diagram
 
@@ -20,7 +20,7 @@ The Thailand Railway Digital Twin is a web application that provides real-time v
                     │                           │
                     ▼                           ▼
 ┌──────────────────────────┐    ┌──────────────────────────┐
-│        Frontend          │    │         Backend          │
+│        Frontend          │    │       Simulation        │
 │    (Next.js / React)     │    │        (FastAPI)         │
 │                          │    │                          │
 │  - Interactive Map       │    │  - REST API              │
@@ -90,9 +90,9 @@ src/
 └── types/            # TypeScript definitions
 ```
 
-### Backend (FastAPI)
+### Simulation (FastAPI)
 
-The backend follows Clean Architecture principles with clear separation of concerns.
+The simulation service follows Clean Architecture principles with clear separation of concerns.
 
 **Layers:**
 1. **API Layer** (`api/`): HTTP endpoints and WebSocket handlers
@@ -160,7 +160,7 @@ Position: Midpoint between A and B on route geometry
 
 ```
 Namespace: railway
-├── backend (Deployment, 2+ replicas)
+├── simulation (Deployment, 2+ replicas)
 │   ├── HorizontalPodAutoscaler
 │   └── Service (ClusterIP)
 ├── frontend (Deployment, 2+ replicas)
@@ -169,7 +169,7 @@ Namespace: railway
 │   └── Service (ClusterIP)
 └── Ingress (Traefik)
     ├── railway.example.com → frontend
-    └── api.railway.example.com → backend
+    └── api.railway.example.com → simulation
 ```
 
 ### CI/CD Pipeline
@@ -181,7 +181,7 @@ Push to main
 ┌──────────────────┐
 │   Lint & Test    │
 │   (parallel)     │
-│  - Backend CI    │
+│  - Simulation CI    │
 │  - Frontend CI   │
 └──────────────────┘
     │

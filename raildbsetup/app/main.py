@@ -16,12 +16,12 @@ Startup sequence (lifespan):
   4. /ready returns 503 during init, 200 on success, 500 on failure.
 
 This service is the ONLY place where database schema and seed data are managed.
-The backend must declare a dependency on this service before starting.
+The simulation service must declare a dependency on this service before starting.
 """
 
 import asyncio
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from fastapi import FastAPI
@@ -31,6 +31,9 @@ from app.api.v1.router import router as v1_router
 from app.application.runner import SetupRunner
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 logger = get_logger(__name__)
 
@@ -61,9 +64,7 @@ async def _wait_for_postgres(max_attempts: int = 30, delay: float = 5.0) -> None
             )
             if attempt < max_attempts:
                 await asyncio.sleep(delay)
-    raise RuntimeError(
-        f"PostgreSQL not accessible after {max_attempts} attempts."
-    )
+    raise RuntimeError(f"PostgreSQL not accessible after {max_attempts} attempts.")
 
 
 @asynccontextmanager
@@ -123,7 +124,9 @@ async def ready() -> JSONResponse:
     if runner is None:
         return JSONResponse(status_code=503, content={"status": "initializing"})
     if runner.is_ready:
-        return JSONResponse(status_code=200, content={"status": "ready", "result": runner.status})
+        return JSONResponse(
+            status_code=200, content={"status": "ready", "result": runner.status}
+        )
     if runner.is_failed:
         return JSONResponse(
             status_code=500,

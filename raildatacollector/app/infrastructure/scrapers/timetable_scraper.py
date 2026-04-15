@@ -221,12 +221,11 @@ def _infer_train_type(train_number: str) -> str:
         n = int(train_number)
         if n <= 20:
             return "special_express"
-        elif n <= 100:
+        if n <= 100:
             return "express"
-        elif n <= 200:
+        if n <= 200:
             return "rapid"
-        else:
-            return "ordinary"
+        return "ordinary"
     except ValueError:
         return "ordinary"
 

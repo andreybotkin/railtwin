@@ -1,12 +1,11 @@
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from geoalchemy2 import WKTElement
 from geoalchemy2.functions import ST_AsText, ST_Length, ST_LineSubstring, ST_Reverse
 from geoalchemy2.types import Geography
 from sqlalchemy import Float, cast, delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -23,6 +22,9 @@ from app.infrastructure.database.tables import (
     t_topology_metadata,
 )
 
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
+
 logger = get_logger(__name__)
 
 
@@ -33,15 +35,21 @@ class SqlNetworkRepository(NetworkRepository):
         self._s = session
 
     async def count_nodes(self) -> int:
-        result = await self._s.execute(select(func.count()).select_from(t_network_nodes))
+        result = await self._s.execute(
+            select(func.count()).select_from(t_network_nodes)
+        )
         return result.scalar_one() or 0
 
     async def count_edges(self) -> int:
-        result = await self._s.execute(select(func.count()).select_from(t_network_edges))
+        result = await self._s.execute(
+            select(func.count()).select_from(t_network_edges)
+        )
         return result.scalar_one() or 0
 
     async def count_route_stations(self) -> int:
-        result = await self._s.execute(select(func.count()).select_from(t_route_stations))
+        result = await self._s.execute(
+            select(func.count()).select_from(t_route_stations)
+        )
         return result.scalar_one() or 0
 
     async def build_topology(
@@ -127,7 +135,9 @@ class SqlNetworkRepository(NetworkRepository):
                 str(station.source_route_type) if station.source_route_type else None
             )
 
-            preferred_route = await self._find_preferred_route(location_wkt, source_route_type)
+            preferred_route = await self._find_preferred_route(
+                location_wkt, source_route_type
+            )
             node_location_wkt = location_wkt
             update_values: dict[str, Any] = {}
 
@@ -147,7 +157,9 @@ class SqlNetworkRepository(NetworkRepository):
                     snapped_any_station = True
                     max_snap_distance_m = max(max_snap_distance_m, distance_m)
                     node_location_wkt = str(preferred_route.snapped_wkt)
-                    update_values["snapped_location"] = WKTElement(node_location_wkt, srid=4326)
+                    update_values["snapped_location"] = WKTElement(
+                        node_location_wkt, srid=4326
+                    )
                     update_values["snap_distance_m"] = distance_m
 
             node_id = await self._create_station_node(station_id, node_location_wkt)
@@ -316,7 +328,11 @@ class SqlNetworkRepository(NetworkRepository):
         seen_station_ids: set[int] = set()
         for row in rows:
             station_id = int(row.id)
-            if station_id in seen_station_ids or row.snapped_wkt is None or row.node_id is None:
+            if (
+                station_id in seen_station_ids
+                or row.snapped_wkt is None
+                or row.node_id is None
+            ):
                 continue
             seen_station_ids.add(station_id)
             fraction = max(0.0, min(1.0, float(row.route_fraction or 0.0)))
@@ -380,7 +396,9 @@ class SqlNetworkRepository(NetworkRepository):
                         3,
                     ),
                     "edge_id": edge_id,
-                    "snapped_location": WKTElement(current_row["snapped_wkt"], srid=4326),
+                    "snapped_location": WKTElement(
+                        current_row["snapped_wkt"], srid=4326
+                    ),
                     "snap_distance_m": current_row["snap_distance_m"],
                 }
             )

@@ -69,10 +69,10 @@ class Settings(BaseSettings):
 
     app_name: str = "Thailand Railway Digital Twin Gateway"
     app_version: str = "1.0.0"
-    backend_url: str = "http://backend:8000"
+    simulation_url: str = "http://simulation:8000"
     redis_url: str = "redis://redis:6379/0"
-    ws_poll_interval: int = 5
-    trajectory_poll_interval: int = 5
+    ws_poll_interval: int = 10
+    trajectory_poll_interval: int = 10
     viewport_buffer_ratio: float = 0.1
     viewport_min_buffer_degrees: float = 0.05
     cors_origins: Annotated[list[str], NoDecode] = [
@@ -112,7 +112,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     global redis_client, http_client
     redis_client = Redis.from_url(settings.redis_url, decode_responses=True)
     http_client = httpx.AsyncClient(
-        base_url=settings.backend_url,
+        base_url=settings.simulation_url,
         timeout=httpx.Timeout(connect=5.0, read=60.0, write=10.0, pool=5.0),
     )
     yield
@@ -372,13 +372,13 @@ async def ws_stopsequence(websocket: WebSocket, train_id: int) -> None:
 
 
 @app.api_route("/api/v1/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
-async def proxy_to_backend(path: str, request: Request) -> Response:
-    """Proxy all non-position API calls to backend."""
+async def proxy_to_simulation(path: str, request: Request) -> Response:
+    """Proxy all non-position API calls to simulation."""
     if http_client is None:
         return JSONResponse(status_code=503, content={"detail": "Gateway not ready"})
 
     try:
-        backend_response = await http_client.request(
+        simulation_response = await http_client.request(
             method=request.method,
             url=f"/api/v1/{path}",
             params=request.query_params,
@@ -395,12 +395,12 @@ async def proxy_to_backend(path: str, request: Request) -> Response:
     excluded_headers = {"content-encoding", "transfer-encoding", "connection"}
     headers = {
         key: value
-        for key, value in backend_response.headers.items()
+        for key, value in simulation_response.headers.items()
         if key.lower() not in excluded_headers
     }
     return Response(
-        content=backend_response.content,
-        status_code=backend_response.status_code,
+        content=simulation_response.content,
+        status_code=simulation_response.status_code,
         headers=headers,
-        media_type=backend_response.headers.get("content-type"),
+        media_type=simulation_response.headers.get("content-type"),
     )

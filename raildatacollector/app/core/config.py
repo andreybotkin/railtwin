@@ -18,12 +18,12 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     collector_port: int = 8001
 
-    # Shared database (same as backend)
+    # Shared database (same as simulation)
     database_url: str = (
         "postgresql+asyncpg://postgres:postgres@postgres:5432/railway_db"
     )
 
-    # Shared Redis (same as backend)
+    # Shared Redis (same as simulation)
     redis_url: str = "redis://redis:6379/0"
 
     # Local data paths — overridable via env vars in Docker
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     # TTS real-time system
     tts_server_url: str = "https://ttsview.railway.co.th:5000"
 
-    # Redis keys shared with backend simulation service
+    # Redis keys shared with simulation service
     tts_delays_redis_key: str = "tts:train_delays"
     tts_delays_redis_ttl: int = 7200  # 2 hours
 

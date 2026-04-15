@@ -1,13 +1,13 @@
 # Thailand Railway Digital Twin - Gateway
 
-Stateless FastAPI gateway between the website and backend services.
+Stateless FastAPI gateway between the website and simulation services.
 
 ## Responsibilities
 
 - Accept all website requests.
 - Return train positions from Redis (`/api/v1/trains/positions`).
 - Stream positions over WebSocket (`/ws/trains`, `/ws/trains/{train_id}`) from Redis.
-- Proxy all other `/api/v1/*` requests to backend.
+- Proxy all other `/api/v1/*` requests to simulation.
 
 ## Run locally
 

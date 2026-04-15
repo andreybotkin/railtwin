@@ -9,7 +9,7 @@ Provides:
 """
 
 import asyncio
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -17,8 +17,14 @@ from app.application.use_cases.build_network_topology import (
     BuildNetworkTopologyUseCase,
     TopologyBuildResult,
 )
-from app.application.use_cases.init_railroad import InitRailroadUseCase, RailroadInitResult
-from app.application.use_cases.init_schedules import InitSchedulesUseCase, ScheduleInitResult
+from app.application.use_cases.init_railroad import (
+    InitRailroadUseCase,
+    RailroadInitResult,
+)
+from app.application.use_cases.init_schedules import (
+    InitSchedulesUseCase,
+    ScheduleInitResult,
+)
 from app.core.logging import get_logger
 from app.infrastructure.database.repositories.network import SqlNetworkRepository
 from app.infrastructure.database.repositories.railroad import SqlRailroadRepository
@@ -113,7 +119,9 @@ class SetupRunner:
         logger.info("Running Alembic migrations", cwd=str(_PROJECT_ROOT))
         try:
             proc = await asyncio.create_subprocess_exec(
-                "alembic", "upgrade", "head",
+                "alembic",
+                "upgrade",
+                "head",
                 cwd=str(_PROJECT_ROOT),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
@@ -133,11 +141,10 @@ class SetupRunner:
     async def run_railroad(self, force: bool = False) -> dict[str, Any]:
         self._current_step = "railroad"
         try:
-            async with get_session_factory()() as session:
-                async with session.begin():
-                    result: RailroadInitResult = await InitRailroadUseCase(
-                        SqlRailroadRepository(session)
-                    ).execute(force=force)
+            async with get_session_factory()() as session, session.begin():
+                result: RailroadInitResult = await InitRailroadUseCase(
+                    SqlRailroadRepository(session)
+                ).execute(force=force)
             d = _result_to_dict(result)
             self._status["railroad"] = d
             return d
@@ -150,11 +157,10 @@ class SetupRunner:
     async def run_network_topology(self, force: bool = False) -> dict[str, Any]:
         self._current_step = "network_topology"
         try:
-            async with get_session_factory()() as session:
-                async with session.begin():
-                    result: TopologyBuildResult = await BuildNetworkTopologyUseCase(
-                        SqlNetworkRepository(session)
-                    ).execute(force=force)
+            async with get_session_factory()() as session, session.begin():
+                result: TopologyBuildResult = await BuildNetworkTopologyUseCase(
+                    SqlNetworkRepository(session)
+                ).execute(force=force)
             d = _result_to_dict(result)
             self._status["topology"] = d
             return d

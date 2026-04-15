@@ -8,13 +8,16 @@ Order:
 """
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.domain.railroad.repository import RailroadRepository
 from app.domain.railroad.service import RailroadDomainService
 from app.infrastructure.parsers.json_station_parser import parse_stations_json
 from app.infrastructure.parsers.kml_parser import parse_kml_routes
+
+if TYPE_CHECKING:
+    from app.domain.railroad.repository import RailroadRepository
 
 logger = get_logger(__name__)
 
@@ -76,12 +79,12 @@ class InitRailroadUseCase:
         if len(stations) < settings.min_stations_expected:
             return RailroadInitResult(
                 error=f"Too few stations in JSON: {len(stations)} < "
-                      f"{settings.min_stations_expected} expected"
+                f"{settings.min_stations_expected} expected"
             )
         if len(routes) < settings.min_routes_expected:
             return RailroadInitResult(
                 error=f"Too few routes in KML: {len(routes)} < "
-                      f"{settings.min_routes_expected} expected"
+                f"{settings.min_routes_expected} expected"
             )
 
         routes_count = await self._svc.replace_routes(routes)

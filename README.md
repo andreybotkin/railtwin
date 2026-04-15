@@ -18,7 +18,7 @@ A real-time digital twin visualization of Thailand's railway network, featuring 
 
 ## Tech Stack
 
-### Backend
+### Simulation
 - **Framework**: FastAPI (Python 3.14+)
 - **Database**: PostgreSQL 15+ with PostGIS
 - **ORM**: SQLAlchemy 2.0 (async)
@@ -45,7 +45,7 @@ A real-time digital twin visualization of Thailand's railway network, featuring 
 
 - Docker and Docker Compose
 - Node.js 20+ (for local frontend development)
-- Python 3.14+ (for local backend development)
+- Python 3.14+ (for local simulation development)
 
 ### Local Development with Docker
 
@@ -63,26 +63,26 @@ docker compose up -d
 
 3. Run database migrations:
 ```bash
-docker compose exec backend alembic upgrade head
+docker compose exec simulation alembic upgrade head
 ```
 
 4. Access the application:
    - Frontend: http://localhost:3000
    - Gateway API (for frontend): http://localhost:8002
-   - Backend API (internal): http://localhost:8000
-   - Backend API Docs: http://localhost:8000/docs
+   - Simulation API (internal): http://localhost:8000
+   - Simulation API Docs: http://localhost:8000/docs
 
 ### Manual Setup
 
 See individual README files:
-- [Backend Setup](backend/README.md)
+- [Simulation Setup](simulation/README.md)
 - [Frontend Setup](frontend/README.md)
 
 ## Project Structure
 
 ```
 thailand-railway-digital-twin/
-├── backend/                 # FastAPI backend
+├── simulation/             # FastAPI simulation service
 │   ├── app/
 │   │   ├── api/            # API endpoints
 │   │   ├── core/           # Configuration
@@ -119,7 +119,7 @@ thailand-railway-digital-twin/
 | GET | `/api/v1/schedules` | List schedules |
 | WS | `/ws/trains` | Real-time train positions |
 
-See full API documentation at `/docs` when running the backend. Frontend traffic should use the gateway service.
+See full API documentation at `/docs` when running the simulation service. Frontend traffic should use the gateway service.
 
 ## Data Sources
 
@@ -136,14 +136,14 @@ See full API documentation at `/docs` when running the backend. Frontend traffic
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/postgres/
 kubectl apply -f k8s/redis/
-kubectl apply -f k8s/backend/
+kubectl apply -f k8s/simulation/
 kubectl apply -f k8s/gateway/
 kubectl apply -f k8s/frontend/
 ```
 
 2. Configure secrets:
 ```bash
-kubectl create secret generic backend-secrets \
+kubectl create secret generic simulation-secrets \
   --from-literal=SECRET_KEY=your-secret-key \
   --from-literal=DATABASE_URL=your-database-url \
   -n railway

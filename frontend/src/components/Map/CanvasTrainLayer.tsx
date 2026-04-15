@@ -19,7 +19,11 @@ import { useEffect, useRef } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { TrainPositionUpdate, TrainTrajectory, TrainType } from '@/types';
-import { getVehiclePosition } from '@/lib/trajectory-interpolation';
+import {
+  getVehiclePosition,
+  getVehicleTrajectoryState,
+} from '@/lib/trajectory-interpolation';
+import { buildConsistScreenPoints } from '@/lib/train-consist';
 
 // ---------------------------------------------------------------------------
 // Color helpers
@@ -32,11 +36,33 @@ const DELAY_COLORS = {
   severe: '#E53935',
 } as const;
 
-const TYPE_COLORS: Record<TrainType, string> = {
+const TYPE_COLORS: Partial<Record<TrainType, string>> = {
   special_express: '#E53935',
   rapid: '#1E88E5',
   ordinary: '#43A047',
+  local: '#6d4c41',
 };
+
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
 
 function getDelayColor(delayMinutes: number): string {
   if (delayMinutes <= 0) return DELAY_COLORS.onTime;
@@ -61,6 +87,46 @@ interface AnimState {
 
 /** Matches WS poll interval so fallback animation fills the gap between updates. */
 const ANIM_DURATION = 1900;
+const TRAIN_CAR_COUNT = 10;
+const DETAIL_LOCOMOTIVE_WIDTH = 30;
+const DETAIL_LOCOMOTIVE_HEIGHT = 16;
+const DETAIL_WAGON_WIDTH = 16;
+const DETAIL_WAGON_HEIGHT = 9;
+const DETAIL_LEAD_SPACING_PX = 22;
+const DETAIL_CAR_SPACING_PX = 15;
+const FALLBACK_CAR_SPACING_PX = DETAIL_CAR_SPACING_PX;
+const DISPLAY_ROTATION_OFFSET_DEG = -90;
+
+function drawTrainCar(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string,
+  rotation: number,
+  outlineColor: string,
+  withHeadlight = false,
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((rotation + DISPLAY_ROTATION_OFFSET_DEG) * (Math.PI / 180));
+  drawRoundedRect(ctx, -width / 2, -height / 2, width, height, Math.min(6, height / 2));
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = outlineColor;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  if (withHeadlight) {
+    ctx.beginPath();
+    ctx.arc(width / 2 - 3, 0, 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff5bf';
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -227,8 +293,9 @@ export default function CanvasTrainLayer({
       const nowPerf = performance.now();
 
       // Radius scales with zoom for zoom-adaptive detail (generalization)
-      const radius = zoom >= 11 ? 7 : zoom >= 9 ? 6 : zoom >= 7 ? 5 : 4;
+      const radius = zoom >= 11 ? 8 : zoom >= 9 ? 6.5 : zoom >= 7 ? 5.5 : 4.5;
       const showArrow = zoom >= 8;
+      const showCars = zoom >= 11;
 
       for (const pos of positions) {
         if (pos.train_id === selId) continue;
@@ -237,14 +304,14 @@ export default function CanvasTrainLayer({
         let lon: number;
         let rotation: number | null = null;
         const traj = trajs.get(pos.train_id);
+        const locomotiveState = traj ? getVehicleTrajectoryState(nowMs, traj) : null;
 
         if (traj) {
           // geops time-based interpolation — position from time_intervals at current clock
-          const vp = getVehiclePosition(nowMs, traj);
-          if (!vp) continue;
-          lat = vp.lat;
-          lon = vp.lon;
-          rotation = vp.rotation;
+          if (!locomotiveState) continue;
+          lat = locomotiveState.lat;
+          lon = locomotiveState.lon;
+          rotation = locomotiveState.rotation;
         } else {
           // Fallback: prev→target linear interpolation (old snapshot approach)
           const state = animStates.get(pos.train_id);
@@ -263,8 +330,8 @@ export default function CanvasTrainLayer({
         if (px < -radius - 10 || px > canvas.width + radius + 10) continue;
         if (py < -radius - 10 || py > canvas.height + radius + 10) continue;
 
-        const fillColor = getDelayColor(pos.delay_minutes);
-        const strokeColor = TYPE_COLORS[pos.train_type as TrainType] ?? '#2196F3';
+        const delayColor = getDelayColor(pos.delay_minutes);
+        const baseColor = TYPE_COLORS[pos.train_type as TrainType] ?? '#2196F3';
 
         ctx.save();
         ctx.translate(px, py);
@@ -272,7 +339,7 @@ export default function CanvasTrainLayer({
         // Heading arrowhead (geops renderTrajectories pattern)
         // Convert heading (0=N, clockwise) to canvas angle (0=E, clockwise)
         if (showArrow && rotation !== null) {
-          const canvasAngle = (rotation - 90) * (Math.PI / 180);
+          const canvasAngle = (rotation + DISPLAY_ROTATION_OFFSET_DEG) * (Math.PI / 180);
           ctx.rotate(canvasAngle);
           ctx.beginPath();
           // Triangle pointing in +x direction (after rotation)
@@ -280,19 +347,78 @@ export default function CanvasTrainLayer({
           ctx.lineTo(radius + 1, -3.5);
           ctx.lineTo(radius + 1, 3.5);
           ctx.closePath();
-          ctx.fillStyle = strokeColor;
+          ctx.fillStyle = baseColor;
           ctx.fill();
           ctx.rotate(-canvasAngle);
         }
 
-        // Circle body
-        ctx.beginPath();
-        ctx.arc(0, 0, radius, 0, Math.PI * 2);
-        ctx.fillStyle = fillColor;
-        ctx.fill();
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        if (showCars) {
+          const wagonWidth = DETAIL_WAGON_WIDTH;
+          const wagonHeight = DETAIL_WAGON_HEIGHT;
+          const consistPoints = traj && locomotiveState
+            ? buildConsistScreenPoints(
+                (traj.geometry.coordinates as [number, number][])
+                  .map(([coordLon, coordLat]) => map.latLngToContainerPoint([coordLat, coordLon]))
+                  .map((point) => ({ x: point.x, y: point.y })),
+                locomotiveState.geomFraction,
+                locomotiveState.rotation,
+                Array.from({ length: TRAIN_CAR_COUNT }, (_, index) => DETAIL_LEAD_SPACING_PX + index * DETAIL_CAR_SPACING_PX),
+              )
+            : null;
+          for (let car = TRAIN_CAR_COUNT - 1; car >= 0; car -= 1) {
+            let wagonPx = px;
+            let wagonPy = py;
+            let wagonRotation = rotation ?? pos.heading ?? 0;
+
+            if (consistPoints) {
+              const wagonPoint = consistPoints[car];
+              if (!wagonPoint) continue;
+              wagonPx = wagonPoint.x;
+              wagonPy = wagonPoint.y;
+              wagonRotation = wagonPoint.rotation;
+            } else {
+              const spacing = DETAIL_LEAD_SPACING_PX + car * FALLBACK_CAR_SPACING_PX;
+              const radians = (((pos.heading ?? 0) + DISPLAY_ROTATION_OFFSET_DEG) * Math.PI) / 180;
+              wagonPx = px + Math.cos(radians + Math.PI) * spacing;
+              wagonPy = py + Math.sin(radians + Math.PI) * spacing;
+            }
+
+            drawTrainCar(
+              ctx,
+              wagonPx - px,
+              wagonPy - py,
+              wagonWidth,
+              wagonHeight,
+              baseColor,
+              wagonRotation,
+              'rgba(255,255,255,0.72)',
+            );
+          }
+
+          drawTrainCar(
+            ctx,
+            0,
+            0,
+            DETAIL_LOCOMOTIVE_WIDTH,
+            DETAIL_LOCOMOTIVE_HEIGHT,
+            baseColor,
+            rotation ?? pos.heading ?? 0,
+            delayColor,
+            true,
+          );
+        } else {
+          drawTrainCar(
+            ctx,
+            0,
+            0,
+            radius * 2.3,
+            radius * 1.6,
+            baseColor,
+            rotation ?? pos.heading ?? 0,
+            delayColor,
+            true,
+          );
+        }
 
         ctx.restore();
       }
@@ -311,4 +437,3 @@ export default function CanvasTrainLayer({
 
   return null;
 }
-

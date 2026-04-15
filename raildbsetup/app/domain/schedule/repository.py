@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from app.domain.schedule.entities import TrainData
+if TYPE_CHECKING:
+    from app.domain.schedule.entities import TrainData
 
 
 class ScheduleRepository(ABC):

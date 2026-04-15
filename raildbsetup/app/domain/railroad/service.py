@@ -1,5 +1,8 @@
-from app.domain.railroad.entities import RouteData, StationData
-from app.domain.railroad.repository import RailroadRepository
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.domain.railroad.entities import RouteData, StationData
+    from app.domain.railroad.repository import RailroadRepository
 
 
 class RailroadDomainService:
@@ -10,7 +13,10 @@ class RailroadDomainService:
 
     async def is_initialized(self) -> bool:
         """Return True if the database already contains both routes and stations."""
-        return await self._repo.count_routes() > 0 and await self._repo.count_stations() > 0
+        return (
+            await self._repo.count_routes() > 0
+            and await self._repo.count_stations() > 0
+        )
 
     async def replace_routes(self, routes: list[RouteData]) -> int:
         """Replace the canonical route geometry dataset."""

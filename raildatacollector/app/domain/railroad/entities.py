@@ -10,6 +10,8 @@ class StationData:
     lat: float
     folder: str = ""
     route_type: str = "other"
+    name_th: str = ""
+    district: str = ""
 
 
 @dataclass

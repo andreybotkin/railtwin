@@ -80,6 +80,38 @@ def test_filter_trajectories_by_bbox_uses_current_position_not_route_bounds() ->
     assert [trajectory["properties"]["train_id"] for trajectory in filtered] == [11]
 
 
+def test_filter_trajectories_by_bbox_supports_coordinate_timestamps_schema() -> None:
+    trajectories = [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [99.8, 13.0],
+                    [100.0, 13.0],
+                    [100.2, 13.0],
+                ],
+            },
+            "properties": {
+                "train_id": 33,
+                "timestamp": 1,
+                "coordinate_timestamps": [[1, [100.0, 13.0], 0.0]],
+                "time_intervals": [[1, 0.95, 0.0]],
+                "bounds": [99.8, 13.0, 100.2, 13.0],
+            },
+        },
+    ]
+
+    filtered = filter_trajectories_by_bbox(
+        trajectories,
+        "99.95,12.95,100.05,13.05",
+        buffer_ratio=0.0,
+        min_buffer_degrees=0.0,
+    )
+
+    assert [trajectory["properties"]["train_id"] for trajectory in filtered] == [33]
+
+
 def test_filter_stations_by_bbox_returns_only_visible_stations() -> None:
     stations = [
         {

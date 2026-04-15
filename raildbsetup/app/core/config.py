@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     setup_port: int = 8003
 
-    # Shared database (same as backend)
+    # Shared database (same as simulation)
     database_url: str = (
         "postgresql+asyncpg://postgres:postgres@postgres:5432/railway_db"
     )

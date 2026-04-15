@@ -26,6 +26,11 @@ export interface VehiclePosition {
   rotation: number;
 }
 
+export interface VehicleTrajectoryState extends VehiclePosition {
+  /** 0..1 fraction along the trajectory geometry */
+  geomFraction: number;
+}
+
 /**
  * Interpolate a position along a GeoJSON LineString at a given fractional position.
  *
@@ -88,8 +93,69 @@ export function getVehiclePosition(
   nowMs: number,
   trajectory: TrainTrajectory,
 ): VehiclePosition | null {
-  const { time_intervals: intervals } = trajectory.properties;
+  const state = getVehicleTrajectoryState(nowMs, trajectory);
+  if (!state) return null;
+  return {
+    lon: state.lon,
+    lat: state.lat,
+    rotation: state.rotation,
+  };
+}
+
+export function getVehicleTrajectoryState(
+  nowMs: number,
+  trajectory: TrainTrajectory,
+): VehicleTrajectoryState | null {
+  const {
+    time_intervals: intervals,
+    coordinate_timestamps: coordinateTimestamps,
+  } = trajectory.properties;
   const coords = trajectory.geometry.coordinates as [number, number][];
+
+  if (coordinateTimestamps && coordinateTimestamps.length) {
+    const firstPoint = coordinateTimestamps[0];
+    const lastPoint = coordinateTimestamps[coordinateTimestamps.length - 1];
+
+    if (nowMs <= firstPoint[0]) {
+      return {
+        lon: firstPoint[1][0],
+        lat: firstPoint[1][1],
+        rotation: firstPoint[2],
+        geomFraction: intervals[0]?.[1] ?? 0,
+      };
+    }
+    if (nowMs >= lastPoint[0]) {
+      return {
+        lon: lastPoint[1][0],
+        lat: lastPoint[1][1],
+        rotation: lastPoint[2],
+        geomFraction: intervals[intervals.length - 1]?.[1] ?? 1,
+      };
+    }
+
+    for (let j = 0; j < coordinateTimestamps.length - 1; j++) {
+      const [tStart, startCoord, rotStart] = coordinateTimestamps[j];
+      const [tEnd, endCoord] = coordinateTimestamps[j + 1];
+      if (tStart <= nowMs && nowMs <= tEnd) {
+        const timeFrac = (tEnd - tStart) > 0 ? (nowMs - tStart) / (tEnd - tStart) : 0;
+        const lon = startCoord[0] + timeFrac * (endCoord[0] - startCoord[0]);
+        const lat = startCoord[1] + timeFrac * (endCoord[1] - startCoord[1]);
+        let geomFraction = intervals[intervals.length - 1]?.[1] ?? 1;
+        for (let i = 0; i < intervals.length - 1; i++) {
+          const [intervalStart, fracStart] = intervals[i];
+          const [intervalEnd, fracEnd] = intervals[i + 1];
+          if (intervalStart <= nowMs && nowMs <= intervalEnd) {
+            const intervalFrac = (intervalEnd - intervalStart) > 0
+              ? (nowMs - intervalStart) / (intervalEnd - intervalStart)
+              : 0;
+            geomFraction = fracStart + intervalFrac * (fracEnd - fracStart);
+            break;
+          }
+        }
+        return { lon, lat, rotation: rotStart, geomFraction };
+      }
+    }
+  }
 
   if (!intervals.length || !coords.length) return null;
 
@@ -127,6 +193,33 @@ export function getVehiclePosition(
   }
 
   const [lon, lat] = interpolateLineString(coords, geomFrac);
+  return { lon, lat, rotation, geomFraction: geomFrac };
+}
+
+export function getVehiclePositionAtFraction(
+  trajectory: TrainTrajectory,
+  geomFraction: number,
+  fallbackRotation = 0,
+): VehiclePosition | null {
+  const coords = trajectory.geometry.coordinates as [number, number][];
+  if (!coords.length) return null;
+
+  const safeFraction = Math.max(0, Math.min(1, geomFraction));
+  const [lon, lat] = interpolateLineString(coords, safeFraction);
+  const sampleStep = 0.0025;
+  const beforeFraction = Math.max(0, safeFraction - sampleStep);
+  const afterFraction = Math.min(1, safeFraction + sampleStep);
+  const [beforeLon, beforeLat] = interpolateLineString(coords, beforeFraction);
+  const [afterLon, afterLat] = interpolateLineString(coords, afterFraction);
+  const dx = afterLon - beforeLon;
+  const dy = afterLat - beforeLat;
+
+  let rotation = fallbackRotation;
+  if (Math.abs(dx) > 1e-9 || Math.abs(dy) > 1e-9) {
+    rotation = (Math.atan2(dx, dy) * 180) / Math.PI;
+    if (rotation < 0) rotation += 360;
+  }
+
   return { lon, lat, rotation };
 }
 
@@ -180,6 +273,12 @@ export function buildPositionFromTrajectory(
  * geops `purgeOutOfDateTrajectories()` pattern.
  */
 export function isTrajectoryValid(trajectory: TrainTrajectory, nowMs: number): boolean {
+  const coordinateTimestamps = trajectory.properties.coordinate_timestamps;
+  if (coordinateTimestamps && coordinateTimestamps.length) {
+    const lastTime = coordinateTimestamps[coordinateTimestamps.length - 1][0];
+    return nowMs < lastTime + 5000;
+  }
+
   const intervals = trajectory.properties.time_intervals;
   if (!intervals.length) return false;
   const lastTime = intervals[intervals.length - 1][0];

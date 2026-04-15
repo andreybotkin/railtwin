@@ -4,14 +4,12 @@ from dataclasses import dataclass
 from datetime import time as dt_time
 from difflib import SequenceMatcher
 from math import atan2, cos, radians, sin, sqrt
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
-from app.domain.schedule.entities import TrainData
 from app.domain.schedule.repository import ScheduleRepository
 from app.infrastructure.database.tables import (
     t_route_stations,
@@ -21,6 +19,13 @@ from app.infrastructure.database.tables import (
     t_stations,
     t_trains,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from app.domain.schedule.entities import TrainData
 
 logger = get_logger(__name__)
 
@@ -102,7 +107,10 @@ def _haversine_km(
     lon2, lat2 = second
     dlat = radians(lat2 - lat1)
     dlon = radians(lon2 - lon1)
-    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    a = (
+        sin(dlat / 2) ** 2
+        + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    )
     return earth_radius_km * 2 * atan2(sqrt(a), sqrt(1 - a))
 
 
@@ -120,8 +128,12 @@ class SqlScheduleRepository(ScheduleRepository):
         return result.scalar_one() or 0
 
     async def reset_source_timetable(self) -> None:
-        await self._s.execute(delete(t_station_aliases).where(t_station_aliases.c.source == ALIAS_SOURCE))
-        await self._s.execute(delete(t_trains).where(t_trains.c.source.in_(LEGACY_SOURCE_NAMES)))
+        await self._s.execute(
+            delete(t_station_aliases).where(t_station_aliases.c.source == ALIAS_SOURCE)
+        )
+        await self._s.execute(
+            delete(t_trains).where(t_trains.c.source.in_(LEGACY_SOURCE_NAMES))
+        )
         self._station_cache.clear()
         if self._station_aliases is not None:
             self._station_aliases.clear()
@@ -149,7 +161,8 @@ class SqlScheduleRepository(ScheduleRepository):
                     "operator": train.operator,
                     "source": SOURCE_NAME,
                     "source_url": train.source_url,
-                    "service_notes": train.service_notes or {"route_type": train.route_type},
+                    "service_notes": train.service_notes
+                    or {"route_type": train.route_type},
                     "current_route_id": None,
                 },
             )
@@ -158,7 +171,9 @@ class SqlScheduleRepository(ScheduleRepository):
         return (await self._s.execute(stmt)).scalar_one()
 
     async def replace_schedules(self, train_id: int, train: TrainData) -> int:
-        await self._s.execute(delete(t_schedules).where(t_schedules.c.train_id == train_id))
+        await self._s.execute(
+            delete(t_schedules).where(t_schedules.c.train_id == train_id)
+        )
         count = 0
         prev_station_id: int | None = None
         for stop in train.stops:
@@ -257,7 +272,9 @@ class SqlScheduleRepository(ScheduleRepository):
                     select(t_routes.c.distance_km).where(t_routes.c.id == route_id)
                 )
             ).scalar_one_or_none()
-            route_distance_km = float(route_distance) if route_distance is not None else None
+            route_distance_km = (
+                float(route_distance) if route_distance is not None else None
+            )
 
             route_stations = (
                 await self._s.execute(
@@ -317,11 +334,20 @@ class SqlScheduleRepository(ScheduleRepository):
                     else None
                 )
                 route_progress = None
-                if distance_from_start is not None and route_distance_km and route_distance_km > 0:
-                    route_progress = max(0.0, min(1.0, distance_from_start / route_distance_km))
+                if (
+                    distance_from_start is not None
+                    and route_distance_km
+                    and route_distance_km > 0
+                ):
+                    route_progress = max(
+                        0.0, min(1.0, distance_from_start / route_distance_km)
+                    )
 
                 values: dict[str, object] = {"route_station_id": int(route_station.id)}
-                if schedule.distance_from_origin_km is None and distance_from_start is not None:
+                if (
+                    schedule.distance_from_origin_km is None
+                    and distance_from_start is not None
+                ):
                     values["distance_from_origin_km"] = distance_from_start
                 if route_progress is not None:
                     values["route_progress"] = route_progress
@@ -358,7 +384,9 @@ class SqlScheduleRepository(ScheduleRepository):
             candidate = StationCandidate(
                 id=int(row.id),
                 name=str(row.name),
-                route_type=str(row.source_route_type) if row.source_route_type else None,
+                route_type=(
+                    str(row.source_route_type) if row.source_route_type else None
+                ),
                 match_key=_station_match_key(str(row.name)),
                 lon=float(row.lon),
                 lat=float(row.lat),
@@ -369,11 +397,14 @@ class SqlScheduleRepository(ScheduleRepository):
 
         alias_rows = (
             await self._s.execute(
-                select(t_station_aliases.c.normalized_alias, t_station_aliases.c.station_id)
-                .where(t_station_aliases.c.source == ALIAS_SOURCE)
+                select(
+                    t_station_aliases.c.normalized_alias, t_station_aliases.c.station_id
+                ).where(t_station_aliases.c.source == ALIAS_SOURCE)
             )
         ).fetchall()
-        self._station_aliases = {str(row.normalized_alias): int(row.station_id) for row in alias_rows}
+        self._station_aliases = {
+            str(row.normalized_alias): int(row.station_id) for row in alias_rows
+        }
 
     async def _resolve_station_id(
         self,
@@ -389,7 +420,11 @@ class SqlScheduleRepository(ScheduleRepository):
 
         variants = _station_match_variants(station_name)
         manual_target = next(
-            (MANUAL_ALIAS_KEYS[variant] for variant in variants if variant in MANUAL_ALIAS_KEYS),
+            (
+                MANUAL_ALIAS_KEYS[variant]
+                for variant in variants
+                if variant in MANUAL_ALIAS_KEYS
+            ),
             None,
         )
         if manual_target:
@@ -399,7 +434,9 @@ class SqlScheduleRepository(ScheduleRepository):
         assert self._station_aliases is not None
         direct_matches = self._find_direct_matches(variants)
         if direct_matches:
-            station_id = self._choose_candidate(direct_matches, route_type_hint, prev_station_id)
+            station_id = self._choose_candidate(
+                direct_matches, route_type_hint, prev_station_id
+            )
             await self._persist_alias(station_name, station_id)
             self._station_cache[cache_key] = station_id
             return station_id
@@ -414,7 +451,9 @@ class SqlScheduleRepository(ScheduleRepository):
         if best_station_id is not None:
             await self._persist_alias(station_name, best_station_id)
         else:
-            logger.warning("Station not matched from raw schedule", station_name=station_name)
+            logger.warning(
+                "Station not matched from raw schedule", station_name=station_name
+            )
         self._station_cache[cache_key] = best_station_id
         return best_station_id
 
@@ -424,7 +463,10 @@ class SqlScheduleRepository(ScheduleRepository):
         candidates: dict[int, StationCandidate] = {}
         for variant in variants:
             alias_station_id = self._station_aliases.get(variant)
-            if alias_station_id is not None and alias_station_id in self._candidate_by_id:
+            if (
+                alias_station_id is not None
+                and alias_station_id in self._candidate_by_id
+            ):
                 candidate = self._candidate_by_id[alias_station_id]
                 candidates[candidate.id] = candidate
             for candidate in self._stations_by_key.get(variant, []):
@@ -456,7 +498,9 @@ class SqlScheduleRepository(ScheduleRepository):
         scored: list[tuple[float, StationCandidate]] = []
         normalized_hint = (route_type_hint or "").strip().lower()
         for candidate in candidate_pool:
-            score = max(_similarity_score(variant, candidate.match_key) for variant in variants)
+            score = max(
+                _similarity_score(variant, candidate.match_key) for variant in variants
+            )
             if normalized_hint and candidate.route_type == normalized_hint:
                 score += 0.03
             if score >= 0.74:
@@ -467,7 +511,9 @@ class SqlScheduleRepository(ScheduleRepository):
 
         scored.sort(key=lambda item: item[0], reverse=True)
         best_score = scored[0][0]
-        contenders = [candidate for score, candidate in scored if score >= best_score - 0.03]
+        contenders = [
+            candidate for score, candidate in scored if score >= best_score - 0.03
+        ]
         chosen = self._choose_candidate(contenders, route_type_hint, prev_station_id)
         if best_score < 0.84 and prev_station_id is None:
             return None
@@ -480,16 +526,24 @@ class SqlScheduleRepository(ScheduleRepository):
         prev_station_id: int | None,
     ) -> int:
         normalized_hint = (route_type_hint or "").strip().lower()
-        preferred = [candidate for candidate in candidates if candidate.route_type == normalized_hint]
+        preferred = [
+            candidate
+            for candidate in candidates
+            if candidate.route_type == normalized_hint
+        ]
         filtered = preferred or candidates
         if prev_station_id is None or prev_station_id not in self._candidate_by_id:
-            return sorted(filtered, key=lambda candidate: (len(candidate.match_key), candidate.id))[0].id
+            return sorted(
+                filtered, key=lambda candidate: (len(candidate.match_key), candidate.id)
+            )[0].id
 
         previous = self._candidate_by_id[prev_station_id]
         return min(
             filtered,
             key=lambda candidate: (
-                _haversine_km((previous.lon, previous.lat), (candidate.lon, candidate.lat)),
+                _haversine_km(
+                    (previous.lon, previous.lat), (candidate.lon, candidate.lat)
+                ),
                 len(candidate.match_key),
                 candidate.id,
             ),

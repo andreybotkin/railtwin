@@ -2,7 +2,7 @@
 
 ## Overview
 
-This microservice collects and maintains railroad data for the backend.
+This microservice collects and maintains railroad data for the simulation service.
 
 ## Data sources
 
