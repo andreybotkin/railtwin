@@ -1,14 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: raildbsetup
+  name: raildbsetup-service
   namespace: railway
   labels:
-    app: raildbsetup
+    app.kubernetes.io/name: raildbsetup
+    app.kubernetes.io/component: setup
 spec:
   type: ClusterIP
   selector:
-    app: raildbsetup
+    app.kubernetes.io/name: raildbsetup
+    app.kubernetes.io/component: setup
   ports:
     - name: http
       port: 8003

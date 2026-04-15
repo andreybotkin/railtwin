@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: raildatacollector
-          image: ghcr.io/raybotkin/railtwin/raildatacollector:latest
+          image: raildatacollector:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8001

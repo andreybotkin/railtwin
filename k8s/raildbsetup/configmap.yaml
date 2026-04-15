@@ -3,8 +3,10 @@ kind: ConfigMap
 metadata:
   name: raildbsetup-config
   namespace: railway
+  labels:
+    app.kubernetes.io/name: raildbsetup
+    app.kubernetes.io/component: setup
 data:
-  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/railway_db"
   LOG_LEVEL: "INFO"
   ENVIRONMENT: "production"
   DEBUG: "false"

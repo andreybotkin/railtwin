@@ -4,33 +4,34 @@ metadata:
   name: raildbsetup
   namespace: railway
   labels:
-    app: raildbsetup
+    app.kubernetes.io/name: raildbsetup
+    app.kubernetes.io/component: setup
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: raildbsetup
+      app.kubernetes.io/name: raildbsetup
+      app.kubernetes.io/component: setup
   strategy:
-    type: Recreate   # Only one instance should run initialization at a time
+    type: Recreate
   template:
     metadata:
       labels:
-        app: raildbsetup
+        app.kubernetes.io/name: raildbsetup
+        app.kubernetes.io/component: setup
     spec:
-      serviceAccountName: default
       initContainers:
-        # Wait for the simulation service (which runs alembic) to be ready before starting
-        - name: wait-for-simulation
+        - name: wait-for-postgres
           image: busybox:1.36
           command:
             - sh
             - -c
             - |
-              until wget -qO- http://simulation:8000/health > /dev/null 2>&1; do
-                echo "Waiting for simulation to be healthy..."
-                sleep 5
+              until nc -z postgres-service 5432; do
+                echo "Waiting for postgres..."
+                sleep 3
               done
-              echo "Simulation is ready"
+              echo "Postgres is ready"
       containers:
         - name: raildbsetup
           image: raildbsetup:latest
@@ -44,17 +45,6 @@ spec:
                 name: raildbsetup-config
             - secretRef:
                 name: raildbsetup-secrets
-                optional: true
-          # Data volumes: railroad KML and schedule files
-          # In production these should come from a PVC populated during CI/CD
-          volumeMounts:
-            - name: railroad-data
-              mountPath: /app/railroad
-              readOnly: true
-            - name: schedule-data
-              mountPath: /app/schedule
-              readOnly: true
-          # Liveness: the process is alive
           livenessProbe:
             httpGet:
               path: /health
@@ -63,7 +53,6 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
-          # Readiness: initialization is complete
           readinessProbe:
             httpGet:
               path: /ready
@@ -71,7 +60,6 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
-            # Allow up to 30 minutes for initial schedule loading
             failureThreshold: 180
           resources:
             requests:
@@ -80,11 +68,4 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-      volumes:
-        - name: railroad-data
-          persistentVolumeClaim:
-            claimName: railroad-data-pvc
-        - name: schedule-data
-          persistentVolumeClaim:
-            claimName: schedule-data-pvc
       restartPolicy: Always

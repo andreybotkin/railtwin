@@ -20,8 +20,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/raybotkin/railtwin/frontend:latest
-          imagePullPolicy: Always
+          image: frontend:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
               name: http

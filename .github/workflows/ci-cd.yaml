@@ -4,7 +4,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - 'simulation/**'
       - 'frontend/**'
@@ -13,13 +13,6 @@ on:
       - 'gateway/**'
       - 'k8s/**'
       - '.github/workflows/ci-cd.yaml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'simulation/**'
-      - 'raildatacollector/**'
-      - 'raildbsetup/**'
-      - 'gateway/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
