@@ -979,8 +979,8 @@
       "line": "Northeastern",
       "district": "Noen Sa-nga",
       "province": "Chaiyaphum",
-      "lat": 15.5830984,
-      "lon": 102.0560986,
+      "lat": 15.5830349,
+      "lon": 102.0564755,
       "coord_source": "osm_th_raw"
     },
     {
@@ -4293,7 +4293,7 @@
       "coord_source": "osm_th_raw"
     },
     {
-      "name_en": "Tha Chang",
+      "name_en": "Tha Chang South",
       "name_th": "ท่าฉาง",
       "code": "ทฉ.",
       "class": "2",
@@ -4302,6 +4302,18 @@
       "province": "Surat Thani",
       "lat": 9.2753412,
       "lon": 99.1994232,
+      "coord_source": "osm_th_raw"
+    },
+    {
+      "name_en": "Tha Chang Northeast",
+      "name_th": "ท่าช้าง",
+      "code": "ชา.",
+      "class": "3",
+      "line": "Northeastern",
+      "district": "Chaloem Phra Kiat",
+      "province": "Nakhon Ratchasima",
+      "lat": 15.002,
+      "lon": 102.2744,
       "coord_source": "osm_th_raw"
     },
     {
@@ -5783,6 +5795,19 @@
       "lat": 14.8818589,
       "lon": 101.6717591,
       "coord_source": "osm_en",
+      "schedule_name": "Nong Nam Khun"
+    },
+    {
+      "name_en": "Nong Khai Nam",
+      "name_th": "หนองคายน้ำ",
+      "code": "",
+      "class": "Halt",
+      "line": "Northeastern",
+      "district": "Mueang",
+      "province": "Nakhon Ratchasima",
+      "lat": 15.0898087,
+      "lon": 102.1802235,
+      "coord_source": "osm_en",
       "schedule_name": "Nong Khai Nam"
     },
     {
@@ -6716,8 +6741,8 @@
       "line": "Northeastern",
       "district": "",
       "province": "",
-      "lat": 13.7296466,
-      "lon": 100.4740422,
+      "lat": 16.3397518,
+      "lon": 102.8047386,
       "coord_source": "osm_en",
       "schedule_name": "Tha Phra"
     },
@@ -7287,7 +7312,8 @@
     "Na Pru": "Na Prue",
     "Muang Thi": "Mueang Thi",
     "Ban Nong Sua": "Nong Suea",
-    "Nong Khai Nam": "Nong Nam Khun",
+    "Nong Nam Khun": "Nong Nam Khun",
+    "Nong Khai Nam": "Nong Khai Nam",
     "Khok Khli": "Khok Klhi",
     "Lop Buri 2 (Tha Wung)": null,
     "Talat Nam 4 Pak": "Pattaya Floating Market",

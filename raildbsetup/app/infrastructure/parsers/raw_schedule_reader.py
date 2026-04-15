@@ -58,6 +58,15 @@ def _time_to_minutes(value: str | None) -> int | None:
     return int(hours_text) * 60 + int(minutes_text)
 
 
+def _parse_explicit_offset(entry: dict, prefix: str) -> int | None:
+    for suffix in ("day_offset", "date_offset"):
+        raw_value = entry.get(f"{prefix}_{suffix}")
+        if raw_value in (None, "", "-"):
+            continue
+        return int(raw_value)
+    return None
+
+
 def _infer_day_offsets(
     timetable: list[dict],
 ) -> list[tuple[int, int]]:
@@ -70,26 +79,38 @@ def _infer_day_offsets(
         departure = _parse_time_value(entry.get("departure"))
         arrival_minutes = _time_to_minutes(arrival)
         departure_minutes = _time_to_minutes(departure)
+        explicit_arrival_offset = _parse_explicit_offset(entry, "arrival")
+        explicit_departure_offset = _parse_explicit_offset(entry, "departure")
 
-        arrival_offset = current_offset
+        arrival_offset = (
+            explicit_arrival_offset
+            if explicit_arrival_offset is not None
+            else current_offset
+        )
         if arrival_minutes is not None:
-            while (
-                last_absolute_minutes is not None
-                and arrival_minutes + arrival_offset * 1440 < last_absolute_minutes
-            ):
-                arrival_offset += 1
+            if explicit_arrival_offset is None:
+                while (
+                    last_absolute_minutes is not None
+                    and arrival_minutes + arrival_offset * 1440 < last_absolute_minutes
+                ):
+                    arrival_offset += 1
             arrival_absolute = arrival_minutes + arrival_offset * 1440
         else:
             arrival_absolute = None
 
-        departure_offset = arrival_offset
+        departure_offset = (
+            explicit_departure_offset
+            if explicit_departure_offset is not None
+            else arrival_offset
+        )
         reference_absolute = arrival_absolute if arrival_absolute is not None else last_absolute_minutes
         if departure_minutes is not None:
-            while (
-                reference_absolute is not None
-                and departure_minutes + departure_offset * 1440 < reference_absolute
-            ):
-                departure_offset += 1
+            if explicit_departure_offset is None:
+                while (
+                    reference_absolute is not None
+                    and departure_minutes + departure_offset * 1440 < reference_absolute
+                ):
+                    departure_offset += 1
             departure_absolute = departure_minutes + departure_offset * 1440
         else:
             departure_absolute = None
@@ -251,5 +272,4 @@ def read_all_raw_schedules(raw_dir: Path | None = None) -> list[TrainData]:
         total=len(files),
     )
     return trains
-
 

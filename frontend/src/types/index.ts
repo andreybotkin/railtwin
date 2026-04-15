@@ -75,7 +75,7 @@ export interface RouteSummary {
 }
 
 // Train types
-export type TrainType = 'special_express' | 'rapid' | 'ordinary';
+export type TrainType = 'special_express' | 'rapid' | 'ordinary' | 'local' | (string & {});
 export type TrainStatus = 'moving' | 'stopped' | 'at_station' | 'delayed';
 
 export interface Train {
@@ -138,12 +138,18 @@ export interface TrainPositionUpdate {
 export interface Schedule {
   id: number;
   train_id: number;
-  station_id: number;
+  station_id: number | null;
+  station_name?: string | null;
   arrival_time: string | null;
   departure_time: string | null;
+  arrival_day_offset?: number;
+  departure_day_offset?: number;
   day_of_week: number[] | null;
   platform: string | null;
   sequence: number;
+  route_station_id?: number | null;
+  distance_from_origin_km?: number | null;
+  route_progress?: number | null;
   train: TrainSummary | null;
   station: StationSummary | null;
 }

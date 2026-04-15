@@ -19,18 +19,18 @@ spec:
     spec:
       serviceAccountName: default
       initContainers:
-        # Wait for the backend (which runs alembic) to be ready before starting
-        - name: wait-for-backend
+        # Wait for the simulation service (which runs alembic) to be ready before starting
+        - name: wait-for-simulation
           image: busybox:1.36
           command:
             - sh
             - -c
             - |
-              until wget -qO- http://backend:8000/health > /dev/null 2>&1; do
-                echo "Waiting for backend to be healthy..."
+              until wget -qO- http://simulation:8000/health > /dev/null 2>&1; do
+                echo "Waiting for simulation to be healthy..."
                 sleep 5
               done
-              echo "Backend is ready"
+              echo "Simulation is ready"
       containers:
         - name: raildbsetup
           image: raildbsetup:latest

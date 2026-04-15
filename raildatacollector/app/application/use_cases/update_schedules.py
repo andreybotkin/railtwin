@@ -3,7 +3,7 @@
 On each run:
   1. Fetches the latest timetable (local cache → TTS remote).
     2. Saves the timetable as a dated JSON file in schedule/.
-    3. Caches per-train schedule data in Redis (TTL 48 h) so the backend
+    3. Caches per-train schedule data in Redis (TTL 48 h) so the simulation
      simulation can query timetable data without hitting the database.
 
 The database remains owned by raildbsetup and is seeded only from

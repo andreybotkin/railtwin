@@ -37,34 +37,34 @@ services:
     networks:
       - railway-network
 
-  backend:
+  simulation:
     build:
-      context: ./backend
+      context: ./simulation
       dockerfile: Dockerfile
-    container_name: railway-backend
+    container_name: railway-simulation
     env_file:
       - .env
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@postgres:5432/railway_db}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000,http://127.0.0.1:8000}
+      CORS_ORIGINS: ${SIMULATION_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000,http://127.0.0.1:8000}
       DEBUG: ${DEBUG:-true}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
       LOG_LEVEL: ${LOG_LEVEL:-WARNING}
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-100}
-      WS_HEARTBEAT_INTERVAL: ${WS_HEARTBEAT_INTERVAL:-5}
-      POSITION_CACHE_INTERVAL_SECONDS: ${POSITION_CACHE_INTERVAL_SECONDS:-5}
-      TRAJECTORY_REFRESH_INTERVAL_SECONDS: ${TRAJECTORY_REFRESH_INTERVAL_SECONDS:-10}
+      WS_HEARTBEAT_INTERVAL: ${WS_HEARTBEAT_INTERVAL:-10}
+      POSITION_CACHE_INTERVAL_SECONDS: ${POSITION_CACHE_INTERVAL_SECONDS:-10}
+      TRAJECTORY_REFRESH_INTERVAL_SECONDS: ${TRAJECTORY_REFRESH_INTERVAL_SECONDS:-20}
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "${SIMULATION_PORT:-8000}:8000"
     depends_on:
       raildbsetup:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
-      - ./backend:/app
+      - ./simulation:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
@@ -114,15 +114,15 @@ services:
     env_file:
       - .env
     environment:
-      BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
+      SIMULATION_URL: ${SIMULATION_URL:-http://simulation:8000}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       CORS_ORIGINS: ${GATEWAY_CORS_ORIGINS:-http://localhost:3000,http://localhost:8002,http://127.0.0.1:3000,http://127.0.0.1:8002}
-      WS_POLL_INTERVAL: ${WS_POLL_INTERVAL:-5}
-      TRAJECTORY_POLL_INTERVAL: ${TRAJECTORY_POLL_INTERVAL:-5}
+      WS_POLL_INTERVAL: ${WS_POLL_INTERVAL:-10}
+      TRAJECTORY_POLL_INTERVAL: ${TRAJECTORY_POLL_INTERVAL:-10}
     ports:
       - "${GATEWAY_PORT:-8002}:8002"
     depends_on:
-      # backend:
+      # simulation:
       #   condition: service_healthy
       redis:
         condition: service_healthy

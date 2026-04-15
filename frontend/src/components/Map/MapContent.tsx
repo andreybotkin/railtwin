@@ -173,6 +173,35 @@ function LocateControl() {
   return null;
 }
 
+function SelectedTrainVisibilityController({
+  selectedTrainPosition,
+  onTrainSelect,
+}: {
+  selectedTrainPosition: { location: { coordinates: [number, number] } } | undefined;
+  onTrainSelect?: (id: number | null) => void;
+}) {
+  const map = useMap();
+
+  const syncVisibility = useCallback(() => {
+    if (!selectedTrainPosition) return;
+    const [lon, lat] = selectedTrainPosition.location.coordinates;
+    if (!map.getBounds().contains([lat, lon])) {
+      onTrainSelect?.(null);
+    }
+  }, [map, onTrainSelect, selectedTrainPosition]);
+
+  useMapEvents({
+    moveend: syncVisibility,
+    zoomend: syncVisibility,
+  });
+
+  useEffect(() => {
+    syncVisibility();
+  }, [syncVisibility]);
+
+  return null;
+}
+
 export default function MapContent({
   className,
   selectedTrainId,
@@ -249,6 +278,12 @@ export default function MapContent({
     [trainPositions, selectedTrainId],
   );
 
+  useEffect(() => {
+    if (selectedTrainId && !selectedTrainPosition) {
+      onTrainSelect?.(null);
+    }
+  }, [onTrainSelect, selectedTrainId, selectedTrainPosition]);
+
   // Non-selected trains for canvas rendering
   const canvasTrains = useMemo(
     () => visibleTrains.filter((p) => p.train_id !== selectedTrainId),
@@ -298,6 +333,10 @@ export default function MapContent({
         scrollWheelZoom={true}
       >
         <MapController onBBoxChange={handleBBoxChange} />
+        <SelectedTrainVisibilityController
+          selectedTrainPosition={selectedTrainPosition}
+          onTrainSelect={onTrainSelect}
+        />
         <LocateControl />
         <ScaleControl position="bottomright" imperial={false} />
 

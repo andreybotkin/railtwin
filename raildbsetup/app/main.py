@@ -16,7 +16,7 @@ Startup sequence (lifespan):
   4. /ready returns 503 during init, 200 on success, 500 on failure.
 
 This service is the ONLY place where database schema and seed data are managed.
-The backend must declare a dependency on this service before starting.
+The simulation service must declare a dependency on this service before starting.
 """
 
 import asyncio

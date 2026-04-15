@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 class RedisDelayRepository(DelayRepository):
     """Redis implementation of the delay repository.
 
-    Stores delays in the same Redis key used by the backend simulation
+    Stores delays in the same Redis key used by the simulation service
     service so that train position interpolation picks up delay corrections
     immediately.
     """

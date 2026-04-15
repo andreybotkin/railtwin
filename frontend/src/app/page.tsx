@@ -4,8 +4,9 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Train, Sun, Moon, Globe, Info, X } from 'lucide-react';
+import { Train, Sun, Moon, Globe, Info, X, Bug, Waypoints, Layers3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import MapContainer from '@/components/Map/MapContainer';
@@ -34,6 +35,8 @@ export default function HomePage() {
     setSelectedTrainId(id);
     if (id !== null) {
       setShowLeftPanel(true);
+    } else {
+      setShowLeftPanel(false);
     }
   }, []);
   const [themeOpen, setThemeOpen] = useState(false);
@@ -80,83 +83,194 @@ export default function HomePage() {
     THEME_OPTIONS.find((th) => th.key === activeTopicKey) ?? THEME_OPTIONS[0];
   const ActiveThemeIcon = activeThemeEntry.Icon;
 
+  const toggleTrainPanel = useCallback(() => {
+    setShowLeftPanel((current) => {
+      const next = !current;
+      if (next) setShowRightPanel(false);
+      return next;
+    });
+  }, []);
+
+  const toggleInfoPanel = useCallback(() => {
+    setShowRightPanel((current) => {
+      const next = !current;
+      if (next) setShowLeftPanel(false);
+      return next;
+    });
+  }, []);
+
   return (
-    <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
-      {/* Header */}
-      <header className="flex h-14 items-center justify-between border-b border-zinc-800 bg-black px-3 sm:px-4">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Train className="h-6 w-6 text-white" />
-          <h1 className="max-w-[220px] truncate text-sm font-bold text-white sm:max-w-none sm:text-lg">
-            {t('appTitle')}
-          </h1>
-        </div>
+    <div className="relative h-dvh overflow-hidden bg-[#e7e2d7] text-zinc-950">
+      <main className="absolute inset-0">
+        <MapContainer
+          className="absolute inset-0"
+          selectedTrainId={selectedTrainId}
+          onTrainSelect={handleTrainSelect}
+          onViewportChange={setTrainViewportBbox}
+        />
 
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowLeftPanel(!showLeftPanel)}
-            title={t('header.toggleTrainPanel')}
-            aria-label={t('header.toggleTrainPanel')}
-            className="text-white hover:bg-zinc-800 hover:text-white"
-          >
-            <Train className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowRightPanel(!showRightPanel)}
-            title={t('header.toggleSchedulePanel')}
-            aria-label={t('header.toggleSchedulePanel')}
-            className="text-white hover:bg-zinc-800 hover:text-white"
-          >
-            <Info className="h-5 w-5" />
-          </Button>
-
-          {/* Map theme switcher */}
-          <div ref={themeRef} className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setThemeOpen((o) => !o)}
-              title="Map theme"
-              aria-label="Map theme"
-              className="text-white hover:bg-zinc-800 hover:text-white"
-            >
-              <ActiveThemeIcon className="h-5 w-5" />
-            </Button>
-            {themeOpen && (
-              <div className="absolute right-0 top-full z-[2000] mt-1 min-w-[160px] rounded-lg border border-zinc-700 bg-zinc-900 py-1 shadow-xl">
-                {THEME_OPTIONS.map(({ key, Icon }) => (
-                  <button
-                    key={key}
-                    onClick={() => handleThemeSelect(key)}
-                    className={cn(
-                      'flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors',
-                      activeTopicKey === key
-                        ? 'bg-zinc-700 font-medium text-white'
-                        : 'text-zinc-300 hover:bg-zinc-800 hover:text-white',
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    {THEME_LABELS[key]}
-                  </button>
-                ))}
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-[900] bg-[linear-gradient(180deg,rgba(20,20,18,0.45)_0%,rgba(20,20,18,0.0)_100%)] px-3 pb-10 pt-3 sm:px-4">
+          <header className="pointer-events-auto mx-auto flex w-full max-w-7xl items-center justify-between gap-3 rounded-[24px] border border-white/55 bg-[rgba(246,243,236,0.86)] px-3 py-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:px-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-sm">
+                <Train className="h-5 w-5" />
               </div>
-            )}
-          </div>
+              <div className="min-w-0">
+                <h1 className="truncate text-sm font-semibold tracking-tight text-zinc-950 sm:text-base">
+                  {t('appTitle')}
+                </h1>
+                <p className="hidden text-xs text-zinc-500 sm:block">
+                  Live trains, stations and routes in one mobile-friendly map
+                </p>
+              </div>
+            </div>
 
-          <LanguageSwitcher className="text-white hover:bg-zinc-800 hover:text-white" />
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTrainPanel}
+                title={t('header.toggleTrainPanel')}
+                aria-label={t('header.toggleTrainPanel')}
+                className="rounded-2xl text-zinc-700 hover:bg-zinc-950 hover:text-white"
+              >
+                <Train className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleInfoPanel}
+                title={t('header.toggleSchedulePanel')}
+                aria-label={t('header.toggleSchedulePanel')}
+                className="rounded-2xl text-zinc-700 hover:bg-zinc-950 hover:text-white"
+              >
+                <Layers3 className="h-5 w-5" />
+              </Button>
+
+              <div ref={themeRef} className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setThemeOpen((o) => !o)}
+                  title="Map theme"
+                  aria-label="Map theme"
+                  className="rounded-2xl text-zinc-700 hover:bg-zinc-950 hover:text-white"
+                >
+                  <ActiveThemeIcon className="h-5 w-5" />
+                </Button>
+                {themeOpen && (
+                  <div className="absolute right-0 top-full z-[2000] mt-2 min-w-[176px] rounded-2xl border border-zinc-200 bg-[rgba(252,250,246,0.96)] py-1.5 shadow-2xl backdrop-blur-xl">
+                    {THEME_OPTIONS.map(({ key, Icon }) => (
+                      <button
+                        key={key}
+                        onClick={() => handleThemeSelect(key)}
+                        className={cn(
+                          'flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors',
+                          activeTopicKey === key
+                            ? 'bg-zinc-950 font-medium text-white'
+                            : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950',
+                        )}
+                      >
+                        <Icon className="h-4 w-4 shrink-0" />
+                        {THEME_LABELS[key]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden items-center gap-1 sm:flex">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  title="Gateway debug"
+                  aria-label="Gateway debug"
+                  className="rounded-2xl text-zinc-700 hover:bg-zinc-950 hover:text-white"
+                >
+                  <Link href="/debug/gateway">
+                    <Bug className="h-5 w-5" />
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  title="Train point debug"
+                  aria-label="Train point debug"
+                  className="rounded-2xl text-zinc-700 hover:bg-zinc-950 hover:text-white"
+                >
+                  <Link href="/debug/gateway/trains">
+                    <Waypoints className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+
+              <LanguageSwitcher className="rounded-2xl text-zinc-700 hover:bg-zinc-950 hover:text-white" />
+            </div>
+          </header>
         </div>
-      </header>
 
-      {/* Main content */}
-      <div className="relative flex min-h-0 flex-1 overflow-hidden">
-        {/* Desktop left panel */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[850] p-3 pb-4 sm:p-4">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3">
+            <div className="pointer-events-auto flex items-center justify-between gap-3 rounded-[24px] border border-white/60 bg-[rgba(250,247,241,0.84)] px-4 py-3 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:max-w-max">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Map legend</p>
+                <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-700 sm:flex sm:items-center sm:gap-4 sm:text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full bg-northern" />
+                    <span>{t('map.northern')}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full bg-northeastern" />
+                    <span>{t('map.northeastern')}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full bg-southern" />
+                    <span>{t('map.southern')}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full bg-eastern" />
+                    <span>{t('map.eastern')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pointer-events-auto mx-auto flex w-full max-w-md items-center justify-center gap-2 rounded-[26px] border border-white/60 bg-[rgba(18,18,16,0.78)] p-2 text-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.75)] backdrop-blur-xl lg:hidden">
+              <Button
+                variant="ghost"
+                onClick={toggleTrainPanel}
+                className={cn(
+                  'flex-1 rounded-2xl px-4 py-2 text-sm text-white hover:bg-white/10 hover:text-white',
+                  showLeftPanel && 'bg-white/12'
+                )}
+              >
+                <Train className="mr-2 h-4 w-4" />
+                Trains
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={toggleInfoPanel}
+                className={cn(
+                  'flex-1 rounded-2xl px-4 py-2 text-sm text-white hover:bg-white/10 hover:text-white',
+                  showRightPanel && 'bg-white/12'
+                )}
+              >
+                <Info className="mr-2 h-4 w-4" />
+                Info
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <div className="pointer-events-none absolute inset-0 z-[920]">
         <aside
           className={cn(
-            'hidden border-r bg-background transition-all duration-300 overflow-hidden lg:block',
-            showLeftPanel ? 'w-80' : 'w-0'
+            'pointer-events-auto absolute bottom-4 left-4 top-24 hidden overflow-hidden rounded-[28px] border border-white/70 bg-[rgba(252,249,242,0.92)] shadow-[0_22px_60px_-34px_rgba(15,23,42,0.55)] backdrop-blur-xl transition-all duration-300 lg:block',
+            showLeftPanel ? 'w-[22rem] opacity-100' : 'w-0 border-transparent opacity-0'
           )}
         >
           {showLeftPanel && (
@@ -167,56 +281,23 @@ export default function HomePage() {
             />
           )}
         </aside>
-
-        {/* Map */}
-        <main className="relative flex-1 min-w-0">
-          <MapContainer
-            className="absolute inset-0"
-            selectedTrainId={selectedTrainId}
-            onTrainSelect={handleTrainSelect}
-            onViewportChange={setTrainViewportBbox}
-          />
-
-          {/* Map overlay info */}
-          <div className="absolute bottom-2 left-2 right-2 rounded-lg bg-background/90 p-2 text-xs shadow-lg backdrop-blur sm:bottom-4 sm:left-4 sm:right-auto sm:p-3 sm:text-sm">
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1 sm:flex sm:items-center sm:gap-4">
-              <div className="flex items-center gap-1">
-                <div className="h-3 w-3 rounded-full bg-northern" />
-                <span>{t('map.northern')}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="h-3 w-3 rounded-full bg-northeastern" />
-                <span>{t('map.northeastern')}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="h-3 w-3 rounded-full bg-southern" />
-                <span>{t('map.southern')}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="h-3 w-3 rounded-full bg-eastern" />
-                <span>{t('map.eastern')}</span>
-              </div>
-            </div>
-          </div>
-        </main>
-
-        {/* Desktop right panel */}
         <aside
           className={cn(
-            'hidden border-l bg-background transition-all duration-300 overflow-hidden lg:block',
-            showRightPanel ? 'w-80' : 'w-0'
+            'pointer-events-auto absolute bottom-4 right-4 top-24 hidden overflow-hidden rounded-[28px] border border-white/70 bg-[rgba(252,249,242,0.92)] shadow-[0_22px_60px_-34px_rgba(15,23,42,0.55)] backdrop-blur-xl transition-all duration-300 lg:block',
+            showRightPanel ? 'w-[22rem] opacity-100' : 'w-0 border-transparent opacity-0'
           )}
         >
           {showRightPanel && <SchedulePanel />}
         </aside>
+      </div>
 
-        {/* Mobile overlays */}
+      <div className="pointer-events-none absolute inset-0 z-[910] lg:hidden">
         <div
           role="button"
           tabIndex={0}
           aria-label="Close panel"
           className={cn(
-            'absolute inset-0 z-[1000] bg-black/30 transition-opacity duration-300 lg:hidden',
+            'pointer-events-auto absolute inset-0 bg-black/30 transition-opacity duration-300',
             showLeftPanel || showRightPanel ? 'opacity-100' : 'pointer-events-none opacity-0'
           )}
           onClick={() => {
@@ -233,12 +314,13 @@ export default function HomePage() {
 
         <aside
           className={cn(
-            'absolute left-0 top-0 z-[1001] h-full w-[88vw] max-w-sm border-r bg-background shadow-xl transition-transform duration-300 lg:hidden',
-            showLeftPanel ? 'translate-x-0' : '-translate-x-full'
+            'pointer-events-auto absolute inset-x-0 bottom-0 z-[1001] h-[68dvh] rounded-t-[30px] border-t border-white/70 bg-[rgba(252,249,242,0.96)] shadow-[0_-20px_60px_-30px_rgba(15,23,42,0.65)] backdrop-blur-xl transition-transform duration-300',
+            showLeftPanel ? 'translate-y-0' : 'translate-y-full'
           )}
         >
-          <div className="flex h-12 items-center justify-between border-b px-3">
-            <span className="text-sm font-semibold">{t('trains.title')}</span>
+          <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-zinc-300" />
+          <div className="flex h-12 items-center justify-between border-b border-zinc-200 px-4">
+            <span className="text-sm font-semibold text-zinc-950">{t('trains.title')}</span>
             <Button variant="ghost" size="icon" onClick={() => setShowLeftPanel(false)}>
               <X className="h-4 w-4" />
             </Button>
@@ -254,12 +336,13 @@ export default function HomePage() {
 
         <aside
           className={cn(
-            'absolute right-0 top-0 z-[1001] h-full w-[88vw] max-w-sm border-l bg-background shadow-xl transition-transform duration-300 lg:hidden',
-            showRightPanel ? 'translate-x-0' : 'translate-x-full'
+            'pointer-events-auto absolute inset-x-0 bottom-0 z-[1001] h-[68dvh] rounded-t-[30px] border-t border-white/70 bg-[rgba(252,249,242,0.96)] shadow-[0_-20px_60px_-30px_rgba(15,23,42,0.65)] backdrop-blur-xl transition-transform duration-300',
+            showRightPanel ? 'translate-y-0' : 'translate-y-full'
           )}
         >
-          <div className="flex h-12 items-center justify-between border-b px-3">
-            <span className="text-sm font-semibold">{t('schedule.title')}</span>
+          <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-zinc-300" />
+          <div className="flex h-12 items-center justify-between border-b border-zinc-200 px-4">
+            <span className="text-sm font-semibold text-zinc-950">{t('schedule.title')}</span>
             <Button variant="ghost" size="icon" onClick={() => setShowRightPanel(false)}>
               <X className="h-4 w-4" />
             </Button>

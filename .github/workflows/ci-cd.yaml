@@ -6,7 +6,7 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'backend/**'
+      - 'simulation/**'
       - 'frontend/**'
       - 'raildatacollector/**'
       - 'gateway/**'
@@ -15,8 +15,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**'
-      - 'frontend/**'
+      - 'simulation/**'
       - 'raildatacollector/**'
       - 'gateway/**'
 
@@ -35,7 +34,7 @@ jobs:
     name: Detect Changes
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.changes.outputs.backend }}
+      simulation: ${{ steps.changes.outputs.simulation }}
       frontend: ${{ steps.changes.outputs.frontend }}
       raildatacollector: ${{ steps.changes.outputs.raildatacollector }}
       gateway: ${{ steps.changes.outputs.gateway }}
@@ -65,12 +64,12 @@ jobs:
 
           if ! git cat-file -e "$BASE_COMMIT" 2>/dev/null; then
             echo "Base commit not found, rebuilding all"
-            echo "backend=true"           >> $GITHUB_OUTPUT
+            echo "simulation=true"           >> $GITHUB_OUTPUT
             echo "frontend=true"          >> $GITHUB_OUTPUT
             echo "raildatacollector=true" >> $GITHUB_OUTPUT
             echo "k8s=true"               >> $GITHUB_OUTPUT
             echo "gateway=true"           >> $GITHUB_OUTPUT
-            echo 'build-matrix=["backend","frontend","raildatacollector","gateway"]' >> $GITHUB_OUTPUT
+            echo 'build-matrix=["simulation","frontend","raildatacollector","gateway"]' >> $GITHUB_OUTPUT
             echo "has-build-changes=true"                                  >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -80,26 +79,26 @@ jobs:
           WORKFLOW_CHANGED=false
           echo "$CHANGED" | grep -q "^.github/workflows/ci-cd.yaml" && WORKFLOW_CHANGED=true
 
-          BACKEND_CHANGED=false
+          SIMULATION_CHANGED=false
           FRONTEND_CHANGED=false
           RAILDATACOLLECTOR_CHANGED=false
           K8S_CHANGED=false
           GATEWAY_CHANGED=false
 
-          (echo "$CHANGED" | grep -q "^backend/"           || $WORKFLOW_CHANGED) && BACKEND_CHANGED=true
+          (echo "$CHANGED" | grep -q "^simulation/"           || $WORKFLOW_CHANGED) && SIMULATION_CHANGED=true
           (echo "$CHANGED" | grep -q "^frontend/"          || $WORKFLOW_CHANGED) && FRONTEND_CHANGED=true
           (echo "$CHANGED" | grep -q "^raildatacollector/" || $WORKFLOW_CHANGED) && RAILDATACOLLECTOR_CHANGED=true
           (echo "$CHANGED" | grep -q "^gateway/" || $WORKFLOW_CHANGED) && GATEWAY_CHANGED=true
           echo "$CHANGED" | grep -q "^k8s/" && K8S_CHANGED=true
 
-          echo "backend=$BACKEND_CHANGED"                   >> $GITHUB_OUTPUT
+          echo "simulation=$SIMULATION_CHANGED"                   >> $GITHUB_OUTPUT
           echo "frontend=$FRONTEND_CHANGED"                 >> $GITHUB_OUTPUT
           echo "raildatacollector=$RAILDATACOLLECTOR_CHANGED" >> $GITHUB_OUTPUT
           echo "gateway=$GATEWAY_CHANGED"                   >> $GITHUB_OUTPUT
           echo "k8s=$K8S_CHANGED"                           >> $GITHUB_OUTPUT
 
           MATRIX=()
-          $BACKEND_CHANGED           && MATRIX+=("\"backend\"")
+          $SIMULATION_CHANGED           && MATRIX+=("\"simulation\"")
           $FRONTEND_CHANGED          && MATRIX+=("\"frontend\"")
           $RAILDATACOLLECTOR_CHANGED && MATRIX+=("\"raildatacollector\"")
           $GATEWAY_CHANGED && MATRIX+=("\"gateway\"")
@@ -113,21 +112,21 @@ jobs:
             echo "has-build-changes=false" >> $GITHUB_OUTPUT
           fi
 
-          echo "Changed: backend=$BACKEND_CHANGED frontend=$FRONTEND_CHANGED raildatacollector=$RAILDATACOLLECTOR_CHANGED gateway=$GATEWAY_CHANGED k8s=$K8S_CHANGED"
+  "Changed: simulation=$SIMULATION_CHANGED frontend=$FRONTEND_CHANGED raildatacollector=$RAILDATACOLLECTOR_CHANGED gateway=$GATEWAY_CHANGED k8s=$K8S_CHANGED"
 
   ##############################################################
-  # 2a. Backend CI  (parallel with frontend-ci)
+  # 2a. Simulation CI  (parallel with frontend-ci)
   ##############################################################
-  backend-ci:
-    name: Backend CI
+  simulation-ci:
+    name: Simulation CI
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true'
+    if: needs.detect-changes.outputs.simulation == 'true'
     permissions:
       contents: read
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./simulation
 
     services:
       postgres:
@@ -191,11 +190,11 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
-          file: ./backend/coverage.xml
-          flags: backend
+          file: ./simulation/coverage.xml
+          flags: simulation
 
   ##############################################################
-  # 2b. Raildatacollector CI  (parallel with backend-ci)
+  # 2b. Raildatacollector CI  (parallel with simulation-ci)
   ##############################################################
   raildatacollector-ci:
     name: Raildatacollector CI
@@ -247,7 +246,7 @@ jobs:
           flags: raildatacollector
 
   ##############################################################
-  # 2c. Frontend CI  (parallel with backend-ci)
+  # 2c. Frontend CI  (parallel with simulation-ci)
   ##############################################################
   frontend-ci:
     name: Frontend CI
@@ -292,7 +291,7 @@ jobs:
   build-images:
     name: Build ${{ matrix.component }} image
     runs-on: ubuntu-latest
-    needs: [detect-changes, backend-ci, raildatacollector-ci, frontend-ci]
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, frontend-ci]
     if: |
       always() &&
       github.event_name == 'push' &&
@@ -390,20 +389,20 @@ jobs:
   #         kubectl apply -f k8s/redis/deployment.yaml
   #         kubectl apply -f k8s/redis/service.yaml
 
-  #         kubectl apply -f k8s/backend/configmap.yaml
-  #         kubectl apply -f k8s/backend/secrets.yaml
+  #         kubectl apply -f k8s/simulation/configmap.yaml
+  #         kubectl apply -f k8s/simulation/secrets.yaml
 
-  #         kubectl apply -f k8s/backend/deployment.yaml
-  #         kubectl apply -f k8s/backend/service.yaml
-  #         kubectl apply -f k8s/backend/hpa.yaml
+  #         kubectl apply -f k8s/simulation/deployment.yaml
+  #         kubectl apply -f k8s/simulation/service.yaml
+  #         kubectl apply -f k8s/simulation/hpa.yaml
 
   #         kubectl apply -f k8s/frontend/deployment.yaml
   #         kubectl apply -f k8s/frontend/service.yaml
   #         kubectl apply -f k8s/frontend/ingress.yaml
 
-  #         if [ "${{ needs.detect-changes.outputs.backend }}" = "true" ]; then
-  #           kubectl rollout restart deployment/backend -n railway
-  #           kubectl rollout status deployment/backend -n railway --timeout=300s
+  #         if [ "${{ needs.detect-changes.outputs.simulation }}" = "true" ]; then
+  #           kubectl rollout restart deployment/simulation -n railway
+  #           kubectl rollout status deployment/simulation -n railway --timeout=300s
   #         fi
   #         if [ "${{ needs.detect-changes.outputs.frontend }}" = "true" ]; then
   #           kubectl rollout restart deployment/frontend -n railway
@@ -415,7 +414,7 @@ jobs:
   ##############################################################
   notify:
     name: Send Notifications
-    needs: [detect-changes, backend-ci, raildatacollector-ci, frontend-ci, build-images]
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, frontend-ci, build-images]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -426,7 +425,7 @@ jobs:
              [ "${{ needs.detect-changes.outputs.k8s }}" != "true" ]; then
             echo "status=⏭️ No Changes" >> $GITHUB_OUTPUT
             echo "emoji=⏭️" >> $GITHUB_OUTPUT
-          elif [ "${{ needs.backend-ci.result }}" = "failure" ] || \
+          elif [ "${{ needs.simulation-ci.result }}" = "failure" ] || \
                [ "${{ needs.raildatacollector-ci.result }}" = "failure" ] || \
                [ "${{ needs.frontend-ci.result }}" = "failure" ] || \
                [ "${{ needs.build-images.result }}" = "failure" ]; then
@@ -458,7 +457,7 @@ jobs:
 
             *Results:*
             • Detect Changes: ${{ needs.detect-changes.result == 'success' && '✅' || '❌' }}
-            • Backend CI: ${{ needs.backend-ci.result == 'success' && '✅' || needs.backend-ci.result == 'failure' && '❌' || needs.backend-ci.result == 'skipped' && '⏭️' || '⚠️' }}
+            • Simulation CI: ${{ needs.simulation-ci.result == 'success' && '✅' || needs.simulation-ci.result == 'failure' && '❌' || needs.simulation-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Raildatacollector CI: ${{ needs.raildatacollector-ci.result == 'success' && '✅' || needs.raildatacollector-ci.result == 'failure' && '❌' || needs.raildatacollector-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Frontend CI: ${{ needs.frontend-ci.result == 'success' && '✅' || needs.frontend-ci.result == 'failure' && '❌' || needs.frontend-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Build Images: ${{ needs.build-images.result == 'success' && '✅' || needs.build-images.result == 'failure' && '❌' || needs.build-images.result == 'skipped' && '⏭️' || '⚠️' }}

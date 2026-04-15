@@ -36,7 +36,7 @@ async def trigger_schedules(background_tasks: BackgroundTasks) -> dict:
     summary="Trigger delay update",
     description=(
         "Connects to the TTS Socket.IO server, fetches current train delays, "
-        "and stores them in Redis for immediate use by the backend simulation."
+        "and stores them in Redis for immediate use by the simulation service."
     ),
 )
 async def trigger_delays(

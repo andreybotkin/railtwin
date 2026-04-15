@@ -19,7 +19,7 @@
 - Topology build now persists a `topology_version` plus connectivity/snap metrics in `topology_metadata`.
 - Backend position cache now publishes topology metadata to Redis (`system:topology:metadata`) and tags position/trajectory payloads with `topology_version`.
 - Gateway now exposes topology metadata directly from Redis at `/api/v1/system/topology`.
-- Local verification completed: docker-compose stack starts locally and serves backend, gateway, frontend, raildbsetup, and raildatacollector.
+- Local verification completed: docker-compose stack starts locally and serves simulation, gateway, frontend, raildbsetup, and raildatacollector.
 
 ## Remaining TODO
 

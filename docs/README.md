@@ -12,12 +12,12 @@ This directory contains additional documentation for the project.
 
 - [Main README](../README.md) - Project overview and quick start
 - [Architecture](../ARCHITECTURE.md) - System architecture documentation
-- [Backend README](../backend/README.md) - Backend setup and development
+- [Simulation README](../simulation/README.md) - Simulation setup and development
 - [Frontend README](../frontend/README.md) - Frontend setup and development
 
 ## API Documentation
 
-When the backend is running, access the interactive API documentation:
+When the simulation service is running, access the interactive API documentation:
 
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
@@ -35,8 +35,8 @@ When the backend is running, access the interactive API documentation:
 ### Running Tests
 
 ```bash
-# Backend tests
-cd backend
+# Simulation tests
+cd simulation
 pytest
 
 # Frontend tests
@@ -48,7 +48,7 @@ npm run test
 
 This project follows strict code style guidelines:
 
-**Python (Backend)**:
+**Python (Simulation)**:
 - Formatter: Black
 - Linter: Ruff
 - Type Checker: mypy
@@ -62,7 +62,7 @@ This project follows strict code style guidelines:
 
 ```bash
 # Create new migration
-cd backend
+cd simulation
 alembic revision --autogenerate -m "Description"
 
 # Apply migrations

@@ -58,10 +58,10 @@ export default function TrainInfoPanel({
   }, [positions, searchQuery]);
 
   return (
-    <Card className="h-full flex flex-col rounded-none border-0">
-      <CardHeader className="pb-2 pt-3">
+    <Card className="h-full flex flex-col rounded-none border-0 bg-transparent shadow-none">
+      <CardHeader className="border-b border-zinc-200/80 pb-3 pt-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 text-zinc-950">
             <TrainIcon className="h-4 w-4" />
             Active Trains
           </CardTitle>
@@ -78,7 +78,7 @@ export default function TrainInfoPanel({
             placeholder="Search trains…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-8 text-sm"
+            className="h-10 rounded-2xl border-zinc-200 bg-white/80 pl-8 text-sm"
           />
         </div>
       </CardHeader>
@@ -93,7 +93,7 @@ export default function TrainInfoPanel({
         )}
 
         {/* ── Train list ── */}
-        <div className="space-y-0.5 p-2">
+        <div className="space-y-1 p-3">
           {filteredPositions.length === 0 ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
               No active trains found

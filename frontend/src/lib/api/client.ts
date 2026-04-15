@@ -1,5 +1,5 @@
 /**
- * API client for Thailand Railway Digital Twin backend.
+ * API client for Thailand Railway Digital Twin simulation service.
  */
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
@@ -13,7 +13,10 @@ import type {
   StationSchedule,
   PaginatedResponse,
   TrainPositionUpdate,
+  TrainTrajectory,
+  TrainStopSequence,
   NetworkEdgeCollection,
+  TopologyMetadata,
 } from '@/types';
 
 // API base URL from environment
@@ -139,6 +142,25 @@ export const trainApi = {
   },
 
   /**
+   * Fetch all train pages.
+   */
+  getAllPages: async (
+    trainType?: string,
+    routeId?: number,
+    pageSize = 100,
+  ): Promise<Train[]> => {
+    const firstPage = await trainApi.getAll(1, pageSize, trainType, routeId);
+    const items = [...firstPage.items];
+
+    for (let page = 2; page <= firstPage.pages; page += 1) {
+      const response = await trainApi.getAll(page, pageSize, trainType, routeId);
+      items.push(...response.items);
+    }
+
+    return items;
+  },
+
+  /**
    * Get a single train by ID.
    */
   getById: async (id: number): Promise<Train> => {
@@ -242,6 +264,42 @@ export const mapApi = {
     network_edges: NetworkEdgeCollection;
   }> => {
     const response = await api.get<{ stations: Station[]; network_edges: NetworkEdgeCollection }>('/map/all');
+    return response.data;
+  },
+};
+
+export const gatewayApi = {
+  /**
+   * Get topology metadata directly from gateway.
+   */
+  getTopology: async (): Promise<TopologyMetadata> => {
+    const response = await api.get<TopologyMetadata>('/system/topology');
+    return response.data;
+  },
+
+  /**
+   * Get train trajectories for the current viewport directly from gateway.
+   */
+  getTrajectories: async (bbox: string): Promise<TrainTrajectory[]> => {
+    const response = await api.get<TrainTrajectory[]>('/trains/trajectories', {
+      params: { bbox },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get full trajectory payload for a single train directly from gateway.
+   */
+  getTrainTrajectory: async (trainId: number): Promise<TrainTrajectory> => {
+    const response = await api.get<TrainTrajectory>(`/trains/${trainId}/trajectory`);
+    return response.data;
+  },
+
+  /**
+   * Get gateway-computed stop sequence for a specific train.
+   */
+  getStopSequence: async (trainId: number): Promise<TrainStopSequence> => {
+    const response = await api.get<TrainStopSequence>(`/trains/${trainId}/stopsequence`);
     return response.data;
   },
 };

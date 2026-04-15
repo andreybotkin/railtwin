@@ -12,7 +12,7 @@ Inserts into:
 - stations (name, location, code)
 - route_stations (linking stations to routes with sequence)
 
-Run inside the backend container:
+Run inside the simulation container:
     python scripts/load_kml_data.py
 """
 

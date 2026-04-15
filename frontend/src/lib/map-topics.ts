@@ -148,7 +148,7 @@ export const ZOOM_GENERALIZATION: ZoomGeneralization[] = [
   },
   {
     minZoom: 10,
-    maxZoom: 13,
+    maxZoom: 11,
     stationMode: 'all',
     trainMode: 'canvas-markers',
     routeMode: 'full',
@@ -156,7 +156,7 @@ export const ZOOM_GENERALIZATION: ZoomGeneralization[] = [
     trainRadius: 6,
   },
   {
-    minZoom: 14,
+    minZoom: 12,
     maxZoom: 20,
     stationMode: 'all',
     trainMode: 'dom-markers',

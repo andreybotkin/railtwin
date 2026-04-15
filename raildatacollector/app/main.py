@@ -2,7 +2,7 @@
 
 Startup sequence (lifespan):
   1. Configure structured logging.
-  2. Connect to Redis (shared with backend).
+  2. Connect to Redis (shared with simulation).
   3. Wait for the database to be ready (raildbsetup must finish first).
   4. Start background delay fetch from TTS (fire-and-forget).
   5. Start APScheduler:

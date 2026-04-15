@@ -2,10 +2,10 @@
 
 Connects to the State Railway of Thailand real-time tracking system at
 https://ttsview.railway.co.th:5000 via Socket.IO to fetch current train
-delay data and stores it in Redis under the key shared with the backend
+delay data and stores it in Redis under the key shared with the simulation
 simulation service.
 
-Adapted from backend/app/services/tts_scraper.py.
+Adapted from simulation/app/services/tts_scraper.py.
 """
 
 import asyncio

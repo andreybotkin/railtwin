@@ -35,16 +35,16 @@ export default function SchedulePanel({ className }: SchedulePanelProps) {
   const stations = stationsData?.items || [];
 
   return (
-    <Card className={cn('h-full flex flex-col', className)}>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
+    <Card className={cn('h-full flex flex-col rounded-none border-0 bg-transparent shadow-none', className)}>
+      <CardHeader className="border-b border-zinc-200/80 pb-3 pt-4">
+        <CardTitle className="text-lg flex items-center gap-2 text-zinc-950">
           <Calendar className="h-5 w-5" />
           Information
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="mx-3 grid w-auto grid-cols-2">
+          <TabsList className="mx-3 mt-3 grid w-auto grid-cols-2 rounded-2xl bg-zinc-100">
             <TabsTrigger value="routes">Routes</TabsTrigger>
             <TabsTrigger value="stations">Stations</TabsTrigger>
           </TabsList>
