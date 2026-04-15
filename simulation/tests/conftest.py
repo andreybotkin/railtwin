@@ -8,6 +8,7 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import app.api.dependencies as _deps
 from app.main import app
 from app.models.database import Base, get_db
 
@@ -19,6 +20,19 @@ TEST_DATABASE_URL = _DATABASE_URL or "sqlite+aiosqlite:///:memory:"
 
 # event_loop fixture removed: pytest-asyncio 1.x manages the loop via
 # asyncio_default_fixture_loop_scope in pyproject.toml.
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def _reset_redis_singleton() -> AsyncGenerator[None]:
+    """Reset the module-level Redis singleton so each test gets a fresh connection."""
+    _deps._redis_client = None
+    yield
+    if _deps._redis_client is not None:
+        try:
+            await _deps._redis_client.aclose()
+        except Exception:
+            pass
+    _deps._redis_client = None
 
 
 @pytest_asyncio.fixture
