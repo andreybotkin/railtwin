@@ -17,8 +17,8 @@ On shutdown the scheduler and Redis connection are closed gracefully.
 """
 
 import asyncio
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI
@@ -57,7 +57,10 @@ async def _wait_for_db(max_attempts: int = 20, delay: float = 5.0) -> None:
                     select(t_topology_metadata.c.topology_version).limit(1)
                 )
                 edge_row = await session.execute(select(t_network_edges.c.id).limit(1))
-                if topology_row.scalar_one_or_none() is None or edge_row.scalar_one_or_none() is None:
+                if (
+                    topology_row.scalar_one_or_none() is None
+                    or edge_row.scalar_one_or_none() is None
+                ):
                     raise RuntimeError("Station-graph topology not ready yet")
             logger.info("Database and station-graph topology are ready")
             return

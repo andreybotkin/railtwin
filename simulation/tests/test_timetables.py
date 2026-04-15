@@ -350,8 +350,8 @@ async def test_trajectory_is_geojson_feature(
     assert traj is not None
     assert traj["type"] == "Feature"
     props = traj["properties"]
-    assert "delay" in props                          # seconds
-    assert "delay_minutes" in props                  # minutes (legacy)
+    assert "delay" in props  # seconds
+    assert "delay_minutes" in props  # minutes (legacy)
     assert props["delay"] == props["delay_minutes"] * 60
     assert props["route_id"] == train.current_route_id
     assert props["status"] in ("moving", "at_station")
@@ -418,7 +418,9 @@ def test_get_stop_sequence_states(
     ]
 
     # Current time = 11:04 — Ayutthaya is BOARDING, Bangkok PASSED, Chiang Mai PENDING
-    seq = service.get_stop_sequence(train, schedules, delay=0, current_minutes=11 * 60 + 4)
+    seq = service.get_stop_sequence(
+        train, schedules, delay=0, current_minutes=11 * 60 + 4
+    )
 
     assert len(seq) == 3
     states = {s["station_name"]: s["state"] for s in seq}
@@ -434,7 +436,11 @@ async def test_get_all_active_train_data_returns_three_lists() -> None:
 
     async def fake_get_all_with_route(skip: int = 0, limit: int = 100) -> list[Train]:
         if skip == 0:
-            return [Train(id=1, train_number="1", train_type="ordinary", current_route_id=None)]
+            return [
+                Train(
+                    id=1, train_number="1", train_type="ordinary", current_route_id=None
+                )
+            ]
         return []
 
     async def fake_get_by_trains(train_ids: list[int]) -> dict[int, list[Schedule]]:
@@ -457,7 +463,9 @@ async def test_get_all_active_train_data_can_skip_trajectory_generation() -> Non
 
     async def fake_get_all_with_route(skip: int = 0, limit: int = 100) -> list[Train]:
         if skip == 0:
-            return [Train(id=1, train_number="1", train_type="ordinary", current_route_id=1)]
+            return [
+                Train(id=1, train_number="1", train_type="ordinary", current_route_id=1)
+            ]
         return []
 
     async def fake_get_by_trains(train_ids: list[int]) -> dict[int, list[Schedule]]:
@@ -488,6 +496,7 @@ async def test_get_all_active_train_data_can_skip_trajectory_generation() -> Non
 
     service.train_repo.get_all_with_route = fake_get_all_with_route  # type: ignore[method-assign]
     service.schedule_repo.get_by_trains = fake_get_by_trains  # type: ignore[method-assign]
+
     async def fake_get_graph_geometry_bulk(
         route_ids: list[int],
     ) -> dict[int, dict[str, object]]:
@@ -587,15 +596,11 @@ async def test_trajectory_contains_station_dwell_events(
     assert events[("Ayutthaya", "departure")]["timestamp"] == 1_420_000
     assert events[("Ayutthaya", "arrival")]["coordinates"] == [5.0, 0.0]
 
-    time_intervals = {
-        interval[0]: interval[1]
-        for interval in props["time_intervals"]
-    }
+    time_intervals = {interval[0]: interval[1] for interval in props["time_intervals"]}
     assert time_intervals[1_120_000] == 0.5
     assert time_intervals[1_420_000] == 0.5
     coordinate_timestamps = {
-        item[0]: item[1]
-        for item in props["coordinate_timestamps"]
+        item[0]: item[1] for item in props["coordinate_timestamps"]
     }
     assert coordinate_timestamps[1_120_000] == [5.0, 0.0]
     assert coordinate_timestamps[1_420_000] == [5.0, 0.0]
@@ -666,7 +671,9 @@ async def test_trajectory_schedule_events_shift_with_delay(
     assert trajectory is not None
     events = trajectory["properties"]["schedule_events"]
     ayutthaya_events = {
-        event["event_type"]: event for event in events if event["station_name"] == "Ayutthaya"
+        event["event_type"]: event
+        for event in events
+        if event["station_name"] == "Ayutthaya"
     }
     assert ayutthaya_events["arrival"]["timestamp"] == 1_180_000
     assert ayutthaya_events["departure"]["timestamp"] == 1_480_000

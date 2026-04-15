@@ -6,6 +6,7 @@ handling business logic between API endpoints and repository layer.
 
 import json
 from math import ceil
+from typing import Any
 
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +14,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import get_logger
 from app.models.database.models import Train
 from app.repositories.train import TrainRepository
-from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 from app.schemas.route import RouteSummary
 from app.schemas.station import GeoJSONPoint
 from app.schemas.train import (
@@ -23,6 +23,7 @@ from app.schemas.train import (
     TrainResponse,
     TrainUpdate,
 )
+from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 
 logger = get_logger(__name__)
 
@@ -45,7 +46,7 @@ class TrainService:
         self.redis = redis_client
         self.reader = RedisReferenceReader(redis_client)
 
-    def _payload_to_response(self, train: dict[str, object]) -> TrainResponse:
+    def _payload_to_response(self, train: dict[str, Any]) -> TrainResponse:
         current_route = (
             RouteSummary.model_validate(train["current_route"])
             if train.get("current_route")

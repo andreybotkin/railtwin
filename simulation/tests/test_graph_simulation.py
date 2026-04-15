@@ -101,7 +101,9 @@ async def test_simulation_uses_full_subroute_between_service_stops(
             sequence=0,
             day_of_week=None,
             route_progress=0.0,
-            route_station=RouteStation(route_id=1, station_id=10, sequence=0, distance_from_start=0.0),
+            route_station=RouteStation(
+                route_id=1, station_id=10, sequence=0, distance_from_start=0.0
+            ),
         ),
         Schedule(
             train_id=5,
@@ -113,7 +115,13 @@ async def test_simulation_uses_full_subroute_between_service_stops(
             sequence=1,
             day_of_week=None,
             route_progress=1.0,
-            route_station=RouteStation(route_id=1, station_id=30, sequence=2, edge_id=2, distance_from_start=20.0),
+            route_station=RouteStation(
+                route_id=1,
+                station_id=30,
+                sequence=2,
+                edge_id=2,
+                distance_from_start=20.0,
+            ),
         ),
     ]
 
@@ -170,7 +178,9 @@ async def test_trajectory_uses_full_subroute_between_service_stops(
             sequence=0,
             day_of_week=None,
             route_progress=0.0,
-            route_station=RouteStation(route_id=1, station_id=10, sequence=0, distance_from_start=0.0),
+            route_station=RouteStation(
+                route_id=1, station_id=10, sequence=0, distance_from_start=0.0
+            ),
         ),
         Schedule(
             train_id=6,
@@ -182,7 +192,13 @@ async def test_trajectory_uses_full_subroute_between_service_stops(
             sequence=1,
             day_of_week=None,
             route_progress=1.0,
-            route_station=RouteStation(route_id=1, station_id=30, sequence=2, edge_id=2, distance_from_start=20.0),
+            route_station=RouteStation(
+                route_id=1,
+                station_id=30,
+                sequence=2,
+                edge_id=2,
+                distance_from_start=20.0,
+            ),
         ),
     ]
 
@@ -240,7 +256,13 @@ async def test_reverse_direction_trajectory_uses_decreasing_route_progress(
             sequence=0,
             day_of_week=None,
             route_progress=1.0,
-            route_station=RouteStation(route_id=1, station_id=30, sequence=2, edge_id=2, distance_from_start=20.0),
+            route_station=RouteStation(
+                route_id=1,
+                station_id=30,
+                sequence=2,
+                edge_id=2,
+                distance_from_start=20.0,
+            ),
         ),
         Schedule(
             train_id=7,
@@ -253,7 +275,13 @@ async def test_reverse_direction_trajectory_uses_decreasing_route_progress(
             sequence=1,
             day_of_week=None,
             route_progress=0.5,
-            route_station=RouteStation(route_id=1, station_id=20, sequence=1, edge_id=1, distance_from_start=10.0),
+            route_station=RouteStation(
+                route_id=1,
+                station_id=20,
+                sequence=1,
+                edge_id=1,
+                distance_from_start=10.0,
+            ),
         ),
         Schedule(
             train_id=7,
@@ -265,7 +293,13 @@ async def test_reverse_direction_trajectory_uses_decreasing_route_progress(
             sequence=2,
             day_of_week=None,
             route_progress=0.0,
-            route_station=RouteStation(route_id=1, station_id=10, sequence=0, edge_id=1, distance_from_start=0.0),
+            route_station=RouteStation(
+                route_id=1,
+                station_id=10,
+                sequence=0,
+                edge_id=1,
+                distance_from_start=0.0,
+            ),
         ),
     ]
 
@@ -325,7 +359,13 @@ async def test_reverse_direction_position_moves_towards_lower_route_progress(
             sequence=0,
             day_of_week=None,
             route_progress=1.0,
-            route_station=RouteStation(route_id=1, station_id=30, sequence=2, edge_id=2, distance_from_start=20.0),
+            route_station=RouteStation(
+                route_id=1,
+                station_id=30,
+                sequence=2,
+                edge_id=2,
+                distance_from_start=20.0,
+            ),
         ),
         Schedule(
             train_id=8,
@@ -338,7 +378,13 @@ async def test_reverse_direction_position_moves_towards_lower_route_progress(
             sequence=1,
             day_of_week=None,
             route_progress=0.5,
-            route_station=RouteStation(route_id=1, station_id=20, sequence=1, edge_id=1, distance_from_start=10.0),
+            route_station=RouteStation(
+                route_id=1,
+                station_id=20,
+                sequence=1,
+                edge_id=1,
+                distance_from_start=10.0,
+            ),
         ),
     ]
 

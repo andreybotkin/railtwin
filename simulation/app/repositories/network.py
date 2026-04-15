@@ -126,7 +126,9 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
                 )
         return features
 
-    async def get_all_edges(self, include_synthetic: bool = False) -> list[dict[str, Any]]:
+    async def get_all_edges(
+        self, include_synthetic: bool = False
+    ) -> list[dict[str, Any]]:
         """Return all edges as GeoJSON Feature dicts (for small networks)."""
         stmt = select(
             NetworkEdge.id,
@@ -272,7 +274,9 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
     # Graph / adjacency
     # ------------------------------------------------------------------
 
-    async def get_adjacency_list(self, include_synthetic: bool = True) -> dict[int, list[int]]:
+    async def get_adjacency_list(
+        self, include_synthetic: bool = True
+    ) -> dict[int, list[int]]:
         """Return the full directed adjacency list: {node_id: [neighbour_ids]}."""
         stmt = select(NetworkEdge.from_node_id, NetworkEdge.to_node_id)
         rows = (await self.session.execute(stmt)).all()
@@ -292,7 +296,9 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
     async def get_topology_metadata(self) -> dict[str, Any] | None:
         row = (
             await self.session.execute(
-                select(TopologyMetadata).order_by(TopologyMetadata.built_at.desc()).limit(1)
+                select(TopologyMetadata)
+                .order_by(TopologyMetadata.built_at.desc())
+                .limit(1)
             )
         ).scalar_one_or_none()
         if row is None:
@@ -309,7 +315,9 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
             "disconnected_station_count": row.disconnected_station_count,
             "unsnapped_station_count": row.unsnapped_station_count,
             "max_snap_distance_m": (
-                float(row.max_snap_distance_m) if row.max_snap_distance_m is not None else None
+                float(row.max_snap_distance_m)
+                if row.max_snap_distance_m is not None
+                else None
             ),
             "built_at": row.built_at.isoformat(),
         }

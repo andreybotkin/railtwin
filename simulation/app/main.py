@@ -41,7 +41,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     """Application lifespan manager.
 
     Handles startup and shutdown events for the application.
@@ -65,7 +65,9 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         loader = RedisReferenceDataLoader(session, redis_client)
         await loader.load()
 
-    position_cache_updater = build_position_cache_updater(async_session_factory, redis_client)
+    position_cache_updater = build_position_cache_updater(
+        async_session_factory, redis_client
+    )
     position_cache_updater.start()
 
     yield
@@ -189,6 +191,9 @@ async def readiness_check() -> dict[str, str]:
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={"status": "not_ready", "detail": "Reference data not ready in Redis"},
+            content={
+                "status": "not_ready",
+                "detail": "Reference data not ready in Redis",
+            },
         )
     return {"status": "ready"}

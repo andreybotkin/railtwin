@@ -147,9 +147,7 @@ def candidate_current_minutes(
     # Check today first; then yesterday for overnight services.
     candidates: list[tuple[int, float]] = [(current_weekday, current_minutes)]
     if overnight:
-        candidates.insert(
-            0, ((current_weekday - 1) % 7, current_minutes + 24 * 60)
-        )
+        candidates.insert(0, ((current_weekday - 1) % 7, current_minutes + 24 * 60))
 
     for service_weekday, absolute_minutes in candidates:
         if service_days and service_weekday not in service_days:

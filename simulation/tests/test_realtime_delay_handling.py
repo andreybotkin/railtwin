@@ -8,7 +8,9 @@ from app.services.trajectory_service import build_stop_sequence
 from app.services.tts_scraper import _parse_tts_data, store_delays_in_redis
 
 
-def test_candidate_current_minutes_accepts_negative_delay_before_schedule_start() -> None:
+def test_candidate_current_minutes_accepts_negative_delay_before_schedule_start() -> (
+    None
+):
     schedules = [
         Schedule(
             train_id=1,
@@ -39,7 +41,9 @@ def test_candidate_current_minutes_accepts_negative_delay_before_schedule_start(
     assert current_minutes == 9 * 60 + 55
 
 
-def test_build_stop_sequence_marks_station_as_boarding_during_dwell_with_delay() -> None:
+def test_build_stop_sequence_marks_station_as_boarding_during_dwell_with_delay() -> (
+    None
+):
     schedules = [
         Schedule(
             train_id=7,
@@ -84,7 +88,9 @@ def test_parse_tts_data_keeps_negative_delay_values() -> None:
 
 
 @pytest.mark.asyncio
-async def test_store_delays_in_redis_writes_empty_payload_to_clear_stale_state() -> None:
+async def test_store_delays_in_redis_writes_empty_payload_to_clear_stale_state() -> (
+    None
+):
     class FakeRedis:
         def __init__(self) -> None:
             self.calls: list[tuple[str, str, int]] = []

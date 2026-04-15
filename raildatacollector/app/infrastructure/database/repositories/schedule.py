@@ -231,4 +231,3 @@ class SqlScheduleRepository(ScheduleRepository):
             "Route assignment complete", trains_updated=updated, min_matches=min_matches
         )
         return updated
-

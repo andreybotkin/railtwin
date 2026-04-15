@@ -77,6 +77,8 @@ class UpdateSchedulesUseCase:
 
     async def _cache_to_redis(self, trains: list[TrainData]) -> int:
         """Store per-train schedule data in Redis with a 48 h TTL."""
+        if self._redis is None:
+            return 0
         try:
             pipe = self._redis.pipeline()
             for train in trains:

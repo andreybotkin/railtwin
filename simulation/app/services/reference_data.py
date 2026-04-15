@@ -182,7 +182,9 @@ def _serialize_station(station: Any) -> dict[str, Any]:
 def _serialize_route(route: Any) -> dict[str, Any]:
     line_geometry = _json_loads(getattr(route, "_geojson", None), None)
     stations = []
-    for route_station in sorted(route.route_stations or [], key=lambda item: item.sequence):
+    for route_station in sorted(
+        route.route_stations or [], key=lambda item: item.sequence
+    ):
         station = route_station.station
         if station is None:
             continue
@@ -257,11 +259,15 @@ def _serialize_schedule(
         }
     route_station_distance = None
     if schedule.route_station_id is not None:
-        route_station_distance = route_station_distances.get(int(schedule.route_station_id))
+        route_station_distance = route_station_distances.get(
+            int(schedule.route_station_id)
+        )
     return {
         "id": int(schedule.id),
         "train_id": int(schedule.train_id),
-        "station_id": int(schedule.station_id) if schedule.station_id is not None else None,
+        "station_id": (
+            int(schedule.station_id) if schedule.station_id is not None else None
+        ),
         "station_name": schedule.station_name,
         "arrival_time": _time_to_str(schedule.arrival_time),
         "departure_time": _time_to_str(schedule.departure_time),
@@ -270,7 +276,11 @@ def _serialize_schedule(
         "day_of_week": schedule.day_of_week,
         "platform": schedule.platform,
         "sequence": int(schedule.sequence),
-        "route_station_id": int(schedule.route_station_id) if schedule.route_station_id is not None else None,
+        "route_station_id": (
+            int(schedule.route_station_id)
+            if schedule.route_station_id is not None
+            else None
+        ),
         "route_station_distance_from_start": route_station_distance,
         "distance_from_origin_km": _to_float(schedule.distance_from_origin_km),
         "route_progress": _to_float(schedule.route_progress),
@@ -405,12 +415,16 @@ class RedisReferenceDataLoader:
         network_edges = await network_repo.get_all_edges(include_synthetic=True)
         network_nodes = await network_repo.get_all_nodes()
         adjacency = await network_repo.get_adjacency_list()
-        physical_adjacency = await network_repo.get_adjacency_list(include_synthetic=False)
+        physical_adjacency = await network_repo.get_adjacency_list(
+            include_synthetic=False
+        )
 
         schedules_by_train: dict[int, list[dict[str, Any]]] = {}
         schedules_by_station: dict[int, list[dict[str, Any]]] = {}
         for schedule in schedules:
-            schedules_by_train.setdefault(int(schedule["train_id"]), []).append(schedule)
+            schedules_by_train.setdefault(int(schedule["train_id"]), []).append(
+                schedule
+            )
             station_id = schedule.get("station_id")
             if station_id is not None:
                 schedules_by_station.setdefault(int(station_id), []).append(schedule)
@@ -428,10 +442,10 @@ class RedisReferenceDataLoader:
             for token in _station_search_tokens(station):
                 pipe.sadd(self._keys.station_search(token), station_id)
 
-        for route in routes:
-            route_id = int(route["id"])
-            pipe.hset(self._keys.routes_by_id, str(route_id), _json_dumps(route))
-            pipe.sadd(self._keys.routes_by_type(route["route_type"]), route_id)
+        for route_data in routes:
+            route_id = int(route_data["id"])
+            pipe.hset(self._keys.routes_by_id, str(route_id), _json_dumps(route_data))
+            pipe.sadd(self._keys.routes_by_type(route_data["route_type"]), route_id)
             geometry_payload = route_geometry_by_route.get(route_id, {})
             pipe.set(self._keys.route_geometry(route_id), _json_dumps(geometry_payload))
             pipe.set(
@@ -445,7 +459,9 @@ class RedisReferenceDataLoader:
             pipe.hset(self._keys.trains_by_number, train["train_number"], train_id)
             pipe.sadd(self._keys.trains_by_type(train["train_type"]), train_id)
             if train.get("current_route_id") is not None:
-                pipe.sadd(self._keys.trains_by_route(int(train["current_route_id"])), train_id)
+                pipe.sadd(
+                    self._keys.trains_by_route(int(train["current_route_id"])), train_id
+                )
 
         for schedule in schedules:
             pipe.hset(
@@ -454,15 +470,24 @@ class RedisReferenceDataLoader:
                 _json_dumps(schedule),
             )
 
-        for train_id, grouped in schedules_by_train.items():
-            pipe.set(self._keys.schedules_by_train(train_id), _json_dumps(grouped))
-        for station_id, grouped in schedules_by_station.items():
-            pipe.set(self._keys.schedules_by_station(station_id), _json_dumps(grouped))
+        for sched_train_id, grouped in schedules_by_train.items():
+            pipe.set(
+                self._keys.schedules_by_train(sched_train_id), _json_dumps(grouped)
+            )
+        for sched_station_id, grouped in schedules_by_station.items():
+            pipe.set(
+                self._keys.schedules_by_station(sched_station_id), _json_dumps(grouped)
+            )
 
-        pipe.set(self._keys.station_ids, _json_dumps([station["id"] for station in stations]))
+        pipe.set(
+            self._keys.station_ids, _json_dumps([station["id"] for station in stations])
+        )
         pipe.set(self._keys.route_ids, _json_dumps([route["id"] for route in routes]))
         pipe.set(self._keys.train_ids, _json_dumps([train["id"] for train in trains]))
-        pipe.set(self._keys.schedule_ids, _json_dumps([schedule["id"] for schedule in schedules]))
+        pipe.set(
+            self._keys.schedule_ids,
+            _json_dumps([schedule["id"] for schedule in schedules]),
+        )
         pipe.set(self._keys.network_edges, _json_dumps(network_edges))
         pipe.set(self._keys.network_nodes, _json_dumps(network_nodes))
         pipe.set(self._keys.topology, _json_dumps(topology or {}))
@@ -521,7 +546,9 @@ class RedisReferenceReader:
             return None
         return await self.get_station(int(station_id))
 
-    async def list_stations(self, page: int, size: int) -> tuple[list[dict[str, Any]], int]:
+    async def list_stations(
+        self, page: int, size: int
+    ) -> tuple[list[dict[str, Any]], int]:
         ids = await self._get_ids(self._keys.station_ids)
         total = len(ids)
         page_ids = ids[(page - 1) * size : (page - 1) * size + size]
@@ -535,7 +562,9 @@ class RedisReferenceReader:
         for token in tokens:
             members = {
                 member.decode() if isinstance(member, bytes) else str(member)
-                for member in await self._redis.smembers(self._keys.station_search(token))
+                for member in await self._redis.smembers(
+                    self._keys.station_search(token)
+                )
             }
             station_ids = members if station_ids is None else station_ids & members
         if not station_ids:
@@ -548,7 +577,11 @@ class RedisReferenceReader:
         payloads.sort(
             key=lambda payload: (
                 0 if payload["code"].lower() == query.lower() else 1,
-                0 if _normalise_text(payload["name"]).startswith(normalised_query) else 1,
+                (
+                    0
+                    if _normalise_text(payload["name"]).startswith(normalised_query)
+                    else 1
+                ),
                 payload["name"],
             )
         )
@@ -628,7 +661,8 @@ class RedisReferenceReader:
             payloads = [
                 payload
                 for payload in payloads
-                if payload.get("day_of_week") is None or day_of_week in payload["day_of_week"]
+                if payload.get("day_of_week") is None
+                or day_of_week in payload["day_of_week"]
             ]
         payloads.sort(key=_schedule_sort_key)
         total = len(payloads)
@@ -639,12 +673,15 @@ class RedisReferenceReader:
         train_id: int,
         day_of_week: int | None = None,
     ) -> list[dict[str, Any]]:
-        payloads = _json_loads(await self._redis.get(self._keys.schedules_by_train(train_id)), [])
+        payloads = _json_loads(
+            await self._redis.get(self._keys.schedules_by_train(train_id)), []
+        )
         if day_of_week is not None:
             payloads = [
                 payload
                 for payload in payloads
-                if payload.get("day_of_week") is None or day_of_week in payload["day_of_week"]
+                if payload.get("day_of_week") is None
+                or day_of_week in payload["day_of_week"]
             ]
         payloads.sort(key=lambda item: int(item.get("sequence") or 0))
         return payloads
@@ -662,7 +699,8 @@ class RedisReferenceReader:
             payloads = [
                 payload
                 for payload in payloads
-                if payload.get("day_of_week") is None or day_of_week in payload["day_of_week"]
+                if payload.get("day_of_week") is None
+                or day_of_week in payload["day_of_week"]
             ]
         payloads.sort(key=_schedule_sort_key)
         return payloads
@@ -725,8 +763,12 @@ class RedisReferenceReader:
     async def get_topology(self) -> dict[str, Any]:
         return _json_loads(await self._redis.get(self._keys.topology), {})
 
-    async def get_adjacency(self, *, include_synthetic: bool = True) -> dict[str, list[int]]:
-        key = self._keys.adjacency if include_synthetic else self._keys.physical_adjacency
+    async def get_adjacency(
+        self, *, include_synthetic: bool = True
+    ) -> dict[str, list[int]]:
+        key = (
+            self._keys.adjacency if include_synthetic else self._keys.physical_adjacency
+        )
         return _json_loads(await self._redis.get(key), {})
 
     async def get_route_edges(self, route_id: int) -> list[dict[str, Any]]:
@@ -749,19 +791,20 @@ class RedisReferenceReader:
 
     async def _get_set_ids(self, key: str) -> list[int]:
         members = await self._redis.smembers(key)
-        values = [int(member.decode() if isinstance(member, bytes) else member) for member in members]
+        values = [
+            int(member.decode() if isinstance(member, bytes) else member)
+            for member in members
+        ]
         values.sort()
         return values
 
-    async def _get_hash_payloads(self, key: str, ids: list[int]) -> list[dict[str, Any]]:
+    async def _get_hash_payloads(
+        self, key: str, ids: list[int]
+    ) -> list[dict[str, Any]]:
         if not ids:
             return []
         raw_values = await self._redis.hmget(key, [str(item) for item in ids])
-        return [
-            _json_loads(raw, {})
-            for raw in raw_values
-            if raw is not None
-        ]
+        return [_json_loads(raw, {}) for raw in raw_values if raw is not None]
 
 
 async def refresh_reference_data(
@@ -818,7 +861,9 @@ def schedule_payloads_to_domain(payloads: list[dict[str, Any]]) -> list[Any]:
                 platform=payload.get("platform"),
                 sequence=int(payload.get("sequence") or 0),
                 route_station_id=payload.get("route_station_id"),
-                distance_from_origin_km=_to_float(payload.get("distance_from_origin_km")),
+                distance_from_origin_km=_to_float(
+                    payload.get("distance_from_origin_km")
+                ),
                 route_progress=_to_float(payload.get("route_progress")),
                 station=station,
                 route_station=route_station,

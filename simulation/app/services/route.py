@@ -6,6 +6,7 @@ handling business logic between API endpoints and repository layer.
 
 import json
 from math import ceil
+from typing import Any
 
 from geoalchemy2.functions import ST_GeomFromText
 from redis.asyncio import Redis
@@ -14,7 +15,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import get_logger
 from app.models.database.models import Route
 from app.repositories.route import RouteRepository
-from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 from app.schemas.route import (
     GeoJSONLineString,
     RouteCreate,
@@ -23,6 +23,7 @@ from app.schemas.route import (
     RouteStationInfo,
     RouteUpdate,
 )
+from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 
 logger = get_logger(__name__)
 
@@ -45,7 +46,7 @@ class RouteService:
         self.redis = redis_client
         self.reader = RedisReferenceReader(redis_client)
 
-    def _payload_to_response(self, route: dict[str, object]) -> RouteResponse:
+    def _payload_to_response(self, route: dict[str, Any]) -> RouteResponse:
         line_geometry = route.get("line_geometry")
         return RouteResponse(
             id=route["id"],

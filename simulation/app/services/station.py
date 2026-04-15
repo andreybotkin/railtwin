@@ -6,6 +6,7 @@ handling business logic between API endpoints and repository layer.
 
 import json
 from math import ceil
+from typing import Any
 
 from geoalchemy2.functions import ST_GeomFromText
 from redis.asyncio import Redis
@@ -14,8 +15,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import get_logger
 from app.models.database.models import Station
 from app.repositories.station import StationRepository
-from app.services.geo_utils import haversine_km
-from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 from app.schemas.station import (
     GeoJSONPoint,
     StationCreate,
@@ -24,6 +23,8 @@ from app.schemas.station import (
     StationResponse,
     StationUpdate,
 )
+from app.services.geo_utils import haversine_km
+from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 
 logger = get_logger(__name__)
 
@@ -46,7 +47,7 @@ class StationService:
         self.redis = redis_client
         self.reader = RedisReferenceReader(redis_client)
 
-    def _payload_to_response(self, station: dict[str, object]) -> StationResponse:
+    def _payload_to_response(self, station: dict[str, Any]) -> StationResponse:
         facilities = station.get("facilities")
         return StationResponse(
             id=station["id"],
@@ -56,9 +57,7 @@ class StationService:
             city=station.get("city"),
             province=station.get("province"),
             facilities=(
-                StationFacilities.model_validate(facilities)
-                if facilities
-                else None
+                StationFacilities.model_validate(facilities) if facilities else None
             ),
             location=GeoJSONPoint.model_validate(station["location"]),
             created_at=station["created_at"],
@@ -273,7 +272,7 @@ class StationService:
             List of stations with distance.
         """
         stations, _total = await self.reader.list_stations(page=1, size=10000)
-        matches = []
+        matches: list[dict[str, Any]] = []
         for station in stations:
             station_lon, station_lat = station["location"]["coordinates"]
             distance_km = haversine_km(

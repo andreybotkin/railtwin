@@ -30,7 +30,9 @@ def _is_dwell_window(
     current_minutes: float,
     delay: int,
 ) -> bool:
-    arrival_minutes, departure_minutes = schedule_utils.get_arrival_departure_minutes(schedule)
+    arrival_minutes, departure_minutes = schedule_utils.get_arrival_departure_minutes(
+        schedule
+    )
     if arrival_minutes is None or departure_minutes is None:
         return False
     if departure_minutes <= arrival_minutes:
@@ -56,7 +58,9 @@ def _merge_segment_coordinates(segments: list[list[list[float]]]) -> list[list[f
     return merged
 
 
-def _segment_total_distance_km(route_segments: list[dict[str, Any]] | None) -> float | None:
+def _segment_total_distance_km(
+    route_segments: list[dict[str, Any]] | None,
+) -> float | None:
     if not route_segments:
         return None
     last_end = route_segments[-1].get("end_km")
@@ -76,7 +80,9 @@ def _segment_for_route_progress(
     if not total_distance_km or total_distance_km <= 0:
         return None
 
-    target_distance_km = max(0.0, min(total_distance_km, route_progress * total_distance_km))
+    target_distance_km = max(
+        0.0, min(total_distance_km, route_progress * total_distance_km)
+    )
     epsilon = 1e-6
 
     for segment in route_segments:
@@ -100,7 +106,9 @@ def _build_subroute_coords(
     if not total_distance_km or total_distance_km <= 0:
         return None
 
-    start_distance_km = max(0.0, min(total_distance_km, start_progress * total_distance_km))
+    start_distance_km = max(
+        0.0, min(total_distance_km, start_progress * total_distance_km)
+    )
     end_distance_km = max(0.0, min(total_distance_km, end_progress * total_distance_km))
     reversed_direction = end_distance_km < start_distance_km
     min_distance_km = min(start_distance_km, end_distance_km)
@@ -128,7 +136,9 @@ def _minutes_to_hhmm(minutes: float) -> str:
 
 
 def _station_name(schedule: Schedule) -> str:
-    return (schedule.station.name if schedule.station else None) or schedule.station_name
+    return (
+        schedule.station.name if schedule.station else None
+    ) or schedule.station_name
 
 
 def _absolute_event_minutes(
@@ -231,9 +241,7 @@ def _build_schedule_events(
                 continue
 
             timestamp_ms = now_unix_ms + int(round(offset_seconds * 1000))
-            anchor_intervals.append(
-                [timestamp_ms, round(geom_fraction, 6), rotation]
-            )
+            anchor_intervals.append([timestamp_ms, round(geom_fraction, 6), rotation])
             if coordinates is not None:
                 anchor_coordinate_timestamps.append(
                     [timestamp_ms, coordinates, rotation]
@@ -265,10 +273,7 @@ def _merge_time_intervals(
     }
     for interval in anchor_intervals:
         merged_by_timestamp[int(interval[0])] = interval
-    return [
-        merged_by_timestamp[timestamp]
-        for timestamp in sorted(merged_by_timestamp)
-    ]
+    return [merged_by_timestamp[timestamp] for timestamp in sorted(merged_by_timestamp)]
 
 
 def _merge_coordinate_timestamps(
@@ -347,14 +352,16 @@ def build_train_trajectory(
     current_route_progress: float | None = None
     current_segment_progress: float | None = None
 
-    anchor_intervals, schedule_events, anchor_coordinate_timestamps = _build_schedule_events(
-        schedules,
-        route_coords=route_coords,
-        route_distance_km=route_distance_km,
-        current_minutes=current_minutes,
-        delay=delay,
-        now_unix_ms=now_unix_ms,
-        lookahead_seconds=_lookahead,
+    anchor_intervals, schedule_events, anchor_coordinate_timestamps = (
+        _build_schedule_events(
+            schedules,
+            route_coords=route_coords,
+            route_distance_km=route_distance_km,
+            current_minutes=current_minutes,
+            delay=delay,
+            now_unix_ms=now_unix_ms,
+            lookahead_seconds=_lookahead,
+        )
     )
 
     for step in range(step_count):
@@ -390,8 +397,12 @@ def build_train_trajectory(
             )
             first_valid = False
 
-        prev_mins = schedule_utils.get_schedule_minutes(prev_stop, prefer_departure=True)
-        next_mins = schedule_utils.get_schedule_minutes(next_stop, prefer_departure=False)
+        prev_mins = schedule_utils.get_schedule_minutes(
+            prev_stop, prefer_departure=True
+        )
+        next_mins = schedule_utils.get_schedule_minutes(
+            next_stop, prefer_departure=False
+        )
         if prev_mins is None or next_mins is None:
             break
 
@@ -441,7 +452,9 @@ def build_train_trajectory(
                     0.0,
                     min(1.0, geom_frac + (0.005 if end_p >= start_p else -0.005)),
                 )
-                nlon, nlat = geo_utils.interpolate_position(route_coords, heading_progress)
+                nlon, nlat = geo_utils.interpolate_position(
+                    route_coords, heading_progress
+                )
             rotation = geo_utils.great_circle_bearing((lon, lat), (nlon, nlat))
 
             if segment_duration > 0:
@@ -468,7 +481,11 @@ def build_train_trajectory(
                 current_speed = 0.0
             elif segment_length_km is not None and segment_duration > 0:
                 current_speed = round(segment_length_km / (segment_duration / 60), 1)
-            current_status = "at_station" if is_dwelling or progress < 0.05 or progress > 0.95 else "moving"
+            current_status = (
+                "at_station"
+                if is_dwelling or progress < 0.05 or progress > 0.95
+                else "moving"
+            )
             current_eta_next_station = _minutes_to_hhmm(next_mins)
             current_progress_pct = round(progress * 100, 1)
             current_route_progress = round(max(0.0, min(1.0, overall_progress)), 6)
@@ -622,7 +639,9 @@ def build_stop_sequence(
             and adjusted_arrival <= current_minutes <= adjusted_departure
         ):
             state = "BOARDING"
-        elif adjusted_reference is not None and adjusted_reference + 1 < current_minutes:
+        elif (
+            adjusted_reference is not None and adjusted_reference + 1 < current_minutes
+        ):
             state = "PASSED"
         elif abs(adjusted_stop - current_minutes) <= 2:
             state = "BOARDING"

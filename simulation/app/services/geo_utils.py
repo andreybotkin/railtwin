@@ -88,10 +88,9 @@ def great_circle_bearing(
     lat2_r = math.radians(lat2)
     dlon_r = math.radians(lon2 - lon1)
     y = math.sin(dlon_r) * math.cos(lat2_r)
-    x = (
-        math.cos(lat1_r) * math.sin(lat2_r)
-        - math.sin(lat1_r) * math.cos(lat2_r) * math.cos(dlon_r)
-    )
+    x = math.cos(lat1_r) * math.sin(lat2_r) - math.sin(lat1_r) * math.cos(
+        lat2_r
+    ) * math.cos(dlon_r)
     bearing = math.degrees(math.atan2(y, x))
     return (bearing + 360) % 360
 
@@ -138,9 +137,7 @@ def segment_distance_km(
     if not coords or len(coords) < 2:
         return 0.0
     total_length = sum(
-        haversine_km(
-            coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1]
-        )
+        haversine_km(coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1])
         for i in range(len(coords) - 1)
     )
     if total_length == 0:

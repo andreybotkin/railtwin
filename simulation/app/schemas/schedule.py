@@ -50,7 +50,7 @@ class ScheduleBase(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def validate_day_offsets(self) -> "ScheduleBase":
+    def validate_day_offsets(self) -> ScheduleBase:
         """Ensure departure offset cannot precede arrival offset."""
         if self.departure_day_offset < self.arrival_day_offset:
             raise ValueError(
@@ -71,7 +71,7 @@ class ScheduleCreate(ScheduleBase):
     station_id: int | None = None
 
     @model_validator(mode="after")
-    def validate_station_reference(self) -> "ScheduleCreate":
+    def validate_station_reference(self) -> ScheduleCreate:
         """Require either canonical station mapping or raw station name."""
         if self.station_id is None and not self.station_name:
             raise ValueError("station_id or station_name is required")

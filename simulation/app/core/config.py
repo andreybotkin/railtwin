@@ -99,8 +99,10 @@ class Settings(BaseSettings):
     trajectory_refresh_interval_seconds: int = 20
 
     # Trajectory generation settings (geops mobility-toolbox-js pattern)
-    trajectory_lookahead_seconds: int = 600  # seconds of future movement in time_intervals
-    trajectory_step_seconds: int = 10        # time_interval point spacing
+    trajectory_lookahead_seconds: int = (
+        600  # seconds of future movement in time_intervals
+    )
+    trajectory_step_seconds: int = 10  # time_interval point spacing
 
     # geops compatibility
     position_tenant: str = "thailand_railway"

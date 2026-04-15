@@ -21,13 +21,19 @@ t_stations = sa.Table(
     sa.Column("code", sa.String(10), nullable=False),
     sa.Column("station_class", sa.String(32), nullable=True),
     sa.Column("source_line", sa.String(255), nullable=True),
-    sa.Column("location", Geometry("POINT", srid=4326, spatial_index=False), nullable=False),
+    sa.Column(
+        "location", Geometry("POINT", srid=4326, spatial_index=False), nullable=False
+    ),
     sa.Column("source_route_type", sa.String(50), nullable=True),
     sa.Column("city", sa.String(100), nullable=True),
     sa.Column("province", sa.String(100), nullable=True),
     sa.Column("facilities", postgresql.JSONB(), nullable=True),
     # topology columns (added by raildbsetup migration 005)
-    sa.Column("snapped_location", Geometry("POINT", srid=4326, spatial_index=False), nullable=True),
+    sa.Column(
+        "snapped_location",
+        Geometry("POINT", srid=4326, spatial_index=False),
+        nullable=True,
+    ),
     sa.Column("snap_distance_m", sa.Numeric(10, 2), nullable=True),
     sa.Column("node_id", sa.Integer(), nullable=True),
     sa.Column("created_at", sa.DateTime(timezone=True)),
@@ -110,7 +116,9 @@ t_network_nodes = sa.Table(
     "network_nodes",
     metadata,
     sa.Column("id", sa.Integer(), primary_key=True),
-    sa.Column("location", Geometry("POINT", srid=4326, spatial_index=False), nullable=False),
+    sa.Column(
+        "location", Geometry("POINT", srid=4326, spatial_index=False), nullable=False
+    ),
     sa.Column("node_type", sa.String(20), nullable=False),
     sa.Column("station_id", sa.Integer(), nullable=True),
     sa.Column("component_id", sa.Integer(), nullable=True),

@@ -74,7 +74,7 @@ class ScheduleRepository(BaseRepository[Schedule]):
     async def get_by_trains(
         self,
         train_ids: list[int],
-    ) -> dict[int, list["Schedule"]]:
+    ) -> dict[int, list[Schedule]]:
         """Get all schedules for multiple trains in one query (bulk optimisation).
 
         Args:

@@ -86,17 +86,17 @@ class Station(Base):
     )
 
     # Relationships
-    schedules: Mapped[list["Schedule"]] = relationship(
+    schedules: Mapped[list[Schedule]] = relationship(
         "Schedule",
         back_populates="station",
         lazy="selectin",
     )
-    route_stations: Mapped[list["RouteStation"]] = relationship(
+    route_stations: Mapped[list[RouteStation]] = relationship(
         "RouteStation",
         back_populates="station",
         lazy="selectin",
     )
-    aliases: Mapped[list["StationAlias"]] = relationship(
+    aliases: Mapped[list[StationAlias]] = relationship(
         "StationAlias",
         back_populates="station",
         lazy="selectin",
@@ -132,7 +132,7 @@ class StationAlias(Base):
     )
 
     # Relationships
-    station: Mapped["Station"] = relationship("Station", back_populates="aliases")
+    station: Mapped[Station] = relationship("Station", back_populates="aliases")
 
 
 class Route(Base):
@@ -172,12 +172,12 @@ class Route(Base):
     )
 
     # Relationships
-    trains: Mapped[list["Train"]] = relationship(
+    trains: Mapped[list[Train]] = relationship(
         "Train",
         back_populates="current_route",
         lazy="selectin",
     )
-    route_stations: Mapped[list["RouteStation"]] = relationship(
+    route_stations: Mapped[list[RouteStation]] = relationship(
         "RouteStation",
         back_populates="route",
         lazy="selectin",
@@ -238,11 +238,9 @@ class RouteStation(Base):
     snap_distance_m: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
 
     # Relationships
-    route: Mapped["Route"] = relationship("Route", back_populates="route_stations")
-    station: Mapped["Station"] = relationship(
-        "Station", back_populates="route_stations"
-    )
-    schedules: Mapped[list["Schedule"]] = relationship(
+    route: Mapped[Route] = relationship("Route", back_populates="route_stations")
+    station: Mapped[Station] = relationship("Station", back_populates="route_stations")
+    schedules: Mapped[list[Schedule]] = relationship(
         "Schedule",
         back_populates="route_station",
         lazy="selectin",
@@ -297,16 +295,16 @@ class Train(Base):
     )
 
     # Relationships
-    current_route: Mapped["Route | None"] = relationship(
+    current_route: Mapped[Route | None] = relationship(
         "Route",
         back_populates="trains",
     )
-    schedules: Mapped[list["Schedule"]] = relationship(
+    schedules: Mapped[list[Schedule]] = relationship(
         "Schedule",
         back_populates="train",
         lazy="selectin",
     )
-    positions: Mapped[list["TrainPosition"]] = relationship(
+    positions: Mapped[list[TrainPosition]] = relationship(
         "TrainPosition",
         back_populates="train",
         lazy="selectin",
@@ -373,12 +371,12 @@ class Schedule(Base):
     )
 
     # Relationships
-    train: Mapped["Train"] = relationship("Train", back_populates="schedules")
-    station: Mapped["Station | None"] = relationship(
+    train: Mapped[Train] = relationship("Train", back_populates="schedules")
+    station: Mapped[Station | None] = relationship(
         "Station",
         back_populates="schedules",
     )
-    route_station: Mapped["RouteStation | None"] = relationship(
+    route_station: Mapped[RouteStation | None] = relationship(
         "RouteStation",
         back_populates="schedules",
     )
@@ -429,7 +427,7 @@ class TrainPosition(Base):
     )
 
     # Relationships
-    train: Mapped["Train"] = relationship("Train", back_populates="positions")
+    train: Mapped[Train] = relationship("Train", back_populates="positions")
 
 
 class NetworkNode(Base):
@@ -468,13 +466,13 @@ class NetworkNode(Base):
     )
 
     # Relationships
-    outgoing_edges: Mapped[list["NetworkEdge"]] = relationship(
+    outgoing_edges: Mapped[list[NetworkEdge]] = relationship(
         "NetworkEdge",
         foreign_keys="NetworkEdge.from_node_id",
         back_populates="from_node",
         lazy="noload",
     )
-    incoming_edges: Mapped[list["NetworkEdge"]] = relationship(
+    incoming_edges: Mapped[list[NetworkEdge]] = relationship(
         "NetworkEdge",
         foreign_keys="NetworkEdge.to_node_id",
         back_populates="to_node",
@@ -546,22 +544,22 @@ class NetworkEdge(Base):
     )
 
     # Relationships
-    from_node: Mapped["NetworkNode"] = relationship(
+    from_node: Mapped[NetworkNode] = relationship(
         "NetworkNode",
         foreign_keys=[from_node_id],
         back_populates="outgoing_edges",
     )
-    to_node: Mapped["NetworkNode"] = relationship(
+    to_node: Mapped[NetworkNode] = relationship(
         "NetworkNode",
         foreign_keys=[to_node_id],
         back_populates="incoming_edges",
     )
-    route_edges: Mapped[list["RouteEdge"]] = relationship(
+    route_edges: Mapped[list[RouteEdge]] = relationship(
         "RouteEdge",
         back_populates="edge",
         lazy="noload",
     )
-    edge_routes: Mapped[list["NetworkEdgeRoute"]] = relationship(
+    edge_routes: Mapped[list[NetworkEdgeRoute]] = relationship(
         "NetworkEdgeRoute",
         back_populates="edge",
         lazy="noload",
@@ -606,8 +604,12 @@ class NetworkLink(Base):
     )
     length_m: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
     link_kind: Mapped[str] = mapped_column(String(32), nullable=False)
-    from_component_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
-    to_component_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    from_component_id: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, index=True
+    )
+    to_component_id: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, index=True
+    )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -632,7 +634,9 @@ class TopologyMetadata(Base):
     main_component_station_count: Mapped[int] = mapped_column(Integer, nullable=False)
     disconnected_station_count: Mapped[int] = mapped_column(Integer, nullable=False)
     unsnapped_station_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    max_snap_distance_m: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+    max_snap_distance_m: Mapped[float | None] = mapped_column(
+        Numeric(10, 2), nullable=True
+    )
     built_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -646,7 +650,9 @@ class NetworkEdgeRoute(Base):
 
     __tablename__ = "network_edge_routes"
     __table_args__ = (
-        UniqueConstraint("edge_id", "route_id", name="uq_network_edge_routes_edge_route"),
+        UniqueConstraint(
+            "edge_id", "route_id", name="uq_network_edge_routes_edge_route"
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -664,8 +670,10 @@ class NetworkEdgeRoute(Base):
     )
     route_fraction: Mapped[float | None] = mapped_column(Numeric(8, 6), nullable=True)
 
-    edge: Mapped["NetworkEdge"] = relationship("NetworkEdge", back_populates="edge_routes")
-    route: Mapped["Route"] = relationship("Route", lazy="noload")
+    edge: Mapped[NetworkEdge] = relationship(
+        "NetworkEdge", back_populates="edge_routes"
+    )
+    route: Mapped[Route] = relationship("Route", lazy="noload")
 
 
 class RouteEdge(Base):
@@ -701,8 +709,8 @@ class RouteEdge(Base):
     )
 
     # Relationships
-    route: Mapped["Route"] = relationship("Route", lazy="noload")
-    edge: Mapped["NetworkEdge"] = relationship(
+    route: Mapped[Route] = relationship("Route", lazy="noload")
+    edge: Mapped[NetworkEdge] = relationship(
         "NetworkEdge",
         back_populates="route_edges",
     )

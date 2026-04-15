@@ -14,6 +14,7 @@ unit-testable without any database or Redis.
 """
 
 from __future__ import annotations
+
 from typing import Any
 
 from redis.asyncio import Redis
@@ -53,9 +54,7 @@ class TrainSimulationService:
         self.session = session
         self._redis = redis_client
         self.reader = (
-            RedisReferenceReader(redis_client)
-            if redis_client is not None
-            else None
+            RedisReferenceReader(redis_client) if redis_client is not None else None
         )
         # Cache of TTS delays: {train_number: delay_minutes}
         self._tts_delays: dict[str, int] = {}
@@ -72,9 +71,7 @@ class TrainSimulationService:
         """
         return schedule_utils.get_current_time_minutes()
 
-    def _get_candidate_current_minutes(
-        self, schedules: list[Schedule]
-    ) -> float | None:
+    def _get_candidate_current_minutes(self, schedules: list[Schedule]) -> float | None:
         """Backward-compatible wrapper without realtime delay correction."""
         return schedule_utils.candidate_current_minutes(
             schedules,
@@ -338,7 +335,9 @@ class TrainSimulationService:
                 break
 
             train_ids = [int(payload["id"]) for payload in train_payloads]
-            schedules_by_train_raw = await self.reader.get_schedules_by_trains(train_ids)
+            schedules_by_train_raw = await self.reader.get_schedules_by_trains(
+                train_ids
+            )
             schedules_by_train = {
                 train_id: schedule_payloads_to_domain(payloads)
                 for train_id, payloads in schedules_by_train_raw.items()

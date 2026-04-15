@@ -67,7 +67,7 @@ def get_logger(name: str | None = None, **kwargs: Any) -> structlog.BoundLogger:
     Returns:
         structlog.BoundLogger: Configured logger instance.
     """
-    logger = cast(structlog.BoundLogger, structlog.get_logger(name))
+    logger = cast("structlog.BoundLogger", structlog.get_logger(name))
     if kwargs:
-        logger = cast(structlog.BoundLogger, logger.bind(**kwargs))
+        logger = cast("structlog.BoundLogger", logger.bind(**kwargs))
     return logger

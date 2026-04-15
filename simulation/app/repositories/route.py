@@ -128,7 +128,11 @@ class RouteRepository(BaseRepository[Route]):
             payloads[route_id] = {
                 "coords": coords,
                 "distance_km": distance_km,
-                "geojson": json.dumps({"type": "LineString", "coordinates": coords}) if coords else row.fallback_geojson,
+                "geojson": (
+                    json.dumps({"type": "LineString", "coordinates": coords})
+                    if coords
+                    else row.fallback_geojson
+                ),
                 "segments": grouped_edges.get(route_id, []),
             }
         return payloads
@@ -161,7 +165,11 @@ class RouteRepository(BaseRepository[Route]):
                 for rid in route_ids
                 if rid in RouteRepository._graph_geometry_cache
             }
-            missing = [rid for rid in route_ids if rid not in RouteRepository._graph_geometry_cache]
+            missing = [
+                rid
+                for rid in route_ids
+                if rid not in RouteRepository._graph_geometry_cache
+            ]
         else:
             RouteRepository._geometry_cache.clear()
             RouteRepository._graph_geometry_cache.clear()
@@ -174,7 +182,9 @@ class RouteRepository(BaseRepository[Route]):
         fetched = await self._get_graph_payloads(missing)
         RouteRepository._graph_geometry_cache.update(fetched)
         if fetched:
-            RouteRepository._geometry_cache_expires = now + RouteRepository._GEOMETRY_CACHE_TTL
+            RouteRepository._geometry_cache_expires = (
+                now + RouteRepository._GEOMETRY_CACHE_TTL
+            )
 
         return {**cached, **fetched}
 
@@ -258,7 +268,9 @@ class RouteRepository(BaseRepository[Route]):
                 for rid in route_ids
                 if rid in RouteRepository._geometry_cache
             }
-            missing = [rid for rid in route_ids if rid not in RouteRepository._geometry_cache]
+            missing = [
+                rid for rid in route_ids if rid not in RouteRepository._geometry_cache
+            ]
         else:
             RouteRepository._geometry_cache.clear()
             cached = {}
@@ -274,7 +286,9 @@ class RouteRepository(BaseRepository[Route]):
 
         RouteRepository._geometry_cache.update(fetched)
         if fetched:
-            RouteRepository._geometry_cache_expires = now + RouteRepository._GEOMETRY_CACHE_TTL
+            RouteRepository._geometry_cache_expires = (
+                now + RouteRepository._GEOMETRY_CACHE_TTL
+            )
 
         return {**cached, **fetched}
 

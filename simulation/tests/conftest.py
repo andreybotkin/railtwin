@@ -1,6 +1,5 @@
 """Test configuration and fixtures."""
 
-import asyncio
 import os
 from collections.abc import AsyncGenerator
 
@@ -23,7 +22,7 @@ TEST_DATABASE_URL = _DATABASE_URL or "sqlite+aiosqlite:///:memory:"
 
 
 @pytest_asyncio.fixture
-async def test_db() -> AsyncGenerator[AsyncSession, None]:
+async def test_db() -> AsyncGenerator[AsyncSession]:
     """Create test database session."""
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)
     async_session = async_sessionmaker(engine, expire_on_commit=False)
@@ -46,10 +45,10 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest_asyncio.fixture
-async def client(test_db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+async def client(test_db: AsyncSession) -> AsyncGenerator[AsyncClient]:
     """Create test client with overridden database dependency."""
 
-    async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
+    async def override_get_db() -> AsyncGenerator[AsyncSession]:
         yield test_db
 
     app.dependency_overrides[get_db] = override_get_db

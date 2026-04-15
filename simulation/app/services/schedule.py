@@ -6,6 +6,7 @@ handling business logic between API endpoints and repository layer.
 
 from datetime import time
 from math import ceil
+from typing import Any
 
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +15,6 @@ from app.core.logging import get_logger
 from app.models.database.models import Schedule
 from app.repositories.schedule import ScheduleRepository
 from app.repositories.station import StationRepository
-from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 from app.schemas.schedule import (
     ScheduleCreate,
     ScheduleListResponse,
@@ -25,6 +25,7 @@ from app.schemas.schedule import (
 )
 from app.schemas.station import StationSummary
 from app.schemas.train import TrainSummary
+from app.services.reference_data import RedisReferenceReader, refresh_reference_data
 
 logger = get_logger(__name__)
 
@@ -117,7 +118,7 @@ class ScheduleService:
             station=station,
         )
 
-    def _payload_to_response(self, schedule: dict[str, object]) -> ScheduleResponse:
+    def _payload_to_response(self, schedule: dict[str, Any]) -> ScheduleResponse:
         return ScheduleResponse(
             id=schedule["id"],
             train_id=schedule["train_id"],

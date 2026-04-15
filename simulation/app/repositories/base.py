@@ -74,7 +74,7 @@ class BaseRepository(Generic[ModelType]):
         result = await self.session.execute(
             select(func.count()).select_from(self.model)
         )
-        return cast(int, result.scalar_one())
+        return cast("int", result.scalar_one())
 
     async def create(self, obj_in: dict[str, Any]) -> ModelType:
         """Create a new record.
