@@ -1,16 +1,13 @@
 /**
- * High-performance canvas train layer with geops-style trajectory interpolation.
+ * High-performance canvas train layer with articulated consist physics.
  *
- * Inspired by geops/mobility-toolbox-js renderTrajectories / TrackerLayer:
- * - Single HTML Canvas element over the map (no DOM per train — scales to 1000+)
- * - If trajectory data available: uses `getVehiclePosition(Date.now(), trajectory)` for
- *   truly smooth 60fps animation — position computable at any moment without polling.
- * - Heading arrow drawn with ctx.save()/rotate()/restore() just like geops renderTrajectories.
- * - Graceful fallback to prev→target interpolation when only positions are available.
- * - Visibility API: skips drawing when the tab is hidden.
- * - Click detection on canvas-drawn trains via map click event (pointer-events: none on canvas).
- *
- * @see https://github.com/geops/mobility-toolbox-js/blob/master/src/common/utils/renderTrajectories.ts
+ * Modern rendering approach:
+ * - Single WebGL-friendly Canvas 2D pass for all trains at every zoom level.
+ * - Each train is a connected articulated chain (locomotive + wagons).
+ * - Wagons are solved via position-based dynamics (Verlet + constraints),
+ *   creating natural "follow the locomotive" behaviour on curves.
+ * - Geometry-aware targeting keeps the consist pinned to trajectory rails,
+ *   while physics adds smooth inertial lag.
  */
 
 'use client';
@@ -23,11 +20,11 @@ import {
   getVehiclePosition,
   getVehicleTrajectoryState,
 } from '@/lib/trajectory-interpolation';
-import { buildConsistScreenPoints } from '@/lib/train-consist';
-
-// ---------------------------------------------------------------------------
-// Color helpers
-// ---------------------------------------------------------------------------
+import {
+  buildConsistScreenPoints,
+  solveConsistPhysics,
+  type ConsistPhysicsNode,
+} from '@/lib/train-consist';
 
 const DELAY_COLORS = {
   onTime: '#43A047',
@@ -49,7 +46,7 @@ function drawRoundedRect(
   y: number,
   width: number,
   height: number,
-  radius: number,
+  radius: number
 ) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -71,10 +68,6 @@ function getDelayColor(delayMinutes: number): string {
   return DELAY_COLORS.severe;
 }
 
-// ---------------------------------------------------------------------------
-// Fallback animation state for trains without trajectories
-// ---------------------------------------------------------------------------
-
 interface AnimState {
   prevLat: number;
   prevLon: number;
@@ -85,17 +78,19 @@ interface AnimState {
   trainType: TrainType;
 }
 
-/** Matches WS poll interval so fallback animation fills the gap between updates. */
+interface ConsistRenderState {
+  wagons: ConsistPhysicsNode[];
+  lastPerfMs: number;
+  lastSpacingPx: number;
+}
+
 const ANIM_DURATION = 1900;
 const TRAIN_CAR_COUNT = 10;
-const DETAIL_LOCOMOTIVE_WIDTH = 30;
-const DETAIL_LOCOMOTIVE_HEIGHT = 16;
-const DETAIL_WAGON_WIDTH = 16;
-const DETAIL_WAGON_HEIGHT = 9;
-const DETAIL_LEAD_SPACING_PX = 22;
-const DETAIL_CAR_SPACING_PX = 15;
-const FALLBACK_CAR_SPACING_PX = DETAIL_CAR_SPACING_PX;
 const DISPLAY_ROTATION_OFFSET_DEG = -90;
+
+function zoomScale(zoom: number): number {
+  return Math.min(2.2, Math.max(0.45, 0.52 * Math.pow(1.22, zoom - 8)));
+}
 
 function drawTrainCar(
   ctx: CanvasRenderingContext2D,
@@ -106,12 +101,19 @@ function drawTrainCar(
   color: string,
   rotation: number,
   outlineColor: string,
-  withHeadlight = false,
+  withHeadlight = false
 ) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate((rotation + DISPLAY_ROTATION_OFFSET_DEG) * (Math.PI / 180));
-  drawRoundedRect(ctx, -width / 2, -height / 2, width, height, Math.min(6, height / 2));
+  drawRoundedRect(
+    ctx,
+    -width / 2,
+    -height / 2,
+    width,
+    height,
+    Math.min(6, height / 2)
+  );
   ctx.fillStyle = color;
   ctx.fill();
   ctx.strokeStyle = outlineColor;
@@ -128,52 +130,66 @@ function drawTrainCar(
   ctx.restore();
 }
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+function projectPoint(
+  x: number,
+  y: number,
+  canvasHeight: number,
+  is3D: boolean
+): { x: number; y: number; depth: number } {
+  if (!is3D) return { x, y, depth: 0 };
+  const horizon = canvasHeight * 0.18;
+  const relY = Math.max(0, y - horizon);
+  const pitchCos = Math.cos((55 * Math.PI) / 180);
+  const pitchedY = horizon + relY * pitchCos;
+  const skewX = x + relY * 0.035;
+  const depth = Math.min(10, 2 + relY * 0.006);
+  return { x: skewX, y: pitchedY, depth };
+}
 
 interface CanvasTrainLayerProps {
   positions: TrainPositionUpdate[];
-  /** geops-style trajectory map from TrajectoryWebSocketClient. */
   trajectories?: Map<number, TrainTrajectory>;
   selectedTrainId?: number | null;
   onTrainSelect?: (id: number | null) => void;
-  /** Minimum zoom level at which train markers are shown. */
   minZoom?: number;
+  is3D?: boolean;
 }
 
-/**
- * Canvas-based train layer rendering all non-selected trains.
- *
- * Draws directly to a single HTMLCanvasElement at 60fps using `getVehiclePosition()`
- * when trajectory data is available, or interpolates prev→target position as fallback.
- * Each train gets a circle + directional arrowhead when heading is known.
- */
 export default function CanvasTrainLayer({
   positions,
   trajectories,
   selectedTrainId,
   onTrainSelect,
   minZoom = 5,
+  is3D = false,
 }: CanvasTrainLayerProps) {
   const map = useMap();
 
-  // Mutable refs so the rAF loop always reads current values
   const positionsRef = useRef<TrainPositionUpdate[]>(positions);
-  const trajectoriesRef = useRef<Map<number, TrainTrajectory>>(trajectories ?? new Map());
+  const trajectoriesRef = useRef<Map<number, TrainTrajectory>>(
+    trajectories ?? new Map()
+  );
   const selectedIdRef = useRef<number | null>(selectedTrainId ?? null);
-  const onSelectRef = useRef<((id: number | null) => void) | undefined>(onTrainSelect);
+  const onSelectRef = useRef<((id: number | null) => void) | undefined>(
+    onTrainSelect
+  );
   const animStatesRef = useRef<Map<number, AnimState>>(new Map());
+  const consistStateRef = useRef<Map<number, ConsistRenderState>>(new Map());
   const rafIdRef = useRef<number>(0);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Keep refs in sync with props
-  useEffect(() => { positionsRef.current = positions; }, [positions]);
-  useEffect(() => { trajectoriesRef.current = trajectories ?? new Map(); }, [trajectories]);
-  useEffect(() => { selectedIdRef.current = selectedTrainId ?? null; }, [selectedTrainId]);
-  useEffect(() => { onSelectRef.current = onTrainSelect; }, [onTrainSelect]);
+  useEffect(() => {
+    positionsRef.current = positions;
+  }, [positions]);
+  useEffect(() => {
+    trajectoriesRef.current = trajectories ?? new Map();
+  }, [trajectories]);
+  useEffect(() => {
+    selectedIdRef.current = selectedTrainId ?? null;
+  }, [selectedTrainId]);
+  useEffect(() => {
+    onSelectRef.current = onTrainSelect;
+  }, [onTrainSelect]);
 
-  // Update fallback animation states when positions change
   useEffect(() => {
     const states = animStatesRef.current;
     const activeIds = new Set<number>();
@@ -196,8 +212,10 @@ export default function CanvasTrainLayer({
         existing.trainType = pos.train_type;
       } else {
         states.set(pos.train_id, {
-          prevLat: lat, prevLon: lon,
-          targetLat: lat, targetLon: lon,
+          prevLat: lat,
+          prevLon: lon,
+          targetLat: lat,
+          targetLon: lon,
           startTime: performance.now(),
           delayMinutes: pos.delay_minutes,
           trainType: pos.train_type,
@@ -208,30 +226,31 @@ export default function CanvasTrainLayer({
     for (const id of states.keys()) {
       if (!activeIds.has(id)) states.delete(id);
     }
+
+    for (const id of consistStateRef.current.keys()) {
+      if (!activeIds.has(id)) consistStateRef.current.delete(id);
+    }
   }, [positions, selectedTrainId]);
 
-  // Mount: create canvas, rAF loop, click handler
   useEffect(() => {
     const container = map.getContainer();
 
-    // Canvas floating above the map, pointer-events:none so map interactions still work
     const canvas = document.createElement('canvas');
     canvas.style.cssText =
       'position:absolute;top:0;left:0;pointer-events:none;z-index:450;';
     canvas.setAttribute('aria-hidden', 'true');
     container.appendChild(canvas);
-    canvasRef.current = canvas;
 
     const resizeCanvas = () => {
       const size = map.getSize();
       canvas.width = size.x;
       canvas.height = size.y;
     };
+
     resizeCanvas();
     map.on('resize', resizeCanvas);
 
-    // Click detection: find train closest to click point within HIT_RADIUS pixels
-    const HIT_RADIUS_PX = 12;
+    const HIT_RADIUS_PX = 16;
     const onMapClick = (e: L.LeafletMouseEvent) => {
       const point = e.containerPoint;
       const trajs = trajectoriesRef.current;
@@ -245,12 +264,15 @@ export default function CanvasTrainLayer({
 
       for (const p of pos) {
         if (p.train_id === selId) continue;
-        let lat: number, lon: number;
+        let lat: number;
+        let lon: number;
         const traj = trajs.get(p.train_id);
+
         if (traj) {
           const vp = getVehiclePosition(nowMs, traj);
           if (!vp) continue;
-          lat = vp.lat; lon = vp.lon;
+          lat = vp.lat;
+          lon = vp.lon;
         } else {
           const state = animStatesRef.current.get(p.train_id);
           if (!state) continue;
@@ -258,24 +280,27 @@ export default function CanvasTrainLayer({
           lat = state.prevLat + (state.targetLat - state.prevLat) * t;
           lon = state.prevLon + (state.targetLon - state.prevLon) * t;
         }
+
         const pixel = map.latLngToContainerPoint([lat, lon]);
-        const dx = pixel.x - point.x;
-        const dy = pixel.y - point.y;
+        const projected = projectPoint(pixel.x, pixel.y, canvas.height, is3D);
+        const dx = projected.x - point.x;
+        const dy = projected.y - point.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < closestDist) { closestDist = dist; closest = p.train_id; }
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = p.train_id;
+        }
       }
 
       if (closest !== null) {
         onSelectRef.current?.(closest === selId ? null : closest);
       }
     };
+
     map.on('click', onMapClick);
 
-    // rAF draw loop: runs at 60fps, reads current refs each frame
     const draw = () => {
       rafIdRef.current = requestAnimationFrame(draw);
-
-      // Skip drawing when tab is hidden (Visibility API — geops RealtimeEngine pattern)
       if (document.hidden) return;
 
       const ctx = canvas.getContext('2d');
@@ -285,142 +310,173 @@ export default function CanvasTrainLayer({
       const zoom = map.getZoom();
       if (zoom < minZoom) return;
 
+      const scale = zoomScale(zoom);
+      const locomotiveWidth = 28 * scale;
+      const locomotiveHeight = 14 * scale;
+      const wagonWidth = 14 * scale;
+      const wagonHeight = 8 * scale;
+      const leadSpacing = 18 * scale;
+      const carSpacing = 12 * scale;
+
       const trajs = trajectoriesRef.current;
-      const positions = positionsRef.current;
+      const currentPositions = positionsRef.current;
       const selId = selectedIdRef.current;
       const animStates = animStatesRef.current;
       const nowMs = Date.now();
       const nowPerf = performance.now();
 
-      // Radius scales with zoom for zoom-adaptive detail (generalization)
-      const radius = zoom >= 11 ? 8 : zoom >= 9 ? 6.5 : zoom >= 7 ? 5.5 : 4.5;
-      const showArrow = zoom >= 8;
-      const showCars = zoom >= 11;
-
-      for (const pos of positions) {
+      for (const pos of currentPositions) {
         if (pos.train_id === selId) continue;
 
         let lat: number;
         let lon: number;
-        let rotation: number | null = null;
-        const traj = trajs.get(pos.train_id);
-        const locomotiveState = traj ? getVehicleTrajectoryState(nowMs, traj) : null;
+        let rotation: number;
+        let consistTargets: { x: number; y: number; rotation: number }[] = [];
 
-        if (traj) {
-          // geops time-based interpolation — position from time_intervals at current clock
-          if (!locomotiveState) continue;
+        const traj = trajs.get(pos.train_id);
+        const locomotiveState = traj
+          ? getVehicleTrajectoryState(nowMs, traj)
+          : null;
+
+        if (traj && locomotiveState) {
           lat = locomotiveState.lat;
           lon = locomotiveState.lon;
           rotation = locomotiveState.rotation;
+
+          consistTargets = buildConsistScreenPoints(
+            (traj.geometry.coordinates as [number, number][])
+              .map(([coordLon, coordLat]) =>
+                map.latLngToContainerPoint([coordLat, coordLon])
+              )
+              .map((point) => ({ x: point.x, y: point.y })),
+            locomotiveState.geomFraction,
+            locomotiveState.rotation,
+            Array.from(
+              { length: TRAIN_CAR_COUNT },
+              (_, index) => leadSpacing + index * carSpacing
+            )
+          );
         } else {
-          // Fallback: prev→target linear interpolation (old snapshot approach)
           const state = animStates.get(pos.train_id);
           if (!state) continue;
           const t = Math.min((nowPerf - state.startTime) / ANIM_DURATION, 1);
           lat = state.prevLat + (state.targetLat - state.prevLat) * t;
           lon = state.prevLon + (state.targetLon - state.prevLon) * t;
+          rotation = pos.heading ?? 0;
+
+          const radians =
+            ((rotation + DISPLAY_ROTATION_OFFSET_DEG) * Math.PI) / 180;
+          consistTargets = Array.from({ length: TRAIN_CAR_COUNT }, (_, car) => {
+            const spacing = leadSpacing + car * carSpacing;
+            return {
+              x: 0 + Math.cos(radians + Math.PI) * spacing,
+              y: 0 + Math.sin(radians + Math.PI) * spacing,
+              rotation,
+            };
+          });
         }
 
-        // Project to screen coordinates (containerPoint)
         const pixel = map.latLngToContainerPoint([lat, lon]);
-        const px = pixel.x;
-        const py = pixel.y;
+        const projectedHead = projectPoint(
+          pixel.x,
+          pixel.y,
+          canvas.height,
+          is3D
+        );
+        const px = projectedHead.x;
+        const py = projectedHead.y;
 
-        // Skip trains outside the visible canvas (quick cull)
-        if (px < -radius - 10 || px > canvas.width + radius + 10) continue;
-        if (py < -radius - 10 || py > canvas.height + radius + 10) continue;
+        if (
+          px < -80 ||
+          px > canvas.width + 80 ||
+          py < -80 ||
+          py > canvas.height + 80
+        )
+          continue;
 
         const delayColor = getDelayColor(pos.delay_minutes);
         const baseColor = TYPE_COLORS[pos.train_type as TrainType] ?? '#2196F3';
 
-        ctx.save();
-        ctx.translate(px, py);
+        let consistState = consistStateRef.current.get(pos.train_id);
+        if (
+          !consistState ||
+          Math.abs(consistState.lastSpacingPx - carSpacing) > 2.5
+        ) {
+          consistState = {
+            wagons: consistTargets.map((target) => ({
+              x: px + target.x,
+              y: py + target.y,
+              prevX: px + target.x,
+              prevY: py + target.y,
+            })),
+            lastPerfMs: nowPerf,
+            lastSpacingPx: carSpacing,
+          };
+          consistStateRef.current.set(pos.train_id, consistState);
+        }
 
-        // Heading arrowhead (geops renderTrajectories pattern)
-        // Convert heading (0=N, clockwise) to canvas angle (0=E, clockwise)
-        if (showArrow && rotation !== null) {
-          const canvasAngle = (rotation + DISPLAY_ROTATION_OFFSET_DEG) * (Math.PI / 180);
-          ctx.rotate(canvasAngle);
+        const dt = (nowPerf - consistState.lastPerfMs) / 1000;
+        consistState.lastPerfMs = nowPerf;
+
+        const targets = consistTargets.map((target) => ({
+          ...projectPoint(
+            target.x + pixel.x,
+            target.y + pixel.y,
+            canvas.height,
+            is3D
+          ),
+          rotation: target.rotation,
+        }));
+
+        const solvedWagons = solveConsistPhysics(
+          consistState.wagons,
+          { x: px, y: py },
+          targets,
+          carSpacing,
+          dt
+        );
+
+        for (let car = solvedWagons.length - 1; car >= 0; car -= 1) {
+          const wagon = solvedWagons[car];
+          const alpha = Math.max(0.48, 0.94 - car * 0.04);
+          drawTrainCar(
+            ctx,
+            wagon.x,
+            wagon.y + projectedHead.depth,
+            wagonWidth,
+            wagonHeight,
+            baseColor,
+            wagon.rotation,
+            `rgba(255,255,255,${Math.min(alpha + 0.1, 0.9)})`
+          );
+        }
+
+        if (is3D) {
           ctx.beginPath();
-          // Triangle pointing in +x direction (after rotation)
-          ctx.moveTo(radius + 7, 0);
-          ctx.lineTo(radius + 1, -3.5);
-          ctx.lineTo(radius + 1, 3.5);
-          ctx.closePath();
-          ctx.fillStyle = baseColor;
+          ctx.ellipse(
+            px + projectedHead.depth * 0.6,
+            py + locomotiveHeight * 0.75 + projectedHead.depth,
+            locomotiveWidth * 0.7,
+            locomotiveHeight * 0.38,
+            0,
+            0,
+            Math.PI * 2
+          );
+          ctx.fillStyle = 'rgba(15,23,42,0.22)';
           ctx.fill();
-          ctx.rotate(-canvasAngle);
         }
 
-        if (showCars) {
-          const wagonWidth = DETAIL_WAGON_WIDTH;
-          const wagonHeight = DETAIL_WAGON_HEIGHT;
-          const consistPoints = traj && locomotiveState
-            ? buildConsistScreenPoints(
-                (traj.geometry.coordinates as [number, number][])
-                  .map(([coordLon, coordLat]) => map.latLngToContainerPoint([coordLat, coordLon]))
-                  .map((point) => ({ x: point.x, y: point.y })),
-                locomotiveState.geomFraction,
-                locomotiveState.rotation,
-                Array.from({ length: TRAIN_CAR_COUNT }, (_, index) => DETAIL_LEAD_SPACING_PX + index * DETAIL_CAR_SPACING_PX),
-              )
-            : null;
-          for (let car = TRAIN_CAR_COUNT - 1; car >= 0; car -= 1) {
-            let wagonPx = px;
-            let wagonPy = py;
-            let wagonRotation = rotation ?? pos.heading ?? 0;
-
-            if (consistPoints) {
-              const wagonPoint = consistPoints[car];
-              if (!wagonPoint) continue;
-              wagonPx = wagonPoint.x;
-              wagonPy = wagonPoint.y;
-              wagonRotation = wagonPoint.rotation;
-            } else {
-              const spacing = DETAIL_LEAD_SPACING_PX + car * FALLBACK_CAR_SPACING_PX;
-              const radians = (((pos.heading ?? 0) + DISPLAY_ROTATION_OFFSET_DEG) * Math.PI) / 180;
-              wagonPx = px + Math.cos(radians + Math.PI) * spacing;
-              wagonPy = py + Math.sin(radians + Math.PI) * spacing;
-            }
-
-            drawTrainCar(
-              ctx,
-              wagonPx - px,
-              wagonPy - py,
-              wagonWidth,
-              wagonHeight,
-              baseColor,
-              wagonRotation,
-              'rgba(255,255,255,0.72)',
-            );
-          }
-
-          drawTrainCar(
-            ctx,
-            0,
-            0,
-            DETAIL_LOCOMOTIVE_WIDTH,
-            DETAIL_LOCOMOTIVE_HEIGHT,
-            baseColor,
-            rotation ?? pos.heading ?? 0,
-            delayColor,
-            true,
-          );
-        } else {
-          drawTrainCar(
-            ctx,
-            0,
-            0,
-            radius * 2.3,
-            radius * 1.6,
-            baseColor,
-            rotation ?? pos.heading ?? 0,
-            delayColor,
-            true,
-          );
-        }
-
-        ctx.restore();
+        drawTrainCar(
+          ctx,
+          px,
+          py + projectedHead.depth,
+          locomotiveWidth,
+          locomotiveHeight,
+          baseColor,
+          rotation,
+          delayColor,
+          true
+        );
       }
     };
 
@@ -431,9 +487,8 @@ export default function CanvasTrainLayer({
       map.off('resize', resizeCanvas);
       map.off('click', onMapClick);
       canvas.remove();
-      canvasRef.current = null;
     };
-  }, [map, minZoom]);
+  }, [is3D, map, minZoom]);
 
   return null;
 }

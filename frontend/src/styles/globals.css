@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Dark mode using class strategy (html.dark) */
 @custom-variant dark (&:is(.dark *));
@@ -43,18 +43,31 @@
 }
 
 @keyframes accordion-down {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @layer base {
@@ -141,6 +154,25 @@
   z-index: 999;
 }
 
+/* Pseudo-3D mode: tilt map panes with perspective to imitate map pitch. */
+.map-3d-mode {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.map-3d-mode .leaflet-pane {
+  transform-origin: center 22%;
+  transform-style: preserve-3d;
+}
+
+.map-3d-mode .leaflet-map-pane {
+  transform: rotateX(55deg) translateY(-8%);
+}
+
+.map-3d-mode .leaflet-tile-pane {
+  filter: saturate(1.05) contrast(1.02);
+}
+
 /* Custom marker styles */
 .train-marker {
   background: none;
@@ -171,7 +203,8 @@
 }
 
 @keyframes pulse-train {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   50% {

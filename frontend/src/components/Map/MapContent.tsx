@@ -16,7 +16,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -45,9 +45,12 @@ import LayerTree from './LayerTree';
 // Fix Leaflet default icon issue in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconRetinaUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
 // Thailand center coordinates
@@ -64,7 +67,12 @@ interface MapContentProps {
 /**
  * Read permalink state from URL query params.
  */
-function readPermalink(): { lat?: number; lng?: number; zoom?: number; train?: number } {
+function readPermalink(): {
+  lat?: number;
+  lng?: number;
+  zoom?: number;
+  train?: number;
+} {
   if (typeof window === 'undefined') return {};
   const params = new URLSearchParams(window.location.search);
   const lat = params.get('lat');
@@ -83,7 +91,11 @@ function readPermalink(): { lat?: number; lng?: number; zoom?: number; train?: n
  * Controller component: map resize, permalink, BBOX reporting, fullscreen control,
  * zoom-based generalization updates.
  */
-function MapController({ onBBoxChange }: { onBBoxChange: (bbox: string) => void }) {
+function MapController({
+  onBBoxChange,
+}: {
+  onBBoxChange: (bbox: string) => void;
+}) {
   const map = useMap();
   const setZoom = useMapTopicStore((s) => s.setZoom);
 
@@ -105,7 +117,9 @@ function MapController({ onBBoxChange }: { onBBoxChange: (bbox: string) => void 
   useEffect(() => {
     const ctrl = new LeafletFullScreen({ position: 'topright' });
     ctrl.addTo(map);
-    return () => { ctrl.remove(); };
+    return () => {
+      ctrl.remove();
+    };
   }, [map]);
 
   // Permalink: update URL on moveend, report BBOX, track zoom for generalization
@@ -157,7 +171,8 @@ function LocateControl() {
     const control = new L.Control({ position: 'topright' });
     control.onAdd = () => {
       const btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-      btn.innerHTML = '<a href="#" title="My location" role="button" aria-label="Show my location" style="font-size:18px;line-height:26px;text-align:center;width:26px;height:26px;display:block">⊕</a>';
+      btn.innerHTML =
+        '<a href="#" title="My location" role="button" aria-label="Show my location" style="font-size:18px;line-height:26px;text-align:center;width:26px;height:26px;display:block">⊕</a>';
       btn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -167,7 +182,9 @@ function LocateControl() {
       return btn;
     };
     control.addTo(map);
-    return () => { control.remove(); };
+    return () => {
+      control.remove();
+    };
   }, [map]);
 
   return null;
@@ -177,7 +194,9 @@ function SelectedTrainVisibilityController({
   selectedTrainPosition,
   onTrainSelect,
 }: {
-  selectedTrainPosition: { location: { coordinates: [number, number] } } | undefined;
+  selectedTrainPosition:
+    | { location: { coordinates: [number, number] } }
+    | undefined;
   onTrainSelect?: (id: number | null) => void;
 }) {
   const map = useMap();
@@ -208,6 +227,7 @@ export default function MapContent({
   onTrainSelect,
   onViewportChange,
 }: MapContentProps) {
+  const [is3DMode, setIs3DMode] = useState(false);
   const { data: staticMapData } = useStaticMapData();
   const { trajectories } = useTrainTrajectories();
 
@@ -220,7 +240,10 @@ export default function MapContent({
     const nowMs = Date.now();
     return Array.from(trajectories.values())
       .map((trajectory) => buildPositionFromTrajectory(trajectory, nowMs))
-      .filter((position): position is NonNullable<typeof position> => position !== null);
+      .filter(
+        (position): position is NonNullable<typeof position> =>
+          position !== null
+      );
   }, [trajectories]);
 
   const stations = staticMapData?.stations || [];
@@ -232,7 +255,10 @@ export default function MapContent({
       const props = edge.properties;
       const fromStationId = props.from_station_id ?? props.from_node_id;
       const toStationId = props.to_station_id ?? props.to_node_id;
-      const key = [Math.min(fromStationId, toStationId), Math.max(fromStationId, toStationId)].join(':');
+      const key = [
+        Math.min(fromStationId, toStationId),
+        Math.max(fromStationId, toStationId),
+      ].join(':');
       if (seen.has(key)) {
         return false;
       }
@@ -252,9 +278,15 @@ export default function MapContent({
   // --- Generalization: filter trains by type based on layer visibility ---
   const visibleTrains = useMemo(() => {
     return trainPositions.filter((p) => {
-      if (p.train_type === 'special_express' && !isLayerVisible('trains-special-express')) return false;
-      if (p.train_type === 'rapid' && !isLayerVisible('trains-rapid')) return false;
-      if (p.train_type === 'ordinary' && !isLayerVisible('trains-ordinary')) return false;
+      if (
+        p.train_type === 'special_express' &&
+        !isLayerVisible('trains-special-express')
+      )
+        return false;
+      if (p.train_type === 'rapid' && !isLayerVisible('trains-rapid'))
+        return false;
+      if (p.train_type === 'ordinary' && !isLayerVisible('trains-ordinary'))
+        return false;
       return true;
     });
   }, [trainPositions, isLayerVisible]);
@@ -264,18 +296,19 @@ export default function MapContent({
       displayNetworkEdges.filter((edge) => {
         const routeType = edge.properties.route_type;
         if (routeType === 'northern') return isLayerVisible('routes-northern');
-        if (routeType === 'northeastern') return isLayerVisible('routes-northeastern');
+        if (routeType === 'northeastern')
+          return isLayerVisible('routes-northeastern');
         if (routeType === 'southern') return isLayerVisible('routes-southern');
         if (routeType === 'eastern') return isLayerVisible('routes-eastern');
         return true;
       }),
-    [displayNetworkEdges, isLayerVisible],
+    [displayNetworkEdges, isLayerVisible]
   );
 
   // The selected train always shows as a rich DOM marker regardless of zoom
   const selectedTrainPosition = useMemo(
     () => trainPositions.find((p) => p.train_id === selectedTrainId),
-    [trainPositions, selectedTrainId],
+    [trainPositions, selectedTrainId]
   );
 
   useEffect(() => {
@@ -287,22 +320,24 @@ export default function MapContent({
   // Non-selected trains for canvas rendering
   const canvasTrains = useMemo(
     () => visibleTrains.filter((p) => p.train_id !== selectedTrainId),
-    [visibleTrains, selectedTrainId],
+    [visibleTrains, selectedTrainId]
   );
 
-  // Whether to use DOM markers for all trains (high zoom) or canvas
-  const useDomTrains = generalization.trainMode === 'dom-markers';
-
   // Tile URL: driven entirely by the active topic
-  const tileUrl = activeTopic.tileUrl || 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  const tileUrl =
+    activeTopic.tileUrl ||
+    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
   const tileAttribution = activeTopic.tileAttribution || '';
 
   // BBOX change handler — sends to both position and trajectory WS clients
-  const handleBBoxChange = useCallback((bbox: string) => {
-    getTrajectoryClient().sendBBox(bbox);
-    getWebSocketClient().sendBBox(bbox);
-    onViewportChange?.(bbox);
-  }, [onViewportChange]);
+  const handleBBoxChange = useCallback(
+    (bbox: string) => {
+      getTrajectoryClient().sendBBox(bbox);
+      getWebSocketClient().sendBBox(bbox);
+      onViewportChange?.(bbox);
+    },
+    [onViewportChange]
+  );
 
   // Permalink: persist selected train in URL
   useEffect(() => {
@@ -318,16 +353,17 @@ export default function MapContent({
   }, [selectedTrainId]);
 
   // Are any station layers visible?
-  const showStations = isLayerVisible('stations-major') || isLayerVisible('stations-all');
+  const showStations =
+    isLayerVisible('stations-major') || isLayerVisible('stations-all');
   // Should we cluster?
   const useCluster = generalization.stationMode === 'clustered';
 
   return (
-    <div className={cn('h-full w-full', className)}>
+    <div className={cn('relative h-full w-full', className)}>
       <MapContainer
         center={THAILAND_CENTER}
         zoom={INITIAL_ZOOM}
-        className="h-full w-full"
+        className={cn('h-full w-full', is3DMode && 'map-3d-mode')}
         attributionControl={false}
         zoomControl={true}
         scrollWheelZoom={true}
@@ -351,7 +387,7 @@ export default function MapContent({
         {isLayerVisible('infrastructure-tracks') &&
           displayNetworkEdges.map((edge, idx) => {
             const coords = edge.geometry.coordinates.map(
-              ([lon, lat]) => [lat, lon] as [number, number],
+              ([lon, lat]) => [lat, lon] as [number, number]
             );
             return (
               <Polyline
@@ -369,7 +405,7 @@ export default function MapContent({
         {generalization.routeMode !== 'hidden' &&
           visibleRouteEdges.map((edge, idx) => {
             const positions = edge.geometry.coordinates.map(
-              (coord) => [coord[1], coord[0]] as [number, number],
+              (coord) => [coord[1], coord[0]] as [number, number]
             );
 
             return (
@@ -398,34 +434,22 @@ export default function MapContent({
             ))}
           </MarkerClusterGroup>
         )}
-        {showStations && !useCluster &&
+        {showStations &&
+          !useCluster &&
           visibleStations.map((station) => (
             <StationMarker key={station.id} station={station} />
           ))}
 
-        {/* Trains — Canvas-based for performance at low/medium zoom */}
-        {!useDomTrains && generalization.trainMode !== 'hidden' && (
+        {/* Trains — single rendering pipeline at every zoom: articulated canvas consists */}
+        {generalization.trainMode !== 'hidden' && (
           <CanvasTrainLayer
             positions={canvasTrains}
             trajectories={trajectories}
             selectedTrainId={selectedTrainId}
             onTrainSelect={onTrainSelect}
+            is3D={is3DMode}
           />
         )}
-
-        {/* Trains — DOM-based at high zoom for rich interactivity */}
-        {useDomTrains &&
-          visibleTrains
-            .filter((p) => p.train_id !== selectedTrainId)
-            .map((position) => (
-              <TrainMarker
-                key={position.train_id}
-                position={position}
-                trajectory={trajectories.get(position.train_id)}
-                isSelected={false}
-                onSelect={onTrainSelect}
-              />
-            ))}
 
         {/* Selected train always uses rich DOM marker for popup/interaction */}
         {selectedTrainPosition && (
@@ -439,23 +463,33 @@ export default function MapContent({
         )}
 
         {/* Selected train full trajectory polyline (geops pattern: show full route on select) */}
-        {selectedTrainId && trajectories.get(selectedTrainId) && (() => {
-          const traj = trajectories.get(selectedTrainId)!;
-          const coords = traj.geometry.coordinates.map(
-            ([lon, lat]) => [lat, lon] as [number, number],
-          );
-          return (
-            <Polyline
-              key={`traj-${selectedTrainId}`}
-              positions={coords}
-              color={traj.properties.line.color}
-              weight={4}
-              opacity={0.9}
-              dashArray="8 4"
-            />
-          );
-        })()}
+        {selectedTrainId &&
+          trajectories.get(selectedTrainId) &&
+          (() => {
+            const traj = trajectories.get(selectedTrainId)!;
+            const coords = traj.geometry.coordinates.map(
+              ([lon, lat]) => [lat, lon] as [number, number]
+            );
+            return (
+              <Polyline
+                key={`traj-${selectedTrainId}`}
+                positions={coords}
+                color={traj.properties.line.color}
+                weight={4}
+                opacity={0.9}
+                dashArray="8 4"
+              />
+            );
+          })()}
       </MapContainer>
+
+      <button
+        type="button"
+        onClick={() => setIs3DMode((prev) => !prev)}
+        className="absolute bottom-3 left-3 z-[1000] rounded-lg border border-zinc-300/80 bg-white/95 px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-md backdrop-blur"
+      >
+        {is3DMode ? '2D map' : '3D map'}
+      </button>
 
       {/* Layer tree overlay (trafimage-maps LayerTree pattern) */}
       <LayerTree />
