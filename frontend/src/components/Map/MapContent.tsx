@@ -38,6 +38,7 @@ import { getTrajectoryClient, getWebSocketClient } from '@/lib/websocket';
 import { buildPositionFromTrajectory } from '@/lib/trajectory-interpolation';
 import { useMapTopicStore } from '@/lib/stores/map-topic-store';
 import CanvasTrainLayer from './CanvasTrainLayer';
+import CesiumTrainMap from './CesiumTrainMap';
 import TrainMarker from './TrainMarker';
 import StationMarker from './StationMarker';
 import LayerTree from './LayerTree';
@@ -358,12 +359,34 @@ export default function MapContent({
   // Should we cluster?
   const useCluster = generalization.stationMode === 'clustered';
 
+  if (is3DMode) {
+    return (
+      <div className={cn('relative h-full w-full', className)}>
+        <CesiumTrainMap
+          positions={canvasTrains}
+          trajectories={trajectories}
+          selectedTrainId={selectedTrainId}
+          onTrainSelect={onTrainSelect}
+          onViewportChange={onViewportChange}
+        />
+        <button
+          type="button"
+          onClick={() => setIs3DMode(false)}
+          className="absolute bottom-3 left-3 z-[1000] rounded-lg border border-zinc-300/80 bg-white/95 px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-md backdrop-blur"
+        >
+          2D map
+        </button>
+        <LayerTree />
+      </div>
+    );
+  }
+
   return (
     <div className={cn('relative h-full w-full', className)}>
       <MapContainer
         center={THAILAND_CENTER}
         zoom={INITIAL_ZOOM}
-        className={cn('h-full w-full', is3DMode && 'map-3d-mode')}
+        className="h-full w-full"
         attributionControl={false}
         zoomControl={true}
         scrollWheelZoom={true}
@@ -447,7 +470,6 @@ export default function MapContent({
             trajectories={trajectories}
             selectedTrainId={selectedTrainId}
             onTrainSelect={onTrainSelect}
-            is3D={is3DMode}
           />
         )}
 
@@ -485,10 +507,10 @@ export default function MapContent({
 
       <button
         type="button"
-        onClick={() => setIs3DMode((prev) => !prev)}
+        onClick={() => setIs3DMode(true)}
         className="absolute bottom-3 left-3 z-[1000] rounded-lg border border-zinc-300/80 bg-white/95 px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-md backdrop-blur"
       >
-        {is3DMode ? '2D map' : '3D map'}
+        3D map
       </button>
 
       {/* Layer tree overlay (trafimage-maps LayerTree pattern) */}

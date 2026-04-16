@@ -154,25 +154,6 @@
   z-index: 999;
 }
 
-/* Pseudo-3D mode: tilt map panes with perspective to imitate map pitch. */
-.map-3d-mode {
-  perspective: 1200px;
-  transform-style: preserve-3d;
-}
-
-.map-3d-mode .leaflet-pane {
-  transform-origin: center 22%;
-  transform-style: preserve-3d;
-}
-
-.map-3d-mode .leaflet-map-pane {
-  transform: rotateX(55deg) translateY(-8%);
-}
-
-.map-3d-mode .leaflet-tile-pane {
-  filter: saturate(1.05) contrast(1.02);
-}
-
 /* Custom marker styles */
 .train-marker {
   background: none;
