@@ -23,7 +23,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import get_logger
 from app.models.database.models import Schedule, Train
 from app.services import schedule_utils
-from app.services.position_service import build_train_position
 from app.services.reference_data import (
     RedisReferenceReader,
     schedule_payloads_to_domain,
@@ -112,23 +111,31 @@ class TrainSimulationService:
         route_distance_km: float | None = None,
         route_segments: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any] | None:
-        """Calculate a current position snapshot for a single train."""
-        delay = self._tts_delays.get(train.train_number, 0)
-        current_minutes = self._get_candidate_current_minutes_with_delay(
-            schedules,
-            delay,
-        )
-        if current_minutes is None:
-            return None
-        return build_train_position(
+        """Legacy helper: derives a position snapshot from trajectory frame 0."""
+        trajectory = await self.get_train_trajectory(
             train,
             schedules,
             route_coords,
             route_distance_km,
             route_segments,
-            delay=delay,
-            current_minutes=current_minutes,
         )
+        if trajectory is None or not trajectory.get("frames"):
+            return None
+        frame = trajectory["frames"][0]
+        return {
+            "train_id": train.id,
+            "train_number": train.train_number,
+            "train_type": train.train_type,
+            "location": {"type": "Point", "coordinates": [frame["lon"], frame["lat"]]},
+            "speed": frame["speed_kmh"],
+            "heading": frame["rotation_deg"],
+            "status": frame["status"],
+            "delay_minutes": trajectory.get("meta", {}).get("delay_minutes", 0),
+            "next_station": trajectory.get("meta", {}).get("next_station"),
+            "prev_station": trajectory.get("meta", {}).get("prev_station"),
+            "route_progress": frame.get("geom_fraction", 0),
+            "route_id": train.current_route_id,
+        }
 
     async def get_train_trajectory(
         self,

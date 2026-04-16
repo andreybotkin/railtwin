@@ -1,0 +1,12 @@
+special_express:
+  locomotive_length_m: 20
+  car_count: 12
+  car_length_m: 24
+rapid:
+  locomotive_length_m: 20
+  car_count: 10
+  car_length_m: 24
+ordinary:
+  locomotive_length_m: 20
+  car_count: 8
+  car_length_m: 20

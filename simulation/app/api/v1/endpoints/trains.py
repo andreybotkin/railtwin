@@ -1,197 +1,100 @@
-"""Train API endpoints.
+"""Trajectory-first train API endpoints."""
 
-This module provides RESTful API endpoints for managing trains and their positions.
-"""
+from fastapi import APIRouter, HTTPException, status
 
-from typing import Annotated
-
-from fastapi import APIRouter, HTTPException, Query, status
-
-from app.api.dependencies import TrainServiceDep
-from app.schemas.train import (
-    TrainCreate,
-    TrainListResponse,
-    TrainPositionResponse,
-    TrainResponse,
-    TrainUpdate,
-)
+from app.api.dependencies import SimulationServiceDep
+from app.services.reference_data import schedule_payloads_to_domain, train_payload_to_domain
 
 router = APIRouter()
 
 
-@router.get(
-    "",
-    response_model=TrainListResponse,
-    summary="List all trains",
-    description="Get a paginated list of all trains.",
-)
-async def list_trains(
-    service: TrainServiceDep,
-    page: Annotated[int, Query(ge=1, description="Page number")] = 1,
-    size: Annotated[int, Query(ge=1, le=100, description="Items per page")] = 20,
-    train_type: Annotated[str | None, Query(description="Filter by train type")] = None,
-    route_id: Annotated[int | None, Query(description="Filter by route")] = None,
-) -> TrainListResponse:
-    """List all trains with pagination and optional filtering.
+async def _build_single_trajectory_payload(
+    simulation_service: SimulationServiceDep,
+    train_id: int,
+) -> tuple[dict | None, list[dict] | None]:
+    await simulation_service._load_delays()  # noqa: SLF001
+    reader = simulation_service.reader
+    if reader is None:
+        return None, None
 
-    Args:
-        service: Train service dependency.
-        page: Page number (1-indexed).
-        size: Number of items per page.
-        train_type: Filter by train type.
-        route_id: Filter by current route.
+    train_payload = await reader.get_train(train_id)
+    if train_payload is None:
+        return None, None
 
-    Returns:
-        TrainListResponse with paginated trains.
-    """
-    return await service.list_trains(
-        page=page,
-        size=size,
-        train_type=train_type,
-        route_id=route_id,
+    train = train_payload_to_domain(train_payload)
+    schedules = schedule_payloads_to_domain(await reader.get_train_schedule(train_id))
+    if not schedules:
+        return None, None
+
+    route_payload = (
+        await reader.get_route_geometry_bulk([train.current_route_id or -1])
+    ).get(train.current_route_id or -1, {})
+    route_coords = route_payload.get("coords") or None
+    route_distance_km = route_payload.get("distance_km")
+    route_segments = route_payload.get("segments") or None
+
+    trajectory = await simulation_service.get_train_trajectory(
+        train,
+        schedules,
+        route_coords,
+        route_distance_km,
+        route_segments,
     )
+    stop_sequence = simulation_service.get_stop_sequence(
+        train,
+        schedules,
+        simulation_service._tts_delays.get(train.train_number, 0),  # noqa: SLF001
+        simulation_service._get_current_time_minutes(),  # noqa: SLF001
+    )
+    return trajectory, stop_sequence
 
 
 @router.get(
-    "/{train_id}",
-    response_model=TrainResponse,
-    summary="Get train details",
-    description="Get detailed information about a specific train.",
+    "/trajectories",
+    summary="Get active train trajectories",
+    description="Get latest trajectories for all active trains.",
 )
-async def get_train(
-    service: TrainServiceDep,
-    train_id: int,
-) -> TrainResponse:
-    """Get a single train by ID.
-
-    Args:
-        service: Train service dependency.
-        train_id: Train ID.
-
-    Returns:
-        TrainResponse with train details.
-
-    Raises:
-        HTTPException: If train not found.
-    """
-    train = await service.get_train(train_id)
-    if not train:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Train with id {train_id} not found",
-        )
-    return train
+async def get_train_trajectories(
+    service: SimulationServiceDep,
+) -> list[dict]:
+    _, trajectories, _ = await service.get_all_active_train_data(
+        include_trajectories=True,
+        include_stop_sequences=False,
+    )
+    return trajectories
 
 
 @router.get(
-    "/{train_id}/position",
-    response_model=TrainPositionResponse,
-    summary="Get train position",
-    description="Get the current position of a specific train.",
+    "/{train_id:int}/trajectory",
+    summary="Get a train trajectory",
+    description="Get latest trajectory for a specific train.",
 )
-async def get_train_position(
-    service: TrainServiceDep,
+async def get_train_trajectory(
+    service: SimulationServiceDep,
     train_id: int,
-) -> TrainPositionResponse:
-    """Get the latest position for a train.
-
-    Args:
-        service: Train service dependency.
-        train_id: Train ID.
-
-    Returns:
-        TrainPositionResponse with current position.
-
-    Raises:
-        HTTPException: If train or position not found.
-    """
-    position = await service.get_train_position(train_id)
-    if not position:
+) -> dict:
+    trajectory, _ = await _build_single_trajectory_payload(service, train_id)
+    if trajectory is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Position for train {train_id} not found",
+            detail=f"Trajectory for train {train_id} not found",
         )
-    return position
+    return trajectory
 
 
-@router.post(
-    "",
-    response_model=TrainResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create a train",
-    description="Create a new train.",
+@router.get(
+    "/{train_id:int}/stopsequence",
+    summary="Get stop sequence",
+    description="Get current stop-sequence for a specific train.",
 )
-async def create_train(
-    service: TrainServiceDep,
-    data: TrainCreate,
-) -> TrainResponse:
-    """Create a new train.
-
-    Args:
-        service: Train service dependency.
-        data: Train creation data.
-
-    Returns:
-        Created TrainResponse.
-    """
-    return await service.create_train(data)
-
-
-@router.patch(
-    "/{train_id}",
-    response_model=TrainResponse,
-    summary="Update a train",
-    description="Update an existing train.",
-)
-async def update_train(
-    service: TrainServiceDep,
+async def get_train_stopsequence(
+    service: SimulationServiceDep,
     train_id: int,
-    data: TrainUpdate,
-) -> TrainResponse:
-    """Update an existing train.
-
-    Args:
-        service: Train service dependency.
-        train_id: Train ID.
-        data: Update data.
-
-    Returns:
-        Updated TrainResponse.
-
-    Raises:
-        HTTPException: If train not found.
-    """
-    train = await service.update_train(train_id, data)
-    if not train:
+) -> list[dict]:
+    _, stop_sequence = await _build_single_trajectory_payload(service, train_id)
+    if stop_sequence is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Train with id {train_id} not found",
+            detail=f"Stop sequence for train {train_id} not found",
         )
-    return train
-
-
-@router.delete(
-    "/{train_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete a train",
-    description="Delete a train.",
-)
-async def delete_train(
-    service: TrainServiceDep,
-    train_id: int,
-) -> None:
-    """Delete a train.
-
-    Args:
-        service: Train service dependency.
-        train_id: Train ID.
-
-    Raises:
-        HTTPException: If train not found.
-    """
-    deleted = await service.delete_train(train_id)
-    if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Train with id {train_id} not found",
-        )
+    return stop_sequence

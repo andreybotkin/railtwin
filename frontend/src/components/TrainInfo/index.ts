@@ -1,5 +1,1 @@
-/**
- * Train info components exports.
- */
-
-export { default as TrainInfoPanel } from './TrainInfoPanel';
+export { default as TrainInfoSheet } from './TrainInfoSheet';

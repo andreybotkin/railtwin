@@ -4,7 +4,6 @@ This module provides the service layer for train-related operations,
 handling business logic between API endpoints and repository layer.
 """
 
-import json
 from math import ceil
 from typing import Any
 
@@ -15,11 +14,9 @@ from app.core.logging import get_logger
 from app.models.database.models import Train
 from app.repositories.train import TrainRepository
 from app.schemas.route import RouteSummary
-from app.schemas.station import GeoJSONPoint
 from app.schemas.train import (
     TrainCreate,
     TrainListResponse,
-    TrainPositionResponse,
     TrainResponse,
     TrainUpdate,
 )
@@ -31,8 +28,7 @@ logger = get_logger(__name__)
 class TrainService:
     """Service class for train operations.
 
-    Handles business logic for creating, reading, updating, and
-    deleting trains and their positions.
+    Handles business logic for creating, reading, updating, and deleting trains.
     """
 
     def __init__(self, session: AsyncSession, redis_client: Redis) -> None:
@@ -222,118 +218,3 @@ class TrainService:
         await refresh_reference_data(self.session, self.redis)
         logger.info("Train deleted", train_id=train_id)
         return True
-
-    async def get_train_position(
-        self,
-        train_id: int,
-    ) -> TrainPositionResponse | None:
-        """Get the latest position for a train.
-
-        Args:
-            train_id: Train ID.
-
-        Returns:
-            TrainPositionResponse or None if not found.
-        """
-        result = await self.repository.get_latest_position(train_id)
-        if not result:
-            return None
-
-        position = result["position"]
-        geojson_data = json.loads(result["geojson"])
-
-        return TrainPositionResponse(
-            id=position.id,
-            train_id=position.train_id,
-            location=GeoJSONPoint(
-                type="Point",
-                coordinates=geojson_data["coordinates"],
-            ),
-            speed=float(position.speed) if position.speed else None,
-            heading=float(position.heading) if position.heading else None,
-            status=position.status,
-            delay_minutes=position.delay_minutes,
-            timestamp=position.timestamp,
-        )
-
-    async def get_all_positions(self) -> list[dict]:
-        """Get current positions for all active trains.
-
-        Returns:
-            List of position data with train info.
-        """
-        positions = await self.repository.get_all_current_positions()
-        results = []
-
-        for p in positions:
-            geojson_data = json.loads(p["geojson"])
-            position = p["position"]
-            train = p["train"]
-
-            results.append(
-                {
-                    "train_id": train.id,
-                    "train_number": train.train_number,
-                    "train_type": train.train_type,
-                    "location": {
-                        "type": "Point",
-                        "coordinates": geojson_data["coordinates"],
-                    },
-                    "speed": float(position.speed) if position.speed else None,
-                    "heading": float(position.heading) if position.heading else None,
-                    "status": position.status,
-                    "delay_minutes": position.delay_minutes,
-                    "timestamp": position.timestamp.isoformat(),
-                }
-            )
-
-        return results
-
-    async def update_position(
-        self,
-        train_id: int,
-        longitude: float,
-        latitude: float,
-        speed: float | None = None,
-        heading: float | None = None,
-        status: str = "moving",
-        delay_minutes: int = 0,
-    ) -> TrainPositionResponse:
-        """Update train position.
-
-        Args:
-            train_id: Train ID.
-            longitude: Current longitude.
-            latitude: Current latitude.
-            speed: Current speed in km/h.
-            heading: Direction in degrees.
-            status: Train status.
-            delay_minutes: Delay in minutes.
-
-        Returns:
-            Created TrainPositionResponse.
-        """
-        wkt = f"POINT({longitude} {latitude})"
-        position = await self.repository.create_position(
-            train_id=train_id,
-            location_wkt=wkt,
-            speed=speed,
-            heading=heading,
-            status=status,
-            delay_minutes=delay_minutes,
-        )
-        await self.session.commit()
-
-        return TrainPositionResponse(
-            id=position.id,
-            train_id=position.train_id,
-            location=GeoJSONPoint(
-                type="Point",
-                coordinates=[longitude, latitude],
-            ),
-            speed=speed,
-            heading=heading,
-            status=status,
-            delay_minutes=delay_minutes,
-            timestamp=position.timestamp,
-        )

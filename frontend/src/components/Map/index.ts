@@ -1,5 +1,1 @@
-/**
- * Map components exports.
- */
-
-export { default as MapContainer } from './MapContainer';
+export { default as RailMap } from './RailMap';
