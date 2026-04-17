@@ -9,7 +9,6 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.route import RouteSummary
-from app.schemas.station import GeoJSONPoint
 
 
 class TrainBase(BaseModel):
@@ -95,78 +94,6 @@ class TrainListResponse(BaseModel):
     page: int
     size: int
     pages: int
-
-
-class TrainPositionBase(BaseModel):
-    """Base schema for TrainPosition.
-
-    Attributes:
-        speed: Current speed in km/h.
-        heading: Direction of travel in degrees (0-360).
-        status: Current status (moving, stopped, delayed).
-        delay_minutes: Delay in minutes.
-    """
-
-    speed: float | None = Field(None, ge=0, le=300)
-    heading: float | None = Field(None, ge=0, lt=360)
-    status: str = Field(default="moving", max_length=20)
-    delay_minutes: int = Field(default=0)
-
-
-class TrainPositionCreate(TrainPositionBase):
-    """Schema for creating a train position record.
-
-    Attributes:
-        train_id: ID of the train.
-        location: Current geographic coordinates.
-    """
-
-    train_id: int
-    location: GeoJSONPoint
-
-
-class TrainPositionResponse(TrainPositionBase):
-    """Schema for train position response.
-
-    Attributes:
-        id: Position record ID.
-        train_id: Train ID.
-        location: Geographic coordinates.
-        timestamp: Position timestamp.
-    """
-
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    train_id: int
-    location: GeoJSONPoint
-    timestamp: datetime
-
-
-class TrainPositionUpdate(BaseModel):
-    """Schema for real-time position updates via WebSocket.
-
-    Attributes:
-        train_id: Train ID.
-        train_number: Train number for display.
-        location: Current coordinates.
-        speed: Current speed.
-        heading: Travel direction.
-        status: Current status.
-        delay_minutes: Current delay.
-        next_station: Name of next station.
-        eta_next_station: ETA to next station in minutes.
-    """
-
-    train_id: int
-    train_number: str
-    location: GeoJSONPoint
-    speed: float | None = None
-    heading: float | None = None
-    status: str = "moving"
-    delay_minutes: int = 0
-    next_station: str | None = None
-    eta_next_station: int | None = None
 
 
 class TrainSummary(BaseModel):

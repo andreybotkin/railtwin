@@ -1,31 +1,31 @@
-"""Stateless gateway for website traffic and train positions from Redis.
+"""Gateway — a thin edge layer in front of the simulation service.
 
-Implements geops mobility-toolbox-js WebSocket trajectory protocol:
-- /ws/trains      — position snapshots every N seconds (backward-compat)
-- /ws/trajectory  — geops time_intervals trajectory objects for smooth client-side
-                    temporal interpolation (60fps animation without server polling)
-- /api/v1/trains/trajectories — REST endpoint returning current trajectory objects
+Endpoints:
 
-TODO (deferred — geops patterns for future iterations):
-- Topic-based architecture: route WS subscriptions to separate pub/sub channels
-  per topic (e.g., "trains", "stations", "disruptions") like trafimage-maps topics
-- Rate limiting per client IP for WS connections
-- Message compression (permessage-deflate) for large position payloads
-- Prometheus /metrics endpoint for observability
-- Graceful shutdown: drain WS clients before stopping
-- Per-vehicle subscription channels: GET/SUB/DEL protocol like geops RealtimeAPI
-- Station autocomplete search endpoint for typeahead in the frontend map search
-- Historical playback: replay past positions from time-series Redis ZSET
+* ``GET /health``, ``GET /ready`` — probes.
+* ``GET /api/v1/system/topology`` — topology metadata snapshot.
+* ``GET /api/v1/map/topology`` — one-shot ``{stations, network_edges}`` snapshot
+  with ETag for cheap client-side cache invalidation.
+* ``GET /api/v1/trains/trajectories`` — initial load of all active trajectories
+  (optionally bbox-filtered to head position).
+* ``GET /api/v1/trains/{id}/trajectory`` — single trajectory.
+* ``GET /api/v1/trains/{id}/stopsequence`` — upcoming stops with state.
+* ``WS /ws/trajectory`` — delta stream of trajectory versions.
+* ``WS /ws/stopsequence/{id}`` — per-train stop sequence updates.
+
+Everything else (trains CRUD, schedules, routes, stations…) is proxied to
+the simulation service via :func:`proxy_to_simulation`.
 """
 
+from __future__ import annotations
+
 import asyncio
+import hashlib
 import json
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
-from typing import Any
-from typing import Annotated
+from typing import Annotated, Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -38,26 +38,26 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.redis_payloads import (
     filter_feature_collection_by_bbox,
-    filter_positions_by_bbox,
     filter_stations_by_bbox,
     filter_trajectories_by_bbox,
     parse_bbox,
+    read_individual_trajectory,
     read_map_network_edges,
     read_map_stations,
-    read_individual_trajectory,
-    read_position,
-    read_positions,
     read_stopsequence,
     read_topology_metadata,
     read_trajectories,
 )
-from app.websocket_streams import (
-    stream_positions,
-    stream_stopsequence,
-    stream_trajectories,
+from app.schemas import (
+    MapSnapshot,
+    StopSequenceItem,
+    TopologyMetadata,
+    Trajectory,
 )
+from app.websocket_streams import stream_stopsequence, stream_trajectories
 
 logger = logging.getLogger(__name__)
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -68,11 +68,11 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "Thailand Railway Digital Twin Gateway"
-    app_version: str = "1.0.0"
+    app_version: str = "2.0.0"
     simulation_url: str = "http://simulation:8000"
     redis_url: str = "redis://redis:6379/0"
-    ws_poll_interval: int = 10
     trajectory_poll_interval: int = 10
+    ws_poll_interval: int = 10
     viewport_buffer_ratio: float = 0.1
     viewport_min_buffer_degrees: float = 0.05
     cors_origins: Annotated[list[str], NoDecode] = [
@@ -125,7 +125,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
 
 
-# Security headers middleware (OWASP best practices, pattern from trafimage-maps)
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):  # noqa: ANN001
         response = await call_next(request)
@@ -134,7 +133,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(self), microphone=()"
-        response.headers["Cache-Control"] = "no-store"
+        if "Cache-Control" not in response.headers:
+            response.headers["Cache-Control"] = "no-store"
         return response
 
 
@@ -156,21 +156,9 @@ def _validate_bbox_or_raise(bbox: str) -> None:
         )
 
 
-def _filter_positions_for_viewport(
-    positions: list[dict[str, Any]],
-    bbox: str,
-) -> list[dict[str, Any]]:
-    return filter_positions_by_bbox(
-        positions,
-        bbox,
-        buffer_ratio=settings.viewport_buffer_ratio,
-        min_buffer_degrees=settings.viewport_min_buffer_degrees,
-    )
-
-
 def _filter_trajectories_for_viewport(
     trajectories: list[dict[str, Any]],
-    bbox: str,
+    bbox: str | None,
 ) -> list[dict[str, Any]]:
     return filter_trajectories_by_bbox(
         trajectories,
@@ -204,6 +192,11 @@ def _filter_network_for_viewport(
     )
 
 
+# --------------------------------------------------------------------------- #
+# Liveness / readiness                                                         #
+# --------------------------------------------------------------------------- #
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "healthy"}
@@ -217,7 +210,12 @@ async def ready() -> dict[str, str]:
     return {"status": "ready"}
 
 
-@app.get("/api/v1/system/topology")
+# --------------------------------------------------------------------------- #
+# Topology + map                                                               #
+# --------------------------------------------------------------------------- #
+
+
+@app.get("/api/v1/system/topology", response_model=TopologyMetadata | None)
 async def get_topology_metadata() -> dict[str, Any]:
     metadata = await read_topology_metadata(redis_client)
     if metadata is None:
@@ -225,88 +223,90 @@ async def get_topology_metadata() -> dict[str, Any]:
     return metadata
 
 
-@app.get("/api/v1/map/all")
-async def get_map_all() -> dict[str, Any]:
-    """Return the complete railway network map (all stations + all edges) from Redis.
+def _etag_for(payload: dict[str, Any]) -> str:
+    body = json.dumps(payload, sort_keys=True, default=str).encode()
+    digest = hashlib.sha1(body).hexdigest()  # noqa: S324 - not a crypto use
+    return f'W/"{digest[:16]}"'
 
-    No bbox filtering — returns the full dataset so the client can render the
-    entire network at startup without additional requests.
+
+@app.get("/api/v1/map/topology")
+async def get_map_topology(request: Request) -> Response:
+    """Return the entire static map (stations + tracks) in a single payload.
+
+    Supports ``If-None-Match`` → ``304 Not Modified`` so the frontend only has
+    to download the full network once per topology version.
     """
-    stations = await read_map_stations(redis_client)
-    network_edges = await read_map_network_edges(redis_client)
-    return {
-        "stations": stations,
-        "network_edges": network_edges,
-    }
 
-
-@app.get("/api/v1/map/viewport")
-async def get_map_viewport(bbox: str) -> dict[str, Any]:
-    _validate_bbox_or_raise(bbox)
     stations = await read_map_stations(redis_client)
     network_edges = await read_map_network_edges(redis_client)
     topology = await read_topology_metadata(redis_client)
-    return {
-        "bbox": bbox,
-        "topology": topology,
-        "stations": _filter_stations_for_viewport(stations, bbox),
-        "network_edges": _filter_network_for_viewport(network_edges, bbox),
-    }
+    payload = MapSnapshot(
+        topology=topology,
+        stations=stations,
+        network_edges=network_edges,
+    ).model_dump(mode="json")
+
+    etag = _etag_for(payload)
+    if request.headers.get("if-none-match") == etag:
+        return Response(
+            status_code=304,
+            headers={
+                "ETag": etag,
+                "Cache-Control": "public, max-age=60, must-revalidate",
+            },
+        )
+    return JSONResponse(
+        content=payload,
+        headers={
+            "ETag": etag,
+            "Cache-Control": "public, max-age=60, must-revalidate",
+        },
+    )
 
 
-@app.get("/api/v1/trains/positions")
-async def get_positions(bbox: str) -> list[dict[str, Any]]:
-    """Get active train positions for the current viewport plus a small buffer."""
+# --------------------------------------------------------------------------- #
+# Trajectories + stop sequences                                                #
+# --------------------------------------------------------------------------- #
+
+
+@app.get("/api/v1/trains/trajectories", response_model=list[Trajectory])
+async def get_trajectories(bbox: str | None = None) -> list[dict[str, Any]]:
+    """Return every active trajectory, optionally filtered to the viewport."""
+
+    trajectories = await read_trajectories(redis_client)
+    if bbox is None:
+        return trajectories
     _validate_bbox_or_raise(bbox)
-    positions = await read_positions(redis_client)
-    return _filter_positions_for_viewport(positions, bbox)
+    return _filter_trajectories_for_viewport(trajectories, bbox)
 
 
-@app.get("/api/v1/trains/{train_id}/position")
-async def get_train_position(train_id: int) -> dict[str, Any]:
-    position = await read_position(redis_client, train_id)
-    if position is None:
-        raise HTTPException(status_code=404, detail=f"Position for train {train_id} not found")
-    payload = dict(position)
-    payload.setdefault("timestamp", datetime.now(UTC).isoformat())
-    return payload
-
-
-@app.websocket("/ws/trains")
-async def ws_trains(websocket: WebSocket) -> None:
-    try:
-        await stream_positions(
-            websocket,
-            read_positions=lambda: read_positions(redis_client),
-            filter_positions=_filter_positions_for_viewport,
-            ws_poll_interval=settings.ws_poll_interval,
-            logger=logger,
+@app.get("/api/v1/trains/{train_id}/trajectory", response_model=Trajectory)
+async def get_train_trajectory(train_id: int) -> dict[str, Any]:
+    trajectory = await read_individual_trajectory(redis_client, train_id)
+    if trajectory is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Trajectory for train {train_id} not found",
         )
-    except (WebSocketDisconnect, asyncio.CancelledError):
-        return
+    return trajectory
 
 
-@app.websocket("/ws/trains/{train_id}")
-async def ws_single_train(websocket: WebSocket, train_id: int) -> None:
-    try:
-        await stream_positions(
-            websocket,
-            read_positions=lambda: read_positions(redis_client),
-            filter_positions=_filter_positions_for_viewport,
-            ws_poll_interval=settings.ws_poll_interval,
-            logger=logger,
-            train_id=train_id,
+@app.get(
+    "/api/v1/trains/{train_id}/stopsequence",
+    response_model=list[StopSequenceItem],
+)
+async def get_train_stopsequence(train_id: int) -> list[dict[str, Any]]:
+    seq = await read_stopsequence(redis_client, train_id)
+    if seq is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Stop sequence for train {train_id} not found",
         )
-    except (WebSocketDisconnect, asyncio.CancelledError):
-        return
+    return seq
 
 
 @app.websocket("/ws/trajectory")
 async def ws_trajectory(websocket: WebSocket) -> None:
-    """WebSocket endpoint serving geops-compatible trajectory objects with time_intervals.
-
-    Connects to this instead of /ws/trains for smooth client-side temporal interpolation.
-    """
     try:
         await stream_trajectories(
             websocket,
@@ -318,62 +318,31 @@ async def ws_trajectory(websocket: WebSocket) -> None:
         return
 
 
-@app.get("/api/v1/trains/trajectories")
-async def get_trajectories(bbox: str) -> list[dict[str, Any]]:
-    """REST endpoint: get active train trajectories for the current viewport.
-
-    Trajectory objects contain time_intervals for client-side temporal interpolation.
-    """
-    _validate_bbox_or_raise(bbox)
-    trajectories = await read_trajectories(redis_client)
-    return _filter_trajectories_for_viewport(trajectories, bbox)
-
-
-@app.get("/api/v1/trains/{train_id}/trajectory")
-async def get_train_trajectory(train_id: int) -> dict[str, Any]:
-    """Get geops-compatible trajectory object for a single train.
-
-    Reads from the individual ``train:trajectory:{id}`` Redis key written by
-    position_cache.py — no need to fetch and scan the full list.
-    """
-    trajectory = await read_individual_trajectory(redis_client, train_id)
-    if trajectory is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Trajectory for train {train_id} not found",
-        )
-    return trajectory
-
-
-@app.get("/api/v1/trains/{train_id}/stopsequence")
-async def get_train_stopsequence(train_id: int) -> list[dict[str, Any]]:
-    """Get the upcoming stop sequence for a specific train."""
-    seq = await read_stopsequence(redis_client, train_id)
-    if seq is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Stop sequence for train {train_id} not found",
-        )
-    return seq
-
-
 @app.websocket("/ws/stopsequence/{train_id}")
 async def ws_stopsequence(websocket: WebSocket, train_id: int) -> None:
-    """WebSocket that pushes stop-sequence updates for a specific train."""
     try:
         await stream_stopsequence(
             websocket,
             train_id=train_id,
-            read_stopsequence=lambda resolved_train_id: read_stopsequence(redis_client, resolved_train_id),
+            read_stopsequence=lambda resolved_id: read_stopsequence(
+                redis_client, resolved_id
+            ),
             ws_poll_interval=settings.ws_poll_interval,
         )
     except (WebSocketDisconnect, asyncio.CancelledError):
         return
 
 
-@app.api_route("/api/v1/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
+# --------------------------------------------------------------------------- #
+# Catch-all proxy (stations, routes, schedules, trains CRUD, etc.)             #
+# --------------------------------------------------------------------------- #
+
+
+@app.api_route(
+    "/api/v1/{path:path}",
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+)
 async def proxy_to_simulation(path: str, request: Request) -> Response:
-    """Proxy all non-position API calls to simulation."""
     if http_client is None:
         return JSONResponse(status_code=503, content={"detail": "Gateway not ready"})
 

@@ -1,0 +1,363 @@
+"""Pure-function tests for :mod:`app.services.trajectory_service`.
+
+These cover the invariants the frontend relies on:
+
+* monotonic ``geom_fraction`` along moving segments;
+* dwell windows emit frames with ``speed_kmh == 0`` and constant position;
+* ``ConsistSpec`` total length matches ``locomotive + car_count * car_length``;
+* anchors align with the schedule (arrival + departure events inside the
+  lookahead window);
+* the trajectory terminates when the last schedule entry is reached.
+"""
+
+from __future__ import annotations
+
+from datetime import time
+from types import SimpleNamespace
+from typing import Any
+
+import pytest
+
+from app.core.config import settings
+from app.domain.trajectory import (
+    ConsistSpec,
+    Trajectory,
+    resolve_consist,
+)
+from app.models.database.models import Schedule, Train
+from app.services.trajectory_service import (
+    build_stop_sequence,
+    build_trajectory,
+    train_type_color,
+)
+
+
+# --------------------------------------------------------------------------- #
+# Fixtures                                                                     #
+# --------------------------------------------------------------------------- #
+
+
+def _make_train(
+    *,
+    train_id: int = 101,
+    train_number: str = "10",
+    train_type: str = "rapid",
+    name: str | None = "Bangkok → Ayutthaya",
+    current_route_id: int | None = 1,
+) -> Train:
+    """Build a minimal :class:`Train` instance without hitting the DB."""
+
+    train = Train.__new__(Train)
+    train.id = train_id
+    train.train_number = train_number
+    train.train_type = train_type
+    train.name = name
+    train.capacity = None
+    train.operator = "State Railway of Thailand"
+    train.source = "test"
+    train.source_url = None
+    train.service_notes = None
+    train.current_route_id = current_route_id
+    return train
+
+
+def _make_schedule(
+    *,
+    train_id: int = 101,
+    sequence: int,
+    station_name: str,
+    arrival: time | None,
+    departure: time | None,
+    station_id: int | None = None,
+    day_of_week: list[int] | None = None,
+    route_progress: float | None = None,
+) -> Schedule:
+    schedule = Schedule.__new__(Schedule)
+    schedule.train_id = train_id
+    schedule.station_id = station_id
+    schedule.route_station_id = None
+    schedule.station_name = station_name
+    schedule.arrival_time = arrival
+    schedule.departure_time = departure
+    schedule.arrival_day_offset = 0
+    schedule.departure_day_offset = 0
+    schedule.day_of_week = day_of_week
+    schedule.platform = None
+    schedule.sequence = sequence
+    schedule.distance_from_origin_km = None
+    schedule.route_progress = route_progress
+    schedule.station = None
+    schedule.route_station = None
+    return schedule
+
+
+def _three_stop_schedule() -> list[Schedule]:
+    """Bangkok (10:00) → Ayutthaya (11:00-11:05) → Lopburi (12:30)."""
+    return [
+        _make_schedule(
+            sequence=0,
+            station_name="Bangkok",
+            arrival=None,
+            departure=time(10, 0),
+            route_progress=0.0,
+        ),
+        _make_schedule(
+            sequence=1,
+            station_name="Ayutthaya",
+            arrival=time(11, 0),
+            departure=time(11, 5),
+            route_progress=0.5,
+        ),
+        _make_schedule(
+            sequence=2,
+            station_name="Lopburi",
+            arrival=time(12, 30),
+            departure=None,
+            route_progress=1.0,
+        ),
+    ]
+
+
+# A straight-ish polyline from Hua Lamphong → Ayutthaya → Lopburi (approx).
+_POLYLINE: list[list[float]] = [
+    [100.5172, 13.7395],  # Bangkok
+    [100.5675, 14.3551],  # Ayutthaya
+    [100.6200, 14.7995],  # Lopburi
+]
+
+
+# --------------------------------------------------------------------------- #
+# Core tests                                                                   #
+# --------------------------------------------------------------------------- #
+
+
+def test_consist_total_length_matches_formula() -> None:
+    consist = ConsistSpec.build(
+        locomotive_length_m=20.0,
+        car_count=10,
+        car_length_m=24.0,
+    )
+    assert consist.total_length_m == pytest.approx(20.0 + 10 * 24.0)
+
+
+def test_resolve_consist_falls_back_to_ordinary_for_unknown_types() -> None:
+    unknown = resolve_consist("deluxe_extraordinary")
+    ordinary = resolve_consist("ordinary")
+    assert unknown == ordinary
+
+
+def test_train_type_color_returns_palette_entry() -> None:
+    assert train_type_color("rapid") == "#1E88E5"
+    assert train_type_color(None) == "#2196F3"
+    assert train_type_color("   RAPID  ") == "#1E88E5"
+
+
+def test_build_trajectory_produces_monotonic_fractions_between_stops() -> None:
+    train = _make_train(train_type="rapid")
+    schedules = _three_stop_schedule()
+    # Mid-morning, between Bangkok departure and Ayutthaya arrival.
+    current_minutes = 10 * 60 + 30  # 10:30
+
+    trajectory = build_trajectory(
+        train,
+        schedules,
+        _POLYLINE,
+        route_distance_km=130.0,
+        delay=0,
+        current_minutes=current_minutes,
+        now_unix_ms=1_700_000_000_000,
+    )
+
+    assert isinstance(trajectory, Trajectory)
+    assert trajectory.train_id == 101
+    assert len(trajectory.frames) >= 2
+    # Moving frames should be monotonic non-decreasing along the polyline.
+    fractions = [f.geom_fraction for f in trajectory.frames]
+    for a, b in zip(fractions, fractions[1:], strict=True):
+        assert b + 1e-9 >= a, fractions
+
+    # Head frame of a moving train has speed > 0 and status="moving".
+    assert trajectory.frames[0].status == "moving"
+    assert trajectory.frames[0].speed_kmh > 0.0
+
+    # ConsistSpec for a rapid train matches the canonical spec.
+    canonical = resolve_consist("rapid")
+    assert trajectory.consist == canonical
+
+
+def test_build_trajectory_dwell_frames_have_zero_speed_and_fixed_position() -> None:
+    train = _make_train(train_type="rapid")
+    schedules = _three_stop_schedule()
+    # 11:02 — inside the Ayutthaya dwell window (11:00 – 11:05).
+    current_minutes = 11 * 60 + 2
+
+    trajectory = build_trajectory(
+        train,
+        schedules,
+        _POLYLINE,
+        route_distance_km=130.0,
+        delay=0,
+        current_minutes=current_minutes,
+        now_unix_ms=1_700_000_000_000,
+    )
+
+    assert trajectory is not None
+    head = trajectory.frames[0]
+    assert head.status == "dwelling"
+    assert head.speed_kmh == 0.0
+    # Dwell clamps geom_fraction to the stop's fraction — here Ayutthaya @0.5.
+    assert head.geom_fraction == pytest.approx(0.5, abs=1e-4)
+
+
+def test_build_trajectory_returns_none_when_service_has_ended() -> None:
+    train = _make_train()
+    schedules = _three_stop_schedule()
+    # 14:00 — well past the last arrival at 12:30.
+    current_minutes = 14 * 60
+
+    trajectory = build_trajectory(
+        train,
+        schedules,
+        _POLYLINE,
+        route_distance_km=130.0,
+        delay=0,
+        current_minutes=current_minutes,
+        now_unix_ms=1_700_000_000_000,
+    )
+    assert trajectory is None
+
+
+def test_build_trajectory_anchors_cover_upcoming_events() -> None:
+    train = _make_train()
+    schedules = _three_stop_schedule()
+    current_minutes = 10 * 60 + 30  # 10:30
+    lookahead = settings.trajectory_lookahead_seconds
+
+    trajectory = build_trajectory(
+        train,
+        schedules,
+        _POLYLINE,
+        route_distance_km=130.0,
+        delay=0,
+        current_minutes=current_minutes,
+        now_unix_ms=1_700_000_000_000,
+    )
+
+    assert trajectory is not None
+    for anchor in trajectory.anchors:
+        offset_ms = anchor.t_ms - trajectory.generated_at_ms
+        assert 0 <= offset_ms <= lookahead * 1000 + 1
+    anchor_stations = {a.station_name for a in trajectory.anchors}
+    # Ayutthaya arrival must be within the lookahead window from 10:30.
+    assert "Ayutthaya" in anchor_stations
+
+
+def test_build_trajectory_applies_delay_to_anchors_and_meta() -> None:
+    train = _make_train()
+    schedules = _three_stop_schedule()
+    current_minutes = 10 * 60 + 30  # 10:30
+
+    delayed = build_trajectory(
+        train,
+        schedules,
+        _POLYLINE,
+        route_distance_km=130.0,
+        delay=15,
+        current_minutes=current_minutes,
+        now_unix_ms=1_700_000_000_000,
+    )
+    ontime = build_trajectory(
+        train,
+        schedules,
+        _POLYLINE,
+        route_distance_km=130.0,
+        delay=0,
+        current_minutes=current_minutes,
+        now_unix_ms=1_700_000_000_000,
+    )
+
+    assert delayed is not None and ontime is not None
+    assert delayed.meta.delay_minutes == 15
+
+    def _ayutthaya_arrival(t: Trajectory) -> int | None:
+        for a in t.anchors:
+            if a.station_name == "Ayutthaya" and a.event == "arrival":
+                return a.t_ms
+        return None
+
+    d_eta = _ayutthaya_arrival(delayed)
+    o_eta = _ayutthaya_arrival(ontime)
+    if d_eta is not None and o_eta is not None:
+        # Delay pushes the arrival ~15 minutes later.
+        assert d_eta - o_eta == pytest.approx(15 * 60 * 1000, abs=100)
+
+
+def test_build_trajectory_uses_station_fallback_when_polyline_missing() -> None:
+    train = _make_train()
+    # Give schedules real station geometries so fallback can build a polyline.
+    station_coords = [
+        (100.5172, 13.7395),
+        (100.5675, 14.3551),
+        (100.6200, 14.7995),
+    ]
+    schedules = _three_stop_schedule()
+    for schedule, (lon, lat) in zip(schedules, station_coords, strict=True):
+        schedule.station = SimpleNamespace(
+            id=schedule.sequence + 1,
+            name=schedule.station_name,
+            location=_FakeGeom(lon, lat),
+        )
+
+    trajectory = build_trajectory(
+        train,
+        schedules,
+        route_coords=None,
+        route_distance_km=None,
+        delay=0,
+        current_minutes=10 * 60 + 30,
+        now_unix_ms=1_700_000_000_000,
+    )
+    assert trajectory is not None
+    assert len(trajectory.route_coords) >= 2
+    # The fallback uses station coordinates.
+    first_lon, first_lat = trajectory.route_coords[0]
+    assert first_lon == pytest.approx(station_coords[0][0], abs=1e-4)
+    assert first_lat == pytest.approx(station_coords[0][1], abs=1e-4)
+
+
+def test_build_stop_sequence_marks_passed_boarding_pending_states() -> None:
+    schedules = _three_stop_schedule()
+    # 11:02 — Bangkok departed, Ayutthaya boarding, Lopburi pending.
+    sequence = build_stop_sequence(schedules, delay=0, current_minutes=11 * 60 + 2)
+    states = {item["station_name"]: item["state"] for item in sequence}
+    assert states["Bangkok"] == "PASSED"
+    assert states["Ayutthaya"] == "BOARDING"
+    assert states["Lopburi"] == "PENDING"
+
+
+# --------------------------------------------------------------------------- #
+# Helpers                                                                      #
+# --------------------------------------------------------------------------- #
+
+
+class _FakeGeom:
+    """Tiny stand-in for geoalchemy2 geometries used by the fallback path."""
+
+    def __init__(self, lon: float, lat: float) -> None:
+        self._lon = lon
+        self._lat = lat
+
+    def __getattr__(self, name: str) -> Any:  # pragma: no cover - defensive
+        raise AttributeError(name)
+
+
+# Monkey-patch ``to_shape`` and ``Point`` behaviour for the fallback test: the
+# real implementation expects a WKB geometry, so we intercept the import.
+@pytest.fixture(autouse=True)
+def _patch_to_shape(monkeypatch: pytest.MonkeyPatch) -> None:
+    import app.services.trajectory_service as module
+
+    def _to_shape(geom: _FakeGeom) -> Any:
+        return SimpleNamespace(x=geom._lon, y=geom._lat)
+
+    monkeypatch.setattr(module, "to_shape", _to_shape)

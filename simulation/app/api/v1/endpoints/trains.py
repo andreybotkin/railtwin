@@ -1,6 +1,7 @@
-"""Train API endpoints.
+"""Train CRUD endpoints.
 
-This module provides RESTful API endpoints for managing trains and their positions.
+Trajectory / stop-sequence endpoints live in ``trajectories.py`` — this
+module now only handles the bookkeeping entity operations on :class:`Train`.
 """
 
 from typing import Annotated
@@ -11,7 +12,6 @@ from app.api.dependencies import TrainServiceDep
 from app.schemas.train import (
     TrainCreate,
     TrainListResponse,
-    TrainPositionResponse,
     TrainResponse,
     TrainUpdate,
 )
@@ -81,37 +81,6 @@ async def get_train(
             detail=f"Train with id {train_id} not found",
         )
     return train
-
-
-@router.get(
-    "/{train_id}/position",
-    response_model=TrainPositionResponse,
-    summary="Get train position",
-    description="Get the current position of a specific train.",
-)
-async def get_train_position(
-    service: TrainServiceDep,
-    train_id: int,
-) -> TrainPositionResponse:
-    """Get the latest position for a train.
-
-    Args:
-        service: Train service dependency.
-        train_id: Train ID.
-
-    Returns:
-        TrainPositionResponse with current position.
-
-    Raises:
-        HTTPException: If train or position not found.
-    """
-    position = await service.get_train_position(train_id)
-    if not position:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Position for train {train_id} not found",
-        )
-    return position
 
 
 @router.post(

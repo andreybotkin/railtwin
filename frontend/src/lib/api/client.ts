@@ -1,46 +1,41 @@
 /**
- * API client for Thailand Railway Digital Twin simulation service.
+ * API client for the RailTwin gateway.
+ *
+ * The gateway is the only surface the frontend talks to; everything that
+ * isn't a trajectory / stop-sequence stream goes through its catch-all proxy
+ * to the simulation service.
  */
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import type {
-  Station,
-  Route,
-  Train,
-  Schedule,
-  TrainPosition,
-  TrainSchedule,
-  StationSchedule,
+  MapSnapshot,
   PaginatedResponse,
-  TrainPositionUpdate,
-  TrainTrajectory,
-  TrainStopSequence,
-  NetworkEdgeCollection,
+  Route,
+  Schedule,
+  Station,
+  StationSchedule,
   TopologyMetadata,
+  Train,
+  TrainSchedule,
+  TrainStopSequence,
+  Trajectory,
 } from '@/types';
 
-// API base URL from environment
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
 
-/**
- * Create configured axios instance for API calls.
- */
 const createApiClient = (): AxiosInstance => {
   const client = axios.create({
     baseURL: `${API_BASE_URL}/api/v1`,
-    timeout: 10000,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    timeout: 10_000,
+    headers: { 'Content-Type': 'application/json' },
   });
 
-  // Response interceptor for error handling
   client.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
       console.error('API Error:', error.message);
       return Promise.reject(error);
-    }
+    },
   );
 
   return client;
@@ -48,102 +43,54 @@ const createApiClient = (): AxiosInstance => {
 
 const api = createApiClient();
 
-// Station API
 export const stationApi = {
-  /**
-   * Get paginated list of stations.
-   */
   getAll: async (page = 1, size = 100): Promise<PaginatedResponse<Station>> => {
     const response = await api.get<PaginatedResponse<Station>>('/stations', {
       params: { page, size },
     });
     return response.data;
   },
-
-  /**
-   * Get a single station by ID.
-   */
   getById: async (id: number): Promise<Station> => {
     const response = await api.get<Station>(`/stations/${id}`);
     return response.data;
   },
-
-  /**
-   * Search stations by name or code.
-   */
   search: async (query: string, limit = 10): Promise<Station[]> => {
     const response = await api.get<Station[]>('/stations/search', {
       params: { q: query, limit },
     });
     return response.data;
   },
-
-  /**
-   * Find stations near a location.
-   */
-  findNearby: async (
-    longitude: number,
-    latitude: number,
-    radiusKm = 10,
-    limit = 10
-  ): Promise<Array<{ station: Station; distance_m: number }>> => {
-    const response = await api.get('/stations/nearby', {
-      params: {
-        longitude,
-        latitude,
-        radius_km: radiusKm,
-        limit,
-      },
-    });
-    return response.data;
-  },
 };
 
-// Route API
 export const routeApi = {
-  /**
-   * Get paginated list of routes.
-   */
   getAll: async (
     page = 1,
     size = 100,
-    routeType?: string
+    routeType?: string,
   ): Promise<PaginatedResponse<Route>> => {
     const response = await api.get<PaginatedResponse<Route>>('/routes', {
       params: { page, size, route_type: routeType },
     });
     return response.data;
   },
-
-  /**
-   * Get a single route by ID with geometry.
-   */
   getById: async (id: number): Promise<Route> => {
     const response = await api.get<Route>(`/routes/${id}`);
     return response.data;
   },
 };
 
-// Train API
 export const trainApi = {
-  /**
-   * Get paginated list of trains.
-   */
   getAll: async (
     page = 1,
     size = 100,
     trainType?: string,
-    routeId?: number
+    routeId?: number,
   ): Promise<PaginatedResponse<Train>> => {
     const response = await api.get<PaginatedResponse<Train>>('/trains', {
       params: { page, size, train_type: trainType, route_id: routeId },
     });
     return response.data;
   },
-
-  /**
-   * Fetch all train pages.
-   */
   getAllPages: async (
     trainType?: string,
     routeId?: number,
@@ -151,53 +98,25 @@ export const trainApi = {
   ): Promise<Train[]> => {
     const firstPage = await trainApi.getAll(1, pageSize, trainType, routeId);
     const items = [...firstPage.items];
-
     for (let page = 2; page <= firstPage.pages; page += 1) {
       const response = await trainApi.getAll(page, pageSize, trainType, routeId);
       items.push(...response.items);
     }
-
     return items;
   },
-
-  /**
-   * Get a single train by ID.
-   */
   getById: async (id: number): Promise<Train> => {
     const response = await api.get<Train>(`/trains/${id}`);
     return response.data;
   },
-
-  /**
-   * Get current position of a train.
-   */
-  getPosition: async (id: number): Promise<TrainPosition> => {
-    const response = await api.get<TrainPosition>(`/trains/${id}/position`);
-    return response.data;
-  },
-
-  /**
-   * Get current positions of all active trains.
-   */
-  getAllPositions: async (bbox: string): Promise<TrainPositionUpdate[]> => {
-    const response = await api.get<TrainPositionUpdate[]>('/trains/positions', {
-      params: { bbox },
-    });
-    return response.data;
-  },
 };
 
-// Schedule API
 export const scheduleApi = {
-  /**
-   * Get paginated list of schedules.
-   */
   getAll: async (
     page = 1,
     size = 100,
     trainId?: number,
     stationId?: number,
-    dayOfWeek?: number
+    dayOfWeek?: number,
   ): Promise<PaginatedResponse<Schedule>> => {
     const response = await api.get<PaginatedResponse<Schedule>>('/schedules', {
       params: {
@@ -210,108 +129,73 @@ export const scheduleApi = {
     });
     return response.data;
   },
-
-  /**
-   * Get complete schedule for a train.
-   */
   getTrainSchedule: async (
     trainId: number,
-    dayOfWeek?: number
+    dayOfWeek?: number,
   ): Promise<TrainSchedule> => {
     const response = await api.get<TrainSchedule>(
       `/schedules/train/${trainId}`,
-      { params: { day_of_week: dayOfWeek } }
+      { params: { day_of_week: dayOfWeek } },
     );
     return response.data;
   },
-
-  /**
-   * Get all arrivals/departures for a station.
-   */
   getStationSchedule: async (
     stationId: number,
-    dayOfWeek?: number
+    dayOfWeek?: number,
   ): Promise<StationSchedule> => {
     const response = await api.get<StationSchedule>(
       `/schedules/station/${stationId}`,
-      { params: { day_of_week: dayOfWeek } }
+      { params: { day_of_week: dayOfWeek } },
     );
     return response.data;
   },
-
-  /**
-   * Get upcoming departures from a station.
-   */
   getUpcomingDepartures: async (
     stationId: number,
-    limit = 10
+    limit = 10,
   ): Promise<Schedule[]> => {
     const response = await api.get<Schedule[]>(
       `/schedules/station/${stationId}/upcoming`,
-      { params: { limit } }
+      { params: { limit } },
     );
     return response.data;
   },
 };
 
 export const mapApi = {
-  /**
-   * Get the complete railway map (all stations + all edges) from Redis via gateway.
-   * Single request — no pagination, no database round-trips.
-   */
-  getStaticData: async (): Promise<{
-    stations: Station[];
-    network_edges: NetworkEdgeCollection;
-  }> => {
-    const response = await api.get<{ stations: Station[]; network_edges: NetworkEdgeCollection }>('/map/all');
+  /** Fetch the full stations + network-edges snapshot in one request. */
+  getTopology: async (): Promise<MapSnapshot> => {
+    const response = await api.get<MapSnapshot>('/map/topology');
     return response.data;
   },
 };
 
 export const gatewayApi = {
-  /**
-   * Get topology metadata directly from gateway.
-   */
-  getTopology: async (): Promise<TopologyMetadata> => {
+  getSystemTopology: async (): Promise<TopologyMetadata> => {
     const response = await api.get<TopologyMetadata>('/system/topology');
     return response.data;
   },
-
-  /**
-   * Get train trajectories for the current viewport directly from gateway.
-   */
-  getTrajectories: async (bbox: string): Promise<TrainTrajectory[]> => {
-    const response = await api.get<TrainTrajectory[]>('/trains/trajectories', {
-      params: { bbox },
+  getTrajectories: async (bbox?: string): Promise<Trajectory[]> => {
+    const response = await api.get<Trajectory[]>('/trains/trajectories', {
+      params: bbox ? { bbox } : undefined,
     });
     return response.data;
   },
-
-  /**
-   * Get full trajectory payload for a single train directly from gateway.
-   */
-  getTrainTrajectory: async (trainId: number): Promise<TrainTrajectory> => {
-    const response = await api.get<TrainTrajectory>(`/trains/${trainId}/trajectory`);
+  getTrainTrajectory: async (trainId: number): Promise<Trajectory> => {
+    const response = await api.get<Trajectory>(`/trains/${trainId}/trajectory`);
     return response.data;
   },
-
-  /**
-   * Get gateway-computed stop sequence for a specific train.
-   */
   getStopSequence: async (trainId: number): Promise<TrainStopSequence> => {
-    const response = await api.get<TrainStopSequence>(`/trains/${trainId}/stopsequence`);
+    const response = await api.get<TrainStopSequence>(
+      `/trains/${trainId}/stopsequence`,
+    );
     return response.data;
   },
 };
 
-// Health check
 export const healthApi = {
-  /**
-   * Check if API is healthy.
-   */
   check: async (): Promise<{ status: string }> => {
     const response = await axios.get<{ status: string }>(
-      `${API_BASE_URL}/health`
+      `${API_BASE_URL}/health`,
     );
     return response.data;
   },

@@ -1,21 +1,28 @@
+"""WebSocket stream helpers.
+
+Delta-based trajectory streaming: the gateway only re-sends a trajectory when
+its ``generated_at_ms`` advances (or when the client ``RESET`` s / changes the
+``BBOX``), which keeps the payload on the wire small.
+"""
+
+from __future__ import annotations
+
 import asyncio
 import json
-import logging
 from collections.abc import Awaitable, Callable
 from typing import Any
 
 from fastapi import WebSocket
 
-PositionReader = Callable[[], Awaitable[list[dict[str, Any]]]]
 TrajectoryReader = Callable[[], Awaitable[list[dict[str, Any]]]]
 StopSequenceReader = Callable[[int], Awaitable[list[dict[str, Any]] | None]]
-PositionFilter = Callable[[list[dict[str, Any]], str | None], list[dict[str, Any]]]
-TrajectoryFilter = Callable[[list[dict[str, Any]], str | None], list[dict[str, Any]]]
+TrajectoryFilter = Callable[
+    [list[dict[str, Any]], str | None], list[dict[str, Any]]
+]
 
 
 def _trajectory_version(trajectory: dict[str, Any]) -> int:
-    props = trajectory.get("properties", {})
-    raw_version = props.get("timestamp", 0)
+    raw_version = trajectory.get("generated_at_ms", 0)
     if isinstance(raw_version, (int, float)):
         return int(raw_version)
     return 0
@@ -32,7 +39,7 @@ async def _send_trajectory_delta(
     current_versions: dict[int, int] = {}
 
     for trajectory in trajectories:
-        train_id = int(trajectory["properties"]["train_id"])
+        train_id = int(trajectory["train_id"])
         version = _trajectory_version(trajectory)
         current_versions[train_id] = version
         if force_resend or last_versions.get(train_id) != version:
@@ -46,69 +53,6 @@ async def _send_trajectory_delta(
         )
 
     return current_versions
-
-
-async def stream_positions(
-    websocket: WebSocket,
-    *,
-    read_positions: PositionReader,
-    filter_positions: PositionFilter,
-    ws_poll_interval: int,
-    logger: logging.Logger,
-    train_id: int | None = None,
-) -> None:
-    await websocket.accept()
-    last_payload: str | None = None
-    client_bbox: str | None = None
-    keepalive_counter = 0
-
-    while True:
-        positions = await read_positions()
-        payload: dict[str, Any]
-
-        if train_id is None:
-            filtered = [] if client_bbox is None else filter_positions(positions, client_bbox)
-            payload = {
-                "type": "positions",
-                "data": filtered,
-                "timestamp": asyncio.get_running_loop().time(),
-            }
-        else:
-            position = next((p for p in positions if p["train_id"] == train_id), None)
-            payload = {
-                "type": "position",
-                "train_id": train_id,
-                "data": position,
-                "timestamp": asyncio.get_running_loop().time(),
-            }
-
-        serialized = json.dumps(payload, sort_keys=True, default=str)
-        if serialized != last_payload:
-            try:
-                await websocket.send_json(payload)
-            except Exception:
-                return
-            last_payload = serialized
-
-        keepalive_counter += 1
-        if keepalive_counter >= 5:
-            keepalive_counter = 0
-            try:
-                await websocket.send_json({"type": "keepalive", "timestamp": asyncio.get_running_loop().time()})
-            except Exception:
-                return
-
-        try:
-            message = await asyncio.wait_for(websocket.receive_text(), timeout=ws_poll_interval)
-            if message == "ping":
-                await websocket.send_text("pong")
-            elif message.startswith("BBOX "):
-                client_bbox = message[5:].strip() or None
-                logger.debug("WS BBOX updated: %s", client_bbox)
-        except asyncio.TimeoutError:
-            continue
-        except Exception:
-            return
 
 
 async def stream_trajectories(
@@ -128,7 +72,11 @@ async def stream_trajectories(
 
     while True:
         trajectories = await read_trajectories()
-        filtered = [] if client_bbox is None else filter_trajectories(trajectories, client_bbox)
+        filtered = (
+            trajectories
+            if client_bbox is None
+            else filter_trajectories(trajectories, client_bbox)
+        )
         now_ms = int(asyncio.get_running_loop().time() * 1000)
         try:
             last_versions = await _send_trajectory_delta(
@@ -145,7 +93,9 @@ async def stream_trajectories(
         if keepalive_counter >= 3:
             keepalive_counter = 0
             try:
-                await websocket.send_json({"source": "keepalive", "timestamp": now_ms})
+                await websocket.send_json(
+                    {"source": "keepalive", "timestamp": now_ms}
+                )
             except Exception:
                 return
 
@@ -204,7 +154,10 @@ async def stream_stopsequence(
             keepalive_counter = 0
             try:
                 await websocket.send_json(
-                    {"type": "keepalive", "timestamp": asyncio.get_running_loop().time()}
+                    {
+                        "type": "keepalive",
+                        "timestamp": asyncio.get_running_loop().time(),
+                    }
                 )
             except Exception:
                 return
@@ -219,3 +172,6 @@ async def stream_stopsequence(
             continue
         except Exception:
             return
+
+
+__all__ = ["stream_stopsequence", "stream_trajectories"]

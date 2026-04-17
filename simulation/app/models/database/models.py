@@ -304,11 +304,6 @@ class Train(Base):
         back_populates="train",
         lazy="selectin",
     )
-    positions: Mapped[list[TrainPosition]] = relationship(
-        "TrainPosition",
-        back_populates="train",
-        lazy="selectin",
-    )
 
 
 class Schedule(Base):
@@ -380,54 +375,6 @@ class Schedule(Base):
         "RouteStation",
         back_populates="schedules",
     )
-
-
-class TrainPosition(Base):
-    """Real-time train position model.
-
-    Represents the current or historical position of a train.
-
-    Attributes:
-        id: Primary key.
-        train_id: Foreign key to train.
-        location: Geographic point location (PostGIS).
-        speed: Current speed in km/h.
-        heading: Direction of travel in degrees.
-        status: Train status (moving, stopped, delayed).
-        delay_minutes: Delay in minutes if any.
-        timestamp: Timestamp of this position record.
-    """
-
-    __tablename__ = "train_positions"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    train_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("trains.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    location: Mapped[Any] = mapped_column(
-        Geometry("POINT", srid=4326),
-        nullable=False,
-    )
-    speed: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
-    heading: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
-    status: Mapped[str] = mapped_column(
-        String(20),
-        nullable=False,
-        default="moving",
-    )
-    delay_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    timestamp: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-        index=True,
-    )
-
-    # Relationships
-    train: Mapped[Train] = relationship("Train", back_populates="positions")
 
 
 class NetworkNode(Base):
