@@ -15,6 +15,7 @@ interface RailwayState {
   topology: MapSnapshot | null;
   trajectories: Map<number, Trajectory>;
   selectedTrainId: number | null;
+  selectedStationId: number | null;
   viewportBbox: string | null;
   wsConnected: boolean;
 
@@ -23,6 +24,7 @@ interface RailwayState {
   upsertTrajectory: (trajectory: Trajectory) => void;
   removeTrajectory: (trainId: number) => void;
   selectTrain: (trainId: number | null) => void;
+  selectStation: (stationId: number | null) => void;
   setViewportBbox: (bbox: string | null) => void;
   setWsConnected: (connected: boolean) => void;
 }
@@ -31,6 +33,7 @@ export const useRailwayStore = create<RailwayState>((set) => ({
   topology: null,
   trajectories: new Map(),
   selectedTrainId: null,
+  selectedStationId: null,
   viewportBbox: null,
   wsConnected: false,
 
@@ -49,7 +52,10 @@ export const useRailwayStore = create<RailwayState>((set) => ({
       next.delete(trainId);
       return { trajectories: next };
     }),
-  selectTrain: (trainId) => set({ selectedTrainId: trainId }),
+  selectTrain: (trainId) =>
+    set({ selectedTrainId: trainId, selectedStationId: null }),
+  selectStation: (stationId) =>
+    set({ selectedStationId: stationId, selectedTrainId: null }),
   setViewportBbox: (bbox) => set({ viewportBbox: bbox }),
   setWsConnected: (connected) => set({ wsConnected: connected }),
 }));

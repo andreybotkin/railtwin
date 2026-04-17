@@ -16,8 +16,13 @@ import type { FeatureCollection, Feature, Point } from 'geojson';
 import type { Station } from '@/types';
 
 interface StationsLayerProps {
-  stations: Station[];
+  stations: Station[] | null | undefined;
 }
+
+export const STATIONS_INTERACTIVE_LAYERS = [
+  'stations-unclustered',
+  'stations-clusters',
+] as const;
 
 interface StationProps {
   station_id: number;
@@ -44,7 +49,10 @@ function toFeatureCollection(stations: Station[]): FeatureCollection<Point, Stat
 }
 
 export default function StationsLayer({ stations }: StationsLayerProps) {
-  const data = useMemo(() => toFeatureCollection(stations), [stations]);
+  const data = useMemo(
+    () => toFeatureCollection(stations ?? []),
+    [stations],
+  );
 
   return (
     <Source

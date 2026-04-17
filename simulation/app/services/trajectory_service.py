@@ -248,7 +248,10 @@ def _compute_frame(
         geom_fraction=round(geom_fraction, 6),
         head_distance_m=round(geom_fraction * route_length_m, 3),
         rotation_deg=round(rotation % 360.0, 2),
-        speed_kmh=round(max(0.0, min(400.0, speed_kmh)), 2),
+        # Thai rolling stock tops out around 160 km/h, so clamping at 200 km/h
+        # leaves a small safety margin while rejecting the ~400 km/h values that
+        # used to surface when a schedule's timing was too tight for the route.
+        speed_kmh=round(max(0.0, min(200.0, speed_kmh)), 2),
         status=status,
     )
 
@@ -425,10 +428,13 @@ def build_trajectory(
                 eta_next_ms = now_ms + int(round(offset_seconds * 1000))
 
     # Segment progress expressed per-current-segment (0..1 inside active leg).
+    # Using |end - start| covers the "backwards" case where the polyline was
+    # stored in the opposite direction of travel: both numerator and
+    # denominator flip sign so the ratio still lands between 0 and 1.
     if prev_index is not None and next_index is not None:
         start_frac = stop_fractions[prev_index]
         end_frac = stop_fractions[next_index]
-        if end_frac > start_frac:
+        if abs(end_frac - start_frac) > 1e-9:
             segment_progress = max(
                 0.0,
                 min(

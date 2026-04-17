@@ -7,6 +7,11 @@
  * locomotive + carriage with a lon/lat centre and a heading. All arithmetic
  * is done in metres on the great-circle line via turf, so wagons stay glued
  * to the rail under any zoom level.
+ *
+ * `travelForward` reflects whether the train's `geom_fraction` increases over
+ * time. When it is `false` (southbound train on a north→south polyline), the
+ * consist is laid out from the head toward the *end* of the polyline instead
+ * of its start, and every body's bearing is flipped 180°.
  */
 
 import { along } from '@turf/along';
@@ -86,16 +91,17 @@ function bearingBetween(
 
 /**
  * Place every body (locomotive + carriages) along the polyline so that the
- * locomotive's centre sits `headDistanceM` metres from the polyline start.
+ * locomotive's nose sits `headDistanceM` metres from the polyline start.
  *
  * Handles polylines that are shorter than the consist (the tail of the train
- * extrapolates past the start using the first segment's bearing — which only
- * happens as trains depart their origin).
+ * extrapolates past the origin using the first/last segment's bearing — which
+ * only happens as trains depart their origin).
  */
 export function buildConsistGeoPoints(
   routeCoords: [number, number][],
   headDistanceM: number,
   consist: ConsistSpec,
+  travelForward = true,
 ): BodyPlacement[] {
   if (routeCoords.length < 2) return [];
 
@@ -107,24 +113,26 @@ export function buildConsistGeoPoints(
   const clampedHead = Math.max(0, Math.min(totalLengthM, headDistanceM));
   const layout = layoutBodies(consist);
 
-  // First-segment bearing for extrapolation before the polyline starts.
-  const firstBearing = bearingBetween(
-    routeCoords[0],
-    routeCoords[1],
-    0,
+  const firstBearing = bearingBetween(routeCoords[0], routeCoords[1], 0);
+  const lastBearing = bearingBetween(
+    routeCoords[routeCoords.length - 2],
+    routeCoords[routeCoords.length - 1],
+    firstBearing,
   );
   const epsilonKm = 0.002; // 2 metres — short enough to stay on one segment.
+
+  // Forward trains lay the consist out at SMALLER polyline distances than the
+  // head (toward the start). Backward trains use LARGER distances (toward the
+  // end) so carriages still trail behind the locomotive visually.
+  const sign = travelForward ? -1 : 1;
 
   const placements: BodyPlacement[] = [];
 
   for (const body of layout) {
-    const targetM = clampedHead - body.offsetM;
+    const targetM = clampedHead + sign * body.offsetM;
 
     if (targetM < 0) {
-      // Train hasn't fully cleared the origin yet: extrapolate backwards
-      // along the reverse of the first-segment bearing using a great-circle
-      // offset (turf.along clamps negative distances to zero, so we can't
-      // use it here).
+      // Forward train whose tail hasn't cleared the polyline start yet.
       const extraKm = -targetM / 1_000;
       const origin = routeCoords[0];
       const reverseBearing = normaliseBearing(firstBearing + 180);
@@ -136,6 +144,22 @@ export function buildConsistGeoPoints(
         lat,
         lengthM: body.lengthM,
         rotationDeg: firstBearing,
+      });
+      continue;
+    }
+
+    if (targetM > totalLengthM) {
+      // Backward train whose tail hasn't cleared the polyline end yet.
+      const extraKm = (targetM - totalLengthM) / 1_000;
+      const end = routeCoords[routeCoords.length - 1];
+      const [lon, lat] = offsetPoint(end, lastBearing, extraKm);
+      placements.push({
+        kind: body.kind,
+        index: body.index,
+        lon,
+        lat,
+        lengthM: body.lengthM,
+        rotationDeg: normaliseBearing(lastBearing + 180),
       });
       continue;
     }
@@ -156,7 +180,10 @@ export function buildConsistGeoPoints(
     const [cx, cy] = centre.geometry.coordinates as [number, number];
     const back = lookBack.geometry.coordinates as [number, number];
     const forward = lookAhead.geometry.coordinates as [number, number];
-    const rotationDeg = bearingBetween(back, forward, firstBearing);
+    const polylineBearing = bearingBetween(back, forward, firstBearing);
+    const rotationDeg = travelForward
+      ? polylineBearing
+      : normaliseBearing(polylineBearing + 180);
 
     placements.push({
       kind: body.kind,

@@ -6,6 +6,13 @@
  *  - streams vehicle positions into a GeoJSON source on every rAF tick,
  *  - reports the current viewport bbox back to the store so the server can
  *    pre-filter trajectories.
+ *
+ * All GeoJSON layers mount unconditionally (TracksLayer/StationsLayer accept
+ * empty data while the topology is still loading) so MapLibre's layer stack
+ * reflects the JSX order: tracks → stations → selected-route → vehicles.
+ * Without this, VehiclesLayer would mount before the topology arrives and
+ * end up *underneath* the tracks added later — which is how a circle could
+ * end up "behind" a line in a typical WebGL renderer.
  */
 
 'use client';
@@ -23,12 +30,17 @@ import {
 } from '@/lib/hooks';
 import { useRailwayStore } from '@/lib/stores/railway-store';
 
-import StationsLayer from './StationsLayer';
+import SelectedRouteLayer from './SelectedRouteLayer';
+import StationsLayer, { STATIONS_INTERACTIVE_LAYERS } from './StationsLayer';
 import TracksLayer from './TracksLayer';
 import VehiclesLayer from './VehiclesLayer';
 import { THAILAND_VIEW, getMapStyleUrl } from './map-style';
 
 const VEHICLE_INTERACTIVE_LAYERS = ['vehicles-locomotive', 'vehicles-carriage'];
+const INTERACTIVE_LAYERS = [
+  ...VEHICLE_INTERACTIVE_LAYERS,
+  ...STATIONS_INTERACTIVE_LAYERS,
+];
 
 export default function RailMap() {
   const mapRef = useRef<MapRef | null>(null);
@@ -37,7 +49,9 @@ export default function RailMap() {
   const setTopology = useRailwayStore((s) => s.setTopology);
   const setViewportBbox = useRailwayStore((s) => s.setViewportBbox);
   const selectTrain = useRailwayStore((s) => s.selectTrain);
+  const selectStation = useRailwayStore((s) => s.selectStation);
   const selectedTrainId = useRailwayStore((s) => s.selectedTrainId);
+  const selectedStationId = useRailwayStore((s) => s.selectedStationId);
 
   useTrajectoryStream();
   useRafVehicleTicker(mapRef);
@@ -63,38 +77,71 @@ export default function RailMap() {
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
-      const feature = event.features?.find((f) =>
+      const features = event.features ?? [];
+
+      const vehicle = features.find((f) =>
         VEHICLE_INTERACTIVE_LAYERS.includes(f.layer?.id ?? ''),
       );
-      if (!feature) {
-        selectTrain(null);
+      if (vehicle) {
+        const trainId = vehicle.properties?.train_id;
+        if (typeof trainId === 'number') {
+          selectTrain(trainId === selectedTrainId ? null : trainId);
+        }
         return;
       }
-      const trainId = feature.properties?.train_id;
-      if (typeof trainId === 'number') {
-        selectTrain(trainId === selectedTrainId ? null : trainId);
+
+      const cluster = features.find(
+        (f) => f.layer?.id === 'stations-clusters',
+      );
+      if (cluster && cluster.geometry.type === 'Point') {
+        const map = mapRef.current?.getMap();
+        const coords = cluster.geometry.coordinates as [number, number];
+        if (map) {
+          map.easeTo({
+            center: coords,
+            zoom: Math.min((map.getZoom() ?? 0) + 2, 14),
+            duration: 400,
+          });
+        }
+        return;
       }
+
+      const station = features.find((f) => f.layer?.id === 'stations-unclustered');
+      if (station) {
+        const stationId = station.properties?.station_id;
+        if (typeof stationId === 'number') {
+          selectStation(stationId === selectedStationId ? null : stationId);
+        }
+        return;
+      }
+
+      // Empty space: clear both selections.
+      selectTrain(null);
+      selectStation(null);
     },
-    [selectTrain, selectedTrainId],
+    [selectTrain, selectStation, selectedTrainId, selectedStationId],
   );
+
+  const hasSelection = selectedTrainId !== null || selectedStationId !== null;
 
   return (
     <Map
       ref={mapRef}
       initialViewState={THAILAND_VIEW}
       mapStyle={getMapStyleUrl()}
-      interactiveLayerIds={VEHICLE_INTERACTIVE_LAYERS}
+      interactiveLayerIds={INTERACTIVE_LAYERS}
       onLoad={publishViewport}
       onMoveEnd={publishViewport}
       onClick={handleClick}
-      cursor={selectedTrainId !== null ? 'pointer' : 'grab'}
+      cursor={hasSelection ? 'pointer' : 'grab'}
       reuseMaps
       attributionControl={{ compact: true }}
     >
       <NavigationControl position="top-right" showCompass={false} />
       <ScaleControl position="bottom-right" maxWidth={120} unit="metric" />
-      {topology?.network_edges ? <TracksLayer edges={topology.network_edges} /> : null}
-      {topology?.stations ? <StationsLayer stations={topology.stations} /> : null}
+      <TracksLayer edges={topology?.network_edges ?? null} />
+      <StationsLayer stations={topology?.stations ?? null} />
+      <SelectedRouteLayer />
       <VehiclesLayer />
     </Map>
   );

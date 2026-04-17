@@ -9,11 +9,13 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
 import { ChevronRight, Gauge, Target, X } from 'lucide-react';
 
 import { useStopSequence } from '@/lib/hooks';
 import { useRailwayStore } from '@/lib/stores/railway-store';
+import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
 import { cn, formatDelay, formatSpeed, getTrainTypeName } from '@/lib/utils';
 
 function delayColor(minutes: number): string {
@@ -36,14 +38,29 @@ export default function TrainInfoSheet() {
     [stopSequence],
   );
 
+  // Re-derive the live frame twice per second so speed + progress track the
+  // simulation without forcing TrainInfoSheet into the rAF loop.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!trajectory) return;
+    const id = window.setInterval(() => setTick((t) => t + 1), 500);
+    return () => window.clearInterval(id);
+  }, [trajectory]);
+
+  const liveFrame = useMemo(
+    () => (trajectory ? getTrajectoryFrameAt(Date.now(), trajectory) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [trajectory, tick],
+  );
+
   if (!trajectory) return null;
 
   const meta = trajectory.meta;
-  const headFrame = trajectory.frames[0];
-  const speed = headFrame ? headFrame.speed_kmh : 0;
-  const status = headFrame?.status ?? 'moving';
-  const progressPct = Math.round(meta.route_progress_pct * 100);
-  const segmentPct = Math.round(meta.segment_progress_pct * 100);
+  const speed = liveFrame?.speedKmh ?? 0;
+  const status = liveFrame?.status ?? 'moving';
+  const liveGeomFraction = liveFrame?.geomFraction ?? meta.route_progress_pct / 100;
+  const progressPct = Math.round(Math.max(0, Math.min(100, liveGeomFraction * 100)));
+  const segmentPct = Math.round(Math.max(0, Math.min(100, meta.segment_progress_pct)));
 
   return (
     <div

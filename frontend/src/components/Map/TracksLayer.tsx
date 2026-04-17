@@ -17,8 +17,13 @@ import {
 } from './map-style';
 
 interface TracksLayerProps {
-  edges: NetworkEdgeCollection;
+  edges: NetworkEdgeCollection | null | undefined;
 }
+
+const EMPTY_EDGES: NetworkEdgeCollection = {
+  type: 'FeatureCollection',
+  features: [],
+};
 
 const colorMatch = [
   'match',
@@ -32,7 +37,7 @@ const colorMatch = [
 
 export default function TracksLayer({ edges }: TracksLayerProps) {
   return (
-    <Source id="tracks" type="geojson" data={edges}>
+    <Source id="tracks" type="geojson" data={edges ?? EMPTY_EDGES}>
       <Layer
         id="tracks-casing"
         type="line"

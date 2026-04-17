@@ -11,7 +11,7 @@ import { Loader2, Moon, Sun, Train } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { TrainInfoSheet } from '@/components/TrainInfo';
+import { StationInfoSheet, TrainInfoSheet } from '@/components/TrainInfo';
 import { Button } from '@/components/ui';
 import { ROUTE_COLORS } from '@/components/Map/map-style';
 import { useDarkMode } from '@/lib/hooks';
@@ -87,6 +87,7 @@ export default function HomePage() {
       </div>
 
       <TrainInfoSheet />
+      <StationInfoSheet />
     </div>
   );
 }

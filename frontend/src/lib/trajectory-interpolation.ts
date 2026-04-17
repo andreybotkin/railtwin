@@ -7,6 +7,12 @@
  * only has to locate the bracketing pair for `nowMs` and linearly interpolate
  * the lon/lat/geom_fraction between them, carrying everything else forward
  * from the start of the bracket.
+ *
+ * We also report `travelForward`: some trains are scheduled against a route
+ * polyline stored in the opposite direction (e.g. southbound train on a
+ * north-to-south polyline stored north→south). In that case `geom_fraction`
+ * *decreases* over time, the locomotive faces the reverse of the polyline
+ * bearing, and the consist must be laid out in the opposite direction.
  */
 
 import type { Trajectory, TrajectoryFrame } from '@/types';
@@ -22,13 +28,41 @@ export interface InterpolatedFrame {
   status: TrajectoryFrame['status'];
   /** True while `nowMs` is inside the trajectory window. */
   fresh: boolean;
+  /**
+   * True when the train travels along the polyline in the natural direction
+   * (geom_fraction increasing), false when it travels "backwards" (decreasing).
+   * Derived once per trajectory from the overall delta between the first and
+   * last frame, so dwell windows inside the trajectory don't flip the flag.
+   */
+  travelForward: boolean;
 }
 
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-function fromFrame(frame: TrajectoryFrame, fresh: boolean): InterpolatedFrame {
+/**
+ * Detect the overall direction of travel by looking at the aggregate change
+ * in `geom_fraction` across the trajectory. Using the whole series (not just
+ * the current bracket) avoids spurious flips during dwell windows where the
+ * bracketing pair has identical fractions.
+ */
+function detectTravelForward(frames: TrajectoryFrame[]): boolean {
+  if (frames.length < 2) return true;
+  const delta = frames[frames.length - 1].geom_fraction - frames[0].geom_fraction;
+  if (Math.abs(delta) < 1e-9) {
+    // All frames have the same fraction (fully dwelling) — pick forward
+    // so the consist lays out in the polyline's natural direction.
+    return true;
+  }
+  return delta >= 0;
+}
+
+function fromFrame(
+  frame: TrajectoryFrame,
+  fresh: boolean,
+  travelForward: boolean,
+): InterpolatedFrame {
   return {
     lon: frame.lon,
     lat: frame.lat,
@@ -38,6 +72,7 @@ function fromFrame(frame: TrajectoryFrame, fresh: boolean): InterpolatedFrame {
     headDistanceM: frame.head_distance_m,
     status: frame.status,
     fresh,
+    travelForward,
   };
 }
 
@@ -55,11 +90,13 @@ export function getTrajectoryFrameAt(
   const { frames } = trajectory;
   if (!frames.length) return null;
 
+  const travelForward = detectTravelForward(frames);
+
   const first = frames[0];
-  if (nowMs <= first.t_ms) return fromFrame(first, false);
+  if (nowMs <= first.t_ms) return fromFrame(first, false, travelForward);
 
   const last = frames[frames.length - 1];
-  if (nowMs >= last.t_ms) return fromFrame(last, false);
+  if (nowMs >= last.t_ms) return fromFrame(last, false, travelForward);
 
   // Binary search for the bracket (frames are monotonic in t_ms).
   let lo = 0;
@@ -84,6 +121,7 @@ export function getTrajectoryFrameAt(
     headDistanceM: lerp(start.head_distance_m, end.head_distance_m, t),
     status: start.status,
     fresh: true,
+    travelForward,
   };
 }
 

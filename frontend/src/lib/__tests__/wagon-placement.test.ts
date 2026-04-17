@@ -50,4 +50,25 @@ describe('buildConsistGeoPoints', () => {
     expect(buildConsistGeoPoints([[0, 0]], 100, CONSIST)).toEqual([]);
     expect(buildConsistGeoPoints([], 100, CONSIST)).toEqual([]);
   });
+
+  it('places carriages east of the locomotive for backward trains', () => {
+    const polyline = equatorPolyline(10_000);
+    // Backward train: head at 5000 m from the polyline START, but travelling
+    // east→west (polyline was stored west→east). The tail should extend EAST
+    // of the locomotive (larger lon), not west.
+    const placements = buildConsistGeoPoints(polyline, 5_000, CONSIST, false);
+    const longitudes = placements.map((body) => body.lon);
+    for (let i = 1; i < longitudes.length; i += 1) {
+      expect(longitudes[i]).toBeGreaterThan(longitudes[i - 1]);
+    }
+  });
+
+  it('rotates bodies 180° for backward trains', () => {
+    const polyline = equatorPolyline(10_000);
+    const forward = buildConsistGeoPoints(polyline, 5_000, CONSIST, true);
+    const backward = buildConsistGeoPoints(polyline, 5_000, CONSIST, false);
+    const diff =
+      ((backward[0].rotationDeg - forward[0].rotationDeg) % 360 + 360) % 360;
+    expect(Math.abs(diff - 180)).toBeLessThan(1);
+  });
 });

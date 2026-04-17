@@ -53,6 +53,7 @@ function buildFeatureCollection(
       trajectory.route_coords,
       frame.headDistanceM,
       trajectory.consist,
+      frame.travelForward,
     );
 
     for (const body of placements) {
