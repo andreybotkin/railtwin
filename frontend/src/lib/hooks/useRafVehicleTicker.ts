@@ -1,9 +1,18 @@
+import type { Feature, FeatureCollection, Point } from 'geojson';
 import type { GeoJSONSource, Map as MaplibreMap } from 'maplibre-gl';
 import { useEffect } from 'react';
 
 import { buildConsistGeoPoints } from '@/lib/wagon-placement';
 import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
 import { useRailwayStore } from '@/lib/stores/useRailwayStore';
+
+interface VehicleFeatureProperties {
+  train_id: number;
+  body_type: 'locomotive' | 'carriage';
+  body_index: number;
+  rotation: number;
+  is_selected: boolean;
+}
 
 export function useRafVehicleTicker(map: MaplibreMap | null) {
   const trajectories = useRailwayStore((s) => s.trajectories);
@@ -20,7 +29,7 @@ export function useRafVehicleTicker(map: MaplibreMap | null) {
         return;
       }
 
-      const features: Array<Record<string, unknown>> = [];
+      const features: Array<Feature<Point, VehicleFeatureProperties>> = [];
       const now = Date.now();
 
       trajectories.forEach((trajectory) => {
@@ -43,7 +52,12 @@ export function useRafVehicleTicker(map: MaplibreMap | null) {
         });
       });
 
-      source.setData({ type: 'FeatureCollection', features });
+      const collection: FeatureCollection<Point, VehicleFeatureProperties> = {
+        type: 'FeatureCollection',
+        features,
+      };
+
+      source.setData(collection);
       raf = requestAnimationFrame(tick);
     };
 

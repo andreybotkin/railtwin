@@ -99,6 +99,44 @@ class TrainSimulationService:
 
         return _geo.great_circle_bearing(from_coord, to_coord)
 
+    def _build_position_from_trajectory(
+        self,
+        train: Train,
+        trajectory: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """Project the current position snapshot from the first trajectory frame."""
+        frames = trajectory.get("frames")
+        if not isinstance(frames, list) or not frames:
+            return None
+
+        frame = frames[0]
+        if not isinstance(frame, dict):
+            return None
+
+        meta = trajectory.get("meta")
+        if not isinstance(meta, dict):
+            meta = {}
+
+        lon = frame.get("lon")
+        lat = frame.get("lat")
+        if not isinstance(lon, int | float) or not isinstance(lat, int | float):
+            return None
+
+        return {
+            "train_id": train.id,
+            "train_number": train.train_number,
+            "train_type": train.train_type,
+            "location": {"type": "Point", "coordinates": [lon, lat]},
+            "speed": frame.get("speed_kmh"),
+            "heading": frame.get("rotation_deg"),
+            "status": frame.get("status"),
+            "delay_minutes": meta.get("delay_minutes", 0),
+            "next_station": meta.get("next_station"),
+            "prev_station": meta.get("prev_station"),
+            "route_progress": frame.get("geom_fraction", 0),
+            "route_id": train.current_route_id,
+        }
+
     # ------------------------------------------------------------------ #
     # Single-train public API                                              #
     # ------------------------------------------------------------------ #
@@ -119,23 +157,9 @@ class TrainSimulationService:
             route_distance_km,
             route_segments,
         )
-        if trajectory is None or not trajectory.get("frames"):
+        if trajectory is None:
             return None
-        frame = trajectory["frames"][0]
-        return {
-            "train_id": train.id,
-            "train_number": train.train_number,
-            "train_type": train.train_type,
-            "location": {"type": "Point", "coordinates": [frame["lon"], frame["lat"]]},
-            "speed": frame["speed_kmh"],
-            "heading": frame["rotation_deg"],
-            "status": frame["status"],
-            "delay_minutes": trajectory.get("meta", {}).get("delay_minutes", 0),
-            "next_station": trajectory.get("meta", {}).get("next_station"),
-            "prev_station": trajectory.get("meta", {}).get("prev_station"),
-            "route_progress": frame.get("geom_fraction", 0),
-            "route_id": train.current_route_id,
-        }
+        return self._build_position_from_trajectory(train, trajectory)
 
     async def get_train_trajectory(
         self,
@@ -391,18 +415,6 @@ class TrainSimulationService:
                 if current_minutes is None:
                     continue
 
-                pos = build_train_position(
-                    train,
-                    schedules,
-                    route_coords,
-                    route_distance_km,
-                    route_segments,
-                    delay=delay,
-                    current_minutes=current_minutes,
-                )
-                if pos:
-                    positions.append(pos)
-
                 if include_trajectories:
                     traj = build_train_trajectory(
                         train,
@@ -415,6 +427,19 @@ class TrainSimulationService:
                     )
                     if traj:
                         trajectories.append(traj)
+                        pos = self._build_position_from_trajectory(train, traj)
+                        if pos:
+                            positions.append(pos)
+                else:
+                    pos = await self.get_train_position(
+                        train,
+                        schedules,
+                        route_coords,
+                        route_distance_km,
+                        route_segments,
+                    )
+                    if pos:
+                        positions.append(pos)
 
                 if include_stop_sequences:
                     seq = build_stop_sequence(

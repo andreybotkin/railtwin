@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 import type { Map as MaplibreMap } from 'maplibre-gl';
 import { useEffect, useRef, useState } from 'react';
-import Map, { AttributionControl, NavigationControl, ScaleControl } from 'react-map-gl/maplibre';
+import MapView, { AttributionControl, NavigationControl, ScaleControl } from 'react-map-gl/maplibre';
 
 import { useRafVehicleTicker } from '@/lib/hooks/useRafVehicleTicker';
 import type { Trajectory } from '@/lib/trajectory-interpolation';
@@ -15,6 +15,8 @@ import TracksLayer from './TracksLayer';
 import VehiclesLayer from './VehiclesLayer';
 
 const STYLE_URL = process.env.NEXT_PUBLIC_MAP_STYLE_URL || 'https://tiles.openfreemap.org/styles/liberty';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002').replace(/\/$/, '');
+const WS_BASE_URL = (process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8002').replace(/\/$/, '');
 
 export default function RailMap() {
   const mapRef = useRef<MaplibreMap | null>(null);
@@ -26,19 +28,19 @@ export default function RailMap() {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch('/api/v1/map/topology');
+      const res = await fetch(`${API_BASE_URL}/api/v1/map/topology`);
       if (!res.ok) return;
       const payload = await res.json();
       setTopology(payload);
 
-      const trajectoriesRes = await fetch('/api/v1/trains/trajectories');
+      const trajectoriesRes = await fetch(`${API_BASE_URL}/api/v1/trains/trajectories`);
       if (!trajectoriesRes.ok) return;
       const trajectoryPayload = await trajectoriesRes.json();
       setTrajectories(trajectoryPayload as Trajectory[]);
     })();
 
     const trajectoryMap = new Map<number, Trajectory>();
-    const ws = new WebSocket(`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/trajectory`);
+    const ws = new WebSocket(`${WS_BASE_URL}/ws/trajectory`);
     ws.onmessage = (event) => {
       const parsed = JSON.parse(event.data);
       if (parsed?.type === 'trajectory_delta') {
@@ -57,7 +59,7 @@ export default function RailMap() {
   useRafVehicleTicker(mapRef.current);
 
   return (
-    <Map
+    <MapView
       reuseMaps
       mapStyle={STYLE_URL}
       initialViewState={{ longitude: 100.5018, latitude: 13.7563, zoom: 6 }}
@@ -85,6 +87,6 @@ export default function RailMap() {
           <VehiclesLayer />
         </>
       )}
-    </Map>
+    </MapView>
   );
 }
