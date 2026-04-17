@@ -825,6 +825,7 @@ def train_payload_to_domain(payload: dict[str, Any]) -> Any:
         train_type=payload["train_type"],
         current_route_id=payload.get("current_route_id"),
         name=payload.get("name"),
+        operator=payload.get("operator"),
     )
 
 
