@@ -53,6 +53,8 @@ export default function RailMap() {
   const selectStation = useRailwayStore((s) => s.selectStation);
   const selectedTrainId = useRailwayStore((s) => s.selectedTrainId);
   const selectedStationId = useRailwayStore((s) => s.selectedStationId);
+  const flyTo = useRailwayStore((s) => s.flyTo);
+  const clearFlyTo = useRailwayStore((s) => s.requestFlyTo);
 
   useTrajectoryStream();
   useRafVehicleTicker(mapRef);
@@ -60,6 +62,19 @@ export default function RailMap() {
   useEffect(() => {
     setTopology(topology ?? null);
   }, [topology, setTopology]);
+
+  useEffect(() => {
+    if (!flyTo) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    map.flyTo({
+      center: [flyTo.lon, flyTo.lat],
+      zoom: flyTo.zoom ?? Math.max(map.getZoom() ?? 0, 11),
+      duration: 900,
+      essential: true,
+    });
+    clearFlyTo(null);
+  }, [flyTo, clearFlyTo]);
 
   const publishViewport = useCallback(() => {
     const map = mapRef.current?.getMap();

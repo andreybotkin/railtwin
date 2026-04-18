@@ -11,6 +11,19 @@ import { create } from 'zustand';
 
 import type { MapSnapshot, Trajectory } from '@/types';
 
+/**
+ * One-shot request to the map to fly to a location. `RailMap` consumes the
+ * target and immediately sets it back to `null`, so the same coords can be
+ * re-sent later. `nonce` lets repeated fly-tos to the same coords trigger a
+ * subscription update.
+ */
+export interface FlyToTarget {
+  lon: number;
+  lat: number;
+  zoom?: number;
+  nonce: number;
+}
+
 interface RailwayState {
   topology: MapSnapshot | null;
   trajectories: Map<number, Trajectory>;
@@ -18,6 +31,7 @@ interface RailwayState {
   selectedStationId: number | null;
   viewportBbox: string | null;
   wsConnected: boolean;
+  flyTo: FlyToTarget | null;
 
   setTopology: (snapshot: MapSnapshot | null) => void;
   setTrajectories: (next: Map<number, Trajectory>) => void;
@@ -27,6 +41,7 @@ interface RailwayState {
   selectStation: (stationId: number | null) => void;
   setViewportBbox: (bbox: string | null) => void;
   setWsConnected: (connected: boolean) => void;
+  requestFlyTo: (target: Omit<FlyToTarget, 'nonce'> | null) => void;
 }
 
 export const useRailwayStore = create<RailwayState>((set) => ({
@@ -36,6 +51,7 @@ export const useRailwayStore = create<RailwayState>((set) => ({
   selectedStationId: null,
   viewportBbox: null,
   wsConnected: false,
+  flyTo: null,
 
   setTopology: (snapshot) => set({ topology: snapshot }),
   setTrajectories: (next) => set({ trajectories: new Map(next) }),
@@ -58,4 +74,17 @@ export const useRailwayStore = create<RailwayState>((set) => ({
     set({ selectedStationId: stationId, selectedTrainId: null }),
   setViewportBbox: (bbox) => set({ viewportBbox: bbox }),
   setWsConnected: (connected) => set({ wsConnected: connected }),
+  requestFlyTo: (target) =>
+    set((state) =>
+      target === null
+        ? { flyTo: null }
+        : {
+            flyTo: {
+              lon: target.lon,
+              lat: target.lat,
+              zoom: target.zoom,
+              nonce: (state.flyTo?.nonce ?? 0) + 1,
+            },
+          },
+    ),
 }));

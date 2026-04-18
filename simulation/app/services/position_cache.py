@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import time as _time
 from typing import Any
 
 from redis.asyncio import Redis
@@ -28,13 +27,11 @@ REDIS_STOPSEQUENCE_KEY_PREFIX = "train:stopsequence:"
 REDIS_MAP_STATIONS_KEY = "map:stations:all"
 REDIS_MAP_NETWORK_EDGES_KEY = "map:network_edges:all"
 REDIS_TOPOLOGY_METADATA_KEY = "system:topology:metadata"
-REDIS_METRICS_KEY = "system:position_cache:metrics"
 
 REDIS_TRAJECTORIES_TTL = max(90, settings.trajectory_lookahead_seconds + 30)
 REDIS_INDIVIDUAL_TRAJECTORY_TTL = settings.trajectory_lookahead_seconds + 60
 REDIS_STOPSEQUENCE_TTL = 3600
 REDIS_TOPOLOGY_METADATA_TTL = 3600
-REDIS_METRICS_TTL = 60
 
 
 class PositionCacheUpdater:
@@ -56,25 +53,15 @@ class PositionCacheUpdater:
     async def _run(self) -> None:
         while True:
             tick_start = asyncio.get_running_loop().time()
-            active_trains = 0
-            error_count = 0
             try:
                 await self._tick()
-                # ``_tick`` assigns on success; read back for metrics.
-                active_trains = self._last_active_trains
             except Exception as exc:
-                error_count += 1
                 logger.error("PositionCacheUpdater error", error=str(exc))
-
-            cycle_ms = int((asyncio.get_running_loop().time() - tick_start) * 1000)
-            await self._record_metrics(cycle_ms, active_trains, error_count)
 
             elapsed = asyncio.get_running_loop().time() - tick_start
             await asyncio.sleep(max(0.0, self._interval_seconds - elapsed))
 
     async def _tick(self) -> None:
-        self._last_active_trains = 0
-
         topology_payload = await self._reader.get_topology() or {}
         topology_version = topology_payload.get("topology_version")
 
@@ -85,8 +72,6 @@ class PositionCacheUpdater:
                     str(topology_version) if topology_version is not None else None
                 ),
             )
-
-        self._last_active_trains = len(trajectories)
 
         # Refresh static map payloads once per topology version change.
         static_payloads: tuple[dict[str, Any], list[dict[str, Any]]] | None = None
@@ -148,29 +133,6 @@ class PositionCacheUpdater:
             )
 
         await pipe.execute()
-
-    async def _record_metrics(
-        self,
-        cycle_ms: int,
-        active_trains: int,
-        error_count: int,
-    ) -> None:
-        try:
-            await self._redis.setex(
-                REDIS_METRICS_KEY,
-                REDIS_METRICS_TTL,
-                json.dumps(
-                    {
-                        "last_update_ms": int(_time.time() * 1000),
-                        "cycle_duration_ms": cycle_ms,
-                        "active_trains": active_trains,
-                        "error_count": error_count,
-                    }
-                ),
-            )
-        except Exception:
-            # Never let metrics failure break the main loop.
-            pass
 
     def start(self) -> None:
         if self._task is None or self._task.done():

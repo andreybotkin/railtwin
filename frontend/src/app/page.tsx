@@ -6,11 +6,13 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Loader2, Moon, Sun, Train } from 'lucide-react';
+import { Loader2, Moon, Search, Sun, Train } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { SearchPanel } from '@/components/Search';
 import { StationInfoSheet, TrainInfoSheet } from '@/components/TrainInfo';
 import { Button } from '@/components/ui';
 import { ROUTE_COLORS } from '@/components/Map/map-style';
@@ -35,6 +37,24 @@ const LEGEND_ROWS: Array<{ key: 'northern' | 'northeastern' | 'southern' | 'east
 export default function HomePage() {
   const t = useTranslations();
   const { isDark, toggle: toggleDark } = useDarkMode();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      } else if (e.key === '/' && !searchOpen) {
+        const target = e.target as HTMLElement | null;
+        if (target && ['INPUT', 'TEXTAREA'].includes(target.tagName)) return;
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [searchOpen]);
 
   return (
     <div className="relative h-dvh overflow-hidden bg-zinc-100 text-zinc-900">
@@ -56,6 +76,16 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSearchOpen(true)}
+              title="Search (⌘K)"
+              aria-label="Open search"
+              className="rounded-2xl text-zinc-700 hover:bg-zinc-950 hover:text-white"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -88,6 +118,7 @@ export default function HomePage() {
 
       <TrainInfoSheet />
       <StationInfoSheet />
+      <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 }

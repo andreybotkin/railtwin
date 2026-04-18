@@ -111,6 +111,7 @@ class SetupRunner:
         self._is_ready = True
         self._current_step = "done"
         logger.info("Full database initialization complete", status=self._status)
+        _print_issue_summary(railroad_result, topology_result, schedule_result)
         return self._status
 
     async def run_migrations(self) -> dict[str, Any]:
@@ -192,3 +193,101 @@ def _result_to_dict(
     d = asdict(result)
     # Remove None values for clean JSON output
     return {k: v for k, v in d.items() if v is not None}
+
+
+def _print_issue_summary(
+    railroad: dict[str, Any],
+    topology: dict[str, Any],
+    schedules: dict[str, Any],
+) -> None:
+    """Print a human-readable list of issues encountered during setup.
+
+    Written to both structured logs (for containers) and stderr (for humans
+    eyeballing ``docker-compose up`` output) so the operator can fix source
+    data and re-run.
+    """
+    import sys
+
+    lines: list[str] = []
+    lines.append("=" * 78)
+    lines.append("RAILDBSETUP — end-of-run diagnostic report")
+    lines.append("=" * 78)
+
+    railroad_errors = railroad.get("validation_errors") or []
+    if railroad_errors:
+        lines.append(f"\n[Railroad] {len(railroad_errors)} validation issue(s):")
+        for err in railroad_errors[:50]:
+            lines.append(f"  • {err}")
+        if len(railroad_errors) > 50:
+            lines.append(f"  … and {len(railroad_errors) - 50} more")
+
+    unsnapped = topology.get("unsnapped_stations") or []
+    if unsnapped:
+        lines.append(
+            f"\n[Topology] {len(unsnapped)} station(s) could not be snapped "
+            "to the rail graph:"
+        )
+        for name in unsnapped[:50]:
+            lines.append(f"  • {name}")
+        if len(unsnapped) > 50:
+            lines.append(f"  … and {len(unsnapped) - 50} more")
+
+    disconnected = topology.get("disconnected_station_count") or 0
+    if disconnected:
+        lines.append(
+            f"\n[Topology] {disconnected} station(s) not on the main component."
+        )
+
+    schedule_validation = schedules.get("validation_errors") or []
+    if schedule_validation:
+        lines.append(
+            f"\n[Schedules] {len(schedule_validation)} train validation error(s):"
+        )
+        for err in schedule_validation[:50]:
+            lines.append(f"  • {err}")
+        if len(schedule_validation) > 50:
+            lines.append(f"  … and {len(schedule_validation) - 50} more")
+
+    unresolved = schedules.get("unresolved_stations") or []
+    if unresolved:
+        by_train: dict[str, list[str]] = {}
+        for item in unresolved:
+            key = item.get("train_number") or "<unknown>"
+            by_train.setdefault(key, []).append(item.get("station_name") or "")
+        unique_stations = sorted({item.get("station_name") or "" for item in unresolved})
+        lines.append(
+            f"\n[Schedules] {len(unresolved)} unresolved station "
+            f"reference(s) across {len(by_train)} train(s); "
+            f"{len(unique_stations)} unique name(s):"
+        )
+        for name in unique_stations[:80]:
+            hits = sum(1 for item in unresolved if item.get("station_name") == name)
+            lines.append(f"  • {name}  ×{hits}")
+        if len(unique_stations) > 80:
+            lines.append(f"  … and {len(unique_stations) - 80} more unique names")
+
+    failed = schedules.get("failed_trains") or []
+    if failed:
+        lines.append(f"\n[Schedules] {len(failed)} train(s) failed to save:")
+        for item in failed[:50]:
+            lines.append(
+                f"  • #{item.get('train_number', '?')} — {item.get('error', '')}"
+            )
+        if len(failed) > 50:
+            lines.append(f"  … and {len(failed) - 50} more")
+
+    if len(lines) == 3:
+        lines.append("\nNo issues detected. All source data imported cleanly.")
+
+    lines.append("=" * 78)
+    banner = "\n".join(lines)
+    print(banner, file=sys.stderr, flush=True)
+    logger.info(
+        "raildbsetup diagnostic summary",
+        railroad_validation_errors=len(railroad_errors),
+        topology_unsnapped=len(unsnapped),
+        topology_disconnected=disconnected,
+        schedule_validation_errors=len(schedule_validation),
+        schedule_unresolved_stations=len(unresolved),
+        schedule_failed_trains=len(failed),
+    )

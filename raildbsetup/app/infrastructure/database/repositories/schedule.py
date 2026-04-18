@@ -115,13 +115,24 @@ def _haversine_km(
 
 
 class SqlScheduleRepository(ScheduleRepository):
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        *,
+        issues: list[dict[str, str | None]] | None = None,
+    ) -> None:
         self._s = session
         self._station_cache: _StationCache = {}
         self._station_candidates: list[StationCandidate] | None = None
         self._stations_by_key: dict[str, list[StationCandidate]] | None = None
         self._station_aliases: dict[str, int] | None = None
         self._candidate_by_id: dict[int, StationCandidate] = {}
+        self._issues = issues
+        self._current_train_number: str | None = None
+
+    def set_current_train(self, train_number: str | None) -> None:
+        """Tag unresolved-station issues with the train currently being processed."""
+        self._current_train_number = train_number
 
     async def count_trains(self) -> int:
         result = await self._s.execute(select(func.count()).select_from(t_trains))
@@ -454,6 +465,15 @@ class SqlScheduleRepository(ScheduleRepository):
             logger.warning(
                 "Station not matched from raw schedule", station_name=station_name
             )
+            if self._issues is not None:
+                self._issues.append(
+                    {
+                        "train_number": self._current_train_number,
+                        "station_name": station_name,
+                        "route_type": route_type_hint,
+                        "reason": "not_matched",
+                    }
+                )
         self._station_cache[cache_key] = best_station_id
         return best_station_id
 
