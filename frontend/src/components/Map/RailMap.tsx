@@ -29,6 +29,7 @@ import {
   useTrajectoryStream,
 } from '@/lib/hooks';
 import { useRailwayStore } from '@/lib/stores/railway-store';
+import { registerVehicleIcons } from '@/lib/vehicle-icons';
 
 import SelectedRouteLayer from './SelectedRouteLayer';
 import StationsLayer, { STATIONS_INTERACTIVE_LAYERS } from './StationsLayer';
@@ -74,6 +75,12 @@ export default function RailMap() {
       .join(',');
     setViewportBbox(bbox);
   }, [setViewportBbox]);
+
+  const handleLoad = useCallback(() => {
+    const map = mapRef.current?.getMap();
+    if (map) registerVehicleIcons(map);
+    publishViewport();
+  }, [publishViewport]);
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
@@ -130,7 +137,7 @@ export default function RailMap() {
       initialViewState={THAILAND_VIEW}
       mapStyle={getMapStyleUrl()}
       interactiveLayerIds={INTERACTIVE_LAYERS}
-      onLoad={publishViewport}
+      onLoad={handleLoad}
       onMoveEnd={publishViewport}
       onClick={handleClick}
       cursor={hasSelection ? 'pointer' : 'grab'}

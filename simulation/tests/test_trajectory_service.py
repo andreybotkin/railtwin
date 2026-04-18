@@ -325,6 +325,83 @@ def test_build_trajectory_uses_station_fallback_when_polyline_missing() -> None:
     assert first_lat == pytest.approx(station_coords[0][1], abs=1e-4)
 
 
+def test_build_trajectory_projects_stations_onto_polyline_when_available() -> None:
+    """When schedule stations have real geometry, projection must override
+    linear-by-index fractions.
+
+    Hand-crafted scenario: three stops whose *stored* ``route_progress`` claims
+    a uniform 0, 0.5, 1.0 split, but whose real coordinates place the middle
+    station at ~70 % of the route. The builder should use the projected
+    fraction (~0.7), not the falsy 0.5.
+    """
+
+    train = _make_train()
+    # Polyline running ~west→east along the equator for easy math.
+    polyline = [[100.0, 0.0], [101.0, 0.0]]
+
+    # Middle station sits 70 % along the polyline.
+    station_coords = [
+        (100.0, 0.0),
+        (100.7, 0.0),  # 70 %
+        (101.0, 0.0),
+    ]
+    schedules = _three_stop_schedule()
+    # Zero out route_progress so the projection path is the *only* source.
+    for schedule in schedules:
+        schedule.route_progress = None
+    for schedule, (lon, lat) in zip(schedules, station_coords, strict=True):
+        schedule.station = SimpleNamespace(
+            id=schedule.sequence + 1,
+            name=schedule.station_name,
+            location=_FakeGeom(lon, lat),
+        )
+
+    trajectory = build_trajectory(
+        train,
+        schedules,
+        polyline,
+        route_distance_km=None,
+        delay=0,
+        current_minutes=10 * 60 + 30,  # 10:30 — between stop 0 and 1
+        now_unix_ms=1_700_000_000_000,
+    )
+
+    assert trajectory is not None
+    # Between stops 0 (10:00) and 1 (11:00) at 10:30 → halfway in time, so
+    # geom_fraction should land at (0 + (0.7 - 0) * 0.5) = 0.35, NOT 0.25
+    # (which is what linear-by-index would yield).
+    head = trajectory.frames[0]
+    assert head.geom_fraction == pytest.approx(0.35, abs=5e-3)
+
+
+def test_stop_fractions_enforce_monotonicity() -> None:
+    """A mid-sequence outlier must not push later fractions backwards."""
+
+    from app.services.trajectory_service import _stop_fractions
+
+    schedules = _three_stop_schedule()
+    # Middle station projects ~east of the end-point (noise).
+    station_coords = [
+        (100.0, 0.0),
+        (101.2, 0.0),  # noisy — would place middle *past* the end
+        (101.0, 0.0),
+    ]
+    for schedule in schedules:
+        schedule.route_progress = None
+    for schedule, (lon, lat) in zip(schedules, station_coords, strict=True):
+        schedule.station = SimpleNamespace(
+            id=schedule.sequence + 1,
+            name=schedule.station_name,
+            location=_FakeGeom(lon, lat),
+        )
+
+    polyline = [[100.0, 0.0], [101.0, 0.0]]
+    fractions = _stop_fractions(schedules, polyline, 111.0)
+    # Must be non-decreasing.
+    for a, b in zip(fractions, fractions[1:], strict=True):
+        assert b >= a
+
+
 def test_build_stop_sequence_marks_passed_boarding_pending_states() -> None:
     schedules = _three_stop_schedule()
     # 11:02 — Bangkok departed, Ayutthaya boarding, Lopburi pending.

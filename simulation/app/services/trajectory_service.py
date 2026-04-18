@@ -128,26 +128,79 @@ def _bearing_at_fraction(coords: list[list[float]], fraction: float) -> float:
     return geo_utils.great_circle_bearing((lon_a, lat_a), (lon_b, lat_b))
 
 
+def _station_coord(schedule: Schedule) -> tuple[float, float] | None:
+    """Return ``(lon, lat)`` for the schedule's station, if available."""
+
+    station = getattr(schedule, "station", None)
+    if station is None or getattr(station, "location", None) is None:
+        return None
+    try:
+        point = cast(Point, to_shape(station.location))
+    except Exception:  # noqa: BLE001 - pathological geometry payloads
+        return None
+    return float(point.x), float(point.y)
+
+
 def _stop_fractions(
     schedules: list[Schedule],
+    polyline: list[list[float]],
     route_distance_km: float | None,
 ) -> list[float]:
+    """Resolve each schedule stop to its fraction along the polyline.
+
+    Strategy (in order of preference):
+
+    1. If the station has real geometry, project it onto the polyline — this
+       is the ground truth, independent of any (often missing or stale)
+       distance-from-origin metadata on ``RouteStation`` / ``Schedule``.
+    2. Otherwise fall back to ``schedule_utils.get_stop_progress`` (uses
+       ``RouteStation.distance_from_start`` / ``schedule.route_progress`` /
+       linear-by-index as a last resort).
+
+    After raw fractions are resolved, they are made **monotonic** in the
+    dominant direction: we detect whether fractions trend up or down across
+    the sequence and enforce running maxima (or minima) so that a single
+    noisy projection can't place a later stop behind an earlier one.
+    """
+
     total_stops = len(schedules)
-    return [
-        max(
-            0.0,
-            min(
-                1.0,
-                schedule_utils.get_stop_progress(
-                    schedule,
-                    index,
-                    total_stops,
-                    route_distance_km,
-                ),
-            ),
-        )
-        for index, schedule in enumerate(schedules)
-    ]
+    raw: list[float] = []
+    for index, schedule in enumerate(schedules):
+        fraction: float | None = None
+        coord = _station_coord(schedule)
+        if coord is not None and len(polyline) >= 2:
+            _, fraction = geo_utils.project_onto_polyline(polyline, *coord)
+        if fraction is None:
+            fraction = schedule_utils.get_stop_progress(
+                schedule,
+                index,
+                total_stops,
+                route_distance_km,
+            )
+        raw.append(max(0.0, min(1.0, float(fraction))))
+
+    if len(raw) < 2:
+        return raw
+
+    # Decide dominant direction by majority vote of adjacent differences —
+    # that is robust to a single outlier mid-sequence.
+    ups = sum(1 for a, b in zip(raw, raw[1:]) if b > a + 1e-9)
+    downs = sum(1 for a, b in zip(raw, raw[1:]) if b < a - 1e-9)
+    ascending = ups >= downs
+
+    adjusted = list(raw)
+    if ascending:
+        running = adjusted[0]
+        for i in range(1, len(adjusted)):
+            running = max(running, adjusted[i])
+            adjusted[i] = running
+    else:
+        running = adjusted[0]
+        for i in range(1, len(adjusted)):
+            running = min(running, adjusted[i])
+            adjusted[i] = running
+
+    return adjusted
 
 
 # --------------------------------------------------------------------------- #
@@ -354,7 +407,7 @@ def build_trajectory(
         return None
 
     effective_distance_km = route_length_m / 1000.0
-    stop_fractions = _stop_fractions(schedules, effective_distance_km)
+    stop_fractions = _stop_fractions(schedules, polyline, effective_distance_km)
 
     lookahead = settings.trajectory_lookahead_seconds
     step = settings.trajectory_step_seconds

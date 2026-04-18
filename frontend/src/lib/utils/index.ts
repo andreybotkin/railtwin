@@ -56,6 +56,28 @@ export function getStatusColor(status: string): string {
 }
 
 /**
+ * Brand colour for a train type. Mirrors the palette in
+ * ``simulation/app/services/trajectory_service.py`` so badges on the map and
+ * in info panels match the colour MapLibre uses for the vehicle icon.
+ */
+export function getTrainTypeColor(type: string | null | undefined): string {
+  switch ((type ?? '').trim().toLowerCase()) {
+    case 'special_express':
+      return '#E53935';
+    case 'express':
+      return '#EF6C00';
+    case 'rapid':
+      return '#1E88E5';
+    case 'ordinary':
+      return '#43A047';
+    case 'commuter':
+      return '#8E24AA';
+    default:
+      return '#2196F3';
+  }
+}
+
+/**
  * Get train type display name.
  */
 export function getTrainTypeName(type: string): string {
