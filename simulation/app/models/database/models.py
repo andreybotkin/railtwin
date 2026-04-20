@@ -4,6 +4,8 @@ This module defines all database models using SQLAlchemy ORM with
 PostGIS geometry types for geospatial data.
 """
 
+from __future__ import annotations
+
 from datetime import datetime, time
 from typing import Any
 

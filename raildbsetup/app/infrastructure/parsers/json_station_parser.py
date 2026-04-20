@@ -1,28 +1,12 @@
 """Parser for thai_railway_stations_full.json.
 
-Converts the curated Wikipedia-sourced JSON into StationData domain entities.
-Stations without coordinates (lat/lon missing or zero) are skipped.
-
-JSON schema expected:
-  {
-    "stations": [
-      {
-        "name_en": "...",
-        "name_th": "...",
-        "code": "...",
-        "class": "Halt|1|2|3|4|Special",
-        "line": "Northern|Northeastern|Eastern|Southern|...",
-        "district": "...",
-        "province": "...",
-        "lat": 13.0,
-        "lon": 100.0
-      },
-      ...
-    ]
-  }
+Converts the curated Wikipedia-sourced JSON into StationData domain entities
+and exposes alias hints used to resolve schedule strings that don't match any
+station name directly.
 """
 
 import json
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from app.core.logging import get_logger
@@ -32,6 +16,24 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 logger = get_logger(__name__)
+
+
+@dataclass(frozen=True)
+class ParsedStations:
+    """Stations plus alias hints parsed from the curated JSON file."""
+
+    stations: list[StationData]
+    # raw_name (as written in schedules) -> canonical station name_en
+    aliases: dict[str, str]
+
+
+# Hard-coded safety net for aliases not covered by the JSON file but still
+# present in Wikipedia-sourced schedules. Keep this list tiny — prefer adding
+# entries to thai_railway_stations_full.json::schedule_aliases when possible.
+_EXTRA_ALIASES: dict[str, str] = {
+    "Pathiu": "Pathio",
+    "Pathiu ": "Pathio",
+}
 
 _LINE_TO_ROUTE_TYPE: dict[str, str] = {
     "northern": "northern",
@@ -48,24 +50,32 @@ def _line_to_route_type(line: str) -> str:
     return _LINE_TO_ROUTE_TYPE.get(line.lower(), "other")
 
 
-def parse_stations_json(path: Path) -> list[StationData]:
-    """Load and parse thai_railway_stations_full.json into StationData entities."""
+def parse_stations_json(path: Path) -> ParsedStations:
+    """Load and parse thai_railway_stations_full.json.
+
+    Returns both the station entities and an alias map built from the JSON's
+    ``schedule_aliases`` block and any per-station ``schedule_name`` fields.
+    """
+
     raw = path.read_bytes()
     data = json.loads(raw)
 
     raw_stations = data.get("stations", [])
     if not raw_stations:
         logger.warning("JSON file contains no stations", path=str(path))
-        return []
+        return ParsedStations(stations=[], aliases={})
 
     stations: list[StationData] = []
     skipped = 0
+    # Station names actually loaded into the DB (used to filter aliases whose
+    # targets no longer exist).
+    known_names: set[str] = set()
+    per_station_aliases: dict[str, str] = {}
 
     for entry in raw_stations:
         lat = entry.get("lat")
         lon = entry.get("lon")
 
-        # Skip entries with missing or obviously-invalid coordinates
         if lat is None or lon is None:
             skipped += 1
             continue
@@ -80,6 +90,11 @@ def parse_stations_json(path: Path) -> list[StationData]:
         if not name:
             skipped += 1
             continue
+        known_names.add(name)
+
+        schedule_name = (entry.get("schedule_name") or "").strip()
+        if schedule_name and schedule_name != name:
+            per_station_aliases[schedule_name] = name
 
         stations.append(
             StationData(
@@ -96,11 +111,32 @@ def parse_stations_json(path: Path) -> list[StationData]:
             )
         )
 
+    raw_aliases: dict[str, str] = {}
+    for key, value in (data.get("schedule_aliases") or {}).items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            continue
+        raw_aliases[key.strip()] = value.strip()
+    for key, value in _EXTRA_ALIASES.items():
+        raw_aliases.setdefault(key, value)
+    raw_aliases.update(per_station_aliases)
+
+    aliases: dict[str, str] = {}
+    dropped = 0
+    for alias, target in raw_aliases.items():
+        if not alias or not target:
+            continue
+        if target not in known_names:
+            dropped += 1
+            continue
+        aliases[alias] = target
+
     logger.info(
         "Stations parsed from JSON",
         total=len(raw_stations),
         loaded=len(stations),
         skipped=skipped,
+        aliases=len(aliases),
+        aliases_dropped=dropped,
         path=str(path),
     )
-    return stations
+    return ParsedStations(stations=stations, aliases=aliases)

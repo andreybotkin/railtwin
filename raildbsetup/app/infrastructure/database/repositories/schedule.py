@@ -31,6 +31,10 @@ logger = get_logger(__name__)
 
 SOURCE_NAME = "raildbsetup_raw"
 ALIAS_SOURCE = "schedule_raw"
+# Aliases sourced from the curated JSON file (schedule_aliases block +
+# per-station schedule_name). Loaded by ``_ensure_station_catalog`` with
+# higher priority than runtime-learned ``schedule_raw`` aliases.
+JSON_ALIAS_SOURCE = "json_aliases"
 LEGACY_SOURCE_NAMES = {"raw_file", "seed_file", "local_cache", SOURCE_NAME}
 _TIME_RE = re.compile(r"\([^)]*\)")
 
@@ -409,13 +413,22 @@ class SqlScheduleRepository(ScheduleRepository):
         alias_rows = (
             await self._s.execute(
                 select(
-                    t_station_aliases.c.normalized_alias, t_station_aliases.c.station_id
-                ).where(t_station_aliases.c.source == ALIAS_SOURCE)
+                    t_station_aliases.c.normalized_alias,
+                    t_station_aliases.c.station_id,
+                    t_station_aliases.c.source,
+                ).where(
+                    t_station_aliases.c.source.in_(
+                        [ALIAS_SOURCE, JSON_ALIAS_SOURCE]
+                    )
+                )
             )
         ).fetchall()
-        self._station_aliases = {
-            str(row.normalized_alias): int(row.station_id) for row in alias_rows
-        }
+        # Curated JSON aliases override any runtime-learned fuzzy mapping.
+        self._station_aliases = {}
+        for row in alias_rows:
+            key = str(row.normalized_alias)
+            if row.source == JSON_ALIAS_SOURCE or key not in self._station_aliases:
+                self._station_aliases[key] = int(row.station_id)
 
     async def _resolve_station_id(
         self,

@@ -7,12 +7,14 @@
  * data to MapLibre's SDF loader while still giving every train type its own
  * brand colour.
  *
- * Icons are designed in a 64-wide frame, oriented **pointing east (+x)** so
- * the rotation degrees emitted by the trajectory interpolator can be fed
- * straight into `icon-rotate` (0° = east on the map).
+ * Icons are designed in a wide frame, oriented **pointing east (+x)** so the
+ * rotation degrees emitted by the trajectory interpolator can be fed straight
+ * into `icon-rotate` (0° = east on the map). Every shape is drawn on a single
+ * oversampled canvas so MapLibre can downscale it without the usual edge
+ * shimmer.
  */
 
-const DEVICE_SCALE = 2;
+const DEVICE_SCALE = 3;
 
 export type TrainTypeId =
   | 'special_express'
@@ -24,9 +26,9 @@ export type TrainTypeId =
 
 export const TRAIN_TYPE_PALETTE: Record<TrainTypeId, string> = {
   special_express: '#E53935',
-  express: '#EF6C00',
+  express: '#F57C00',
   rapid: '#1E88E5',
-  ordinary: '#43A047',
+  ordinary: '#2E7D32',
   commuter: '#8E24AA',
   default: '#2196F3',
 };
@@ -68,11 +70,40 @@ function mix(c1: string, c2: string, t: number): string {
   return `rgb(${r}, ${g}, ${bl})`;
 }
 
+function roundedRectPath(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  radius: number,
+) {
+  const r = Math.min(radius, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
 /**
  * Modern diesel locomotive silhouette, facing east.
  *
- * Two-tone body: a lighter top half uses the train colour; a darker bottom
- * strip + bogies add depth. A small windshield dot sits near the nose.
+ * Design:
+ *   - Soft ground-shadow ellipse for depth.
+ *   - Two dark rounded bogies peek below the body.
+ *   - Body is a rounded wedge with a short angled nose.
+ *   - Top half is a vertical gradient (brand colour → slightly darker)
+ *     to read as a curved roof at small sizes.
+ *   - A narrow dark roof strip and a white windshield mark the cab,
+ *     giving the icon a clear "front".
+ *   - A warm amber headlight pip on the nose.
  */
 function drawLocomotive(
   ctx: CanvasRenderingContext2D,
@@ -80,82 +111,113 @@ function drawLocomotive(
   h: number,
   color: string,
 ) {
-  const dark = mix(color, '#000000', 0.45);
-  const accent = mix(color, '#FFFFFF', 0.45);
+  const dark = mix(color, '#000000', 0.5);
+  const light = mix(color, '#FFFFFF', 0.18);
 
-  // Bogies — grey stubs underneath.
-  ctx.fillStyle = '#1F2937';
-  const bogieY = h * 0.72;
-  const bogieH = h * 0.14;
-  ctx.fillRect(w * 0.14, bogieY, w * 0.12, bogieH);
-  ctx.fillRect(w * 0.58, bogieY, w * 0.12, bogieH);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
-  // Main body with a chiseled nose.
+  // Ground shadow.
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.22)';
+  ctx.filter = 'blur(2px)';
+  ctx.beginPath();
+  ctx.ellipse(w * 0.52, h * 0.88, w * 0.42, h * 0.08, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Bogies.
+  ctx.fillStyle = '#111827';
+  roundedRectPath(ctx, w * 0.14, h * 0.74, w * 0.16, h * 0.14, h * 0.04);
+  ctx.fill();
+  roundedRectPath(ctx, w * 0.6, h * 0.74, w * 0.16, h * 0.14, h * 0.04);
+  ctx.fill();
+
+  // Body outline (wedge + rounded tail).
   const bodyTop = h * 0.22;
-  const bodyBottom = h * 0.72;
-  const noseTipX = w * 0.96;
-  const noseBaseX = w * 0.82;
-  const tailX = w * 0.08;
-  const tailRadius = h * 0.1;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(tailX + tailRadius, bodyTop);
-  ctx.lineTo(noseBaseX, bodyTop);
-  ctx.lineTo(noseTipX, (bodyTop + bodyBottom) / 2);
-  ctx.lineTo(noseBaseX, bodyBottom);
-  ctx.lineTo(tailX + tailRadius, bodyBottom);
-  ctx.quadraticCurveTo(tailX, bodyBottom, tailX, bodyBottom - tailRadius);
-  ctx.lineTo(tailX, bodyTop + tailRadius);
-  ctx.quadraticCurveTo(tailX, bodyTop, tailX + tailRadius, bodyTop);
-  ctx.closePath();
+  const bodyBottom = h * 0.74;
+  const tailX = w * 0.06;
+  const tailR = h * 0.12;
+  const shoulderX = w * 0.78;
+  const noseTipX = w * 0.97;
+  const midY = (bodyTop + bodyBottom) / 2;
+
+  const bodyPath = () => {
+    ctx.beginPath();
+    ctx.moveTo(tailX + tailR, bodyTop);
+    ctx.lineTo(shoulderX, bodyTop);
+    ctx.quadraticCurveTo(w * 0.92, bodyTop + h * 0.04, noseTipX, midY);
+    ctx.quadraticCurveTo(w * 0.92, bodyBottom - h * 0.04, shoulderX, bodyBottom);
+    ctx.lineTo(tailX + tailR, bodyBottom);
+    ctx.quadraticCurveTo(tailX, bodyBottom, tailX, bodyBottom - tailR);
+    ctx.lineTo(tailX, bodyTop + tailR);
+    ctx.quadraticCurveTo(tailX, bodyTop, tailX + tailR, bodyTop);
+    ctx.closePath();
+  };
+
+  // Body fill with vertical gradient.
+  const gradient = ctx.createLinearGradient(0, bodyTop, 0, bodyBottom);
+  gradient.addColorStop(0, light);
+  gradient.addColorStop(0.5, color);
+  gradient.addColorStop(1, dark);
+  ctx.fillStyle = gradient;
+  bodyPath();
   ctx.fill();
 
-  // Dark roof strip.
+  // Dark roof strip for silhouette at low zoom.
+  ctx.save();
   ctx.fillStyle = dark;
+  bodyPath();
+  ctx.clip();
+  ctx.fillRect(tailX, bodyTop, w, h * 0.1);
+  ctx.restore();
+
+  // Cab windshield (wrap-around).
+  ctx.fillStyle = 'rgba(226, 232, 240, 0.95)';
   ctx.beginPath();
-  ctx.moveTo(tailX + tailRadius, bodyTop);
-  ctx.lineTo(noseBaseX * 0.98, bodyTop);
-  ctx.lineTo(noseBaseX * 0.98, bodyTop + h * 0.14);
-  ctx.lineTo(tailX + tailRadius, bodyTop + h * 0.14);
+  ctx.moveTo(w * 0.7, bodyTop + h * 0.14);
+  ctx.lineTo(w * 0.82, bodyTop + h * 0.14);
   ctx.quadraticCurveTo(
-    tailX,
-    bodyTop + h * 0.14,
-    tailX,
-    bodyTop + h * 0.14 - tailRadius,
+    w * 0.89,
+    bodyTop + h * 0.2,
+    w * 0.92,
+    bodyTop + h * 0.32,
   );
-  ctx.lineTo(tailX, bodyTop + tailRadius);
-  ctx.quadraticCurveTo(tailX, bodyTop, tailX + tailRadius, bodyTop);
+  ctx.lineTo(w * 0.7, bodyTop + h * 0.32);
   ctx.closePath();
   ctx.fill();
 
-  // Windshield highlight near the nose.
-  ctx.fillStyle = accent;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.74, bodyTop + h * 0.18);
-  ctx.lineTo(w * 0.82, bodyTop + h * 0.18);
-  ctx.lineTo(w * 0.88, bodyTop + h * 0.32);
-  ctx.lineTo(w * 0.74, bodyTop + h * 0.32);
-  ctx.closePath();
+  // Subtle side window strip on the engine hood.
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.55)';
+  roundedRectPath(
+    ctx,
+    w * 0.18,
+    bodyTop + h * 0.16,
+    w * 0.48,
+    h * 0.16,
+    h * 0.04,
+  );
   ctx.fill();
 
-  // White outline around the body for contrast on dark basemaps.
-  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-  ctx.lineWidth = 1.2;
+  // Headlight.
+  ctx.fillStyle = '#FCD34D';
   ctx.beginPath();
-  ctx.moveTo(tailX + tailRadius, bodyTop);
-  ctx.lineTo(noseBaseX, bodyTop);
-  ctx.lineTo(noseTipX, (bodyTop + bodyBottom) / 2);
-  ctx.lineTo(noseBaseX, bodyBottom);
-  ctx.lineTo(tailX + tailRadius, bodyBottom);
-  ctx.quadraticCurveTo(tailX, bodyBottom, tailX, bodyBottom - tailRadius);
-  ctx.lineTo(tailX, bodyTop + tailRadius);
-  ctx.quadraticCurveTo(tailX, bodyTop, tailX + tailRadius, bodyTop);
-  ctx.closePath();
+  ctx.arc(w * 0.955, midY, h * 0.05, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.lineWidth = 0.6;
+  ctx.stroke();
+
+  // White outline for contrast.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+  ctx.lineWidth = 1.3;
+  bodyPath();
   ctx.stroke();
 }
 
 /**
- * Passenger carriage silhouette: rounded body, dark windows, two bogies.
+ * Passenger carriage silhouette: softly rounded body, dark window strip
+ * split into panes, two bogies, ground shadow.
  */
 function drawCarriage(
   ctx: CanvasRenderingContext2D,
@@ -163,67 +225,80 @@ function drawCarriage(
   h: number,
   color: string,
 ) {
-  const dark = mix(color, '#000000', 0.5);
+  const dark = mix(color, '#000000', 0.55);
+  const light = mix(color, '#FFFFFF', 0.12);
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  // Ground shadow.
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
+  ctx.filter = 'blur(1.8px)';
+  ctx.beginPath();
+  ctx.ellipse(w * 0.5, h * 0.86, w * 0.44, h * 0.07, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 
   // Bogies.
-  ctx.fillStyle = '#1F2937';
-  const bogieY = h * 0.72;
-  const bogieH = h * 0.14;
-  ctx.fillRect(w * 0.16, bogieY, w * 0.12, bogieH);
-  ctx.fillRect(w * 0.72, bogieY, w * 0.12, bogieH);
-
-  // Body.
-  const bodyTop = h * 0.3;
-  const bodyBottom = h * 0.72;
-  const radius = h * 0.15;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.06 + radius, bodyTop);
-  ctx.lineTo(w * 0.94 - radius, bodyTop);
-  ctx.quadraticCurveTo(w * 0.94, bodyTop, w * 0.94, bodyTop + radius);
-  ctx.lineTo(w * 0.94, bodyBottom - radius);
-  ctx.quadraticCurveTo(w * 0.94, bodyBottom, w * 0.94 - radius, bodyBottom);
-  ctx.lineTo(w * 0.06 + radius, bodyBottom);
-  ctx.quadraticCurveTo(w * 0.06, bodyBottom, w * 0.06, bodyBottom - radius);
-  ctx.lineTo(w * 0.06, bodyTop + radius);
-  ctx.quadraticCurveTo(w * 0.06, bodyTop, w * 0.06 + radius, bodyTop);
-  ctx.closePath();
+  ctx.fillStyle = '#111827';
+  roundedRectPath(ctx, w * 0.16, h * 0.72, w * 0.14, h * 0.14, h * 0.04);
+  ctx.fill();
+  roundedRectPath(ctx, w * 0.7, h * 0.72, w * 0.14, h * 0.14, h * 0.04);
   ctx.fill();
 
-  // Window strip.
-  ctx.fillStyle = dark;
-  const winTop = bodyTop + h * 0.1;
-  const winBottom = bodyTop + h * 0.3;
-  ctx.fillRect(w * 0.12, winTop, w * 0.76, winBottom - winTop);
+  // Body.
+  const bodyTop = h * 0.26;
+  const bodyBottom = h * 0.72;
+  const bodyX = w * 0.04;
+  const bodyW = w * 0.92;
+  const bodyH = bodyBottom - bodyTop;
+  const bodyR = h * 0.14;
 
-  // White outline.
-  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.06 + radius, bodyTop);
-  ctx.lineTo(w * 0.94 - radius, bodyTop);
-  ctx.quadraticCurveTo(w * 0.94, bodyTop, w * 0.94, bodyTop + radius);
-  ctx.lineTo(w * 0.94, bodyBottom - radius);
-  ctx.quadraticCurveTo(w * 0.94, bodyBottom, w * 0.94 - radius, bodyBottom);
-  ctx.lineTo(w * 0.06 + radius, bodyBottom);
-  ctx.quadraticCurveTo(w * 0.06, bodyBottom, w * 0.06, bodyBottom - radius);
-  ctx.lineTo(w * 0.06, bodyTop + radius);
-  ctx.quadraticCurveTo(w * 0.06, bodyTop, w * 0.06 + radius, bodyTop);
-  ctx.closePath();
+  const gradient = ctx.createLinearGradient(0, bodyTop, 0, bodyBottom);
+  gradient.addColorStop(0, light);
+  gradient.addColorStop(0.55, color);
+  gradient.addColorStop(1, dark);
+  ctx.fillStyle = gradient;
+  roundedRectPath(ctx, bodyX, bodyTop, bodyW, bodyH, bodyR);
+  ctx.fill();
+
+  // Window strip (split into panes for texture).
+  const winTop = bodyTop + h * 0.1;
+  const winH = h * 0.2;
+  const winPadX = w * 0.08;
+  const winInnerW = bodyW - winPadX * 2;
+  const winPanes = 5;
+  const paneGap = w * 0.012;
+  const paneW = (winInnerW - paneGap * (winPanes - 1)) / winPanes;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+  for (let i = 0; i < winPanes; i++) {
+    const x = bodyX + winPadX + i * (paneW + paneGap);
+    roundedRectPath(ctx, x, winTop, paneW, winH, h * 0.03);
+    ctx.fill();
+  }
+
+  // Window highlight (subtle top sheen).
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.fillRect(bodyX + winPadX, winTop, winInnerW, winH * 0.28);
+
+  // Body outline.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.lineWidth = 1.1;
+  roundedRectPath(ctx, bodyX, bodyTop, bodyW, bodyH, bodyR);
   ctx.stroke();
 }
 
 /**
- * Soft amber glow for the selected train. Non-SDF so the radial gradient
- * ships its own colour.
+ * Soft amber glow for the selected train.
  */
 function drawHalo(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const cx = w / 2;
   const cy = h / 2;
   const radius = Math.min(w, h) / 2;
-  const gradient = ctx.createRadialGradient(cx, cy, radius * 0.2, cx, cy, radius);
+  const gradient = ctx.createRadialGradient(cx, cy, radius * 0.15, cx, cy, radius);
   gradient.addColorStop(0, 'rgba(255, 234, 145, 0.95)');
-  gradient.addColorStop(0.55, 'rgba(245, 158, 11, 0.5)');
+  gradient.addColorStop(0.55, 'rgba(245, 158, 11, 0.45)');
   gradient.addColorStop(1, 'rgba(245, 158, 11, 0)');
   ctx.fillStyle = gradient;
   ctx.beginPath();
@@ -257,7 +332,7 @@ export function registerVehicleIcons(map: maplibregl.Map): void {
     const carriageId = carriageIconId(type);
     if (!map.hasImage(locoId)) {
       try {
-        const img = renderToImageData(64, 28, (ctx, w, h) =>
+        const img = renderToImageData(72, 30, (ctx, w, h) =>
           drawLocomotive(ctx, w, h, color),
         );
         map.addImage(locoId, img, { pixelRatio: DEVICE_SCALE });
@@ -267,7 +342,7 @@ export function registerVehicleIcons(map: maplibregl.Map): void {
     }
     if (!map.hasImage(carriageId)) {
       try {
-        const img = renderToImageData(48, 20, (ctx, w, h) =>
+        const img = renderToImageData(54, 22, (ctx, w, h) =>
           drawCarriage(ctx, w, h, color),
         );
         map.addImage(carriageId, img, { pixelRatio: DEVICE_SCALE });
@@ -279,7 +354,7 @@ export function registerVehicleIcons(map: maplibregl.Map): void {
 
   if (!map.hasImage(HALO_ICON_ID)) {
     try {
-      const img = renderToImageData(96, 96, drawHalo);
+      const img = renderToImageData(112, 112, drawHalo);
       map.addImage(HALO_ICON_ID, img, { pixelRatio: DEVICE_SCALE });
     } catch (err) {
       console.warn('Failed to register halo icon', err);

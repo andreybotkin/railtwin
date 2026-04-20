@@ -24,6 +24,15 @@ class RailroadRepository(ABC):
         ...
 
     @abstractmethod
-    async def replace_stations(self, stations: list[StationData]) -> int:
-        """Replace the canonical station locations loaded from the JSON file."""
+    async def replace_stations(
+        self,
+        stations: list[StationData],
+        aliases: dict[str, str] | None = None,
+    ) -> int:
+        """Replace the canonical station locations loaded from the JSON file.
+
+        ``aliases`` maps raw schedule names (as written by timetable sources)
+        to the canonical station ``name_en`` and is persisted so the schedule
+        resolver can hit them before falling back to fuzzy matching.
+        """
         ...

@@ -141,6 +141,9 @@ def _station_coord(schedule: Schedule) -> tuple[float, float] | None:
     return float(point.x), float(point.y)
 
 
+_PROJECTION_CORRIDOR = 0.12
+
+
 def _stop_fractions(
     schedules: list[Schedule],
     polyline: list[list[float]],
@@ -148,59 +151,74 @@ def _stop_fractions(
 ) -> list[float]:
     """Resolve each schedule stop to its fraction along the polyline.
 
-    Strategy (in order of preference):
+    Strategy:
 
-    1. If the station has real geometry, project it onto the polyline — this
-       is the ground truth, independent of any (often missing or stale)
-       distance-from-origin metadata on ``RouteStation`` / ``Schedule``.
-    2. Otherwise fall back to ``schedule_utils.get_stop_progress`` (uses
-       ``RouteStation.distance_from_start`` / ``schedule.route_progress`` /
-       linear-by-index as a last resort).
-
-    After raw fractions are resolved, they are made **monotonic** in the
-    dominant direction: we detect whether fractions trend up or down across
-    the sequence and enforce running maxima (or minima) so that a single
-    noisy projection can't place a later stop behind an earlier one.
+    1. Build a **reference sequence** from ``get_stop_progress`` — it's
+       monotonic by construction (distance-from-start / route-progress /
+       linear-by-index) and therefore safe as a fallback.
+    2. For every stop with real geometry, project it onto the polyline.
+    3. Accept the projection only when it lands within a corridor
+       (``_PROJECTION_CORRIDOR``) of the reference — otherwise the
+       projection is an obvious outlier (wrong polyline, ambiguous
+       branch, stale coordinate) and the reference wins.
+    4. A final running-max/min sweep guarantees strict monotonicity
+       without letting a single outlier collapse the whole sequence.
     """
 
     total_stops = len(schedules)
-    raw: list[float] = []
-    for index, schedule in enumerate(schedules):
-        fraction: float | None = None
+    reference: list[float] = [
+        max(
+            0.0,
+            min(
+                1.0,
+                float(
+                    schedule_utils.get_stop_progress(
+                        schedule,
+                        index,
+                        total_stops,
+                        route_distance_km,
+                    )
+                ),
+            ),
+        )
+        for index, schedule in enumerate(schedules)
+    ]
+
+    if total_stops < 2 or len(polyline) < 2:
+        return reference
+
+    projected: list[float | None] = []
+    for schedule in schedules:
         coord = _station_coord(schedule)
-        if coord is not None and len(polyline) >= 2:
-            _, fraction = geo_utils.project_onto_polyline(polyline, *coord)
-        if fraction is None:
-            fraction = schedule_utils.get_stop_progress(
-                schedule,
-                index,
-                total_stops,
-                route_distance_km,
-            )
-        raw.append(max(0.0, min(1.0, float(fraction))))
+        if coord is None:
+            projected.append(None)
+            continue
+        _, frac = geo_utils.project_onto_polyline(polyline, *coord)
+        if frac is None:
+            projected.append(None)
+            continue
+        projected.append(max(0.0, min(1.0, float(frac))))
 
-    if len(raw) < 2:
-        return raw
+    resolved: list[float] = []
+    for ref, proj in zip(reference, projected):
+        if proj is not None and abs(proj - ref) <= _PROJECTION_CORRIDOR:
+            resolved.append(proj)
+        else:
+            resolved.append(ref)
 
-    # Decide dominant direction by majority vote of adjacent differences —
-    # that is robust to a single outlier mid-sequence.
-    ups = sum(1 for a, b in zip(raw, raw[1:]) if b > a + 1e-9)
-    downs = sum(1 for a, b in zip(raw, raw[1:]) if b < a - 1e-9)
-    ascending = ups >= downs
-
-    adjusted = list(raw)
+    ascending = reference[-1] >= reference[0]
     if ascending:
-        running = adjusted[0]
-        for i in range(1, len(adjusted)):
-            running = max(running, adjusted[i])
-            adjusted[i] = running
+        running = resolved[0]
+        for i in range(1, len(resolved)):
+            running = max(running, resolved[i])
+            resolved[i] = running
     else:
-        running = adjusted[0]
-        for i in range(1, len(adjusted)):
-            running = min(running, adjusted[i])
-            adjusted[i] = running
+        running = resolved[0]
+        for i in range(1, len(resolved)):
+            running = min(running, resolved[i])
+            resolved[i] = running
 
-    return adjusted
+    return resolved
 
 
 # --------------------------------------------------------------------------- #
