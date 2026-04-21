@@ -11,10 +11,11 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Building2, Search, Train, X } from 'lucide-react';
 
 import { useRailwayStore } from '@/lib/stores/railway-store';
-import { cn, getTrainTypeColor, getTrainTypeName } from '@/lib/utils';
+import { getTrainTypeColor, getTrainTypeName } from '@/lib/utils';
 import type { Station, Trajectory } from '@/types';
 
 interface StationResult {
@@ -127,6 +128,7 @@ export default function SearchPanel({ open, onClose }: SearchPanelProps) {
 }
 
 function SearchPanelImpl({ onClose }: { onClose: () => void }) {
+  const t = useTranslations();
   const topology = useRailwayStore((s) => s.topology);
   const trajectories = useRailwayStore((s) => s.trajectories);
   const selectTrain = useRailwayStore((s) => s.selectTrain);
@@ -189,17 +191,29 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="pointer-events-auto fixed inset-0 z-[1100] flex items-start justify-center bg-black/30 p-3 pt-[max(4rem,env(safe-area-inset-top))] backdrop-blur-sm sm:pt-24"
+      className="pointer-events-auto fixed inset-0 z-[1100] flex items-start justify-center p-3 pt-[max(4rem,env(safe-area-inset-top))] backdrop-blur-sm sm:pt-24"
+      style={{ background: 'rgba(0,0,0,0.3)' }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Search stations and trains"
+      aria-label={t('search.ariaLabel')}
     >
-      <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/60 bg-[rgba(252,249,242,0.98)] shadow-[0_22px_60px_-18px_rgba(15,23,42,0.55)]">
-        <div className="flex items-center gap-2 border-b border-zinc-200/70 px-3">
-          <Search className="h-4 w-4 text-zinc-500" />
+      <div
+        className="w-full max-w-lg overflow-hidden rounded-3xl"
+        style={{
+          background: 'var(--panel-bg-strong)',
+          border: '1px solid var(--panel-border)',
+          boxShadow: 'var(--panel-shadow)',
+          color: 'var(--panel-text)',
+        }}
+      >
+        <div
+          className="flex items-center gap-2 px-3"
+          style={{ borderBottom: '1px solid var(--panel-border)' }}
+        >
+          <Search className="h-4 w-4" style={{ color: 'var(--panel-subtext)' }} />
           <input
             ref={inputRef}
             value={query}
@@ -220,13 +234,15 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                 if (target) handleSelect(target);
               }
             }}
-            placeholder="Station name or train number..."
-            className="h-12 flex-1 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+            placeholder={t('search.placeholder')}
+            className="h-12 flex-1 bg-transparent text-sm focus:outline-none"
+            style={{ color: 'var(--panel-text)' }}
           />
           <button
             onClick={onClose}
-            aria-label="Close search"
-            className="rounded-full p-1.5 text-zinc-500 transition hover:bg-zinc-900 hover:text-white"
+            aria-label={t('search.close')}
+            className="rounded-full p-1.5 transition"
+            style={{ color: 'var(--panel-subtext)' }}
           >
             <X className="h-4 w-4" />
           </button>
@@ -234,7 +250,7 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
 
         <ul className="max-h-[min(28rem,70dvh)] overflow-y-auto py-1">
           {results.length === 0 ? (
-            <li className="px-4 py-6 text-center text-xs text-zinc-500">
+            <li className="px-4 py-6 text-center text-xs" style={{ color: 'var(--panel-subtext)' }}>
               {query.trim()
                 ? 'No matches. Try a station code or train number.'
                 : 'Start typing to search.'}
@@ -248,10 +264,11 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelect(r)}
                     onMouseEnter={() => setFocusIndex(idx)}
-                    className={cn(
-                      'flex w-full items-center gap-3 px-3 py-2.5 text-left transition',
-                      focused ? 'bg-zinc-900 text-white' : 'text-zinc-800 hover:bg-zinc-100',
-                    )}
+                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition"
+                    style={{
+                      background: focused ? 'var(--header-logo-bg)' : 'transparent',
+                      color: focused ? '#ffffff' : 'var(--panel-text)',
+                    }}
                   >
                     {r.kind === 'train' ? (
                       <span
@@ -262,10 +279,11 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                       </span>
                     ) : (
                       <span
-                        className={cn(
-                          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                          focused ? 'bg-white/15 text-white' : 'bg-zinc-200 text-zinc-700',
-                        )}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                        style={{
+                          background: focused ? 'rgba(255,255,255,0.15)' : 'var(--panel-inner)',
+                          color: focused ? '#ffffff' : 'var(--panel-subtext)',
+                        }}
                       >
                         <Building2 className="h-4 w-4" />
                       </span>
@@ -273,29 +291,26 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold">{r.name}</div>
                       <div
-                        className={cn(
-                          'truncate text-[11px]',
-                          focused ? 'text-zinc-300' : 'text-zinc-500',
-                        )}
+                        className="truncate text-[11px]"
+                        style={{ color: focused ? 'rgba(255,255,255,0.7)' : 'var(--panel-subtext)' }}
                       >
                         {r.subtitle}
                       </div>
                     </div>
                     {r.kind === 'station' && r.code ? (
                       <span
-                        className={cn(
-                          'rounded px-1.5 py-0.5 font-mono text-[10px] tracking-wide',
-                          focused ? 'bg-white/15 text-white' : 'bg-zinc-200/80 text-zinc-600',
-                        )}
+                        className="rounded px-1.5 py-0.5 font-mono text-[10px] tracking-wide"
+                        style={{
+                          background: focused ? 'rgba(255,255,255,0.15)' : 'var(--panel-inner)',
+                          color: focused ? '#ffffff' : 'var(--panel-subtext)',
+                        }}
                       >
                         {r.code}
                       </span>
                     ) : r.kind === 'train' ? (
                       <Train
-                        className={cn(
-                          'h-3.5 w-3.5',
-                          focused ? 'text-zinc-300' : 'text-zinc-400',
-                        )}
+                        className="h-3.5 w-3.5"
+                        style={{ color: focused ? 'rgba(255,255,255,0.7)' : 'var(--panel-subtext)' }}
                       />
                     ) : null}
                   </button>
@@ -306,10 +321,11 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
         </ul>
 
         <div
-          className={cn(
-            'flex items-center justify-between border-t border-zinc-200/70 px-3 py-2 text-[10px]',
-            'text-zinc-500',
-          )}
+          className="flex items-center justify-between px-3 py-2 text-[10px]"
+          style={{
+            borderTop: '1px solid var(--panel-border)',
+            color: 'var(--panel-subtext)',
+          }}
         >
           <span>
             {results.length} result{results.length === 1 ? '' : 's'}

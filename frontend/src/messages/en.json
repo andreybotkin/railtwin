@@ -4,7 +4,8 @@
     "toggleTrainPanel": "Toggle train panel",
     "toggleSchedulePanel": "Toggle schedule panel",
     "toggleDarkMode": "Toggle dark mode",
-    "language": "Language"
+    "language": "Language",
+    "subtitle": "Live railway digital twin"
   },
   "map": {
     "northern": "Northern",
@@ -18,6 +19,7 @@
     "train": "Train",
     "speed": "Speed",
     "delay": "Delay",
+    "eta": "ETA",
     "onTime": "On time",
     "nextStation": "Next station",
     "journeyProgress": "Journey progress",
@@ -28,10 +30,18 @@
     "stopped": "Stopped",
     "atStation": "At Station",
     "delayed": "Delayed",
+    "enRoute": "En route",
+    "boarding": "Boarding",
+    "arrived": "Arrived",
     "searchPlaceholder": "Search trains...",
     "noTrainsFound": "No trains found",
     "live": "Live",
-    "polling": "Polling"
+    "polling": "Polling",
+    "next": "Next",
+    "to": "to",
+    "routeProgress": "Route",
+    "stopTimeline": "Stops",
+    "timeline": "Stop timeline"
   },
   "schedule": {
     "title": "Schedule",
@@ -40,7 +50,14 @@
     "arrival": "Arrival",
     "departure": "Departure",
     "platform": "Platform",
-    "distance": "Distance"
+    "distance": "Distance",
+    "timetable": "Timetable",
+    "nextService": "Next service",
+    "arrAbbr": "Arr",
+    "depAbbr": "Dep",
+    "services": "{count} services",
+    "noServices": "No scheduled services.",
+    "loading": "Loading timetable…"
   },
   "station": {
     "majorStation": "Major Station",
@@ -52,7 +69,10 @@
   "common": {
     "loading": "Loading...",
     "error": "Error",
-    "noData": "No data available"
+    "noData": "No data available",
+    "close": "Close",
+    "station": "Station",
+    "train": "Train"
   },
   "topics": {
     "railway": "Railway Operations",
@@ -75,6 +95,11 @@
     "trainsSpecialExpress": "Special Express",
     "trainsRapid": "Rapid",
     "trainsOrdinary": "Ordinary"
+  },
+  "search": {
+    "placeholder": "Search stations and trains…",
+    "ariaLabel": "Search stations and trains",
+    "close": "Close search"
   },
   "footer": {
     "copyright": "© 2026 Thailand Railway Digital Twin",

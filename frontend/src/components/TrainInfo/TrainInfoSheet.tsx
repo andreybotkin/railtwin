@@ -20,6 +20,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { ChevronRight, Gauge, MapPin, Navigation, Train as TrainIcon, X } from 'lucide-react';
 
@@ -36,12 +37,14 @@ function delayColor(minutes: number): string {
   return '#991B1B';
 }
 
-function statusLabel(status: string, speedKmh: number): string {
-  if (status === 'dwelling') return 'At station';
-  if (status === 'arrived') return 'Arrived';
-  if (status === 'boarding') return 'Boarding';
-  if (speedKmh < 1) return 'Stopped';
-  return 'En route';
+type StatusKey = 'atStation' | 'arrived' | 'boarding' | 'stopped' | 'enRoute';
+
+function statusKey(status: string, speedKmh: number): StatusKey {
+  if (status === 'dwelling') return 'atStation';
+  if (status === 'arrived') return 'arrived';
+  if (status === 'boarding') return 'boarding';
+  if (speedKmh < 1) return 'stopped';
+  return 'enRoute';
 }
 
 function statusTint(status: string, speedKmh: number): string {
@@ -82,12 +85,6 @@ function StopRow({
   isActive: boolean;
   isLast: boolean;
 }) {
-  const tone =
-    stop.state === 'PASSED'
-      ? 'text-zinc-400'
-      : isActive
-        ? 'text-zinc-950 font-semibold'
-        : 'text-zinc-700';
   const dot =
     stop.state === 'PASSED'
       ? 'bg-zinc-300'
@@ -100,19 +97,36 @@ function StopRow({
       <div className="relative flex h-5 w-5 shrink-0 items-center justify-center">
         <span className={cn('h-2 w-2 rounded-full', dot)} />
         {!isLast && (
-          <span className="absolute left-1/2 top-full h-[22px] w-px -translate-x-1/2 bg-zinc-200" />
+          <span
+            className="absolute left-1/2 top-full h-[22px] w-px -translate-x-1/2"
+            style={{ background: 'var(--panel-inner-ring)' }}
+          />
         )}
       </div>
-      <div className={cn('flex min-w-0 flex-1 items-center justify-between gap-2', tone)}>
-        <span className="truncate text-sm">{stop.station_name}</span>
-        <span className="flex items-center gap-1.5 text-[11px] tabular-nums text-zinc-500">
+      <div
+        className="flex min-w-0 flex-1 items-center justify-between gap-2 text-sm"
+        style={{
+          color: stop.state === 'PASSED'
+            ? 'var(--panel-subtext)'
+            : isActive
+              ? 'var(--panel-text)'
+              : 'var(--panel-text)',
+          fontWeight: isActive ? 600 : 400,
+          opacity: stop.state === 'PASSED' ? 0.6 : 1,
+        }}
+      >
+        <span className="truncate">{stop.station_name}</span>
+        <span
+          className="flex items-center gap-1.5 text-[11px] tabular-nums"
+          style={{ color: 'var(--panel-subtext)' }}
+        >
           {stop.aimed_arrival_minutes !== null ? (
             <>
               <span>{formatStopTime(stop.aimed_arrival_minutes)}</span>
               {stop.aimed_departure_minutes !== null &&
                 stop.aimed_departure_minutes !== stop.aimed_arrival_minutes && (
                   <>
-                    <span className="text-zinc-300">→</span>
+                    <span style={{ opacity: 0.4 }}>→</span>
                     <span>{formatStopTime(stop.aimed_departure_minutes)}</span>
                   </>
                 )}
@@ -127,6 +141,7 @@ function StopRow({
 }
 
 export default function TrainInfoSheet() {
+  const t = useTranslations();
   const selectedTrainId = useRailwayStore((s) => s.selectedTrainId);
   const trajectory = useRailwayStore((s) =>
     selectedTrainId !== null ? s.trajectories.get(selectedTrainId) ?? null : null,
@@ -174,29 +189,35 @@ export default function TrainInfoSheet() {
   const progressPct = Math.round(Math.max(0, Math.min(100, liveGeomFraction * 100)));
   const segmentPct = Math.round(Math.max(0, Math.min(100, meta.segment_progress_pct)));
   const statusClass = statusTint(status, speed);
-  const statusText = statusLabel(status, speed);
+  const statusText = t(`trains.${statusKey(status, speed)}`);
   const trainLabel = meta.train_name || getTrainTypeName(meta.train_type as string);
   const delayHex = delayColor(meta.delay_minutes);
 
   return (
     <div
       className={cn(
-        'pointer-events-auto fixed z-[1000] text-zinc-900',
+        'info-sheet pointer-events-auto fixed z-[1000] text-zinc-900',
         // Mobile: bottom sheet spanning the viewport.
         'inset-x-0 bottom-0 rounded-t-3xl',
         // Desktop: floating card.
         'sm:inset-x-auto sm:bottom-4 sm:right-4 sm:w-[22rem] sm:rounded-3xl',
-        'border border-white/60 bg-[rgba(252,249,242,0.94)] shadow-[0_-18px_48px_-22px_rgba(15,23,42,0.45)] backdrop-blur-xl',
-        'sm:shadow-[0_22px_60px_-28px_rgba(15,23,42,0.55)]',
+        'backdrop-blur-xl',
         'max-h-[80dvh] overflow-y-auto',
       )}
       style={{
-        // Colour accent strip rendered as a thin gradient ribbon at the top edge.
+        background: 'var(--panel-bg-strong)',
+        border: '1px solid var(--panel-border)',
+        boxShadow: 'var(--panel-shadow-up)',
+        color: 'var(--panel-text)',
         borderTop: `3px solid ${meta.color}`,
       }}
     >
       {/* Swipe handle — mobile only. */}
-      <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-zinc-300 sm:hidden" aria-hidden />
+      <div
+        className="mx-auto mt-2 h-1.5 w-10 rounded-full sm:hidden"
+        style={{ background: 'var(--panel-inner-ring)' }}
+        aria-hidden
+      />
 
       <div className="p-4 sm:p-5">
         <header className="flex items-start justify-between gap-3">
@@ -224,81 +245,132 @@ export default function TrainInfoSheet() {
                   {statusText}
                 </span>
               </div>
-              <div className="mt-1 truncate text-[13px] font-semibold text-zinc-900">{trainLabel}</div>
-              <div className="truncate text-xs text-zinc-500">{meta.operator}</div>
+              <div
+                className="mt-1 truncate text-[13px] font-semibold"
+                style={{ color: 'var(--panel-text)' }}
+              >
+                {trainLabel}
+              </div>
+              <div
+                className="truncate text-xs"
+                style={{ color: 'var(--panel-subtext)' }}
+              >
+                {meta.operator}
+              </div>
             </div>
           </div>
           <button
-            aria-label="Close"
+            aria-label={t('common.close')}
             onClick={() => selectTrain(null)}
-            className="rounded-full p-2 text-zinc-500 transition hover:bg-zinc-950 hover:text-white"
+            className="rounded-full p-2 transition"
+            style={{ color: 'var(--panel-subtext)' }}
           >
             <X className="h-4 w-4" />
           </button>
         </header>
 
         <section className="mt-4 grid grid-cols-3 gap-2">
-          <div className="rounded-2xl bg-white/70 px-3 py-2 ring-1 ring-black/5">
-            <div className="flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-zinc-500">
-              <Gauge className="h-3 w-3" /> Speed
-            </div>
-            <div className="mt-0.5 text-lg font-semibold tabular-nums">{formatSpeed(speed)}</div>
-          </div>
-          <div className="rounded-2xl bg-white/70 px-3 py-2 ring-1 ring-black/5">
-            <div className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">Delay</div>
+          {[
+            {
+              label: t('trains.speed'),
+              icon: <Gauge className="h-3 w-3" />,
+              value: formatSpeed(speed),
+              color: undefined as string | undefined,
+            },
+            {
+              label: t('trains.delay'),
+              icon: null,
+              value: formatDelay(meta.delay_minutes),
+              color: delayHex,
+            },
+            {
+              label: t('trains.eta'),
+              icon: <Navigation className="h-3 w-3" />,
+              value: formatCountdown(meta.eta_next_ms, nowMs),
+              color: undefined,
+            },
+          ].map(({ label, icon, value, color }) => (
             <div
-              className="mt-0.5 text-lg font-semibold tabular-nums"
-              style={{ color: delayHex }}
+              key={label}
+              className="rounded-2xl px-3 py-2"
+              style={{ background: 'var(--panel-inner)', boxShadow: `0 0 0 1px var(--panel-inner-ring)` }}
             >
-              {formatDelay(meta.delay_minutes)}
+              <div
+                className="flex items-center gap-1 text-[10px] uppercase tracking-[0.14em]"
+                style={{ color: 'var(--panel-subtext)' }}
+              >
+                {icon} {label}
+              </div>
+              <div
+                className="mt-0.5 text-lg font-semibold tabular-nums"
+                style={{ color: color ?? 'var(--panel-text)' }}
+              >
+                {value}
+              </div>
             </div>
-          </div>
-          <div className="rounded-2xl bg-white/70 px-3 py-2 ring-1 ring-black/5">
-            <div className="flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-zinc-500">
-              <Navigation className="h-3 w-3" /> ETA
-            </div>
-            <div className="mt-0.5 text-lg font-semibold tabular-nums">
-              {formatCountdown(meta.eta_next_ms, nowMs)}
-            </div>
-          </div>
+          ))}
         </section>
 
-        <section className="mt-3 rounded-2xl bg-white/70 px-3 py-2.5 ring-1 ring-black/5">
-          <div className="flex items-center justify-between text-xs text-zinc-600">
+        <section
+          className="mt-3 rounded-2xl px-3 py-2.5"
+          style={{ background: 'var(--panel-inner)', boxShadow: `0 0 0 1px var(--panel-inner-ring)` }}
+        >
+          <div
+            className="flex items-center justify-between text-xs"
+            style={{ color: 'var(--panel-subtext)' }}
+          >
             <span className="truncate">
-              <span className="text-zinc-400">Next</span>{' '}
-              <span className="font-semibold text-zinc-900">{meta.next_station ?? '—'}</span>
+              <span style={{ opacity: 0.6 }}>{t('trains.next')}</span>{' '}
+              <span className="font-semibold" style={{ color: 'var(--panel-text)' }}>
+                {meta.next_station ?? '—'}
+              </span>
             </span>
-            <span className="tabular-nums text-[11px] font-semibold text-zinc-900">{segmentPct}%</span>
+            <span
+              className="tabular-nums text-[11px] font-semibold"
+              style={{ color: 'var(--panel-text)' }}
+            >
+              {segmentPct}%
+            </span>
           </div>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-zinc-200">
+          <div
+            className="mt-1.5 h-1.5 overflow-hidden rounded-full"
+            style={{ background: 'var(--panel-inner-ring)' }}
+          >
             <div
               className="h-full rounded-full transition-[width] duration-500"
-              style={{
-                width: `${segmentPct}%`,
-                backgroundColor: meta.color,
-              }}
+              style={{ width: `${segmentPct}%`, backgroundColor: meta.color }}
             />
           </div>
-          <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
-            <span>Route {progressPct}%</span>
+          <div
+            className="mt-2 flex items-center justify-between text-[11px]"
+            style={{ color: 'var(--panel-subtext)' }}
+          >
+            <span>{t('trains.routeProgress')} {progressPct}%</span>
             <span className="truncate">
-              <span className="text-zinc-400">to</span>{' '}
-              <span className="font-medium text-zinc-700">{meta.destination_station ?? '—'}</span>
+              <span style={{ opacity: 0.6 }}>{t('trains.to')}</span>{' '}
+              <span className="font-medium" style={{ color: 'var(--panel-text)', opacity: 0.8 }}>
+                {meta.destination_station ?? '—'}
+              </span>
             </span>
           </div>
-          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-zinc-200">
+          <div
+            className="mt-1.5 h-1 overflow-hidden rounded-full"
+            style={{ background: 'var(--panel-inner-ring)' }}
+          >
             <div
-              className="h-full rounded-full bg-zinc-900/80 transition-[width] duration-500"
-              style={{ width: `${progressPct}%` }}
+              className="h-full rounded-full transition-[width] duration-500"
+              style={{ width: `${progressPct}%`, background: 'var(--panel-text)', opacity: 0.8 }}
             />
           </div>
         </section>
 
         {timelineStops.length > 0 && (
           <section className="mt-4">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-zinc-500">
-              <MapPin className="h-3 w-3" /> Schedule
+            <div
+              className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em]"
+              style={{ color: 'var(--panel-subtext)' }}
+            >
+              <MapPin className="h-3 w-3" /> {t('trains.stopTimeline')}
             </div>
             <ol className="mt-1.5">
               {timelineStops.map((stop, idx) => (
@@ -314,14 +386,24 @@ export default function TrainInfoSheet() {
         )}
 
         {meta.origin_station && meta.destination_station && (
-          <footer className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-zinc-950/5 px-3 py-2 text-xs text-zinc-600">
+          <footer
+            className="mt-3 flex items-center justify-between gap-2 rounded-2xl px-3 py-2 text-xs"
+            style={{
+              background: 'var(--panel-inner)',
+              color: 'var(--panel-subtext)',
+            }}
+          >
             <span className="truncate">
-              <span className="text-zinc-400">From</span>{' '}
-              <span className="font-medium text-zinc-800">{meta.origin_station}</span>
+              <span style={{ opacity: 0.6 }}>From</span>{' '}
+              <span className="font-medium" style={{ color: 'var(--panel-text)' }}>
+                {meta.origin_station}
+              </span>
             </span>
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
+            <ChevronRight className="h-3.5 w-3.5 shrink-0" style={{ opacity: 0.4 }} />
             <span className="truncate text-right">
-              <span className="font-medium text-zinc-800">{meta.destination_station}</span>
+              <span className="font-medium" style={{ color: 'var(--panel-text)' }}>
+                {meta.destination_station}
+              </span>
             </span>
           </footer>
         )}

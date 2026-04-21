@@ -130,8 +130,45 @@ function resolveInitialDark(): boolean {
   if (typeof window === 'undefined') return false;
   const stored = window.localStorage.getItem('theme');
   if (stored === 'dark') return true;
-  if (stored === 'light') return false;
+  if (stored === 'light' || stored === 'satellite') return false;
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+export type AppTheme = 'light' | 'dark' | 'satellite';
+
+function applyThemeClass(theme: AppTheme): void {
+  document.documentElement.classList.remove('dark', 'satellite');
+  if (theme === 'dark') document.documentElement.classList.add('dark');
+  else if (theme === 'satellite') document.documentElement.classList.add('satellite');
+}
+
+function resolveInitialTheme(): AppTheme {
+  if (typeof window === 'undefined') return 'light';
+  const stored = window.localStorage.getItem('theme') as AppTheme | null;
+  if (stored === 'dark' || stored === 'satellite') return stored;
+  if (stored === 'light') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+export function useTheme(): { theme: AppTheme; cycleTheme: () => void } {
+  const [theme, setTheme] = useState<AppTheme>(() => resolveInitialTheme());
+
+  useEffect(() => {
+    applyThemeClass(theme);
+  }, [theme]);
+
+  const cycleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next: AppTheme =
+        prev === 'light' ? 'dark' : prev === 'dark' ? 'satellite' : 'light';
+      localStorage.setItem('theme', next);
+      applyThemeClass(next);
+      window.location.reload();
+      return next;
+    });
+  }, []);
+
+  return { theme, cycleTheme };
 }
 
 export function useDarkMode(): { isDark: boolean; toggle: () => void } {

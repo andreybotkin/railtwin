@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-/* Dark mode using class strategy (html.dark) */
+/* Theme class strategy: html.dark / html.satellite */
 @custom-variant dark (&:is(.dark *));
+@custom-variant satellite (&:is(.satellite *));
 
 /* Custom theme: use CSS variables for runtime dark mode switching */
 @theme inline {
@@ -79,6 +80,22 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+
+    /* Panel glass-morphic tokens */
+    --panel-bg: rgba(252,249,242,0.86);
+    --panel-bg-strong: rgba(252,249,242,0.94);
+    --panel-border: rgba(255,255,255,0.55);
+    --panel-shadow: 0 18px 40px -28px rgba(15,23,42,0.55);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(15,23,42,0.45);
+    --panel-text: #09090b;
+    --panel-subtext: #71717a;
+    --panel-inner: rgba(255,255,255,0.70);
+    --panel-inner-ring: rgba(0,0,0,0.05);
+    --page-bg: #f4f4f5;
+    --header-logo-bg: #09090b;
+    --header-btn-hover-bg: #09090b;
+    --header-btn-hover-text: #ffffff;
+    --close-btn-hover-bg: #09090b;
   }
 
   .dark {
@@ -101,6 +118,59 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
+    --panel-bg: rgba(15,18,30,0.88);
+    --panel-bg-strong: rgba(12,15,25,0.95);
+    --panel-border: rgba(255,255,255,0.10);
+    --panel-shadow: 0 18px 40px -28px rgba(0,0,0,0.80);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(0,0,0,0.70);
+    --panel-text: #f1f5f9;
+    --panel-subtext: #94a3b8;
+    --panel-inner: rgba(255,255,255,0.06);
+    --panel-inner-ring: rgba(255,255,255,0.08);
+    --page-bg: #0a0c16;
+    --header-logo-bg: #f1f5f9;
+    --header-btn-hover-bg: #f1f5f9;
+    --header-btn-hover-text: #09090b;
+    --close-btn-hover-bg: #f1f5f9;
+  }
+
+  /* Satellite / Green theme */
+  .satellite {
+    --background: 150 25% 8%;
+    --foreground: 142 50% 92%;
+    --card: 150 25% 8%;
+    --card-foreground: 142 50% 92%;
+    --popover: 150 25% 8%;
+    --popover-foreground: 142 50% 92%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 150 60% 6%;
+    --secondary: 148 28% 14%;
+    --secondary-foreground: 142 50% 88%;
+    --muted: 148 28% 14%;
+    --muted-foreground: 142 30% 60%;
+    --accent: 148 28% 14%;
+    --accent-foreground: 142 50% 88%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 142 50% 92%;
+    --border: 148 28% 18%;
+    --input: 148 28% 14%;
+    --ring: 142 71% 45%;
+
+    --panel-bg: rgba(8,26,14,0.88);
+    --panel-bg-strong: rgba(6,20,10,0.95);
+    --panel-border: rgba(74,222,128,0.22);
+    --panel-shadow: 0 18px 40px -28px rgba(0,0,0,0.80);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(0,0,0,0.70);
+    --panel-text: #f0fdf4;
+    --panel-subtext: #86efac;
+    --panel-inner: rgba(74,222,128,0.08);
+    --panel-inner-ring: rgba(74,222,128,0.15);
+    --page-bg: #050f07;
+    --header-logo-bg: #16a34a;
+    --header-btn-hover-bg: #16a34a;
+    --header-btn-hover-text: #ffffff;
+    --close-btn-hover-bg: #16a34a;
   }
 
   * {

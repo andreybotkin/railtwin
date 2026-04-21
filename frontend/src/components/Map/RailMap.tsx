@@ -41,11 +41,13 @@ import {
   locoIconIdLeft,
 } from '@/lib/vehicle-icons';
 
+import { useTheme } from '@/lib/hooks';
+
 import SelectedRouteLayer from './SelectedRouteLayer';
 import StationsLayer, { STATIONS_INTERACTIVE_LAYERS } from './StationsLayer';
 import TracksLayer from './TracksLayer';
 import VehiclesLayer from './VehiclesLayer';
-import { THAILAND_VIEW, getMapStyleUrl } from './map-style';
+import { THAILAND_VIEW, getMapStyleForTheme } from './map-style';
 
 const VEHICLE_INTERACTIVE_LAYERS = ['vehicles-locomotive', 'vehicles-carriage'];
 const INTERACTIVE_LAYERS = [
@@ -75,11 +77,13 @@ export default function RailMap() {
   const mapRef = useRef<MapRef | null>(null);
   const iconMapRef = useRef<MapLibreMap | null>(null);
   const { data: topology } = useMapTopology();
+  const { theme } = useTheme();
 
   const setTopology = useRailwayStore((s) => s.setTopology);
   const setViewportBbox = useRailwayStore((s) => s.setViewportBbox);
   const selectTrain = useRailwayStore((s) => s.selectTrain);
   const selectStation = useRailwayStore((s) => s.selectStation);
+  const requestFlyTo = useRailwayStore((s) => s.requestFlyTo);
   const selectedTrainId = useRailwayStore((s) => s.selectedTrainId);
   const selectedStationId = useRailwayStore((s) => s.selectedStationId);
   const flyTo = useRailwayStore((s) => s.flyTo);
@@ -96,11 +100,19 @@ export default function RailMap() {
     if (!flyTo) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    let padding: { top: number; bottom: number; left: number; right: number } | undefined;
+    if (isMobile) {
+      const panel = document.querySelector<HTMLElement>('.info-sheet');
+      const bottom = panel?.offsetHeight ?? Math.round(window.innerHeight * 0.48);
+      padding = { top: 0, bottom, left: 16, right: 16 };
+    }
     map.flyTo({
       center: [flyTo.lon, flyTo.lat],
       zoom: flyTo.zoom ?? Math.max(map.getZoom() ?? 0, 11),
       duration: 900,
       essential: true,
+      ...(padding ? { padding } : {}),
     });
     clearFlyTo(null);
   }, [flyTo, clearFlyTo]);
@@ -129,6 +141,7 @@ export default function RailMap() {
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
       const features = event.features ?? [];
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
       const vehicle = features.find((f) =>
         VEHICLE_INTERACTIVE_LAYERS.includes(f.layer?.id ?? ''),
@@ -136,7 +149,11 @@ export default function RailMap() {
       if (vehicle) {
         const trainId = vehicle.properties?.train_id;
         if (typeof trainId === 'number') {
-          selectTrain(trainId === selectedTrainId ? null : trainId);
+          const isNew = trainId !== selectedTrainId;
+          selectTrain(isNew ? trainId : null);
+          if (isNew && isMobile) {
+            requestFlyTo({ lon: event.lngLat.lng, lat: event.lngLat.lat });
+          }
         }
         return;
       }
@@ -147,7 +164,11 @@ export default function RailMap() {
       if (station) {
         const stationId = station.properties?.station_id;
         if (typeof stationId === 'number') {
-          selectStation(stationId === selectedStationId ? null : stationId);
+          const isNew = stationId !== selectedStationId;
+          selectStation(isNew ? stationId : null);
+          if (isNew && isMobile) {
+            requestFlyTo({ lon: event.lngLat.lng, lat: event.lngLat.lat });
+          }
         }
         return;
       }
@@ -156,7 +177,7 @@ export default function RailMap() {
       selectTrain(null);
       selectStation(null);
     },
-    [selectTrain, selectStation, selectedTrainId, selectedStationId],
+    [selectTrain, selectStation, requestFlyTo, selectedTrainId, selectedStationId],
   );
 
   const hasSelection = selectedTrainId !== null || selectedStationId !== null;
@@ -234,7 +255,7 @@ export default function RailMap() {
     <Map
       ref={mapRef}
       initialViewState={THAILAND_VIEW}
-      mapStyle={getMapStyleUrl()}
+      mapStyle={getMapStyleForTheme(theme)}
       interactiveLayerIds={INTERACTIVE_LAYERS}
       onLoad={handleLoad}
       onStyleData={() => ensureMapIcons(mapRef.current?.getMap() ?? null)}

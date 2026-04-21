@@ -4,7 +4,8 @@
     "toggleTrainPanel": "เปิด/ปิดแผงรถไฟ",
     "toggleSchedulePanel": "เปิด/ปิดแผงตารางเดินรถ",
     "toggleDarkMode": "เปลี่ยนโหมดมืด/สว่าง",
-    "language": "ภาษา"
+    "language": "ภาษา",
+    "subtitle": "ระบบติดตามรถไฟสดแบบดิจิทัลทวิน"
   },
   "map": {
     "northern": "สายเหนือ",
@@ -18,6 +19,7 @@
     "train": "รถไฟ",
     "speed": "ความเร็ว",
     "delay": "ล่าช้า",
+    "eta": "เวลาถึง",
     "onTime": "ตรงเวลา",
     "nextStation": "สถานีถัดไป",
     "journeyProgress": "ความคืบหน้าเส้นทาง",
@@ -28,10 +30,18 @@
     "stopped": "หยุด",
     "atStation": "ที่สถานี",
     "delayed": "ล่าช้า",
+    "enRoute": "กำลังเดินทาง",
+    "boarding": "รับผู้โดยสาร",
+    "arrived": "ถึงแล้ว",
     "searchPlaceholder": "ค้นหารถไฟ...",
     "noTrainsFound": "ไม่พบรถไฟ",
     "live": "สด",
-    "polling": "โพลลิ่ง"
+    "polling": "โพลลิ่ง",
+    "next": "ถัดไป",
+    "to": "ไปยัง",
+    "routeProgress": "เส้นทาง",
+    "stopTimeline": "สถานีจอด",
+    "timeline": "รายการสถานี"
   },
   "schedule": {
     "title": "ตารางเดินรถ",
@@ -40,7 +50,14 @@
     "arrival": "ขาเข้า",
     "departure": "ขาออก",
     "platform": "ชานชาลา",
-    "distance": "ระยะทาง"
+    "distance": "ระยะทาง",
+    "timetable": "ตารางเดินรถ",
+    "nextService": "รถไฟขบวนถัดไป",
+    "arrAbbr": "ถึง",
+    "depAbbr": "ออก",
+    "services": "{count} เที่ยว",
+    "noServices": "ไม่มีรถไฟที่กำหนดการ",
+    "loading": "กำลังโหลดตารางเดินรถ…"
   },
   "station": {
     "majorStation": "สถานีหลัก",
@@ -52,7 +69,10 @@
   "common": {
     "loading": "กำลังโหลด...",
     "error": "ข้อผิดพลาด",
-    "noData": "ไม่มีข้อมูล"
+    "noData": "ไม่มีข้อมูล",
+    "close": "ปิด",
+    "station": "สถานี",
+    "train": "รถไฟ"
   },
   "topics": {
     "railway": "ระบบเดินรถ",
@@ -75,6 +95,11 @@
     "trainsSpecialExpress": "ด่วนพิเศษ",
     "trainsRapid": "เร็ว",
     "trainsOrdinary": "ธรรมดา"
+  },
+  "search": {
+    "placeholder": "ค้นหาสถานีและรถไฟ…",
+    "ariaLabel": "ค้นหาสถานีและรถไฟ",
+    "close": "ปิดการค้นหา"
   },
   "footer": {
     "copyright": "© 2569 ระบบดิจิทัลทวินการรถไฟแห่งประเทศไทย",
