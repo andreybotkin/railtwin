@@ -86,6 +86,14 @@ class PositionCacheUpdater:
                 if edge.get("properties", {}).get("edge_kind") == "track"
             ]
             stations, _ = await self._reader.list_stations(page=1, size=10000)
+            station_ids_with_schedules = await self._reader.get_station_ids_with_schedules()
+            stations = [
+                {
+                    **station,
+                    "has_schedule": int(station["id"]) in station_ids_with_schedules,
+                }
+                for station in stations
+            ]
             static_payloads = (
                 {"type": "FeatureCollection", "features": tracks_only},
                 stations,

@@ -59,6 +59,7 @@ class TrainRepository(BaseRepository[Train]):
         result = await self.session.execute(
             select(Train)
             .options(selectinload(Train.current_route))
+            .order_by(Train.id)
             .offset(skip)
             .limit(limit)
         )
@@ -84,6 +85,7 @@ class TrainRepository(BaseRepository[Train]):
             select(Train)
             .options(selectinload(Train.current_route))
             .where(Train.train_type == train_type)
+            .order_by(Train.id)
             .offset(skip)
             .limit(limit)
         )
@@ -109,6 +111,7 @@ class TrainRepository(BaseRepository[Train]):
             select(Train)
             .options(selectinload(Train.current_route))
             .where(Train.current_route_id == route_id)
+            .order_by(Train.id)
             .offset(skip)
             .limit(limit)
         )

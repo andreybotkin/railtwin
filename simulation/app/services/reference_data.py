@@ -706,6 +706,18 @@ class RedisReferenceReader:
         payloads.sort(key=_schedule_sort_key)
         return payloads
 
+    async def get_station_ids_with_schedules(self) -> set[int]:
+        ids = await self._get_ids(self._keys.schedule_ids)
+        if not ids:
+                        return set()
+        payloads = await self._get_hash_payloads(self._keys.schedules_by_id, ids)
+        station_ids: set[int] = set()
+        for payload in payloads:
+            station_id = payload.get("station_id")
+            if isinstance(station_id, int):
+                station_ids.add(station_id)
+        return station_ids
+
     async def get_upcoming_departures(
         self,
         station_id: int,

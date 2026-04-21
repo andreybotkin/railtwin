@@ -24,7 +24,6 @@ from app.domain.trajectory import (
     Trajectory,
     resolve_consist,
 )
-from app.models.database.models import Schedule, Train
 from app.services.trajectory_service import (
     build_stop_sequence,
     build_trajectory,
@@ -44,21 +43,21 @@ def _make_train(
     train_type: str = "rapid",
     name: str | None = "Bangkok → Ayutthaya",
     current_route_id: int | None = 1,
-) -> Train:
-    """Build a minimal :class:`Train` instance without hitting the DB."""
+) -> Any:
+    """Build a minimal train-like object without hitting the DB."""
 
-    train = Train.__new__(Train)
-    train.id = train_id
-    train.train_number = train_number
-    train.train_type = train_type
-    train.name = name
-    train.capacity = None
-    train.operator = "State Railway of Thailand"
-    train.source = "test"
-    train.source_url = None
-    train.service_notes = None
-    train.current_route_id = current_route_id
-    return train
+    return SimpleNamespace(
+        id=train_id,
+        train_number=train_number,
+        train_type=train_type,
+        name=name,
+        capacity=None,
+        operator="State Railway of Thailand",
+        source="test",
+        source_url=None,
+        service_notes=None,
+        current_route_id=current_route_id,
+    )
 
 
 def _make_schedule(
@@ -71,24 +70,24 @@ def _make_schedule(
     station_id: int | None = None,
     day_of_week: list[int] | None = None,
     route_progress: float | None = None,
-) -> Schedule:
-    schedule = Schedule.__new__(Schedule)
-    schedule.train_id = train_id
-    schedule.station_id = station_id
-    schedule.route_station_id = None
-    schedule.station_name = station_name
-    schedule.arrival_time = arrival
-    schedule.departure_time = departure
-    schedule.arrival_day_offset = 0
-    schedule.departure_day_offset = 0
-    schedule.day_of_week = day_of_week
-    schedule.platform = None
-    schedule.sequence = sequence
-    schedule.distance_from_origin_km = None
-    schedule.route_progress = route_progress
-    schedule.station = None
-    schedule.route_station = None
-    return schedule
+) -> Any:
+    return SimpleNamespace(
+        train_id=train_id,
+        station_id=station_id,
+        route_station_id=None,
+        station_name=station_name,
+        arrival_time=arrival,
+        departure_time=departure,
+        arrival_day_offset=0,
+        departure_day_offset=0,
+        day_of_week=day_of_week,
+        platform=None,
+        sequence=sequence,
+        distance_from_origin_km=None,
+        route_progress=route_progress,
+        station=None,
+        route_station=None,
+    )
 
 
 def _three_stop_schedule() -> list[Schedule]:
@@ -173,7 +172,7 @@ def test_build_trajectory_produces_monotonic_fractions_between_stops() -> None:
     assert len(trajectory.frames) >= 2
     # Moving frames should be monotonic non-decreasing along the polyline.
     fractions = [f.geom_fraction for f in trajectory.frames]
-    for a, b in zip(fractions, fractions[1:], strict=True):
+    for a, b in zip(fractions, fractions[1:]):
         assert b + 1e-9 >= a, fractions
 
     # Head frame of a moving train has speed > 0 and status="moving".
@@ -230,7 +229,7 @@ def test_build_trajectory_returns_none_when_service_has_ended() -> None:
 def test_build_trajectory_anchors_cover_upcoming_events() -> None:
     train = _make_train()
     schedules = _three_stop_schedule()
-    current_minutes = 10 * 60 + 30  # 10:30
+    current_minutes = 10 * 60 + 53  # 10:53 — Ayutthaya arrival at 11:00 fits in the lookahead
     lookahead = settings.trajectory_lookahead_seconds
 
     trajectory = build_trajectory(
@@ -248,7 +247,7 @@ def test_build_trajectory_anchors_cover_upcoming_events() -> None:
         offset_ms = anchor.t_ms - trajectory.generated_at_ms
         assert 0 <= offset_ms <= lookahead * 1000 + 1
     anchor_stations = {a.station_name for a in trajectory.anchors}
-    # Ayutthaya arrival must be within the lookahead window from 10:30.
+    # Ayutthaya arrival must be within the lookahead window from 10:53.
     assert "Ayutthaya" in anchor_stations
 
 
@@ -398,7 +397,7 @@ def test_stop_fractions_enforce_monotonicity() -> None:
     polyline = [[100.0, 0.0], [101.0, 0.0]]
     fractions = _stop_fractions(schedules, polyline, 111.0)
     # Must be non-decreasing.
-    for a, b in zip(fractions, fractions[1:], strict=True):
+    for a, b in zip(fractions, fractions[1:]):
         assert b >= a
 
 

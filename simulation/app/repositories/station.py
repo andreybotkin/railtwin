@@ -59,6 +59,7 @@ class StationRepository(BaseRepository[Station]):
                 Station,
                 ST_AsGeoJSON(Station.location).label("geojson"),
             )
+            .order_by(Station.id)
             .offset(skip)
             .limit(limit)
         )

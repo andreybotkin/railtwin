@@ -33,6 +33,12 @@ export interface BodyPlacement {
   lengthM: number;
   /** Compass bearing in degrees, 0 = north, 90 = east. */
   rotationDeg: number;
+  /**
+   * True when the body is facing the left/west hemisphere (bearing ∈ [180°, 360°)).
+   * Used to select a horizontally-mirrored icon so bogies always appear at the
+   * bottom regardless of travel direction.
+   */
+  facingLeft: boolean;
 }
 
 interface BodyLayout {
@@ -144,6 +150,7 @@ export function buildConsistGeoPoints(
         lat,
         lengthM: body.lengthM,
         rotationDeg: firstBearing,
+        facingLeft: firstBearing >= 180,
       });
       continue;
     }
@@ -153,13 +160,15 @@ export function buildConsistGeoPoints(
       const extraKm = (targetM - totalLengthM) / 1_000;
       const end = routeCoords[routeCoords.length - 1];
       const [lon, lat] = offsetPoint(end, lastBearing, extraKm);
+      const backwardRotation = normaliseBearing(lastBearing + 180);
       placements.push({
         kind: body.kind,
         index: body.index,
         lon,
         lat,
         lengthM: body.lengthM,
-        rotationDeg: normaliseBearing(lastBearing + 180),
+        rotationDeg: backwardRotation,
+        facingLeft: backwardRotation >= 180,
       });
       continue;
     }
@@ -192,6 +201,7 @@ export function buildConsistGeoPoints(
       lat: cy,
       lengthM: body.lengthM,
       rotationDeg,
+      facingLeft: rotationDeg >= 180,
     });
   }
 

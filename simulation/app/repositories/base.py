@@ -61,7 +61,10 @@ class BaseRepository(Generic[ModelType]):
             List of model instances.
         """
         result = await self.session.execute(
-            select(self.model).offset(skip).limit(limit)
+            select(self.model)
+            .order_by(self.model.id)  # type: ignore[attr-defined]
+            .offset(skip)
+            .limit(limit)
         )
         return list(result.scalars().all())
 

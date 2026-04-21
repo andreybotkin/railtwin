@@ -8,11 +8,13 @@
  * brand colour.
  *
  * Icons are designed in a wide frame, oriented **pointing east (+x)** so the
- * rotation degrees emitted by the trajectory interpolator can be fed straight
- * into `icon-rotate` (0° = east on the map). Every shape is drawn on a single
- * oversampled canvas so MapLibre can downscale it without the usual edge
- * shimmer.
+ * north-based bearing emitted by the trajectory interpolator can be converted
+ * to east-facing icon rotation by subtracting 90° before applying
+ * `icon-rotate`. Every shape is drawn on a single oversampled canvas so
+ * MapLibre can downscale it without the usual edge shimmer.
  */
+
+import type { Map as MapLibreMap } from 'maplibre-gl';
 
 const DEVICE_SCALE = 3;
 
@@ -43,13 +45,22 @@ export const TRAIN_TYPE_IDS: TrainTypeId[] = [
 ];
 
 export const HALO_ICON_ID = 'railtwin-halo';
+export const LIFT_GATE_ICON_ID = 'lift_gate';
 
 export function locoIconId(type: TrainTypeId): string {
   return `railtwin-loco-${type}`;
 }
 
+export function locoIconIdLeft(type: TrainTypeId): string {
+  return `railtwin-loco-${type}-left`;
+}
+
 export function carriageIconId(type: TrainTypeId): string {
   return `railtwin-carriage-${type}`;
+}
+
+export function carriageIconIdLeft(type: TrainTypeId): string {
+  return `railtwin-carriage-${type}-left`;
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
@@ -325,11 +336,13 @@ function renderToImageData(w: number, h: number, draw: Drawer): ImageData {
  * Register every icon on a MapLibre instance. Safe to call more than once —
  * existing images are skipped rather than re-added.
  */
-export function registerVehicleIcons(map: maplibregl.Map): void {
+export function registerVehicleIcons(map: MapLibreMap): void {
   for (const type of TRAIN_TYPE_IDS) {
     const color = TRAIN_TYPE_PALETTE[type];
     const locoId = locoIconId(type);
     const carriageId = carriageIconId(type);
+    const locoLeftId = locoIconIdLeft(type);
+    const carriageLeftId = carriageIconIdLeft(type);
     if (!map.hasImage(locoId)) {
       try {
         const img = renderToImageData(72, 30, (ctx, w, h) =>
@@ -338,6 +351,21 @@ export function registerVehicleIcons(map: maplibregl.Map): void {
         map.addImage(locoId, img, { pixelRatio: DEVICE_SCALE });
       } catch (err) {
         console.warn(`Failed to register ${locoId}`, err);
+      }
+    }
+    if (!map.hasImage(locoLeftId)) {
+      try {
+        // Horizontally mirrored locomotive for left-facing (westward) trains.
+        const img = renderToImageData(72, 30, (ctx, w, h) => {
+          ctx.save();
+          ctx.translate(w, 0);
+          ctx.scale(-1, 1);
+          drawLocomotive(ctx, w, h, color);
+          ctx.restore();
+        });
+        map.addImage(locoLeftId, img, { pixelRatio: DEVICE_SCALE });
+      } catch (err) {
+        console.warn(`Failed to register ${locoLeftId}`, err);
       }
     }
     if (!map.hasImage(carriageId)) {
@@ -350,6 +378,21 @@ export function registerVehicleIcons(map: maplibregl.Map): void {
         console.warn(`Failed to register ${carriageId}`, err);
       }
     }
+    if (!map.hasImage(carriageLeftId)) {
+      try {
+        // Horizontally mirrored carriage for left-facing trains.
+        const img = renderToImageData(54, 22, (ctx, w, h) => {
+          ctx.save();
+          ctx.translate(w, 0);
+          ctx.scale(-1, 1);
+          drawCarriage(ctx, w, h, color);
+          ctx.restore();
+        });
+        map.addImage(carriageLeftId, img, { pixelRatio: DEVICE_SCALE });
+      } catch (err) {
+        console.warn(`Failed to register ${carriageLeftId}`, err);
+      }
+    }
   }
 
   if (!map.hasImage(HALO_ICON_ID)) {
@@ -359,6 +402,45 @@ export function registerVehicleIcons(map: maplibregl.Map): void {
     } catch (err) {
       console.warn('Failed to register halo icon', err);
     }
+  }
+}
+
+export function registerLiftGateFallback(map: MapLibreMap): void {
+  if (map.hasImage(LIFT_GATE_ICON_ID)) return;
+
+  try {
+    const img = renderToImageData(24, 24, (ctx, w, h) => {
+      ctx.strokeStyle = 'rgba(71, 85, 105, 0.96)';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.29, h * 0.21);
+      ctx.lineTo(w * 0.29, h * 0.79);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(w * 0.71, h * 0.21);
+      ctx.lineTo(w * 0.71, h * 0.79);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(w * 0.29, h * 0.31);
+      ctx.lineTo(w * 0.71, h * 0.31);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.9)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.2, h * 0.79);
+      ctx.lineTo(w * 0.8, h * 0.79);
+      ctx.stroke();
+    });
+
+    map.addImage(LIFT_GATE_ICON_ID, img, { pixelRatio: DEVICE_SCALE });
+  } catch (err) {
+    console.warn('Failed to register lift_gate icon', err);
   }
 }
 
@@ -376,6 +458,16 @@ export function buildLocoMatchExpression(): unknown[] {
   return expr;
 }
 
+export function buildLocoMatchExpressionLeft(): unknown[] {
+  const expr: unknown[] = ['match', ['get', 'train_type']];
+  for (const type of TRAIN_TYPE_IDS) {
+    if (type === 'default') continue;
+    expr.push(type, locoIconIdLeft(type));
+  }
+  expr.push(locoIconIdLeft('default'));
+  return expr;
+}
+
 export function buildCarriageMatchExpression(): unknown[] {
   const expr: unknown[] = ['match', ['get', 'train_type']];
   for (const type of TRAIN_TYPE_IDS) {
@@ -383,5 +475,15 @@ export function buildCarriageMatchExpression(): unknown[] {
     expr.push(type, carriageIconId(type));
   }
   expr.push(carriageIconId('default'));
+  return expr;
+}
+
+export function buildCarriageMatchExpressionLeft(): unknown[] {
+  const expr: unknown[] = ['match', ['get', 'train_type']];
+  for (const type of TRAIN_TYPE_IDS) {
+    if (type === 'default') continue;
+    expr.push(type, carriageIconIdLeft(type));
+  }
+  expr.push(carriageIconIdLeft('default'));
   return expr;
 }

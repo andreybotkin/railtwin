@@ -27,12 +27,12 @@ const RailMap = dynamic(() => import('@/components/Map/RailMap'), {
   ),
 });
 
-const LEGEND_ROWS: Array<{ key: 'northern' | 'northeastern' | 'southern' | 'eastern'; label: string }> = [
-  { key: 'northern', label: 'Northern' },
-  { key: 'northeastern', label: 'Northeastern' },
-  { key: 'southern', label: 'Southern' },
-  { key: 'eastern', label: 'Eastern' },
-];
+// const LEGEND_ROWS: Array<{ key: 'northern' | 'northeastern' | 'southern' | 'eastern'; label: string }> = [
+//   { key: 'northern', label: 'Northern' },
+//   { key: 'northeastern', label: 'Northeastern' },
+//   { key: 'southern', label: 'Southern' },
+//   { key: 'eastern', label: 'Eastern' },
+// ];
 
 export default function HomePage() {
   const t = useTranslations();
@@ -101,7 +101,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <div className="pointer-events-auto absolute bottom-4 left-4 z-[850] hidden rounded-3xl border border-white/55 bg-[rgba(252,249,242,0.86)] px-4 py-3 text-xs shadow-[0_18px_40px_-28px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:block">
+      {/* <div className="pointer-events-auto absolute bottom-4 left-4 z-[850] hidden rounded-3xl border border-white/55 bg-[rgba(252,249,242,0.86)] px-4 py-3 text-xs shadow-[0_18px_40px_-28px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:block">
         <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Legend</p>
         <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-zinc-700">
           {LEGEND_ROWS.map((row) => (
@@ -114,7 +114,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       <TrainInfoSheet />
       <StationInfoSheet />

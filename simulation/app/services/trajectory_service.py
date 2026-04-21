@@ -141,7 +141,7 @@ def _station_coord(schedule: Schedule) -> tuple[float, float] | None:
     return float(point.x), float(point.y)
 
 
-_PROJECTION_CORRIDOR = 0.12
+_PROJECTION_CORRIDOR = 0.35
 
 
 def _stop_fractions(

@@ -27,6 +27,11 @@ export interface VehicleFeatureProps {
   body_kind: 'locomotive' | 'carriage';
   body_index: number;
   rotation: number;
+  /**
+   * 'left'  — body bearing ∈ [180°, 360°), use horizontally-mirrored icon.
+   * 'right' — body bearing ∈ [0°,   180°), use standard east-facing icon.
+   */
+  facing: 'left' | 'right';
   speed_kmh: number;
   status: string;
   color: string;
@@ -65,6 +70,7 @@ function buildFeatureCollection(
           body_kind: body.kind,
           body_index: body.index,
           rotation: body.rotationDeg,
+          facing: body.facingLeft ? 'left' : 'right',
           speed_kmh: frame.speedKmh,
           status: frame.status,
           color: trajectory.meta.color,

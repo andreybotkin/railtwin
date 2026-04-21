@@ -207,6 +207,7 @@ class RouteRepository(BaseRepository[Route]):
             .options(
                 selectinload(Route.route_stations).selectinload(RouteStation.station)
             )
+            .order_by(Route.id)
             .offset(skip)
             .limit(limit)
         )
@@ -314,6 +315,7 @@ class RouteRepository(BaseRepository[Route]):
                 selectinload(Route.route_stations).selectinload(RouteStation.station)
             )
             .where(Route.route_type == route_type)
+            .order_by(Route.id)
             .offset(skip)
             .limit(limit)
         )

@@ -41,6 +41,7 @@ export interface Station {
   city: string | null;
   province: string | null;
   facilities: StationFacilities | null;
+  has_schedule?: boolean;
   created_at: string;
   updated_at: string;
 }
