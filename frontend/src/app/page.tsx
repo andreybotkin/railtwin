@@ -82,8 +82,8 @@ export default function HomePage() {
         >
           <div className="flex min-w-0 items-center gap-2">
             <div
-              className="flex h-9 w-9 items-center justify-center rounded-2xl text-white"
-              style={{ background: 'var(--header-logo-bg)' }}
+              className="flex h-9 w-9 items-center justify-center rounded-2xl"
+              style={{ background: 'var(--header-logo-bg)', color: 'var(--header-logo-text)' }}
             >
               <Train className="h-4 w-4" />
             </div>

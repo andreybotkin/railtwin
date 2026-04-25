@@ -120,7 +120,7 @@ export default function StationInfoSheet() {
           <div className="flex min-w-0 items-center gap-3">
             <div
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm"
-              style={{ background: 'var(--header-logo-bg)' }}
+              style={{ background: 'var(--station-icon-bg)' }}
             >
               <Building2 className="h-5 w-5" />
             </div>
@@ -167,7 +167,7 @@ export default function StationInfoSheet() {
         {nextStop && (
           <section
             className="mt-4 rounded-2xl p-4"
-            style={{ background: 'var(--header-logo-bg)', color: '#ffffff' }}
+            style={{ background: 'var(--station-next-bg)', color: 'var(--station-next-text)' }}
           >
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em]" style={{ opacity: 0.6 }}>
               <Timer className="h-3 w-3" /> {t('schedule.nextService')}

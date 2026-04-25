@@ -93,6 +93,10 @@
     --panel-inner-ring: rgba(0,0,0,0.05);
     --page-bg: #f4f4f5;
     --header-logo-bg: #09090b;
+    --header-logo-text: #ffffff;
+    --station-icon-bg: var(--header-logo-bg);
+    --station-next-bg: var(--header-logo-bg);
+    --station-next-text: #ffffff;
     --header-btn-hover-bg: #09090b;
     --header-btn-hover-text: #ffffff;
     --close-btn-hover-bg: #09090b;
@@ -130,6 +134,10 @@
     --panel-inner-ring: rgba(255,255,255,0.08);
     --page-bg: #0a0c16;
     --header-logo-bg: #f1f5f9;
+    --header-logo-text: #09090b;
+    --station-icon-bg: #475569;
+    --station-next-bg: #374151;
+    --station-next-text: #f8fafc;
     --header-btn-hover-bg: #f1f5f9;
     --header-btn-hover-text: #09090b;
     --close-btn-hover-bg: #f1f5f9;
@@ -168,6 +176,7 @@
     --panel-inner-ring: rgba(74,222,128,0.15);
     --page-bg: #050f07;
     --header-logo-bg: #16a34a;
+    --header-logo-text: #ffffff;
     --header-btn-hover-bg: #16a34a;
     --header-btn-hover-text: #ffffff;
     --close-btn-hover-bg: #16a34a;
@@ -261,6 +270,24 @@
   width: 14px;
   height: 14px;
   border-width: 3px;
+}
+
+/* Station name badge — white oval shown when station is selected */
+.station-name-badge.leaflet-tooltip {
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.station-name-badge.leaflet-tooltip::before {
+  display: none;
 }
 
 /* Popup styles */
