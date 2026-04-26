@@ -76,4 +76,3 @@ async def test_get_all_active_train_data_yields_control_during_bulk_processing(
     assert len(trajectories) == payload_count
     assert len(stop_sequences) == payload_count
     assert sleep_calls == [0]
-    
