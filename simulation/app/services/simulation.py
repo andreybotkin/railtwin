@@ -1,16 +1,8 @@
-"""Train simulation service — thin orchestrator.
+"""Train simulation orchestrator.
 
-Handles all database I/O (trains, schedules, route geometries) and Redis
-delay loading, then delegates position / trajectory / stop-sequence
-*computation* to the purpose-built pure modules:
-
-    geo_utils          — geometry maths (interpolation, bearing, Haversine)
-    schedule_utils     — schedule / time helpers
-    position_service   — build_train_position()
-    trajectory_service — build_train_trajectory(), build_stop_sequence()
-
-Keeping I/O and computation separate makes the business logic trivially
-unit-testable without any database or Redis.
+Handles all I/O (trains, schedules, route geometries from Redis, delay cache)
+and delegates *computation* to :mod:`app.services.trajectory_service`, which
+returns fully-typed :class:`app.domain.trajectory.Trajectory` objects.
 """
 
 from __future__ import annotations
@@ -21,35 +13,27 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.domain.trajectory import Trajectory
 from app.models.database.models import Schedule, Train
 from app.services import schedule_utils
-from app.services.position_service import build_train_position
 from app.services.reference_data import (
     RedisReferenceReader,
     schedule_payloads_to_domain,
     train_payload_to_domain,
 )
-from app.services.trajectory_service import build_stop_sequence, build_train_trajectory
+from app.services.trajectory_service import build_stop_sequence, build_trajectory
 from app.services.tts_scraper import get_delays_from_redis
 
 logger = get_logger(__name__)
 
 
 class TrainSimulationService:
-    """Orchestrates train simulation: loads data, delegates computation.
-
-    Public API:
-        get_train_position()       — single-train position snapshot
-        get_train_trajectory()     — single-train geops trajectory
-        get_stop_sequence()        — single-train stop sequence
-        get_all_active_trains()    — bulk position snapshots (legacy)
-        get_all_active_train_trajectories() — bulk trajectories (legacy)
-        get_all_active_train_data()         — optimised unified bulk query
-        reset_delays()             — clear cached TTS delays
-    """
+    """Load domain data from Redis / DB and build trajectories for active trains."""
 
     def __init__(
-        self, session: AsyncSession, redis_client: Redis | None = None
+        self,
+        session: AsyncSession,
+        redis_client: Redis | None = None,
     ) -> None:
         self.session = session
         self._redis = redis_client
@@ -64,71 +48,22 @@ class TrainSimulationService:
     # ------------------------------------------------------------------ #
 
     def _get_current_time_minutes(self) -> float:
-        """Current Bangkok time as fractional minutes since midnight.
-
-        Kept as an *instance method* so tests can monkeypatch it without
-        patching the module-level function in ``schedule_utils``.
-        """
         return schedule_utils.get_current_time_minutes()
-
-    def _get_candidate_current_minutes(self, schedules: list[Schedule]) -> float | None:
-        """Backward-compatible wrapper without realtime delay correction."""
-        return schedule_utils.candidate_current_minutes(
-            schedules,
-            self._get_current_time_minutes(),
-        )
 
     def _get_candidate_current_minutes_with_delay(
         self,
         schedules: list[Schedule],
         delay: int,
     ) -> float | None:
-        """Resolve the active service window after applying realtime deviation."""
         return schedule_utils.candidate_current_minutes(
             schedules,
             self._get_current_time_minutes(),
             delay=delay,
         )
 
-    def _calculate_heading(
-        self,
-        from_coord: tuple[float, float],
-        to_coord: tuple[float, float],
-    ) -> float:
-        """Backward-compat alias → :func:`geo_utils.great_circle_bearing`."""
-        from app.services import geo_utils as _geo
-
-        return _geo.great_circle_bearing(from_coord, to_coord)
-
     # ------------------------------------------------------------------ #
     # Single-train public API                                              #
     # ------------------------------------------------------------------ #
-
-    async def get_train_position(
-        self,
-        train: Train,
-        schedules: list[Schedule],
-        route_coords: list[list[float]] | None,
-        route_distance_km: float | None = None,
-        route_segments: list[dict[str, Any]] | None = None,
-    ) -> dict[str, Any] | None:
-        """Calculate a current position snapshot for a single train."""
-        delay = self._tts_delays.get(train.train_number, 0)
-        current_minutes = self._get_candidate_current_minutes_with_delay(
-            schedules,
-            delay,
-        )
-        if current_minutes is None:
-            return None
-        return build_train_position(
-            train,
-            schedules,
-            route_coords,
-            route_distance_km,
-            route_segments,
-            delay=delay,
-            current_minutes=current_minutes,
-        )
 
     async def get_train_trajectory(
         self,
@@ -137,23 +72,22 @@ class TrainSimulationService:
         route_coords: list[list[float]] | None,
         route_distance_km: float | None = None,
         route_segments: list[dict[str, Any]] | None = None,
-    ) -> dict[str, Any] | None:
-        """Generate a geops-compatible trajectory object with ``time_intervals``."""
+        *,
+        topology_version: str | None = None,
+    ) -> Trajectory | None:
         delay = self._tts_delays.get(train.train_number, 0)
-        current_minutes = self._get_candidate_current_minutes_with_delay(
-            schedules,
-            delay,
-        )
+        current_minutes = self._get_candidate_current_minutes_with_delay(schedules, delay)
         if current_minutes is None:
             return None
-        return build_train_trajectory(
+        return build_trajectory(
             train,
             schedules,
             route_coords,
             route_distance_km,
-            route_segments,
             delay=delay,
             current_minutes=current_minutes,
+            topology_version=topology_version,
+            route_segments=route_segments,
         )
 
     def get_stop_sequence(
@@ -163,7 +97,6 @@ class TrainSimulationService:
         delay: int,
         current_minutes: float,
     ) -> list[dict[str, Any]]:
-        """Generate an ordered stop-sequence list for a train."""
         return build_stop_sequence(
             schedules, delay=delay, current_minutes=current_minutes
         )
@@ -172,160 +105,28 @@ class TrainSimulationService:
     # Bulk public API                                                      #
     # ------------------------------------------------------------------ #
 
-    async def get_all_active_trains(self) -> list[dict[str, Any]]:
-        """Get current position snapshots for all active trains."""
-        await self._load_delays()
-
-        positions: list[dict[str, Any]] = []
-        batch_size = 100
-        skip = 0
-        if self.reader is None:
-            return []
-
-        while True:
-            train_payloads = await self.reader.get_all_trains_for_simulation(
-                skip=skip, limit=batch_size
-            )
-            if not train_payloads:
-                break
-
-            geometry_by_route = await self.reader.get_route_geometry_bulk(
-                [
-                    int(payload["current_route_id"])
-                    for payload in train_payloads
-                    if payload.get("current_route_id") is not None
-                ]
-            )
-
-            for train_payload in train_payloads:
-                train = train_payload_to_domain(train_payload)
-                schedules = schedule_payloads_to_domain(
-                    await self.reader.get_train_schedule(train.id)
-                )
-                if not schedules:
-                    continue
-                route_payload = geometry_by_route.get(train.current_route_id or -1, {})
-                route_coords = route_payload.get("coords") or None
-                route_distance_km = route_payload.get("distance_km")
-                route_segments = route_payload.get("segments") or None
-                if route_segments:
-                    pos = await self.get_train_position(
-                        train,
-                        schedules,
-                        route_coords,
-                        route_distance_km,
-                        route_segments=route_segments,
-                    )
-                else:
-                    pos = await self.get_train_position(
-                        train,
-                        schedules,
-                        route_coords,
-                        route_distance_km,
-                    )
-                if pos:
-                    positions.append(pos)
-
-            if len(train_payloads) < batch_size:
-                break
-            skip += batch_size
-
-        return positions
-
-    async def get_all_active_train_trajectories(self) -> list[dict[str, Any]]:
-        """Get geops-compatible trajectory objects for all active trains."""
-        await self._load_delays()
-
-        trajectories: list[dict[str, Any]] = []
-        batch_size = 100
-        skip = 0
-        if self.reader is None:
-            return []
-
-        while True:
-            train_payloads = await self.reader.get_all_trains_for_simulation(
-                skip=skip, limit=batch_size
-            )
-            if not train_payloads:
-                break
-
-            geometry_by_route = await self.reader.get_route_geometry_bulk(
-                [
-                    int(payload["current_route_id"])
-                    for payload in train_payloads
-                    if payload.get("current_route_id") is not None
-                ]
-            )
-
-            for train_payload in train_payloads:
-                train = train_payload_to_domain(train_payload)
-                schedules = schedule_payloads_to_domain(
-                    await self.reader.get_train_schedule(train.id)
-                )
-                if not schedules:
-                    continue
-                route_payload = geometry_by_route.get(train.current_route_id or -1, {})
-                route_coords = route_payload.get("coords") or None
-                route_distance_km = route_payload.get("distance_km")
-                route_segments = route_payload.get("segments") or None
-                if route_segments:
-                    traj = await self.get_train_trajectory(
-                        train,
-                        schedules,
-                        route_coords,
-                        route_distance_km,
-                        route_segments=route_segments,
-                    )
-                else:
-                    traj = await self.get_train_trajectory(
-                        train,
-                        schedules,
-                        route_coords,
-                        route_distance_km,
-                    )
-                if traj:
-                    trajectories.append(traj)
-
-            if len(train_payloads) < batch_size:
-                break
-            skip += batch_size
-
-        return trajectories
-
     async def get_all_active_train_data(
         self,
         *,
-        include_trajectories: bool = True,
         include_stop_sequences: bool = True,
-    ) -> tuple[
-        list[dict[str, Any]],
-        list[dict[str, Any]],
-        dict[int, list[dict[str, Any]]],
-    ]:
-        """Unified computation: positions + trajectories + stop sequences in one pass.
+        topology_version: str | None = None,
+    ) -> tuple[list[Trajectory], dict[int, list[dict[str, Any]]]]:
+        """Return ``(trajectories, stop_sequences)`` for every active train.
 
-        Optimisations over calling the three methods separately:
-
-        * TTS delays loaded only once.
-        * Schedules loaded in bulk per batch: one ``WHERE train_id IN (…)``
-          instead of N individual queries.
-        * Route geometries loaded in bulk via ``get_geometry_bulk()`` which
-          keeps an in-memory TTL cache.
-
-        Returns:
-            ``(positions, trajectories, stop_sequences)`` where
-            *stop_sequences* is ``dict[train_id, list[stop_dict]]``.
+        Schedules and route geometries are loaded in bulk to avoid N+1
+        queries; TTS delays are loaded once per invocation.
         """
+
         await self._load_delays()
 
-        positions: list[dict[str, Any]] = []
-        trajectories: list[dict[str, Any]] = []
+        trajectories: list[Trajectory] = []
         stop_sequences: dict[int, list[dict[str, Any]]] = {}
+
+        if self.reader is None:
+            return trajectories, stop_sequences
 
         batch_size = 100
         skip = 0
-        if self.reader is None:
-            return positions, trajectories, stop_sequences
 
         while True:
             train_payloads = await self.reader.get_all_trains_for_simulation(
@@ -335,12 +136,10 @@ class TrainSimulationService:
                 break
 
             train_ids = [int(payload["id"]) for payload in train_payloads]
-            schedules_by_train_raw = await self.reader.get_schedules_by_trains(
-                train_ids
-            )
+            raw_schedules = await self.reader.get_schedules_by_trains(train_ids)
             schedules_by_train = {
                 train_id: schedule_payloads_to_domain(payloads)
-                for train_id, payloads in schedules_by_train_raw.items()
+                for train_id, payloads in raw_schedules.items()
             }
 
             route_ids = list(
@@ -356,8 +155,8 @@ class TrainSimulationService:
                 else {}
             )
 
-            for train_payload in train_payloads:
-                train = train_payload_to_domain(train_payload)
+            for payload in train_payloads:
+                train = train_payload_to_domain(payload)
                 schedules = schedules_by_train.get(train.id, [])
                 if not schedules:
                     continue
@@ -365,10 +164,7 @@ class TrainSimulationService:
                 route_coords: list[list[float]] | None = None
                 route_distance_km: float | None = None
                 route_segments: list[dict[str, Any]] | None = None
-                if (
-                    train.current_route_id
-                    and train.current_route_id in geometry_by_route
-                ):
+                if train.current_route_id and train.current_route_id in geometry_by_route:
                     route_payload = geometry_by_route[train.current_route_id]
                     route_coords = route_payload.get("coords")
                     route_distance_km = route_payload.get("distance_km")
@@ -378,52 +174,38 @@ class TrainSimulationService:
 
                 delay = self._tts_delays.get(train.train_number, 0)
                 current_minutes = self._get_candidate_current_minutes_with_delay(
-                    schedules,
-                    delay,
+                    schedules, delay
                 )
                 if current_minutes is None:
                     continue
 
-                pos = build_train_position(
+                trajectory = build_trajectory(
                     train,
                     schedules,
                     route_coords,
                     route_distance_km,
-                    route_segments,
                     delay=delay,
                     current_minutes=current_minutes,
+                    topology_version=topology_version,
+                    route_segments=route_segments,
                 )
-                if pos:
-                    positions.append(pos)
-
-                if include_trajectories:
-                    traj = build_train_trajectory(
-                        train,
-                        schedules,
-                        route_coords,
-                        route_distance_km,
-                        route_segments,
-                        delay=delay,
-                        current_minutes=current_minutes,
-                    )
-                    if traj:
-                        trajectories.append(traj)
+                if trajectory is not None:
+                    trajectories.append(trajectory)
 
                 if include_stop_sequences:
-                    seq = build_stop_sequence(
+                    sequence = build_stop_sequence(
                         schedules, delay=delay, current_minutes=current_minutes
                     )
-                    if seq:
-                        stop_sequences[train.id] = seq
+                    if sequence:
+                        stop_sequences[train.id] = sequence
 
             if len(train_payloads) < batch_size:
                 break
             skip += batch_size
 
-        return positions, trajectories, stop_sequences
+        return trajectories, stop_sequences
 
     def reset_delays(self) -> None:
-        """Reset cached TTS delay corrections."""
         self._tts_delays.clear()
         logger.info("Train delays reset")
 
@@ -432,7 +214,6 @@ class TrainSimulationService:
     # ------------------------------------------------------------------ #
 
     async def _load_delays(self) -> None:
-        """Refresh TTS delay cache from Redis (silent on failure)."""
         if self._redis is not None:
             try:
                 self._tts_delays = await get_delays_from_redis(self._redis)

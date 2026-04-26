@@ -34,6 +34,8 @@ class ScheduleInitResult:
     routes_assigned: int = 0
     route_stations_bound: int = 0
     validation_errors: list[str] = field(default_factory=list)
+    unresolved_stations: list[dict[str, str | None]] = field(default_factory=list)
+    failed_trains: list[dict[str, str]] = field(default_factory=list)
     error: str | None = None
 
 
@@ -93,11 +95,14 @@ class InitSchedulesUseCase:
 
         loaded = 0
         errors = 0
+        unresolved: list[dict[str, str | None]] = []
+        failed_trains: list[dict[str, str]] = []
 
         for train in valid_trains:
             try:
                 async with session_factory() as session, session.begin():
-                    repo = SqlScheduleRepository(session)
+                    repo = SqlScheduleRepository(session, issues=unresolved)
+                    repo.set_current_train(train.train_number)
                     svc = ScheduleDomainService(repo)
                     await svc.upsert_single_train(train)
                 loaded += 1
@@ -108,6 +113,12 @@ class InitSchedulesUseCase:
                 )
             except Exception as exc:
                 errors += 1
+                failed_trains.append(
+                    {
+                        "train_number": train.train_number,
+                        "error": str(exc),
+                    }
+                )
                 logger.error(
                     "Failed to save train schedule",
                     train_number=train.train_number,
@@ -140,4 +151,6 @@ class InitSchedulesUseCase:
             routes_assigned=routes_assigned,
             route_stations_bound=route_stations_bound,
             validation_errors=all_validation_errors,
+            unresolved_stations=unresolved,
+            failed_trains=failed_trains,
         )

@@ -1,5 +1,3 @@
-/**
- * Map components exports.
- */
-
-export { default as MapContainer } from './MapContainer';
+export { default as RailMap } from './RailMap';
+export { default as LeafletTrainMarker } from './LeafletTrainMarker';
+export { default as LeafletStationMarker } from './LeafletStationMarker';

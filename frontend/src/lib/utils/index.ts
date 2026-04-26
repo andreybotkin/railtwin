@@ -23,18 +23,19 @@ export function formatTime(time: string | null): string {
 /**
  * Format speed to display string.
  */
-export function formatSpeed(speed: number | null): string {
-  if (speed === null) return '-- km/h';
-  return `${Math.round(speed)} km/h`;
+export function formatSpeed(speed: number | null, locale = 'en'): string {
+  const unit = locale.startsWith('th') ? 'กม./ชม.' : 'km/h';
+  if (speed === null) return `-- ${unit}`;
+  return `${Math.round(speed)} ${unit}`;
 }
 
 /**
  * Format delay to display string.
  */
-export function formatDelay(minutes: number): string {
-  if (minutes === 0) return 'On time';
-  if (minutes > 0) return `+${minutes} min`;
-  return `${minutes} min`;
+export function formatDelay(minutes: number, locale = 'en'): string {
+  const unit = locale.startsWith('th') ? 'นาที' : 'min';
+  if (minutes === 0) return `0 ${unit}`;
+  return `${minutes > 0 ? '+' : ''}${minutes} ${unit}`;
 }
 
 /**
@@ -52,6 +53,28 @@ export function getStatusColor(status: string): string {
       return 'text-red-500';
     default:
       return 'text-gray-500';
+  }
+}
+
+/**
+ * Brand colour for a train type. Mirrors the palette in
+ * ``simulation/app/services/trajectory_service.py`` so badges on the map and
+ * in info panels match the colour MapLibre uses for the vehicle icon.
+ */
+export function getTrainTypeColor(type: string | null | undefined): string {
+  switch ((type ?? '').trim().toLowerCase()) {
+    case 'special_express':
+      return '#E53935';
+    case 'express':
+      return '#EF6C00';
+    case 'rapid':
+      return '#1E88E5';
+    case 'ordinary':
+      return '#43A047';
+    case 'commuter':
+      return '#8E24AA';
+    default:
+      return '#2196F3';
   }
 }
 

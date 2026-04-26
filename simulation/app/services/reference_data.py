@@ -254,6 +254,7 @@ def _serialize_schedule(
         station_summary = {
             "id": int(schedule.station.id),
             "name": schedule.station.name,
+            "name_th": getattr(schedule.station, "name_th", None),
             "code": schedule.station.code,
             "location": getattr(schedule.station, "_geojson", None),
         }
@@ -706,6 +707,18 @@ class RedisReferenceReader:
         payloads.sort(key=_schedule_sort_key)
         return payloads
 
+    async def get_station_ids_with_schedules(self) -> set[int]:
+        ids = await self._get_ids(self._keys.schedule_ids)
+        if not ids:
+                        return set()
+        payloads = await self._get_hash_payloads(self._keys.schedules_by_id, ids)
+        station_ids: set[int] = set()
+        for payload in payloads:
+            station_id = payload.get("station_id")
+            if isinstance(station_id, int):
+                station_ids.add(station_id)
+        return station_ids
+
     async def get_upcoming_departures(
         self,
         station_id: int,
@@ -825,6 +838,7 @@ def train_payload_to_domain(payload: dict[str, Any]) -> Any:
         train_type=payload["train_type"],
         current_route_id=payload.get("current_route_id"),
         name=payload.get("name"),
+        operator=payload.get("operator"),
     )
 
 
@@ -840,6 +854,7 @@ def schedule_payloads_to_domain(payloads: list[dict[str, Any]]) -> list[Any]:
             station = SimpleNamespace(
                 id=int(station_payload["id"]),
                 name=station_payload["name"],
+                name_th=station_payload.get("name_th"),
                 code=station_payload["code"],
                 location=WKTElement(f"POINT({lon} {lat})", srid=4326),
             )

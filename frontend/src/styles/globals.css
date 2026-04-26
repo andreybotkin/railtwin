@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-/* Dark mode using class strategy (html.dark) */
+/* Theme class strategy: html.dark / html.satellite */
 @custom-variant dark (&:is(.dark *));
+@custom-variant satellite (&:is(.satellite *));
 
 /* Custom theme: use CSS variables for runtime dark mode switching */
 @theme inline {
@@ -79,6 +80,26 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+
+    /* Panel glass-morphic tokens */
+    --panel-bg: rgba(252,249,242,0.86);
+    --panel-bg-strong: rgba(252,249,242,0.94);
+    --panel-border: rgba(255,255,255,0.55);
+    --panel-shadow: 0 18px 40px -28px rgba(15,23,42,0.55);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(15,23,42,0.45);
+    --panel-text: #09090b;
+    --panel-subtext: #71717a;
+    --panel-inner: rgba(255,255,255,0.70);
+    --panel-inner-ring: rgba(0,0,0,0.05);
+    --page-bg: #f4f4f5;
+    --header-logo-bg: #09090b;
+    --header-logo-text: #ffffff;
+    --station-icon-bg: var(--header-logo-bg);
+    --station-next-bg: var(--header-logo-bg);
+    --station-next-text: #ffffff;
+    --header-btn-hover-bg: #09090b;
+    --header-btn-hover-text: #ffffff;
+    --close-btn-hover-bg: #09090b;
   }
 
   .dark {
@@ -101,6 +122,64 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
+    --panel-bg: rgba(15,18,30,0.88);
+    --panel-bg-strong: rgba(12,15,25,0.95);
+    --panel-border: rgba(255,255,255,0.10);
+    --panel-shadow: 0 18px 40px -28px rgba(0,0,0,0.80);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(0,0,0,0.70);
+    --panel-text: #f1f5f9;
+    --panel-subtext: #94a3b8;
+    --panel-inner: rgba(255,255,255,0.06);
+    --panel-inner-ring: rgba(255,255,255,0.08);
+    --page-bg: #0a0c16;
+    --header-logo-bg: #f1f5f9;
+    --header-logo-text: #09090b;
+    --station-icon-bg: #475569;
+    --station-next-bg: #374151;
+    --station-next-text: #f8fafc;
+    --header-btn-hover-bg: #f1f5f9;
+    --header-btn-hover-text: #09090b;
+    --close-btn-hover-bg: #f1f5f9;
+  }
+
+  /* Satellite / Green theme */
+  .satellite {
+    --background: 150 25% 8%;
+    --foreground: 142 50% 92%;
+    --card: 150 25% 8%;
+    --card-foreground: 142 50% 92%;
+    --popover: 150 25% 8%;
+    --popover-foreground: 142 50% 92%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 150 60% 6%;
+    --secondary: 148 28% 14%;
+    --secondary-foreground: 142 50% 88%;
+    --muted: 148 28% 14%;
+    --muted-foreground: 142 30% 60%;
+    --accent: 148 28% 14%;
+    --accent-foreground: 142 50% 88%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 142 50% 92%;
+    --border: 148 28% 18%;
+    --input: 148 28% 14%;
+    --ring: 142 71% 45%;
+
+    --panel-bg: rgba(8,26,14,0.88);
+    --panel-bg-strong: rgba(6,20,10,0.95);
+    --panel-border: rgba(74,222,128,0.22);
+    --panel-shadow: 0 18px 40px -28px rgba(0,0,0,0.80);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(0,0,0,0.70);
+    --panel-text: #f0fdf4;
+    --panel-subtext: #86efac;
+    --panel-inner: rgba(74,222,128,0.08);
+    --panel-inner-ring: rgba(74,222,128,0.15);
+    --page-bg: #050f07;
+    --header-logo-bg: #16a34a;
+    --header-logo-text: #ffffff;
+    --header-btn-hover-bg: #16a34a;
+    --header-btn-hover-text: #ffffff;
+    --close-btn-hover-bg: #16a34a;
   }
 
   * {
@@ -139,6 +218,45 @@
 .leaflet-control-container .leaflet-top,
 .leaflet-control-container .leaflet-bottom {
   z-index: 999;
+}
+
+.leaflet-control-attribution {
+  background: var(--panel-bg-strong) !important;
+  border: 1px solid var(--panel-inner-ring);
+  border-radius: 0.85rem !important;
+  box-shadow: var(--panel-shadow);
+  color: var(--panel-subtext) !important;
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0 0 0.75rem 0.75rem !important;
+  max-width: min(84vw, 34rem);
+  padding: 0.3rem 0.55rem !important;
+  backdrop-filter: blur(14px);
+  white-space: normal;
+}
+
+.leaflet-control-attribution a {
+  color: var(--panel-text) !important;
+}
+
+.selected-route-wave {
+  stroke-dasharray: 18 14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: selected-route-wave 1.4s linear infinite;
+}
+
+.selected-route-wave--reverse {
+  animation-direction: reverse;
+}
+
+@keyframes selected-route-wave {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -32;
+  }
 }
 
 /* Custom marker styles */
@@ -192,6 +310,76 @@
   height: 14px;
   border-width: 3px;
 }
+
+/* Station name badge — white oval shown when station is selected */
+.station-name-badge.leaflet-tooltip {
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.station-name-badge.leaflet-tooltip::before {
+  display: none;
+}
+
+/* ── Route stop bubble tooltips ─────────────────────────────────────── */
+/* Shared base */
+.leaflet-tooltip.stop-tip-ontime,
+.leaflet-tooltip.stop-tip-warn,
+.leaflet-tooltip.stop-tip-late,
+.leaflet-tooltip.stop-tip-passed {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+/* On time — green */
+.leaflet-tooltip.stop-tip-ontime {
+  background: #16A34A;
+  border: 1px solid #15803D;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+}
+.leaflet-tooltip-top.stop-tip-ontime::before { border-top-color: #16A34A; }
+
+/* Small delay (1–14 m) — amber */
+.leaflet-tooltip.stop-tip-warn {
+  background: #D97706;
+  border: 1px solid #B45309;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+}
+.leaflet-tooltip-top.stop-tip-warn::before { border-top-color: #D97706; }
+
+/* Large delay (15 m+) — red */
+.leaflet-tooltip.stop-tip-late {
+  background: #DC2626;
+  border: 1px solid #B91C1C;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+}
+.leaflet-tooltip-top.stop-tip-late::before { border-top-color: #DC2626; }
+
+/* Passed stop — gray, hover only */
+.leaflet-tooltip.stop-tip-passed {
+  background: rgba(243, 244, 246, 0.95);
+  border: 1px solid #D1D5DB;
+  color: #6B7280;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-weight: 400;
+}
+.leaflet-tooltip-top.stop-tip-passed::before { border-top-color: rgba(243, 244, 246, 0.95); }
 
 /* Popup styles */
 .leaflet-popup-content-wrapper {

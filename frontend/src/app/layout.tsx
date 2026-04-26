@@ -6,11 +6,14 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import Script from 'next/script';
 
 import '@/styles/globals.css';
 import Providers from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
+
+const GA_MEASUREMENT_ID = 'G-M6ZWFRZ4BG';
 
 export const metadata: Metadata = {
   title: 'Thailand Railway Digital Twin',
@@ -38,6 +41,20 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
+      </head>
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>

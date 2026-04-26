@@ -31,7 +31,8 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
       onClick={toggleLocale}
       title={locale === 'en' ? 'เปลี่ยนเป็นภาษาไทย' : 'Switch to English'}
       aria-label={locale === 'en' ? 'Switch to Thai' : 'Switch to English'}
-      className={cn('text-xs font-bold', className)}
+      className={cn('rounded-2xl text-xs font-bold transition-colors', className)}
+      style={{ color: 'var(--panel-subtext)' }}
     >
       {locale === 'en' ? 'TH' : 'EN'}
     </Button>

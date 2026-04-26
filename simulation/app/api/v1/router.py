@@ -5,7 +5,14 @@ This module combines all endpoint routers for API version 1.
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import network, routes, schedules, stations, trains
+from app.api.v1.endpoints import (
+    network,
+    routes,
+    schedules,
+    stations,
+    trains,
+    trajectories,
+)
 
 api_router = APIRouter()
 
@@ -25,6 +32,12 @@ api_router.include_router(
     trains.router,
     prefix="/trains",
     tags=["Trains"],
+)
+
+api_router.include_router(
+    trajectories.router,
+    prefix="/trajectories",
+    tags=["Trajectories"],
 )
 
 api_router.include_router(

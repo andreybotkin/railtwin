@@ -166,7 +166,11 @@ class ScheduleRepository(BaseRepository[Schedule]):
         if filters:
             query = query.where(and_(*filters))
 
-        query = query.order_by(Schedule.departure_time).offset(skip).limit(limit)
+        query = (
+            query.order_by(Schedule.departure_time, Schedule.id)
+            .offset(skip)
+            .limit(limit)
+        )
 
         result = await self.session.execute(query)
         return list(result.scalars().all())

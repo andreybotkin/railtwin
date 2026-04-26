@@ -1,68 +1,62 @@
 /**
- * Custom React hooks for the application.
+ * Custom React hooks.
  */
 
-import { startTransition, useEffect, useState, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
+
 import {
+  gatewayApi,
   mapApi,
-  stationApi,
   routeApi,
-  trainApi,
   scheduleApi,
+  stationApi,
+  trainApi,
 } from '@/lib/api/client';
-import { getWebSocketClient, TrainWebSocketClient, getTrajectoryClient } from '@/lib/websocket';
 import type {
-  Station,
-  Route,
-  Train,
-  Schedule,
-  TrainSchedule,
-  StationSchedule,
-  TrainPositionUpdate,
-  TrainTrajectory,
+  MapSnapshot,
   PaginatedResponse,
-  NetworkEdgeCollection,
+  Route,
+  Schedule,
+  Station,
+  StationSchedule,
+  Train,
+  TrainSchedule,
+  TrainStopSequence,
+  Trajectory,
 } from '@/types';
 
-/**
- * Hook for fetching all stations.
- */
+export { useRafVehicleTicker, VEHICLE_SOURCE_ID } from './useRafVehicleTicker';
+export { useTrajectoryStream } from './useTrajectoryStream';
+export { useBottomSheetDrag } from './useBottomSheetDrag';
+export type { SheetType } from './useBottomSheetDrag';
+
 export function useStations(): UseQueryResult<PaginatedResponse<Station>> {
   return useQuery({
     queryKey: ['stations'],
     queryFn: () => stationApi.getAll(1, 100),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 }
 
-/**
- * Hook for fetching all routes.
- */
 export function useRoutes(): UseQueryResult<PaginatedResponse<Route>> {
   return useQuery({
     queryKey: ['routes'],
     queryFn: () => routeApi.getAll(1, 100),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 }
 
-/**
- * Hook for fetching all trains.
- */
 export function useTrains(): UseQueryResult<PaginatedResponse<Train>> {
   return useQuery({
     queryKey: ['trains'],
     queryFn: () => trainApi.getAll(1, 100),
-    staleTime: 1 * 60 * 1000, // 1 minute
+    staleTime: 1 * 60 * 1000,
   });
 }
 
-/**
- * Hook for fetching train schedule.
- */
 export function useTrainSchedule(
-  trainId: number | null
+  trainId: number | null,
 ): UseQueryResult<TrainSchedule | null> {
   return useQuery({
     queryKey: ['train-schedule', trainId],
@@ -72,11 +66,8 @@ export function useTrainSchedule(
   });
 }
 
-/**
- * Hook for fetching station schedule.
- */
 export function useStationSchedule(
-  stationId: number | null
+  stationId: number | null,
 ): UseQueryResult<StationSchedule | null> {
   return useQuery({
     queryKey: ['station-schedule', stationId],
@@ -86,138 +77,37 @@ export function useStationSchedule(
   });
 }
 
-/**
- * Hook for real-time train positions via WebSocket.
- */
-export function useTrainPositions(
+/** Cold-start trajectory snapshot — used before the WS delivers its first frame. */
+export function useInitialTrajectories(
   bbox?: string | null,
-): {
-  positions: TrainPositionUpdate[];
-  isConnected: boolean;
-  error: string | null;
-} {
-  const [positions, setPositions] = useState<TrainPositionUpdate[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const wsClientRef = useRef<TrainWebSocketClient | null>(null);
-
-  useEffect(() => {
-    // Only run on client
-    if (typeof window === 'undefined') return;
-
-    const client = getWebSocketClient();
-    wsClientRef.current = client;
-
-    const unsubscribeConnect = client.onConnect(() => {
-      setIsConnected(true);
-      setError(null);
-    });
-
-    const unsubscribeDisconnect = client.onDisconnect(() => {
-      setIsConnected(false);
-    });
-
-    const unsubscribeMessage = client.onMessage((newPositions) => {
-      setPositions(newPositions);
-    });
-
-    const unsubscribeError = client.onError(() => {
-      setError('Connection error');
-    });
-
-    client.connect();
-
-    return () => {
-      unsubscribeConnect();
-      unsubscribeDisconnect();
-      unsubscribeMessage();
-      unsubscribeError();
-      client.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !bbox) return;
-    const client = wsClientRef.current ?? getWebSocketClient();
-    client.sendBBox(bbox);
-  }, [bbox]);
-
-  return { positions, isConnected, error };
-}
-
-/**
- * Hook for initial train positions (REST API fallback).
- */
-export function useInitialPositions(
-  bbox?: string | null,
-): UseQueryResult<TrainPositionUpdate[]> {
+): UseQueryResult<Trajectory[]> {
   return useQuery({
-    queryKey: ['train-positions', bbox ?? 'no-bbox'],
-    queryFn: () => trainApi.getAllPositions(bbox!),
-    enabled: Boolean(bbox),
-    refetchInterval: 30000, // Refetch every 30 seconds as fallback
-    staleTime: 10000,
+    queryKey: ['trajectories', bbox ?? 'all'],
+    queryFn: () => gatewayApi.getTrajectories(bbox ?? undefined),
+    staleTime: 10_000,
   });
 }
 
-/**
- * Hook for geops-compatible train trajectories via WebSocket.
- *
- * Connects to /ws/trajectory and maintains a Map<trainId, TrainTrajectory>.
- * Trajectories contain time_intervals so the caller can interpolate position at
- * any moment with getVehiclePosition() — no additional round-trips needed.
- *
- * Pattern: geops/mobility-toolbox-js RealtimeEngine trajectory management.
- */
-export function useTrainTrajectories(): {
-  trajectories: Map<number, TrainTrajectory>;
-  isConnected: boolean;
-} {
-  const [trajectories, setTrajectories] = useState<Map<number, TrainTrajectory>>(new Map());
-  const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const client = getTrajectoryClient();
-
-    const unsub = client.onUpdate((updated) => {
-      startTransition(() => {
-        setTrajectories(new Map(updated));
-      });
-      if (!isConnected) setIsConnected(true);
-    });
-
-    client.connect();
-
-    return () => {
-      unsub();
-      client.disconnect();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { trajectories, isConnected };
+export function useStopSequence(
+  trainId: number | null,
+): UseQueryResult<TrainStopSequence | null> {
+  return useQuery({
+    queryKey: ['stopsequence', trainId],
+    queryFn: () => (trainId ? gatewayApi.getStopSequence(trainId) : null),
+    enabled: !!trainId,
+    refetchInterval: 30_000,
+  });
 }
 
-/**
- * Hook for loading static map infrastructure data once per page load.
- */
-export function useStaticMapData(): UseQueryResult<{
-  stations: Station[];
-  network_edges: NetworkEdgeCollection;
-}> {
+export function useMapTopology(): UseQueryResult<MapSnapshot> {
   return useQuery({
-    queryKey: ['map-static-data'],
-    queryFn: () => mapApi.getStaticData(),
+    queryKey: ['map-topology'],
+    queryFn: () => mapApi.getTopology(),
     staleTime: Infinity,
     gcTime: Infinity,
   });
 }
 
-/**
- * Hook for searching stations.
- */
 export function useStationSearch(query: string): UseQueryResult<Station[]> {
   return useQuery({
     queryKey: ['station-search', query],
@@ -227,65 +117,79 @@ export function useStationSearch(query: string): UseQueryResult<Station[]> {
   });
 }
 
-/**
- * Hook for managing selected train.
- */
 export function useSelectedTrain(): {
   selectedTrainId: number | null;
   selectTrain: (id: number | null) => void;
 } {
   const [selectedTrainId, setSelectedTrainId] = useState<number | null>(null);
-
   const selectTrain = useCallback((id: number | null) => {
     setSelectedTrainId(id);
   }, []);
-
   return { selectedTrainId, selectTrain };
 }
 
-/**
- * Hook for managing selected station.
- */
-export function useSelectedStation(): {
-  selectedStationId: number | null;
-  selectStation: (id: number | null) => void;
-} {
-  const [selectedStationId, setSelectedStationId] = useState<number | null>(null);
-
-  const selectStation = useCallback((id: number | null) => {
-    setSelectedStationId(id);
-  }, []);
-
-  return { selectedStationId, selectStation };
+function resolveInitialDark(): boolean {
+  if (typeof window === 'undefined') return false;
+  const stored = window.localStorage.getItem('theme');
+  if (stored === 'dark') return true;
+  if (stored === 'light' || stored === 'satellite') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-/**
- * Hook for dark mode.
- */
-export function useDarkMode(): {
-  isDark: boolean;
-  toggle: () => void;
-} {
-  const [isDark, setIsDark] = useState(false);
+export type AppTheme = 'light' | 'dark' | 'satellite';
+
+function applyThemeClass(theme: AppTheme): void {
+  document.documentElement.classList.remove('dark', 'satellite');
+  if (theme === 'dark') document.documentElement.classList.add('dark');
+  else if (theme === 'satellite') document.documentElement.classList.add('satellite');
+}
+
+function resolveInitialTheme(): AppTheme {
+  if (typeof window === 'undefined') return 'light';
+  const stored = window.localStorage.getItem('theme') as AppTheme | null;
+  if (stored === 'dark' || stored === 'satellite') return stored;
+  if (stored === 'light') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+export function useTheme(): { theme: AppTheme; cycleTheme: () => void } {
+  const [theme, setTheme] = useState<AppTheme>(() => resolveInitialTheme());
 
   useEffect(() => {
-    // Check initial preference
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldBeDark = stored === 'dark' || (!stored && prefersDark);
+    applyThemeClass(theme);
+  }, [theme]);
 
-    setIsDark(shouldBeDark);
-    document.documentElement.classList.toggle('dark', shouldBeDark);
+  const cycleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next: AppTheme =
+        prev === 'light' ? 'dark' : prev === 'dark' ? 'satellite' : 'light';
+      localStorage.setItem('theme', next);
+      applyThemeClass(next);
+      window.location.reload();
+      return next;
+    });
   }, []);
+
+  return { theme, cycleTheme };
+}
+
+export function useDarkMode(): { isDark: boolean; toggle: () => void } {
+  const [isDark, setIsDark] = useState<boolean>(() => resolveInitialDark());
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
 
   const toggle = useCallback(() => {
     setIsDark((prev) => {
-      const newValue = !prev;
-      localStorage.setItem('theme', newValue ? 'dark' : 'light');
-      document.documentElement.classList.toggle('dark', newValue);
-      return newValue;
+      const next = !prev;
+      localStorage.setItem('theme', next ? 'dark' : 'light');
+      document.documentElement.classList.toggle('dark', next);
+      return next;
     });
   }, []);
 
   return { isDark, toggle };
 }
+
+export type { Schedule };

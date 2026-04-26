@@ -22,6 +22,10 @@ class RailroadDomainService:
         """Replace the canonical route geometry dataset."""
         return await self._repo.replace_routes(routes)
 
-    async def replace_stations(self, stations: list[StationData]) -> int:
-        """Replace the canonical station dataset."""
-        return await self._repo.replace_stations(stations)
+    async def replace_stations(
+        self,
+        stations: list[StationData],
+        aliases: dict[str, str] | None = None,
+    ) -> int:
+        """Replace the canonical station dataset (plus alias hints)."""
+        return await self._repo.replace_stations(stations, aliases)

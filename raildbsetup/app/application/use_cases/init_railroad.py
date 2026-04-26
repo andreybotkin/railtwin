@@ -54,8 +54,14 @@ class InitRailroadUseCase:
         stations_path = settings.stations_json_path
         if not stations_path.exists():
             return RailroadInitResult(error=f"Stations JSON not found: {stations_path}")
-        stations = parse_stations_json(stations_path)
-        logger.info("Station JSON parsed", stations=len(stations))
+        parsed = parse_stations_json(stations_path)
+        stations = parsed.stations
+        aliases = parsed.aliases
+        logger.info(
+            "Station JSON parsed",
+            stations=len(stations),
+            aliases=len(aliases),
+        )
 
         validation_errors: list[str] = []
         for route in routes:
@@ -88,7 +94,7 @@ class InitRailroadUseCase:
             )
 
         routes_count = await self._svc.replace_routes(routes)
-        stations_count = await self._svc.replace_stations(stations)
+        stations_count = await self._svc.replace_stations(stations, aliases)
         logger.info(
             "Railroad network initialized",
             routes=routes_count,

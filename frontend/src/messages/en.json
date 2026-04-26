@@ -4,7 +4,79 @@
     "toggleTrainPanel": "Toggle train panel",
     "toggleSchedulePanel": "Toggle schedule panel",
     "toggleDarkMode": "Toggle dark mode",
-    "language": "Language"
+    "language": "Language",
+    "subtitle": "Live railway digital twin",
+    "openData": {
+      "buttonLabel": "Open data and sources",
+      "buttonHint": "Maps, timetable, Thai open data and delay methodology",
+      "items": {
+        "maps": {
+          "label": "Maps",
+          "detail": "OpenStreetMap basemap data, CARTO tiles and Esri imagery for contextual mapping."
+        },
+        "timetable": {
+          "label": "Timetable",
+          "detail": "Public passenger schedules, stop sequences and station calling patterns published for rail services."
+        },
+        "thailand": {
+          "label": "Thailand Open Data",
+          "detail": "Station metadata, rail geography and public location datasets aggregated from Thai open-data sources."
+        },
+        "delay": {
+          "label": "Delay Deviations",
+          "detail": "Deviation indicators are estimated by comparing live train movement with the published timetable."
+        }
+      }
+    }
+  },
+  "openDataPage": {
+    "back": "Back to map",
+    "eyebrow": "Open Data Desk",
+    "title": "Open data, map sources and delay logic",
+    "description": "This page summarizes the public and derived datasets used by the rail twin. The layout is optimized for mobile reading and quick scanning.",
+    "sections": {
+      "datasets": "Data layers",
+      "maps": "Current map sources",
+      "notes": "Notes"
+    },
+    "items": {
+      "maps": {
+        "label": "Base maps",
+        "detail": "OpenStreetMap is used for base geography. CARTO tiles power the standard and dark map views, while Esri World Imagery powers satellite mode."
+      },
+      "timetable": {
+        "label": "Timetable data",
+        "detail": "Passenger timetable structure, stop order and station calling patterns are aligned with publicly available rail schedule information."
+      },
+      "thailand": {
+        "label": "Thailand open data",
+        "detail": "Station names, rail locations and supporting geography are assembled from Thai public datasets and openly available geographic sources."
+      },
+      "delay": {
+        "label": "Delay deviations",
+        "detail": "Delay and early-running indicators are derived by comparing live train movement against the published timetable and expected stop timing."
+      }
+    },
+    "mapModes": {
+      "light": {
+        "label": "Standard map",
+        "detail": "OpenStreetMap contributors + CARTO Voyager tiles"
+      },
+      "dark": {
+        "label": "Night map",
+        "detail": "OpenStreetMap contributors + CARTO Dark Matter tiles"
+      },
+      "satellite": {
+        "label": "Satellite map",
+        "detail": "Esri World Imagery"
+      }
+    },
+    "notesList": {
+      "refresh": "Map attributions on the main map update automatically when the user changes theme.",
+      "estimates": "Some operational fields are inferred from the latest movement frame when no direct public timestamp is available.",
+      "coverage": "Coverage may vary by route, train type and station depending on source completeness.",
+      "feedback": "If you have questions about data sources, delay logic, would like to suggest improvements or you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/RayBotkin/railtwin; the updated data will appear on this site in the next release."  
+    }
   },
   "map": {
     "northern": "Northern",
@@ -18,20 +90,35 @@
     "train": "Train",
     "speed": "Speed",
     "delay": "Delay",
+    "eta": "ETA",
     "onTime": "On time",
     "nextStation": "Next station",
     "journeyProgress": "Journey progress",
     "specialExpress": "Special Express",
+    "special_express": "Special Express",
     "rapid": "Rapid",
     "ordinary": "Ordinary",
+    "local": "Local",
     "moving": "Moving",
     "stopped": "Stopped",
     "atStation": "At Station",
     "delayed": "Delayed",
+    "enRoute": "En route",
+    "boarding": "Boarding",
+    "arrived": "Arrived",
     "searchPlaceholder": "Search trains...",
     "noTrainsFound": "No trains found",
     "live": "Live",
-    "polling": "Polling"
+    "polling": "Polling",
+    "next": "Next",
+    "to": "to",
+    "from": "From",
+    "trainNo": "No.",
+    "express": "Express",
+    "commuter": "Commuter",
+    "routeProgress": "Route",
+    "stopTimeline": "Stops",
+    "timeline": "Stop timeline"
   },
   "schedule": {
     "title": "Schedule",
@@ -40,7 +127,17 @@
     "arrival": "Arrival",
     "departure": "Departure",
     "platform": "Platform",
-    "distance": "Distance"
+    "distance": "Distance",
+    "timetable": "Timetable",
+    "nextService": "Next service",
+    "arrAbbr": "Arr",
+    "depAbbr": "Dep",
+    "services": "{count} services",
+    "noServices": "No scheduled services.",
+    "loading": "Loading timetable…",
+    "now": "now",
+    "inMin": "in {m}m",
+    "inHourMin": "in {h}h {m}m"
   },
   "station": {
     "majorStation": "Major Station",
@@ -52,7 +149,10 @@
   "common": {
     "loading": "Loading...",
     "error": "Error",
-    "noData": "No data available"
+    "noData": "No data available",
+    "close": "Close",
+    "station": "Station",
+    "train": "Train"
   },
   "topics": {
     "railway": "Railway Operations",
@@ -76,8 +176,104 @@
     "trainsRapid": "Rapid",
     "trainsOrdinary": "Ordinary"
   },
+  "search": {
+    "placeholder": "Search stations and trains…",
+    "ariaLabel": "Search stations and trains",
+    "close": "Close search"
+  },
   "footer": {
     "copyright": "© 2026 Thailand Railway Digital Twin",
-    "dataSource": "Data source: State Railway of Thailand (SRT)"
+    "dataSource": "Data source: State Railway of Thailand (SRT)",
+    "mapSummaryLabel": "Map",
+    "mapSources": {
+      "light": "OpenStreetMap + CARTO Voyager",
+      "dark": "OpenStreetMap + CARTO Dark Matter",
+      "satellite": "Esri World Imagery"
+    },
+    "leafletSummary": "Rendered with Leaflet",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "cookiesBanner": {
+    "label": "Cookies",
+    "message": "Used for language, map state and analytics.",
+    "accept": "Accept"
+  },
+  "legal": {
+    "eyebrow": "Legal",
+    "backToMap": "Back to map",
+    "lastUpdated": "Last updated: April 26, 2026"
+  },
+  "privacyPolicyPage": {
+    "title": "Privacy Policy",
+    "description": "This page is optimized for mobile reading and summarizes how RailTwin may process technical, usage and location-related information.",
+    "sections": {
+      "overview": {
+        "title": "Overview",
+        "body": "RailTwin provides a web interface for viewing railway map layers, station data, train movement and supporting operational context. This Privacy Policy explains what information may be processed when you use the service."
+      },
+      "informationProcessed": {
+        "title": "Information We Process",
+        "body": "We may process basic technical data such as browser type, device characteristics, IP-derived diagnostics and aggregate usage analytics. If you tap the locate button on the map, your browser may share your approximate device location only for that interactive session."
+      },
+      "howWeUseInformation": {
+        "title": "How We Use Information",
+        "body": "Information is used to render the map, improve performance, understand feature usage, troubleshoot errors and support service reliability. Location access is used solely to center the map around your current position when you explicitly request it."
+      },
+      "cookiesAndAnalytics": {
+        "title": "Cookies and Analytics",
+        "body": "The service may use essential browser storage for map state, interface preferences and analytics tooling. These technologies help preserve your map viewport, support product measurement and identify reliability issues."
+      },
+      "sharingAndRetention": {
+        "title": "Sharing and Retention",
+        "body": "We do not sell personal information. Data may be processed by infrastructure, analytics or map providers that support the application. Logs and diagnostics are retained only as long as reasonably needed for security, operations and product maintenance."
+      },
+      "yourChoices": {
+        "title": "Your Choices",
+        "body": "You may decline browser location access, limit analytics through your browser settings or stop using the service at any time. If you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/RayBotkin/railtwin; the updated data will appear on this site in the next release. If you have questions about privacy handling for this deployment, contact the operator responsible for the instance you are using."
+      },
+      "policyUpdates": {
+        "title": "Policy Updates",
+        "body": "This policy may be updated as the product evolves, additional data sources are connected or legal requirements change. Continued use of the service after updates means the revised policy applies from its published date."
+      }
+    }
+  },
+  "termsOfServicePage": {
+    "title": "Terms of Service",
+    "description": "These terms explain the conditions for using RailTwin, including service limitations, acceptable use and data-related disclaimers.",
+    "sections": {
+      "acceptanceOfTerms": {
+        "title": "Acceptance of Terms",
+        "body": "By accessing or using RailTwin, you agree to these Terms of Service. If you do not agree, do not use the service. These terms apply to interactive map views, schedule screens, operational overlays and related pages."
+      },
+      "serviceDescription": {
+        "title": "Service Description",
+        "body": "RailTwin presents railway-related data, visualizations and estimates for informational purposes. Features may include map layers, station metadata, train movement, schedule comparisons and derived delay indicators."
+      },
+      "acceptableUse": {
+        "title": "Acceptable Use",
+        "body": "You agree not to misuse the platform, interfere with its operation, scrape it abusively, reverse engineer restricted systems, attempt unauthorized access or use the service for unlawful, deceptive or harmful purposes."
+      },
+      "operationalDisclaimer": {
+        "title": "Operational Disclaimer",
+        "body": "The service is not an official dispatching, signaling or safety system. Train positions, schedules and delay calculations may be incomplete, delayed or estimated. Do not rely on RailTwin as the sole source for safety-critical or time-critical decisions."
+      },
+      "availabilityAndChanges": {
+        "title": "Availability and Changes",
+        "body": "Features, interfaces, datasets and endpoints may change, pause or be removed without notice. We may update, suspend or limit access to all or part of the service to maintain quality, security or legal compliance."
+      },
+      "intellectualPropertyAndDataRights": {
+        "title": "Intellectual Property and Data Rights",
+        "body": "Underlying software, branding, interface design and non-public implementation details remain protected. Third-party datasets, basemaps and imagery remain subject to their own licenses, attributions and usage terms. If you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/RayBotkin/railtwin; the updated data will appear on this site in the next release."
+      },
+      "limitationOfLiability": {
+        "title": "Limitation of Liability",
+        "body": "To the maximum extent permitted by law, the service is provided on an as-is and as-available basis without warranties of uninterrupted availability, complete accuracy or fitness for a particular purpose. The operators are not liable for losses resulting from use or inability to use the service."
+      },
+      "updatesToTheseTerms": {
+        "title": "Updates to These Terms",
+        "body": "We may revise these terms from time to time. Continued use of the service after an update means you accept the revised version as of its published date."
+      }
+    }
   }
 }

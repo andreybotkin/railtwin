@@ -4,6 +4,8 @@ This module defines request and response schemas for schedule-related
 API endpoints with proper validation and serialization.
 """
 
+from __future__ import annotations
+
 from datetime import time
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator

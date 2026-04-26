@@ -88,11 +88,22 @@ class SqlRailroadRepository(RailroadRepository):
         await self._s.execute(delete(t_routes))
         return await self._insert_routes(routes)
 
-    async def replace_stations(self, stations: list[StationData]) -> int:
-        logger.info("Replacing canonical station dataset", stations=len(stations))
+    async def replace_stations(
+        self,
+        stations: list[StationData],
+        aliases: dict[str, str] | None = None,
+    ) -> int:
+        logger.info(
+            "Replacing canonical station dataset",
+            stations=len(stations),
+            aliases=len(aliases or {}),
+        )
         await self._s.execute(delete(t_station_aliases))
         await self._s.execute(delete(t_stations))
-        return await self._insert_stations(stations)
+        inserted_ids = await self._insert_stations(stations)
+        if aliases:
+            await self._insert_json_aliases(inserted_ids, aliases)
+        return len(inserted_ids)
 
     async def _clear_derived_network_data(self) -> None:
         await self._s.execute(update(t_schedules).values(route_station_id=None))
@@ -109,13 +120,24 @@ class SqlRailroadRepository(RailroadRepository):
         await self._s.execute(delete(t_network_edges))
         await self._s.execute(delete(t_network_nodes))
 
-    async def _insert_stations(self, stations: list[StationData]) -> int:
+    async def _insert_stations(
+        self, stations: list[StationData]
+    ) -> dict[str, int]:
+        """Insert stations, returning a ``{name.lower(): id}`` mapping.
+
+        Deduplication is keyed on the (lowercased) English name — codes alone
+        are not unique in the source JSON (e.g. ``นเ.`` is shared by *Ban
+        Lueam* and *Ban Niam*), so a code-keyed dedup silently drops real
+        stations. The DB-level uniqueness constraint on ``code`` is honoured
+        by appending a disambiguating suffix when a collision would occur.
+        """
+
         inserted_ids: dict[str, int] = {}
         seen_codes: set[str] = set()
 
         for station in stations:
-            station_key = (station.code or station.name).strip().lower()
-            if not station_key or station_key in inserted_ids:
+            name_key = station.name.strip().lower()
+            if not name_key or name_key in inserted_ids:
                 continue
 
             base_code = (
@@ -149,10 +171,59 @@ class SqlRailroadRepository(RailroadRepository):
                 .returning(t_stations.c.id)
             )
             row = await self._s.execute(stmt)
-            inserted_ids[station_key] = row.scalar_one()
+            inserted_ids[name_key] = row.scalar_one()
 
         logger.info("Stations inserted", count=len(inserted_ids))
-        return len(inserted_ids)
+        return inserted_ids
+
+    async def _insert_json_aliases(
+        self,
+        inserted_ids: dict[str, int],
+        aliases: dict[str, str],
+    ) -> None:
+        """Persist alias hints sourced from the curated JSON file.
+
+        Aliases are inserted with ``source='json_aliases'`` so they are
+        consulted by :class:`SqlScheduleRepository` before any fuzzy matching.
+        """
+
+        import re as _re
+        import unicodedata as _ud
+
+        def _normalize(value: str) -> str:
+            ascii_value = _ud.normalize("NFKD", value)
+            ascii_value = ascii_value.encode("ascii", "ignore").decode("ascii")
+            ascii_value = ascii_value.lower().replace("&", " and ")
+            ascii_value = ascii_value.replace("jct", "junction")
+            ascii_value = _re.sub(r"\bsta(?:tion)?\b", " ", ascii_value)
+            ascii_value = _re.sub(r"\bhalt\b", " ", ascii_value)
+            ascii_value = _re.sub(r"[^a-z0-9]+", " ", ascii_value)
+            return "".join(ascii_value.split())
+
+        persisted = 0
+        for alias, target in aliases.items():
+            station_id = inserted_ids.get(target.strip().lower())
+            if station_id is None:
+                continue
+            normalized = _normalize(alias)
+            if not normalized:
+                continue
+            stmt = (
+                pg_insert(t_station_aliases)
+                .values(
+                    station_id=station_id,
+                    source="json_aliases",
+                    alias=alias,
+                    normalized_alias=normalized,
+                )
+                .on_conflict_do_nothing(
+                    constraint="uq_station_aliases_source_normalized_alias"
+                )
+            )
+            await self._s.execute(stmt)
+            persisted += 1
+
+        logger.info("Station aliases inserted", count=persisted, source="json_aliases")
 
     async def _insert_routes(self, routes: list[RouteData]) -> int:
         inserted = 0
