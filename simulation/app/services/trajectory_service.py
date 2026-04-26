@@ -12,7 +12,8 @@ Pure functions — no database, no Redis, no clock access outside of ``_now_ms``
 from __future__ import annotations
 
 import time as _time
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Point
@@ -24,6 +25,7 @@ from app.domain.trajectory import (
     TrajectoryAnchor,
     TrajectoryFrame,
     TrajectoryMeta,
+    TrajectoryStatus,
     resolve_consist,
 )
 from app.models.database.models import Schedule, Train
@@ -54,6 +56,7 @@ def train_type_color(train_type: str | None) -> str:
 # --------------------------------------------------------------------------- #
 # Schedule helpers                                                             #
 # --------------------------------------------------------------------------- #
+
 
 def _station_name(schedule: Schedule) -> str:
     name = schedule.station.name if schedule.station else None
@@ -98,6 +101,7 @@ def _absolute_event_minutes(schedule: Schedule, *, event: str) -> int | None:
 # Geometry helpers                                                             #
 # --------------------------------------------------------------------------- #
 
+
 def _polyline_length_m(coords: list[list[float]]) -> float:
     total = 0.0
     for i in range(len(coords) - 1):
@@ -111,9 +115,12 @@ def _cumulative_length_m(coords: list[list[float]]) -> list[float]:
     cum = [0.0]
     running = 0.0
     for i in range(len(coords) - 1):
-        running += geo_utils.haversine_km(
-            coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1]
-        ) * 1000.0
+        running += (
+            geo_utils.haversine_km(
+                coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1]
+            )
+            * 1000.0
+        )
         cum.append(running)
     return cum
 
@@ -206,7 +213,7 @@ def _stop_fractions(
         projected.append(max(0.0, min(1.0, float(frac))))
 
     resolved: list[float] = []
-    for ref, proj in zip(reference, projected):
+    for ref, proj in zip(reference, projected, strict=False):
         if proj is not None and abs(proj - ref) <= _PROJECTION_CORRIDOR:
             resolved.append(proj)
         else:
@@ -230,6 +237,7 @@ def _stop_fractions(
 # --------------------------------------------------------------------------- #
 # Core builder                                                                 #
 # --------------------------------------------------------------------------- #
+
 
 def _find_bounding_stops(
     schedules: list[Schedule],
@@ -296,6 +304,7 @@ def _compute_frame(
 
     dwelling = _is_dwell_window(next_stop, current_minutes=step_minutes, delay=delay)
 
+    status: TrajectoryStatus
     if dwelling:
         geom_fraction = end_frac
         speed_kmh = 0.0
@@ -470,20 +479,10 @@ def build_trajectory(
     prev_index, next_index = _find_bounding_stops(
         schedules, step_minutes=current_minutes, delay=delay
     )
-    prev_name = (
-        _station_name(schedules[prev_index])
-        if prev_index is not None
-        else None
-    )
-    next_name = (
-        _station_name(schedules[next_index])
-        if next_index is not None
-        else None
-    )
+    prev_name = _station_name(schedules[prev_index]) if prev_index is not None else None
+    next_name = _station_name(schedules[next_index]) if next_index is not None else None
     next_name_th = (
-        _station_name_th(schedules[next_index])
-        if next_index is not None
-        else None
+        _station_name_th(schedules[next_index]) if next_index is not None else None
     )
 
     # ETA for next station = first matching anchor or next_stop adjusted minutes.
@@ -601,6 +600,7 @@ def build_trajectory(
 # Stop sequence                                                                #
 # --------------------------------------------------------------------------- #
 
+
 def build_stop_sequence(
     schedules: list[Schedule],
     *,
@@ -630,7 +630,9 @@ def build_stop_sequence(
             and adjusted_arrival <= current_minutes <= adjusted_departure
         ):
             state = "BOARDING"
-        elif adjusted_reference is not None and adjusted_reference + 1 < current_minutes:
+        elif (
+            adjusted_reference is not None and adjusted_reference + 1 < current_minutes
+        ):
             state = "PASSED"
         elif abs(adjusted_stop - current_minutes) <= 2:
             state = "BOARDING"

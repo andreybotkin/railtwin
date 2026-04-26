@@ -220,4 +220,3 @@ class TrainService:
         await refresh_reference_data(self.session, self.redis)
         logger.info("Train deleted", train_id=train_id)
         return True
-

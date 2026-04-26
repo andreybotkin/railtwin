@@ -1,6 +1,10 @@
 """Tests for core configuration and utilities."""
 
+from __future__ import annotations
+
 from datetime import timedelta
+
+import pytest
 
 from app.core.config import Settings, get_settings
 from app.core.security import (
@@ -11,9 +15,10 @@ from app.core.security import (
 )
 
 
-def test_settings_defaults() -> None:
+def test_settings_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test default settings values."""
-    settings = Settings()
+    monkeypatch.delenv("DEBUG", raising=False)
+    settings = Settings(_env_file=None)
     assert settings.app_name == "Thailand Railway Digital Twin"
     assert settings.debug is False
     assert settings.api_v1_prefix == "/api/v1"

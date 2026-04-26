@@ -47,7 +47,7 @@ class ConsistSpec(BaseModel):
         locomotive_length_m: float,
         car_count: int,
         car_length_m: float,
-    ) -> "ConsistSpec":
+    ) -> ConsistSpec:
         total = locomotive_length_m + car_count * car_length_m
         return cls(
             locomotive_length_m=locomotive_length_m,

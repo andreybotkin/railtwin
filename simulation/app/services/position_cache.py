@@ -86,7 +86,9 @@ class PositionCacheUpdater:
                 if edge.get("properties", {}).get("edge_kind") == "track"
             ]
             stations, _ = await self._reader.list_stations(page=1, size=10000)
-            station_ids_with_schedules = await self._reader.get_station_ids_with_schedules()
+            station_ids_with_schedules = (
+                await self._reader.get_station_ids_with_schedules()
+            )
             stations = [
                 {
                     **station,
@@ -145,9 +147,7 @@ class PositionCacheUpdater:
     def start(self) -> None:
         if self._task is None or self._task.done():
             self._task = asyncio.create_task(self._run(), name="position_cache_updater")
-            logger.info(
-                "PositionCacheUpdater started", interval=self._interval_seconds
-            )
+            logger.info("PositionCacheUpdater started", interval=self._interval_seconds)
 
     async def stop(self) -> None:
         if self._task and not self._task.done():

@@ -116,4 +116,3 @@ class TrainRepository(BaseRepository[Train]):
             .limit(limit)
         )
         return list(result.scalars().all())
-

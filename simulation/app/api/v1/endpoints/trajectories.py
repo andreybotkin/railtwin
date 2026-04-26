@@ -106,9 +106,13 @@ async def get_stopsequence(
             detail=f"No schedule found for train {train_id}",
         )
     await service._load_delays()  # noqa: SLF001
-    delay = service._tts_delays.get(  # noqa: SLF001
-        raw_schedules[train_id][0].get("train_number"), 0
-    ) if raw_schedules.get(train_id) else 0
+    delay = (
+        service._tts_delays.get(  # noqa: SLF001
+            str(raw_schedules[train_id][0].get("train_number") or ""), 0
+        )
+        if raw_schedules.get(train_id)
+        else 0
+    )
     current_minutes = service._get_candidate_current_minutes_with_delay(  # noqa: SLF001
         schedules, delay
     )

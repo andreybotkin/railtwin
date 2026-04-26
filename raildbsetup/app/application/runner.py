@@ -281,7 +281,7 @@ def _print_issue_summary(
 
     lines.append("=" * 78)
     banner = "\n".join(lines)
-    print(banner, file=sys.stderr, flush=True)
+    print(banner, file=sys.stderr, flush=True)  # noqa: T201
     logger.info(
         "raildbsetup diagnostic summary",
         railroad_validation_errors=len(railroad_errors),

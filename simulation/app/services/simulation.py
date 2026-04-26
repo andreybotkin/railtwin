@@ -76,7 +76,9 @@ class TrainSimulationService:
         topology_version: str | None = None,
     ) -> Trajectory | None:
         delay = self._tts_delays.get(train.train_number, 0)
-        current_minutes = self._get_candidate_current_minutes_with_delay(schedules, delay)
+        current_minutes = self._get_candidate_current_minutes_with_delay(
+            schedules, delay
+        )
         if current_minutes is None:
             return None
         return build_trajectory(
@@ -164,7 +166,10 @@ class TrainSimulationService:
                 route_coords: list[list[float]] | None = None
                 route_distance_km: float | None = None
                 route_segments: list[dict[str, Any]] | None = None
-                if train.current_route_id and train.current_route_id in geometry_by_route:
+                if (
+                    train.current_route_id
+                    and train.current_route_id in geometry_by_route
+                ):
                     route_payload = geometry_by_route[train.current_route_id]
                     route_coords = route_payload.get("coords")
                     route_distance_km = route_payload.get("distance_km")

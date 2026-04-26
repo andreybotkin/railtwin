@@ -29,7 +29,6 @@ from app.services.trajectory_service import (
     train_type_color,
 )
 
-
 # --------------------------------------------------------------------------- #
 # Fixtures                                                                     #
 # --------------------------------------------------------------------------- #
@@ -89,7 +88,7 @@ def _make_schedule(
     )
 
 
-def _three_stop_schedule() -> list[Schedule]:
+def _three_stop_schedule() -> list[Any]:
     """Bangkok (10:00) → Ayutthaya (11:00-11:05) → Lopburi (12:30)."""
     return [
         _make_schedule(
@@ -171,7 +170,7 @@ def test_build_trajectory_produces_monotonic_fractions_between_stops() -> None:
     assert len(trajectory.frames) >= 2
     # Moving frames should be monotonic non-decreasing along the polyline.
     fractions = [f.geom_fraction for f in trajectory.frames]
-    for a, b in zip(fractions, fractions[1:]):
+    for a, b in zip(fractions, fractions[1:], strict=False):
         assert b + 1e-9 >= a, fractions
 
     # Head frame of a moving train has speed > 0 and status="moving".
@@ -228,7 +227,9 @@ def test_build_trajectory_returns_none_when_service_has_ended() -> None:
 def test_build_trajectory_anchors_cover_full_route_schedule() -> None:
     train = _make_train()
     schedules = _three_stop_schedule()
-    current_minutes = 10 * 60 + 53  # 10:53 — Bangkok is past, Ayutthaya/Lopburi are ahead.
+    current_minutes = (
+        10 * 60 + 53
+    )  # 10:53 — Bangkok is past, Ayutthaya/Lopburi are ahead.
 
     trajectory = build_trajectory(
         train,
@@ -242,7 +243,9 @@ def test_build_trajectory_anchors_cover_full_route_schedule() -> None:
 
     assert trajectory is not None
 
-    offsets = [anchor.t_ms - trajectory.generated_at_ms for anchor in trajectory.anchors]
+    offsets = [
+        anchor.t_ms - trajectory.generated_at_ms for anchor in trajectory.anchors
+    ]
     assert min(offsets) < 0
     assert max(offsets) > 0
 
@@ -404,7 +407,7 @@ def test_stop_fractions_enforce_monotonicity() -> None:
     polyline = [[100.0, 0.0], [101.0, 0.0]]
     fractions = _stop_fractions(schedules, polyline, 111.0)
     # Must be non-decreasing.
-    for a, b in zip(fractions, fractions[1:]):
+    for a, b in zip(fractions, fractions[1:], strict=False):
         assert b >= a
 
 

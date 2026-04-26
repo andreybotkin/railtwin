@@ -15,7 +15,6 @@ import pytest
 
 from app.services import geo_utils
 
-
 # Bangkok → Ayutthaya → Lopburi, ascending roughly NE.
 _POLYLINE: list[list[float]] = [
     [100.5172, 13.7395],
@@ -27,7 +26,7 @@ _POLYLINE: list[list[float]] = [
 def test_cumulative_haversine_is_monotonic_and_ends_at_total() -> None:
     cum = geo_utils.cumulative_haversine_km(_POLYLINE)
     assert cum[0] == 0.0
-    for a, b in zip(cum, cum[1:]):
+    for a, b in zip(cum, cum[1:], strict=False):
         assert b >= a
     # Total route is ~118 km (≈13.7°N → 14.8°N ≈ 1.1° of lat).
     assert cum[-1] > 100.0
@@ -37,9 +36,7 @@ def test_cumulative_haversine_is_monotonic_and_ends_at_total() -> None:
 @pytest.mark.parametrize("fraction", [0.0, 0.25, 0.5, 0.75, 1.0])
 def test_interpolate_position_round_trips_through_project(fraction: float) -> None:
     lon, lat = geo_utils.interpolate_position(_POLYLINE, fraction)
-    dist_km, projected_fraction = geo_utils.project_onto_polyline(
-        _POLYLINE, lon, lat
-    )
+    dist_km, projected_fraction = geo_utils.project_onto_polyline(_POLYLINE, lon, lat)
     assert projected_fraction == pytest.approx(fraction, abs=1e-3)
     total_km = geo_utils.cumulative_haversine_km(_POLYLINE)[-1]
     assert dist_km == pytest.approx(fraction * total_km, abs=total_km * 1e-3)
@@ -58,9 +55,7 @@ def test_interpolate_position_respects_haversine_midpoint() -> None:
     # The 0.5-fraction point must be at 0.5 * total-km from the start.
     total_km = geo_utils.cumulative_haversine_km(_POLYLINE)[-1]
     lon, lat = geo_utils.interpolate_position(_POLYLINE, 0.5)
-    dist_from_start = geo_utils.haversine_km(
-        _POLYLINE[0][0], _POLYLINE[0][1], lon, lat
-    )
+    dist_from_start = geo_utils.haversine_km(_POLYLINE[0][0], _POLYLINE[0][1], lon, lat)
     # Haversine on a near-straight polyline approximates the cumulative
     # distance within ~1%, so allow a tolerance of 1 km over the ~120 km route.
     assert dist_from_start == pytest.approx(total_km * 0.5, abs=1.0)
