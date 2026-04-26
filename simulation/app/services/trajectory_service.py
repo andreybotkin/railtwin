@@ -60,6 +60,12 @@ def _station_name(schedule: Schedule) -> str:
     return name or schedule.station_name or ""
 
 
+def _station_name_th(schedule: Schedule) -> str | None:
+    if schedule.station:
+        return getattr(schedule.station, "name_th", None) or None
+    return None
+
+
 def _is_dwell_window(
     schedule: Schedule,
     *,
@@ -334,7 +340,6 @@ def _build_anchors(
     current_minutes: float,
     delay: int,
     now_unix_ms: int,
-    lookahead_seconds: int,
 ) -> list[TrajectoryAnchor]:
     anchors: list[TrajectoryAnchor] = []
     for index, schedule in enumerate(schedules):
@@ -345,8 +350,6 @@ def _build_anchors(
                 continue
             adjusted = scheduled + delay
             offset_seconds = (adjusted - current_minutes) * 60
-            if offset_seconds < 0 or offset_seconds > lookahead_seconds:
-                continue
             anchors.append(
                 TrajectoryAnchor(
                     t_ms=now_unix_ms + int(round(offset_seconds * 1000)),
@@ -460,7 +463,6 @@ def build_trajectory(
         current_minutes=current_minutes,
         delay=delay,
         now_unix_ms=now_ms,
-        lookahead_seconds=lookahead,
     )
 
     # Head frame drives the meta.
@@ -475,6 +477,11 @@ def build_trajectory(
     )
     next_name = (
         _station_name(schedules[next_index])
+        if next_index is not None
+        else None
+    )
+    next_name_th = (
+        _station_name_th(schedules[next_index])
         if next_index is not None
         else None
     )
@@ -520,6 +527,8 @@ def build_trajectory(
 
     origin_name = _station_name(schedules[0]) if schedules else None
     destination_name = _station_name(schedules[-1]) if schedules else None
+    origin_name_th = _station_name_th(schedules[0]) if schedules else None
+    destination_name_th = _station_name_th(schedules[-1]) if schedules else None
 
     current_edge_id: int | None = None
     graph_from_station_id: int | None = None
@@ -554,8 +563,11 @@ def build_trajectory(
         operator=train.operator or "State Railway of Thailand",
         origin_station=origin_name,
         destination_station=destination_name,
+        origin_station_th=origin_name_th,
+        destination_station_th=destination_name_th,
         prev_station=prev_name,
         next_station=next_name,
+        next_station_th=next_name_th,
         eta_next_ms=eta_next_ms,
         delay_minutes=delay,
         route_id=train.current_route_id,
@@ -628,6 +640,7 @@ def build_stop_sequence(
         result.append(
             {
                 "station_name": _station_name(schedule),
+                "station_name_th": _station_name_th(schedule),
                 "sequence": schedule.sequence,
                 "aimed_arrival_minutes": (
                     arrival % (24 * 60) if arrival is not None else None

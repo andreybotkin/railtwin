@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Building2, Clock, MapPin, Timer, X } from 'lucide-react';
 
 import { useStationSchedule } from '@/lib/hooks';
+import { useBottomSheetDrag } from '@/lib/hooks/useBottomSheetDrag';
 import { useRailwayStore } from '@/lib/stores/railway-store';
 import { cn, getTrainTypeColor, getTrainTypeName } from '@/lib/utils';
 import type { Schedule, Station } from '@/types';
@@ -34,18 +35,31 @@ function compareStops(a: Schedule, b: Schedule): number {
   return av.localeCompare(bv);
 }
 
-function formatCountdown(nowMin: number, targetMin: number): string {
-  let delta = targetMin - nowMin;
-  if (delta <= -30) delta += 24 * 60;
-  if (delta <= 0) return 'now';
-  if (delta < 60) return `in ${delta}m`;
-  const hours = Math.floor(delta / 60);
-  const mins = delta % 60;
-  return `in ${hours}h ${mins.toString().padStart(2, '0')}m`;
-}
-
 export default function StationInfoSheet() {
   const t = useTranslations();
+  const locale = useLocale();
+
+  function formatCountdown(nowMin: number, targetMin: number): string {
+    let delta = targetMin - nowMin;
+    if (delta <= -30) delta += 24 * 60;
+    if (delta <= 0) return t('schedule.now');
+    if (delta < 60) return t('schedule.inMin', { m: delta });
+    const hours = Math.floor(delta / 60);
+    const mins = delta % 60;
+    return t('schedule.inHourMin', { h: hours, m: mins.toString().padStart(2, '0') });
+  }
+
+  const localTypeName = (type: string | null | undefined) => {
+    if (!type) return '';
+    const key = `trains.${type}` as Parameters<typeof t>[0];
+    try { return t(key); } catch { return type; }
+  };
+
+  const trainDisplay = (type: string | null | undefined, number: string | null | undefined) => {
+    const typePart = localTypeName(type);
+    if (!number) return typePart;
+    return `${typePart} ${t('trains.trainNo')} ${number}`;
+  };
   const selectedStationId = useRailwayStore((s) => s.selectedStationId);
   const topology = useRailwayStore((s) => s.topology);
   const selectStation = useRailwayStore((s) => s.selectStation);
@@ -84,10 +98,17 @@ export default function StationInfoSheet() {
     return ref ?? upcoming[0] ?? null;
   }, [upcoming, nowMinutes]);
 
+  const innerRef  = useRef<HTMLDivElement>(null);
+  const snap1Ref  = useRef<HTMLDivElement>(null);
+  const snap2Ref  = useRef<HTMLDivElement>(null);
+  const { sheetStyle, handleBarProps } = useBottomSheetDrag('station', { innerRef, snap1Ref, snap2Ref });
+
   if (selectedStationId === null) return null;
 
   const displayName =
-    station?.name ?? schedule?.station?.name ?? `${t('common.station')} #${selectedStationId}`;
+    (locale === 'th' ? station?.name_th || station?.name : station?.name)
+    ?? schedule?.station?.name
+    ?? `${t('common.station')} #${selectedStationId}`;
   const city = station?.city ?? null;
   const province = station?.province ?? null;
   const code = station?.code ?? schedule?.station?.code ?? null;
@@ -100,22 +121,26 @@ export default function StationInfoSheet() {
         'inset-x-0 bottom-0 rounded-t-3xl',
         'sm:inset-x-auto sm:bottom-4 sm:right-4 sm:w-[22rem] sm:rounded-3xl',
         'backdrop-blur-xl',
-        'max-h-[80dvh] overflow-y-auto',
+        'flex flex-col overflow-hidden',
+        'sm:max-h-[80dvh]',
       )}
       style={{
         background: 'var(--panel-bg-strong)',
         border: '1px solid var(--panel-border)',
         boxShadow: 'var(--panel-shadow-up)',
         color: 'var(--panel-text)',
+        ...sheetStyle,
       }}
     >
+      {/* Drag handle — mobile only. Always visible above scrollable content. */}
       <div
-        className="mx-auto mt-2 h-1.5 w-10 rounded-full sm:hidden"
-        style={{ background: 'var(--panel-inner-ring)' }}
-        aria-hidden
+        {...handleBarProps}
+        className="mx-auto mt-2 h-1.5 w-10 flex-shrink-0 rounded-full sm:hidden"
+        style={{ background: 'var(--panel-inner-ring)', ...handleBarProps.style }}
+        aria-label="Resize panel"
       />
 
-      <div className="p-4 sm:p-5">
+      <div ref={innerRef} className="relative flex-1 overflow-y-auto p-4 sm:p-5">
         <header className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <div
@@ -163,6 +188,8 @@ export default function StationInfoSheet() {
             <X className="h-4 w-4" />
           </button>
         </header>
+        {/* Snap-1 sentinel: sheet stops here showing only the station header */}
+        <div ref={snap1Ref} />
 
         {nextStop && (
           <section
@@ -184,7 +211,7 @@ export default function StationInfoSheet() {
                     </span>
                   )}
                   <span className="truncate text-sm font-semibold">
-                    {nextStop.train?.name ?? getTrainTypeName(nextStop.train?.train_type ?? '')}
+                    {trainDisplay(nextStop.train?.train_type, nextStop.train?.train_number)}
                   </span>
                 </div>
                 <div className="mt-1 text-[11px]" style={{ opacity: 0.6 }}>
@@ -204,6 +231,8 @@ export default function StationInfoSheet() {
             </div>
           </section>
         )}
+        {/* Snap-2 sentinel: sheet stops here showing header + next service card */}
+        <div ref={snap2Ref} />
 
         <section className="mt-4">
           <div
@@ -266,16 +295,15 @@ export default function StationInfoSheet() {
                         className="truncate text-xs font-medium"
                         style={{ color: 'var(--panel-text)' }}
                       >
-                        {stop.train?.name ?? getTrainTypeName(stop.train?.train_type ?? '')}
+                        {trainDisplay(stop.train?.train_type, stop.train?.train_number)}
                       </div>
                       <div
                         className="text-[11px]"
                         style={{ color: 'var(--panel-subtext)' }}
                       >
                         {stop.platform
-                          ? `${t('schedule.platform')} ${stop.platform} · `
+                          ? `${t('schedule.platform')} ${stop.platform}`
                           : null}
-                        {getTrainTypeName(stop.train?.train_type ?? '')}
                       </div>
                     </div>
                     <div

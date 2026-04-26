@@ -5,8 +5,8 @@ These cover the invariants the frontend relies on:
 * monotonic ``geom_fraction`` along moving segments;
 * dwell windows emit frames with ``speed_kmh == 0`` and constant position;
 * ``ConsistSpec`` total length matches ``locomotive + car_count * car_length``;
-* anchors align with the schedule (arrival + departure events inside the
-  lookahead window);
+* anchors align with the full schedule (arrival + departure events for every
+    stop, including past and future events relative to ``current_minutes``);
 * the trajectory terminates when the last schedule entry is reached.
 """
 
@@ -18,7 +18,6 @@ from typing import Any
 
 import pytest
 
-from app.core.config import settings
 from app.domain.trajectory import (
     ConsistSpec,
     Trajectory,
@@ -226,11 +225,10 @@ def test_build_trajectory_returns_none_when_service_has_ended() -> None:
     assert trajectory is None
 
 
-def test_build_trajectory_anchors_cover_upcoming_events() -> None:
+def test_build_trajectory_anchors_cover_full_route_schedule() -> None:
     train = _make_train()
     schedules = _three_stop_schedule()
-    current_minutes = 10 * 60 + 53  # 10:53 — Ayutthaya arrival at 11:00 fits in the lookahead
-    lookahead = settings.trajectory_lookahead_seconds
+    current_minutes = 10 * 60 + 53  # 10:53 — Bangkok is past, Ayutthaya/Lopburi are ahead.
 
     trajectory = build_trajectory(
         train,
@@ -243,12 +241,21 @@ def test_build_trajectory_anchors_cover_upcoming_events() -> None:
     )
 
     assert trajectory is not None
-    for anchor in trajectory.anchors:
-        offset_ms = anchor.t_ms - trajectory.generated_at_ms
-        assert 0 <= offset_ms <= lookahead * 1000 + 1
+
+    offsets = [anchor.t_ms - trajectory.generated_at_ms for anchor in trajectory.anchors]
+    assert min(offsets) < 0
+    assert max(offsets) > 0
+
     anchor_stations = {a.station_name for a in trajectory.anchors}
-    # Ayutthaya arrival must be within the lookahead window from 10:53.
-    assert "Ayutthaya" in anchor_stations
+    assert anchor_stations == {"Bangkok", "Ayutthaya", "Lopburi"}
+
+    anchor_events = {(a.station_name, a.event) for a in trajectory.anchors}
+    assert anchor_events == {
+        ("Bangkok", "departure"),
+        ("Ayutthaya", "arrival"),
+        ("Ayutthaya", "departure"),
+        ("Lopburi", "arrival"),
+    }
 
 
 def test_build_trajectory_applies_delay_to_anchors_and_meta() -> None:

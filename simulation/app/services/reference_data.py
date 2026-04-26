@@ -254,6 +254,7 @@ def _serialize_schedule(
         station_summary = {
             "id": int(schedule.station.id),
             "name": schedule.station.name,
+            "name_th": getattr(schedule.station, "name_th", None),
             "code": schedule.station.code,
             "location": getattr(schedule.station, "_geojson", None),
         }
@@ -853,6 +854,7 @@ def schedule_payloads_to_domain(payloads: list[dict[str, Any]]) -> list[Any]:
             station = SimpleNamespace(
                 id=int(station_payload["id"]),
                 name=station_payload["name"],
+                name_th=station_payload.get("name_th"),
                 code=station_payload["code"],
                 location=WKTElement(f"POINT({lon} {lat})", srid=4326),
             )

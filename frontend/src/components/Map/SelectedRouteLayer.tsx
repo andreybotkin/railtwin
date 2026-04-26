@@ -3,8 +3,8 @@
  *
  * Uses the trajectory's `route_coords` (the same authoritative polyline the
  * consist is laid out on) so the highlight never drifts from the rails. Two
- * layers: a white casing for contrast against the coloured tracks, and an
- * amber accent line on top.
+ * Features: a white casing for contrast against the coloured tracks, and a
+ * teal accent line on top.
  */
 
 'use client';
@@ -67,7 +67,7 @@ export default function SelectedRouteLayer() {
         id="selected-route-line"
         type="line"
         paint={{
-          'line-color': '#F59E0B',
+          'line-color': '#008080',
           'line-width': [
             'interpolate',
             ['linear'],

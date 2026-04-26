@@ -220,6 +220,45 @@
   z-index: 999;
 }
 
+.leaflet-control-attribution {
+  background: var(--panel-bg-strong) !important;
+  border: 1px solid var(--panel-inner-ring);
+  border-radius: 0.85rem !important;
+  box-shadow: var(--panel-shadow);
+  color: var(--panel-subtext) !important;
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0 0 0.75rem 0.75rem !important;
+  max-width: min(84vw, 34rem);
+  padding: 0.3rem 0.55rem !important;
+  backdrop-filter: blur(14px);
+  white-space: normal;
+}
+
+.leaflet-control-attribution a {
+  color: var(--panel-text) !important;
+}
+
+.selected-route-wave {
+  stroke-dasharray: 18 14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: selected-route-wave 1.4s linear infinite;
+}
+
+.selected-route-wave--reverse {
+  animation-direction: reverse;
+}
+
+@keyframes selected-route-wave {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
 /* Custom marker styles */
 .train-marker {
   background: none;
@@ -289,6 +328,58 @@
 .station-name-badge.leaflet-tooltip::before {
   display: none;
 }
+
+/* ── Route stop bubble tooltips ─────────────────────────────────────── */
+/* Shared base */
+.leaflet-tooltip.stop-tip-ontime,
+.leaflet-tooltip.stop-tip-warn,
+.leaflet-tooltip.stop-tip-late,
+.leaflet-tooltip.stop-tip-passed {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+/* On time — green */
+.leaflet-tooltip.stop-tip-ontime {
+  background: #16A34A;
+  border: 1px solid #15803D;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+}
+.leaflet-tooltip-top.stop-tip-ontime::before { border-top-color: #16A34A; }
+
+/* Small delay (1–14 m) — amber */
+.leaflet-tooltip.stop-tip-warn {
+  background: #D97706;
+  border: 1px solid #B45309;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+}
+.leaflet-tooltip-top.stop-tip-warn::before { border-top-color: #D97706; }
+
+/* Large delay (15 m+) — red */
+.leaflet-tooltip.stop-tip-late {
+  background: #DC2626;
+  border: 1px solid #B91C1C;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+}
+.leaflet-tooltip-top.stop-tip-late::before { border-top-color: #DC2626; }
+
+/* Passed stop — gray, hover only */
+.leaflet-tooltip.stop-tip-passed {
+  background: rgba(243, 244, 246, 0.95);
+  border: 1px solid #D1D5DB;
+  color: #6B7280;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-weight: 400;
+}
+.leaflet-tooltip-top.stop-tip-passed::before { border-top-color: rgba(243, 244, 246, 0.95); }
 
 /* Popup styles */
 .leaflet-popup-content-wrapper {

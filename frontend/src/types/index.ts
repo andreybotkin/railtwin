@@ -156,8 +156,11 @@ export interface TrajectoryMeta {
   operator: string;
   origin_station: string | null;
   destination_station: string | null;
+  origin_station_th: string | null;
+  destination_station_th: string | null;
   prev_station: string | null;
   next_station: string | null;
+  next_station_th: string | null;
   eta_next_ms: number | null;
   delay_minutes: number;
   route_id: number | null;
@@ -191,6 +194,7 @@ export type StopState = 'PASSED' | 'BOARDING' | 'PENDING';
 
 export interface StopSequenceItem {
   station_name: string;
+  station_name_th: string | null;
   sequence: number;
   aimed_arrival_minutes: number | null;
   aimed_departure_minutes: number | null;

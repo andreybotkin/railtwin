@@ -23,18 +23,19 @@ export function formatTime(time: string | null): string {
 /**
  * Format speed to display string.
  */
-export function formatSpeed(speed: number | null): string {
-  if (speed === null) return '-- km/h';
-  return `${Math.round(speed)} km/h`;
+export function formatSpeed(speed: number | null, locale = 'en'): string {
+  const unit = locale.startsWith('th') ? 'กม./ชม.' : 'km/h';
+  if (speed === null) return `-- ${unit}`;
+  return `${Math.round(speed)} ${unit}`;
 }
 
 /**
  * Format delay to display string.
  */
-export function formatDelay(minutes: number): string {
-  if (minutes === 0) return 'On time';
-  if (minutes > 0) return `+${minutes} min`;
-  return `${minutes} min`;
+export function formatDelay(minutes: number, locale = 'en'): string {
+  const unit = locale.startsWith('th') ? 'นาที' : 'min';
+  if (minutes === 0) return `0 ${unit}`;
+  return `${minutes > 0 ? '+' : ''}${minutes} ${unit}`;
 }
 
 /**

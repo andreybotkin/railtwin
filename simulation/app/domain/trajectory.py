@@ -162,8 +162,11 @@ class TrajectoryMeta(BaseModel):
     operator: str = "State Railway of Thailand"
     origin_station: str | None = None
     destination_station: str | None = None
+    origin_station_th: str | None = None
+    destination_station_th: str | None = None
     prev_station: str | None = None
     next_station: str | None = None
+    next_station_th: str | None = None
     eta_next_ms: int | None = None
     delay_minutes: int = 0
     route_id: int | None = None

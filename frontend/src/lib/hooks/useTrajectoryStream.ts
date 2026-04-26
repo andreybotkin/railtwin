@@ -18,6 +18,15 @@ export function useTrajectoryStream(): void {
     const setWsConnected = useRailwayStore.getState().setWsConnected;
 
     const unsubscribe = client.onUpdate((snapshot) => {
+      const state = useRailwayStore.getState();
+      const selectedId = state.selectedTrainId;
+      if (selectedId !== null && !snapshot.has(selectedId)) {
+        const selectedTrajectory = state.trajectories.get(selectedId);
+        if (selectedTrajectory) {
+          snapshot = new Map(snapshot);
+          snapshot.set(selectedId, selectedTrajectory);
+        }
+      }
       setTrajectories(snapshot);
       setWsConnected(client.isConnected());
     });

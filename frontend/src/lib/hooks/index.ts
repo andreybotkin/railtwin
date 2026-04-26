@@ -28,6 +28,8 @@ import type {
 
 export { useRafVehicleTicker, VEHICLE_SOURCE_ID } from './useRafVehicleTicker';
 export { useTrajectoryStream } from './useTrajectoryStream';
+export { useBottomSheetDrag } from './useBottomSheetDrag';
+export type { SheetType } from './useBottomSheetDrag';
 
 export function useStations(): UseQueryResult<PaginatedResponse<Station>> {
   return useQuery({

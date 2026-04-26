@@ -145,7 +145,7 @@ function buildIcon({
   if (showWagons) {
     for (let i = 0; i < carCount; i++) {
       const alpha = Math.max(0.42, 0.95 - i * 0.045).toFixed(2);
-      wagonsHtml += `<span data-wagon="${i}" style="position:absolute;left:${CENTER - WAGON_W / 2}px;top:${CENTER - WAGON_H / 2}px;width:${WAGON_W}px;height:${WAGON_H}px;border-radius:4px;background:${baseColor};opacity:${alpha};border:1px solid rgba(255,255,255,0.72);box-shadow:0 4px 10px rgba(15,23,42,0.18);transform:rotate(0deg);transform-origin:center center;"></span>`;
+      wagonsHtml += `<span data-wagon="${i}" style="position:absolute;left:${CENTER - WAGON_W / 2}px;top:${CENTER - WAGON_H / 2}px;width:${WAGON_W}px;height:${WAGON_H}px;border-radius:4px;background:${baseColor};opacity:${alpha};border:1px solid rgba(255,255,255,0.72);box-shadow:0 4px 10px rgba(15,23,42,0.18);transform:rotate(0deg);transform-origin:center center;pointer-events:auto;"></span>`;
     }
   }
 
@@ -161,14 +161,14 @@ function buildIcon({
   const headlight = `<span style="width:${headlightSize}px;height:${headlightSize}px;border-radius:999px;background:#fff7cc;box-shadow:0 0 10px rgba(255,244,180,0.9);flex-shrink:0;"></span>`;
 
   const locoHtml = `
-    <div data-loco style="position:absolute;left:${CENTER - locoW / 2}px;top:${CENTER - locoH / 2}px;transform:rotate(0deg);transform-origin:center center;filter:drop-shadow(0 6px 14px rgba(15,23,42,0.18));">
-      <span style="position:relative;width:${locoW}px;height:${locoH}px;border-radius:999px;background:${baseColor};display:flex;align-items:center;justify-content:flex-end;padding-right:5px;box-shadow:${halo};border:1px solid rgba(255,255,255,0.8);">
+    <div data-loco style="position:absolute;left:${CENTER - locoW / 2}px;top:${CENTER - locoH / 2}px;transform:rotate(0deg);transform-origin:center center;filter:drop-shadow(0 6px 14px rgba(15,23,42,0.18));pointer-events:auto;">
+      <span style="position:relative;width:${locoW}px;height:${locoH}px;border-radius:999px;background:${baseColor};display:flex;align-items:center;justify-content:flex-end;padding-right:5px;box-shadow:${halo};border:1px solid rgba(255,255,255,0.8);pointer-events:auto;">
         ${shine}
         ${headlight}
       </span>
     </div>`;
 
-  const html = `<div style="position:relative;width:${SIZE}px;height:${SIZE}px;">${wagonsHtml}${locoHtml}${delayBadge}</div>`;
+  const html = `<div style="position:relative;width:${SIZE}px;height:${SIZE}px;pointer-events:none;">${wagonsHtml}${locoHtml}${delayBadge}</div>`;
 
   return L.divIcon({
     html,
@@ -253,10 +253,16 @@ export default function LeafletTrainMarker({
     [trainType, delayMinutes, isSelected, carCount, showWagons, showDelayBadge, scaleFactor],
   );
 
-  // After icon regeneration: reapply last-known rotation + wagon positions.
+  // After icon regeneration: reapply last-known rotation + wagon positions,
+  // and neutralise the pointer-event area of the Leaflet outer element so that
+  // only the actual loco/wagon visuals intercept clicks.
   useLayoutEffect(() => {
     const el = markerRef.current?.getElement();
     if (!el) return;
+    // The Leaflet marker root covers 360×360 px; setting none here means only
+    // children with pointer-events:auto (loco + wagons) are clickable, so the
+    // empty surrounding area no longer steals clicks from nearby stations.
+    el.style.pointerEvents = 'none';
     applyToDOM(el, rotationRef.current, wagonOffsetsRef.current, carCount);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [icon]);
