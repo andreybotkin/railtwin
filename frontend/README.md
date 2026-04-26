@@ -14,7 +14,7 @@ Next.js frontend for the Thailand Railway Digital Twin application.
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 23+
 - npm or yarn
 
 ### Installation

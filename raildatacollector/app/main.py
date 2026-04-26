@@ -22,7 +22,6 @@ from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 from sqlalchemy import select
 
 from app.api.v1.router import router as v1_router
