@@ -254,7 +254,9 @@ def _print_issue_summary(
         for item in unresolved:
             key = item.get("train_number") or "<unknown>"
             by_train.setdefault(key, []).append(item.get("station_name") or "")
-        unique_stations = sorted({item.get("station_name") or "" for item in unresolved})
+        unique_stations = sorted(
+            {item.get("station_name") or "" for item in unresolved}
+        )
         lines.append(
             f"\n[Schedules] {len(unresolved)} unresolved station "
             f"reference(s) across {len(by_train)} train(s); "

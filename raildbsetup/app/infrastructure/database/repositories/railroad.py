@@ -120,9 +120,7 @@ class SqlRailroadRepository(RailroadRepository):
         await self._s.execute(delete(t_network_edges))
         await self._s.execute(delete(t_network_nodes))
 
-    async def _insert_stations(
-        self, stations: list[StationData]
-    ) -> dict[str, int]:
+    async def _insert_stations(self, stations: list[StationData]) -> dict[str, int]:
         """Insert stations, returning a ``{name.lower(): id}`` mapping.
 
         Deduplication is keyed on the (lowercased) English name — codes alone
