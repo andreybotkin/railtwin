@@ -17,7 +17,6 @@ from app.models.database import Base, get_db
 _DATABASE_URL = os.environ.get("DATABASE_URL")
 TEST_DATABASE_URL = _DATABASE_URL or "sqlite+aiosqlite:///:memory:"
 
-
 # event_loop fixture removed: pytest-asyncio 1.x manages the loop via
 # asyncio_default_fixture_loop_scope in pyproject.toml.
 

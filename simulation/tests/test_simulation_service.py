@@ -66,9 +66,15 @@ async def test_get_all_active_train_data_yields_control_during_bulk_processing(
             current_route_id=payload.get("current_route_id"),
         ),
     )
-    monkeypatch.setattr(module, "schedule_payloads_to_domain", lambda payloads: payloads)
-    monkeypatch.setattr(module, "build_trajectory", lambda *args, **kwargs: {"ok": True})
-    monkeypatch.setattr(module, "build_stop_sequence", lambda *args, **kwargs: [{"ok": True}])
+    monkeypatch.setattr(
+        module, "schedule_payloads_to_domain", lambda payloads: payloads
+    )
+    monkeypatch.setattr(
+        module, "build_trajectory", lambda *args, **kwargs: {"ok": True}
+    )
+    monkeypatch.setattr(
+        module, "build_stop_sequence", lambda *args, **kwargs: [{"ok": True}]
+    )
     monkeypatch.setattr(module.asyncio, "sleep", _fake_sleep)
 
     trajectories, stop_sequences = await service.get_all_active_train_data()
