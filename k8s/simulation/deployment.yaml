@@ -18,6 +18,8 @@ spec:
         app.kubernetes.io/name: simulation
         app.kubernetes.io/component: api
     spec:
+      imagePullSecrets:
+        - name: ghcr-registry-secret
       initContainers:
         - name: wait-for-postgres
           image: busybox:1.36
@@ -30,9 +32,20 @@ spec:
                 sleep 3
               done
               echo "Postgres is ready"
+        - name: wait-for-raildbsetup
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until wget -qO- http://raildbsetup-service:8003/ready 2>/dev/null | grep -q '"status":"ready"'; do
+                echo "Waiting for raildbsetup to finish DB setup..."
+                sleep 5
+              done
+              echo "Raildbsetup is ready"
       containers:
         - name: simulation
-          image: simulation:latest
+          image: ghcr.io/raybotkin/railtwin/simulation:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
@@ -53,7 +66,7 @@ spec:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 90
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
@@ -61,7 +74,7 @@ spec:
             httpGet:
               path: /ready
               port: 8000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3

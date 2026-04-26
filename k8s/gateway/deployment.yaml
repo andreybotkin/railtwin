@@ -18,9 +18,11 @@ spec:
         app.kubernetes.io/name: gateway
         app.kubernetes.io/component: edge
     spec:
+      imagePullSecrets:
+        - name: ghcr-registry-secret
       containers:
         - name: gateway
-          image: gateway:latest
+          image: ghcr.io/raybotkin/railtwin/gateway:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8002

@@ -491,6 +491,11 @@ jobs:
   #         kubectl apply -f k8s/redis/deployment.yaml
   #         kubectl apply -f k8s/redis/service.yaml
 
+  #         kubectl apply -f k8s/raildbsetup/configmap.yaml
+  #         kubectl apply -f k8s/raildbsetup/secrets.yaml
+  #         kubectl apply -f k8s/raildbsetup/deployment.yaml
+  #         kubectl apply -f k8s/raildbsetup/service.yaml
+  #
   #         kubectl apply -f k8s/simulation/configmap.yaml
   #         kubectl apply -f k8s/simulation/secrets.yaml
 
@@ -498,6 +503,15 @@ jobs:
   #         kubectl apply -f k8s/simulation/service.yaml
   #         kubectl apply -f k8s/simulation/hpa.yaml
 
+  #         kubectl apply -f k8s/gateway/configmap.yaml
+  #         kubectl apply -f k8s/gateway/deployment.yaml
+  #         kubectl apply -f k8s/gateway/service.yaml
+  #
+  #         kubectl apply -f k8s/raildatacollector/configmap.yaml
+  #         kubectl apply -f k8s/raildatacollector/secrets.yaml
+  #         kubectl apply -f k8s/raildatacollector/deployment.yaml
+  #         kubectl apply -f k8s/raildatacollector/service.yaml
+  #
   #         kubectl apply -f k8s/frontend/deployment.yaml
   #         kubectl apply -f k8s/frontend/service.yaml
   #         kubectl apply -f k8s/frontend/ingress.yaml

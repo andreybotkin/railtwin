@@ -20,6 +20,8 @@ spec:
         app.kubernetes.io/name: raildbsetup
         app.kubernetes.io/component: setup
     spec:
+      imagePullSecrets:
+        - name: ghcr-registry-secret
       initContainers:
         - name: wait-for-postgres
           image: busybox:1.36
@@ -34,7 +36,7 @@ spec:
               echo "Postgres is ready"
       containers:
         - name: raildbsetup
-          image: raildbsetup:latest
+          image: ghcr.io/raybotkin/railtwin/raildbsetup:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

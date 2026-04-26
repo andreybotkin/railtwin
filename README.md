@@ -134,20 +134,29 @@ See full API documentation at `/docs` when running the simulation service. Front
 1. Apply Kubernetes manifests:
 ```bash
 kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/network-policy.yaml
 kubectl apply -f k8s/postgres/
 kubectl apply -f k8s/redis/
+kubectl apply -f k8s/raildbsetup/
 kubectl apply -f k8s/simulation/
 kubectl apply -f k8s/gateway/
+kubectl apply -f k8s/raildatacollector/
 kubectl apply -f k8s/frontend/
 ```
 
-2. Configure secrets:
+2. Configure the ignored secret manifests locally before applying them:
 ```bash
-kubectl create secret generic simulation-secrets \
-  --from-literal=SECRET_KEY=your-secret-key \
-  --from-literal=DATABASE_URL=your-database-url \
-  -n railway
+cp k8s/raildbsetup/secrets.yaml.example k8s/raildbsetup/secrets.yaml
+cp k8s/simulation/secrets.yaml.example k8s/simulation/secrets.yaml
+cp k8s/raildatacollector/secrets.yaml.example k8s/raildatacollector/secrets.yaml
+kubectl apply -f k8s/raildbsetup/secrets.yaml -n railway
+kubectl apply -f k8s/simulation/secrets.yaml -n railway
+kubectl apply -f k8s/raildatacollector/secrets.yaml -n railway
 ```
+
+3. Open the local ingress:
+   - Frontend: http://railtwin.localhost
+   - Gateway API: http://api.railtwin.localhost
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for deployment architecture details.
 
