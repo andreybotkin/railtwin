@@ -7,6 +7,7 @@ returns fully-typed :class:`app.domain.trajectory.Trajectory` objects.
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from redis.asyncio import Redis
@@ -25,6 +26,8 @@ from app.services.trajectory_service import build_stop_sequence, build_trajector
 from app.services.tts_scraper import get_delays_from_redis
 
 logger = get_logger(__name__)
+
+_COOPERATIVE_YIELD_EVERY = 25
 
 
 class TrainSimulationService:
@@ -157,7 +160,7 @@ class TrainSimulationService:
                 else {}
             )
 
-            for payload in train_payloads:
+            for index, payload in enumerate(train_payloads, start=1):
                 train = train_payload_to_domain(payload)
                 schedules = schedules_by_train.get(train.id, [])
                 if not schedules:
@@ -203,6 +206,9 @@ class TrainSimulationService:
                     )
                     if sequence:
                         stop_sequences[train.id] = sequence
+
+                if index % _COOPERATIVE_YIELD_EVERY == 0:
+                    await asyncio.sleep(0)
 
             if len(train_payloads) < batch_size:
                 break

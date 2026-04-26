@@ -18,12 +18,10 @@ spec:
         app.kubernetes.io/name: frontend
         app.kubernetes.io/component: web
     spec:
-      imagePullSecrets:
-        - name: ghcr-registry-secret
       containers:
         - name: frontend
           image: ghcr.io/raybotkin/railtwin/frontend:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
               name: http
