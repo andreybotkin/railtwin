@@ -23,9 +23,8 @@ import asyncio
 import hashlib
 import json
 import logging
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any, cast
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -57,6 +56,9 @@ from app.schemas import (
 from app.websocket_streams import stream_stopsequence, stream_trajectories
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 
 class Settings(BaseSettings):
@@ -108,7 +110,7 @@ http_client: httpx.AsyncClient | None = None
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     global redis_client, http_client
     redis_client = Redis.from_url(settings.redis_url, decode_responses=True)
     http_client = httpx.AsyncClient(
@@ -206,7 +208,7 @@ async def health() -> dict[str, str]:
 async def ready() -> dict[str, str]:
     if redis_client is None:
         return {"status": "not_ready"}
-    await redis_client.ping()
+    await cast("Any", redis_client.ping())
     return {"status": "ready"}
 
 
@@ -216,7 +218,7 @@ async def ready() -> dict[str, str]:
 
 
 @app.get("/api/v1/system/topology", response_model=TopologyMetadata | None)
-async def get_topology_metadata() -> dict[str, Any]:
+async def get_topology_metadata() -> TopologyMetadata:
     metadata = await read_topology_metadata(redis_client)
     if metadata is None:
         raise HTTPException(status_code=404, detail="Topology metadata not found")

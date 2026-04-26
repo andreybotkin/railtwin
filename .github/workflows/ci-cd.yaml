@@ -79,6 +79,7 @@ jobs:
           SIMULATION_CHANGED=false
           FRONTEND_CHANGED=false
           RAILDATACOLLECTOR_CHANGED=false
+          RAILDBSETUP_CHANGED=false
           K8S_CHANGED=false
           GATEWAY_CHANGED=false
 
@@ -298,7 +299,56 @@ jobs:
           flags: raildbsetup
 
   ##############################################################
-  # 2d. Frontend CI  (parallel with simulation-ci)
+  # 2d. Gateway CI  (parallel with other Python services)
+  ##############################################################
+  gateway-ci:
+    name: Gateway CI
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.gateway == 'true'
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ./gateway
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-gateway-${{ hashFiles('gateway/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-gateway-
+
+      - name: Install dependencies
+        run: pip install -e . pytest pytest-cov ruff mypy
+
+      - name: Run linting (Ruff)
+        run: ruff check app tests
+
+      - name: Run type checking (mypy)
+        run: mypy app
+
+      - name: Run tests
+        run: pytest --cov=app --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./gateway/coverage.xml
+          flags: gateway
+
+  ##############################################################
+  # 2e. Frontend CI  (parallel with simulation-ci)
   ##############################################################
   frontend-ci:
     name: Frontend CI
@@ -343,7 +393,7 @@ jobs:
   build-images:
     name: Build ${{ matrix.component }} image
     runs-on: ubuntu-latest
-    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, frontend-ci]
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, gateway-ci, frontend-ci]
     if: |
       always() &&
       github.event_name == 'push' &&
@@ -466,7 +516,7 @@ jobs:
   ##############################################################
   notify:
     name: Send Notifications
-    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, frontend-ci, build-images]
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, gateway-ci, frontend-ci, build-images]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -480,6 +530,7 @@ jobs:
           elif [ "${{ needs.simulation-ci.result }}" = "failure" ] || \
                [ "${{ needs.raildatacollector-ci.result }}" = "failure" ] || \
                [ "${{ needs.raildbsetup-ci.result }}" = "failure" ] || \
+              [ "${{ needs.gateway-ci.result }}" = "failure" ] || \
                [ "${{ needs.frontend-ci.result }}" = "failure" ] || \
                [ "${{ needs.build-images.result }}" = "failure" ]; then
             echo "status=❌ Failed" >> $GITHUB_OUTPUT
@@ -513,6 +564,7 @@ jobs:
             • Simulation CI: ${{ needs.simulation-ci.result == 'success' && '✅' || needs.simulation-ci.result == 'failure' && '❌' || needs.simulation-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Raildatacollector CI: ${{ needs.raildatacollector-ci.result == 'success' && '✅' || needs.raildatacollector-ci.result == 'failure' && '❌' || needs.raildatacollector-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • RailDbSetup CI: ${{ needs.raildbsetup-ci.result == 'success' && '✅' || needs.raildbsetup-ci.result == 'failure' && '❌' || needs.raildbsetup-ci.result == 'skipped' && '⏭️' || '⚠️' }}
+            • Gateway CI: ${{ needs.gateway-ci.result == 'success' && '✅' || needs.gateway-ci.result == 'failure' && '❌' || needs.gateway-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Frontend CI: ${{ needs.frontend-ci.result == 'success' && '✅' || needs.frontend-ci.result == 'failure' && '❌' || needs.frontend-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Build Images: ${{ needs.build-images.result == 'success' && '✅' || needs.build-images.result == 'failure' && '❌' || needs.build-images.result == 'skipped' && '⏭️' || '⚠️' }}
 

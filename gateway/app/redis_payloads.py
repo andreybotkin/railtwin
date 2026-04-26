@@ -8,9 +8,12 @@ are documented in :mod:`app.schemas`.
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from redis.asyncio import Redis
+from app.schemas import TopologyMetadata
+
+if TYPE_CHECKING:
+    from redis.asyncio import Redis
 
 REDIS_TRAJECTORIES_KEY = "train:trajectories:latest"
 REDIS_TRAJECTORY_KEY_PREFIX = "train:trajectory:"
@@ -65,13 +68,13 @@ async def read_stopsequence(
 
 async def read_topology_metadata(
     redis_client: Redis | None,
-) -> dict[str, Any] | None:
+) -> TopologyMetadata | None:
     if redis_client is None:
         return None
     raw = await redis_client.get(REDIS_TOPOLOGY_METADATA_KEY)
     if not raw:
         return None
-    return json.loads(raw)
+    return TopologyMetadata.model_validate(json.loads(raw))
 
 
 async def read_map_stations(redis_client: Redis | None) -> list[dict[str, Any]]:
