@@ -417,9 +417,7 @@ class SqlScheduleRepository(ScheduleRepository):
                     t_station_aliases.c.station_id,
                     t_station_aliases.c.source,
                 ).where(
-                    t_station_aliases.c.source.in_(
-                        [ALIAS_SOURCE, JSON_ALIAS_SOURCE]
-                    )
+                    t_station_aliases.c.source.in_([ALIAS_SOURCE, JSON_ALIAS_SOURCE])
                 )
             )
         ).fetchall()
