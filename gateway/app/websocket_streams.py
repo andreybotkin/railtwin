@@ -10,9 +10,10 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from fastapi import WebSocket
+if TYPE_CHECKING:
+    from fastapi import WebSocket
 
 TrajectoryReader = Callable[[], Awaitable[list[dict[str, Any]]]]
 StopSequenceReader = Callable[[int], Awaitable[list[dict[str, Any]] | None]]
@@ -116,7 +117,7 @@ async def stream_trajectories(
                     client_bbox = message[5:].strip() or None
                     force_resend = True
                     break
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
             except Exception:
                 return
@@ -168,7 +169,7 @@ async def stream_stopsequence(
             )
             if message == "ping":
                 await websocket.send_text("pong")
-        except asyncio.TimeoutError:
+        except TimeoutError:
             continue
         except Exception:
             return
