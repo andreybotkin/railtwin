@@ -5,7 +5,7 @@ FastAPI simulation service for the Thailand Railway Digital Twin application.
 ## Features
 
 - RESTful API with automatic OpenAPI documentation
-- Background train position calculation and Redis caching for gateway
+- Background train position calculation and Redis caching for the gateway
 - PostGIS integration for geospatial queries
 - Train simulation based on actual schedules
 - Rate limiting and CORS protection
@@ -15,17 +15,15 @@ FastAPI simulation service for the Thailand Railway Digital Twin application.
 ### Prerequisites
 
 - Python 3.14+
-- PostgreSQL 15+ with PostGIS extension
-- Redis (required, for train position cache)
+- PostgreSQL with PostGIS
+- Redis (required for train position cache)
 
 ### Installation
 
 1. Create a virtual environment:
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# or
-.venv\Scripts\activate  # Windows
+source .venv/bin/activate
 ```
 
 2. Install dependencies:
@@ -33,10 +31,10 @@ source .venv/bin/activate  # Linux/macOS
 pip install -e ".[dev]"
 ```
 
-3. Copy environment file and configure:
+3. Copy the root environment file and configure database credentials:
 ```bash
-cp .env.example .env
-# Edit .env with your database credentials
+cp ../.env.example .env
+# Edit .env with your database and Redis configuration
 ```
 
 4. Run database migrations:
@@ -86,8 +84,8 @@ simulation/
 │   ├── models/        # Database models
 │   ├── repositories/  # Data access layer
 │   ├── services/      # Business logic
-│   ├── schemas/       # Pydantic models
-│   └── main.py        # Application entry point
+│   ├── schemas/       # Pydantic schemas
+│   └── main.py        # App entry point
 ├── alembic/           # Database migrations
 ├── tests/             # Test suite
 └── pyproject.toml     # Project configuration

@@ -44,7 +44,7 @@ spec:
               echo "Raildbsetup is ready"
       containers:
         - name: raildatacollector
-          image: ghcr.io/raybotkin/railtwin/raildatacollector:latest
+          image: ghcr.io/andreybotkin/railtwin/raildatacollector:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8001

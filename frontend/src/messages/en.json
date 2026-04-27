@@ -5,7 +5,7 @@
     "toggleSchedulePanel": "Toggle schedule panel",
     "toggleDarkMode": "Toggle dark mode",
     "language": "Language",
-    "subtitle": "Live railway digital twin",
+    "subtitle": "Live open-source simulation",
     "openData": {
       "buttonLabel": "Open data and sources",
       "buttonHint": "Maps, timetable, Thai open data and delay methodology",
@@ -75,7 +75,8 @@
       "refresh": "Map attributions on the main map update automatically when the user changes theme.",
       "estimates": "Some operational fields are inferred from the latest movement frame when no direct public timestamp is available.",
       "coverage": "Coverage may vary by route, train type and station depending on source completeness.",
-      "feedback": "If you have questions about data sources, delay logic, would like to suggest improvements or you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/RayBotkin/railtwin; the updated data will appear on this site in the next release."  
+      "feedback": "If you have questions about data sources, delay logic, would like to suggest improvements or you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/andreybotkin/railtwin; the updated data will appear on this site in the next release.",
+      "official": "This service is not affiliated with or endorsed by the State Railway of Thailand (SRT) or any official railway operator. Data is sourced from publicly available information and derived estimates, and may not reflect real-time conditions or operational decisions."
     }
   },
   "map": {
@@ -206,11 +207,11 @@
   },
   "privacyPolicyPage": {
     "title": "Privacy Policy",
-    "description": "This page is optimized for mobile reading and summarizes how RailTwin may process technical, usage and location-related information.",
+    "description": "This page is optimized for mobile reading and summarizes how rthfi.com may process technical, usage and location-related information.",
     "sections": {
       "overview": {
         "title": "Overview",
-        "body": "RailTwin provides a web interface for viewing railway map layers, station data, train movement and supporting operational context. This Privacy Policy explains what information may be processed when you use the service."
+        "body": "rthfi.com provides a web interface for viewing railway map layers, station data, train movement and supporting operational context. This Privacy Policy explains what information may be processed when you use the service."
       },
       "informationProcessed": {
         "title": "Information We Process",
@@ -230,7 +231,7 @@
       },
       "yourChoices": {
         "title": "Your Choices",
-        "body": "You may decline browser location access, limit analytics through your browser settings or stop using the service at any time. If you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/RayBotkin/railtwin; the updated data will appear on this site in the next release. If you have questions about privacy handling for this deployment, contact the operator responsible for the instance you are using."
+        "body": "You may decline browser location access, limit analytics through your browser settings or stop using the service at any time. If you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/andreybotkin/railtwin; the updated data will appear on this site in the next release. If you have questions about privacy handling for this deployment, contact the operator responsible for the instance you are using."
       },
       "policyUpdates": {
         "title": "Policy Updates",
@@ -240,15 +241,15 @@
   },
   "termsOfServicePage": {
     "title": "Terms of Service",
-    "description": "These terms explain the conditions for using RailTwin, including service limitations, acceptable use and data-related disclaimers.",
+    "description": "These terms explain the conditions for using rthfi.com, including service limitations, acceptable use and data-related disclaimers.",
     "sections": {
       "acceptanceOfTerms": {
         "title": "Acceptance of Terms",
-        "body": "By accessing or using RailTwin, you agree to these Terms of Service. If you do not agree, do not use the service. These terms apply to interactive map views, schedule screens, operational overlays and related pages."
+        "body": "By accessing or using rthfi.com, you agree to these Terms of Service. If you do not agree, do not use the service. These terms apply to interactive map views, schedule screens, operational overlays and related pages."
       },
       "serviceDescription": {
         "title": "Service Description",
-        "body": "RailTwin presents railway-related data, visualizations and estimates for informational purposes. Features may include map layers, station metadata, train movement, schedule comparisons and derived delay indicators."
+        "body": "rthfi.com presents railway-related data, visualizations and estimates for informational purposes. Features may include map layers, station metadata, train movement, schedule comparisons and derived delay indicators."
       },
       "acceptableUse": {
         "title": "Acceptable Use",
@@ -256,7 +257,7 @@
       },
       "operationalDisclaimer": {
         "title": "Operational Disclaimer",
-        "body": "The service is not an official dispatching, signaling or safety system. Train positions, schedules and delay calculations may be incomplete, delayed or estimated. Do not rely on RailTwin as the sole source for safety-critical or time-critical decisions."
+        "body": "The service is not an official dispatching, signaling or safety system. Train positions, schedules and delay calculations may be incomplete, delayed or estimated. Do not rely on rthfi.com as the sole source for safety-critical or time-critical decisions."
       },
       "availabilityAndChanges": {
         "title": "Availability and Changes",
@@ -264,7 +265,7 @@
       },
       "intellectualPropertyAndDataRights": {
         "title": "Intellectual Property and Data Rights",
-        "body": "Underlying software, branding, interface design and non-public implementation details remain protected. Third-party datasets, basemaps and imagery remain subject to their own licenses, attributions and usage terms. If you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/RayBotkin/railtwin; the updated data will appear on this site in the next release."
+        "body": "Underlying software, branding, interface design and non-public implementation details remain protected. Third-party datasets, basemaps and imagery remain subject to their own licenses, attributions and usage terms. If you believe your data has been used and you would like to be credited, please submit a change in the repository at https://github.com/andreybotkin/railtwin; the updated data will appear on this site in the next release."
       },
       "limitationOfLiability": {
         "title": "Limitation of Liability",

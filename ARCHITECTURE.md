@@ -61,7 +61,7 @@ The Thailand Railway Digital Twin is a web application that provides real-time v
 
 ### Frontend (Next.js)
 
-The frontend is built with Next.js 14 using the App Router pattern.
+The frontend is built with Next.js 16 using the App Router pattern.
 
 **Key Features:**
 - Server-side rendering for initial page load

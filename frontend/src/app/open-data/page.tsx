@@ -82,6 +82,7 @@ export default async function OpenDataPage() {
     t('openDataPage.notesList.estimates'),
     t('openDataPage.notesList.coverage'),
     t('openDataPage.notesList.feedback'),
+    t('openDataPage.notesList.official'),
   ];
 
   return (

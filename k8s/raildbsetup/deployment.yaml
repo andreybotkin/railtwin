@@ -34,7 +34,7 @@ spec:
               echo "Postgres is ready"
       containers:
         - name: raildbsetup
-          image: ghcr.io/raybotkin/railtwin/raildbsetup:latest
+          image: ghcr.io/andreybotkin/railtwin/raildbsetup:latest
           imagePullPolicy: Always
           ports:
             - name: http

@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-REGISTRY="ghcr.io/raybotkin/railtwin"
+REGISTRY="ghcr.io/andreybotkin/railtwin"
 SERVICES=(simulation frontend gateway raildatacollector raildbsetup)
 K8S_DIR="$(cd "$(dirname "$0")/k8s" && pwd)"
 NAMESPACE="railway"

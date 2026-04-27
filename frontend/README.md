@@ -4,7 +4,7 @@ Next.js frontend for the Thailand Railway Digital Twin application.
 
 ## Features
 
-- Interactive map with Leaflet showing Thailand railway network
+- Interactive map with Leaflet showing the Thai railway network
 - Real-time train position tracking via WebSocket
 - Route and station information panels
 - Dark/Light theme support
@@ -14,8 +14,8 @@ Next.js frontend for the Thailand Railway Digital Twin application.
 
 ### Prerequisites
 
-- Node.js 23+
-- npm or yarn
+- Node.js 20+
+- npm
 
 ### Installation
 
@@ -24,10 +24,10 @@ Next.js frontend for the Thailand Railway Digital Twin application.
 npm install
 ```
 
-2. Copy environment file and configure:
+2. Copy the environment file and configure API URLs:
 ```bash
 cp .env.example .env.local
-# Edit .env.local with your API URLs
+# Edit .env.local if needed
 ```
 
 3. Start the development server:
@@ -68,19 +68,29 @@ frontend/
 ├── src/
 │   ├── app/              # Next.js App Router pages
 │   ├── components/       # React components
-│   │   ├── Map/         # Map components
-│   │   ├── Schedule/    # Schedule components
-│   │   ├── TrainInfo/   # Train info components
-│   │   └── ui/          # UI components (shadcn/ui)
-│   ├── lib/             # Utilities and hooks
-│   │   ├── api/         # API client
-│   │   ├── hooks/       # Custom hooks
-│   │   └── utils/       # Utility functions
-│   ├── types/           # TypeScript types
-│   └── styles/          # Global styles
-├── public/              # Static assets
-└── package.json
+│   │   ├── Map/           # Map components
+│   │   ├── Schedule/      # Schedule components
+│   │   ├── TrainInfo/     # Train info components
+│   │   └── ui/            # UI components (shadcn/ui)
+│   ├── lib/              # Utilities and hooks
+│   │   ├── api/           # API client
+│   │   ├── hooks/         # Custom hooks
+│   │   └── utils/         # Utility functions
+│   ├── types/            # TypeScript types
+│   └── styles/           # Global styles
+├── public/               # Static assets
+├── package.json
+└── Dockerfile
 ```
+
+## Tech Details
+
+- Next.js 16+
+- React 19
+- TypeScript
+- Tailwind CSS
+- Leaflet / React-Leaflet
+- TanStack Query + Zustand
 
 ## License
 

@@ -43,7 +43,7 @@ spec:
               echo "Raildbsetup is ready"
       containers:
         - name: simulation
-          image: ghcr.io/raybotkin/railtwin/simulation:latest
+          image: ghcr.io/andreybotkin/railtwin/simulation:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

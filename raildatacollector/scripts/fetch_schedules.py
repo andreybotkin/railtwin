@@ -244,7 +244,7 @@ async def run(output: Path, raw_dir: Path | None, verbose: bool, from_raw: bool 
         all_trains = _load_from_raw(raw_dir, verbose)
     else:
         sem = asyncio.Semaphore(CONCURRENT)
-        headers = {"User-Agent": "raildatacollector/1.0 (github.com/raybotkin/railtwin)"}
+        headers = {"User-Agent": "raildatacollector/1.0 (github.com/andreybotkin/railtwin)"}
         connector = aiohttp.TCPConnector(limit=CONCURRENT)
 
         async with aiohttp.ClientSession(headers=headers, connector=connector) as session:

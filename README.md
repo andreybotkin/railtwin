@@ -1,11 +1,11 @@
 # Thailand Railway Digital Twin
 
-[![CI/CD](https://github.com/thailand-railway/digital-twin/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/thailand-railway/digital-twin/actions/workflows/ci-cd.yaml)
+[![CI/CD](https://github.com/andreybotkin/railtwin/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/andreybotkin/railtwin/actions/workflows/ci-cd.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A real-time digital twin visualization of Thailand's railway network, featuring live train tracking, route information, and schedule data.
+A real-time digital twin visualization of Thailand's railway network, featuring live train tracking, route information, schedule data, and support services for database setup and data ingestion.
 
-![Thailand Railway Map](docs/screenshot.png)
+![Thailand Railway Map](docs/screenshot/rthfi_screenshot_v1.png)
 
 ## Features
 
@@ -20,14 +20,14 @@ A real-time digital twin visualization of Thailand's railway network, featuring 
 
 ### Simulation
 - **Framework**: FastAPI (Python 3.14+)
-- **Database**: PostgreSQL 15+ with PostGIS
+- **Database**: PostgreSQL with PostGIS
 - **ORM**: SQLAlchemy 2.0 (async)
 - **Migrations**: Alembic
 - **Validation**: Pydantic V2
 - **Real-time**: WebSocket
 
 ### Frontend
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js 16+ (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Components**: shadcn/ui
@@ -51,13 +51,13 @@ A real-time digital twin visualization of Thailand's railway network, featuring 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/thailand-railway/digital-twin.git
-cd digital-twin
+git clone https://github.com/andreybotkin/railtwin.git
+cd railtwin
 ```
 
 2. Start all services:
 ```bash
-cp .env.sample .env
+cp .env.example .env
 docker compose up -d
 ```
 
@@ -68,8 +68,8 @@ docker compose exec simulation alembic upgrade head
 
 4. Access the application:
    - Frontend: http://localhost:3000
-   - Gateway API (for frontend): http://localhost:8002
-   - Simulation API (internal): http://localhost:8000
+   - Gateway API: http://localhost:8002
+   - Simulation API: http://localhost:8000
    - Simulation API Docs: http://localhost:8000/docs
 
 ### Manual Setup
@@ -77,33 +77,23 @@ docker compose exec simulation alembic upgrade head
 See individual README files:
 - [Simulation Setup](simulation/README.md)
 - [Frontend Setup](frontend/README.md)
+- [Gateway Setup](gateway/README.md)
+- [Rail DB Setup](raildbsetup/README.md)
+- [Rail Data Collector](raildatacollector/README.md)
 
 ## Project Structure
 
 ```
-thailand-railway-digital-twin/
-├── simulation/             # FastAPI simulation service
-│   ├── app/
-│   │   ├── api/            # API endpoints
-│   │   ├── core/           # Configuration
-│   │   ├── models/         # Database models
-│   │   ├── repositories/   # Data access layer
-│   │   ├── services/       # Business logic
-│   │   ├── schemas/        # Pydantic schemas
-│   │   └── main.py         # App entry point
-│   ├── alembic/            # Database migrations
-│   └── tests/              # Test suite
+railtwin/
 ├── frontend/               # Next.js frontend
-│   ├── src/
-│   │   ├── app/           # Next.js pages
-│   │   ├── components/    # React components
-│   │   ├── lib/           # Utilities
-│   │   └── types/         # TypeScript types
-│   └── public/            # Static assets
-├── k8s/                   # Kubernetes manifests
-├── docs/                  # Documentation
-├── docker-compose.yaml    # Local development
-└── .github/workflows/     # CI/CD pipelines
+├── gateway/                # API gateway and Redis proxy for frontend
+├── simulation/             # FastAPI simulation service
+├── raildbsetup/            # Database initialization and data loading service
+├── raildatacollector/      # Schedule and tracking data ingestion service
+├── k8s/                    # Kubernetes manifests
+├── docs/                   # Project documentation
+├── docker-compose.yaml     # Local development orchestration
+└── .github/                # CI/CD workflows
 ```
 
 ## API Endpoints
