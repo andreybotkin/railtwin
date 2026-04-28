@@ -79,6 +79,7 @@ exclude = '''
     | \.mypy_cache
     | \.pytest_cache
     | \.venv
+    | venv
     | alembic
     | __pycache__
 )/
