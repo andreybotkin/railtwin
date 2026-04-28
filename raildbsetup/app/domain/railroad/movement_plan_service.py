@@ -190,11 +190,13 @@ def _resolve_stop(
     )
 
     # --- Resolve (distance_m, geom_fraction) via priority order ---
+    dist_m: float | None = None
+    frac: float | None = None
 
     # Priority 1: route_station.distance_from_start
     if stop.route_station_distance_from_start_km is not None and route_total_m:
-        dist_m: float | None = float(stop.route_station_distance_from_start_km) * 1000.0
-        frac: float | None = max(0.0, min(1.0, dist_m / route_total_m))
+        dist_m = float(stop.route_station_distance_from_start_km) * 1000.0
+        frac = max(0.0, min(1.0, dist_m / route_total_m))
 
     # Priority 2: schedule.distance_from_origin_km
     elif stop.schedule_distance_from_origin_km is not None and route_total_m:

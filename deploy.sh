@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# deploy.sh — локальное развёртывание Thailand Railway Digital Twin на k3s
+# deploy.sh — local deployment of Thailand Railway Digital Twin to k3s
 #
-# Использование:
-#   ./deploy.sh                        # обычный деплой / обновление
-#   ./deploy.sh --clean-db             # очистить БД перед деплоем
-#   ./deploy.sh --pull-images          # подтянуть образы из ghcr.io и импортировать в k3s
-#   ./deploy.sh --pull-images --clean-db   # всё вместе
+# Usage:
+#   ./deploy.sh                        # normal deploy / update
+#   ./deploy.sh --clean-db             # wipe DB before deploying
+#   ./deploy.sh --pull-images          # pull images from ghcr.io and import into k3s
+#   ./deploy.sh --pull-images --clean-db   # all of the above
 
 set -euo pipefail
 
@@ -21,7 +21,7 @@ for arg in "$@"; do
   case $arg in
     --clean-db)    CLEAN_DB=true ;;
     --pull-images) PULL_IMAGES=true ;;
-    *) echo "Неизвестный аргумент: $arg"; exit 1 ;;
+    *) echo "Unknown argument: $arg"; exit 1 ;;
   esac
 done
 
@@ -33,23 +33,23 @@ kubectl apply -f "$K8S_DIR/namespace.yaml"
 kubectl apply -f "$K8S_DIR/network-policy.yaml"
 
 ##############################################################
-# 2. imagePullSecret для ghcr.io
+# 2. imagePullSecret for ghcr.io
 ##############################################################
 if ! kubectl get secret ghcr-registry-secret -n "$NAMESPACE" &>/dev/null; then
   if [[ -z "${GHCR_USER:-}" || -z "${GHCR_TOKEN:-}" ]]; then
     echo ""
-    echo "==> imagePullSecret для ghcr.io не найден в кластере."
-    echo "    Задайте переменные окружения GHCR_USER и GHCR_TOKEN,"
-    echo "    или создайте секрет вручную:"
+    echo "==> imagePullSecret for ghcr.io not found in cluster."
+    echo "    Set GHCR_USER and GHCR_TOKEN environment variables,"
+    echo "    or create the secret manually:"
     echo "      kubectl create secret docker-registry ghcr-registry-secret \\"
     echo "        --docker-server=ghcr.io \\"
     echo "        --docker-username=<user> \\"
     echo "        --docker-password=<pat-token> \\"
     echo "        -n railway"
     echo ""
-    echo "    Деплой продолжается — используются локально кэшированные образы."
+    echo "    Continuing deploy — using locally cached images."
   else
-    echo "==> Создание imagePullSecret ghcr-registry-secret..."
+    echo "==> Creating imagePullSecret ghcr-registry-secret..."
     kubectl create secret docker-registry ghcr-registry-secret \
       --docker-server=ghcr.io \
       --docker-username="$GHCR_USER" \
@@ -58,24 +58,24 @@ if ! kubectl get secret ghcr-registry-secret -n "$NAMESPACE" &>/dev/null; then
       --dry-run=client -o yaml | kubectl apply -f -
   fi
 else
-  echo "==> imagePullSecret ghcr-registry-secret уже существует."
+  echo "==> imagePullSecret ghcr-registry-secret already exists."
 fi
 
 ##############################################################
-# 3. Подтягивание образов из ghcr.io в k3s (опционально)
+# 3. Pull images from ghcr.io into k3s (optional)
 ##############################################################
 if [[ "$PULL_IMAGES" == "true" ]]; then
   if [[ -z "${GHCR_USER:-}" || -z "${GHCR_TOKEN:-}" ]]; then
-    echo "ОШИБКА: GHCR_USER и GHCR_TOKEN должны быть заданы для --pull-images."
+    echo "ERROR: GHCR_USER and GHCR_TOKEN must be set for --pull-images."
     exit 1
   fi
-  echo "==> Аутентификация в ghcr.io..."
+  echo "==> Authenticating to ghcr.io..."
   echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
   for svc in "${SERVICES[@]}"; do
     echo "==> Pulling $REGISTRY/$svc:latest ..."
     docker pull "$REGISTRY/$svc:latest"
-    echo "==> Импорт $svc в k3s containerd..."
+    echo "==> Importing $svc into k3s containerd..."
     docker save "$REGISTRY/$svc:latest" | k3s ctr images import -
   done
 fi
@@ -92,47 +92,47 @@ kubectl apply -f "$K8S_DIR/redis/deployment.yaml"
 kubectl apply -f "$K8S_DIR/redis/service.yaml"
 
 ##############################################################
-# 5. Очистка БД (если запрошено)
+# 5. Wipe DB (if requested)
 ##############################################################
 if [[ "$CLEAN_DB" == "true" ]]; then
   echo ""
-  echo "==> Очистка базы данных..."
+  echo "==> Wiping database..."
 
-  # Масштабируем зависимые сервисы до 0
+  # Scale dependent services to 0
   for svc in simulation raildatacollector raildbsetup; do
     if kubectl get deployment "$svc" -n "$NAMESPACE" &>/dev/null; then
-      echo "    Остановка $svc..."
+      echo "    Stopping $svc..."
       kubectl scale deployment "$svc" -n "$NAMESPACE" --replicas=0 || true
     fi
   done
 
-  # Удаляем postgres deployment и PVC
-  echo "    Удаление postgres deployment..."
+  # Delete postgres deployment and PVC
+  echo "    Deleting postgres deployment..."
   kubectl delete deployment postgres -n "$NAMESPACE" --ignore-not-found=true
-  echo "    Ожидание завершения pod..."
+  echo "    Waiting for pod termination..."
   kubectl wait --for=delete pod -l app.kubernetes.io/name=postgres -n "$NAMESPACE" \
     --timeout=60s 2>/dev/null || true
 
-  echo "    Удаление postgres PVC..."
+  echo "    Deleting postgres PVC..."
   kubectl delete pvc postgres-pvc -n "$NAMESPACE" --ignore-not-found=true
 
-  # Пересоздаём postgres
-  echo "    Создание чистого postgres..."
+  # Recreate postgres
+  echo "    Creating clean postgres..."
   kubectl apply -f "$K8S_DIR/postgres/deployment.yaml"
   kubectl apply -f "$K8S_DIR/postgres/service.yaml"
 fi
 
 ##############################################################
-# 6. Ожидание готовности Postgres
+# 6. Wait for Postgres to be ready
 ##############################################################
-echo "==> Ожидание готовности Postgres..."
+echo "==> Waiting for Postgres to be ready..."
 kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=postgres \
   -n "$NAMESPACE" --timeout=120s
 
 ##############################################################
-# 7. Secrets приложений
+# 7. Application secrets
 ##############################################################
-echo "==> Применение secrets..."
+echo "==> Applying secrets..."
 
 for manifest in \
   "$K8S_DIR/raildbsetup/secrets.yaml" \
@@ -141,13 +141,13 @@ for manifest in \
   if [[ -f "$manifest" ]]; then
     kubectl apply -f "$manifest"
   else
-    echo "    ВНИМАНИЕ: $manifest не найден, пропускаем."
-    echo "    Скопируйте secrets.yaml.example → secrets.yaml и заполните значения."
+    echo "    WARNING: $manifest not found, skipping."
+    echo "    Copy secrets.yaml.example → secrets.yaml and fill in the values."
   fi
 done
 
 ##############################################################
-# 8. raildbsetup (схема и seed-данные)
+# 8. raildbsetup (schema and seed data)
 ##############################################################
 echo "==> raildbsetup..."
 kubectl apply -f "$K8S_DIR/raildbsetup/configmap.yaml"
@@ -155,11 +155,11 @@ kubectl apply -f "$K8S_DIR/raildbsetup/deployment.yaml"
 kubectl apply -f "$K8S_DIR/raildbsetup/service.yaml"
 
 if [[ "$CLEAN_DB" == "true" ]]; then
-  # После очистки БД нужно масштабировать обратно
+  # After DB wipe, scale back up
   kubectl scale deployment raildbsetup -n "$NAMESPACE" --replicas=1
 fi
 
-echo "==> Ожидание готовности raildbsetup (может занять несколько минут)..."
+echo "==> Waiting for raildbsetup to be ready (may take a few minutes)..."
 kubectl rollout status deployment/raildbsetup -n "$NAMESPACE" --timeout=600s
 
 ##############################################################
@@ -198,18 +198,18 @@ kubectl apply -f "$K8S_DIR/frontend/service.yaml"
 kubectl apply -f "$K8S_DIR/frontend/ingress.yaml"
 
 ##############################################################
-# 11. Итоговый статус
+# 11. Final status
 ##############################################################
 echo ""
-echo "==> Текущий статус подов:"
+echo "==> Current pod status:"
 kubectl get pods -n "$NAMESPACE" -o wide
 
 echo ""
-echo "==> Деплой завершён."
+echo "==> Deploy complete."
 echo ""
-echo "    Для локального доступа:"
+echo "    For local access:"
 echo "      kubectl port-forward svc/frontend-service 3000:3000 -n railway &"
 echo "      kubectl port-forward svc/gateway-service  8002:8002 -n railway &"
 echo ""
-echo "    Логи simulation:"
+echo "    Simulation logs:"
 echo "      kubectl logs -f deployment/simulation -n railway"

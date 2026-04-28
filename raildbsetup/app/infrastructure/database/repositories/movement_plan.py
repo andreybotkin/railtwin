@@ -155,7 +155,7 @@ class SqlMovementPlanRepository:
         """
         r1 = await self._s.execute(delete(t_planned_movement_segments))
         r2 = await self._s.execute(delete(t_planned_train_runs))
-        deleted = (r1.rowcount or 0) + (r2.rowcount or 0)
+        deleted = (r1.rowcount or 0) + (r2.rowcount or 0)  # type: ignore[attr-defined]
         if deleted:
             logger.info("Cleared existing movement plans", rows_deleted=deleted)
         return deleted
