@@ -95,12 +95,12 @@ class Settings(BaseSettings):
                 decoded = json.loads(parsed_value)
                 if isinstance(decoded, list):
                     return [
-                        str(origin).strip()
-                        for origin in decoded
-                        if str(origin).strip()
+                        str(origin).strip() for origin in decoded if str(origin).strip()
                     ]
 
-            return [origin.strip() for origin in parsed_value.split(",") if origin.strip()]
+            return [
+                origin.strip() for origin in parsed_value.split(",") if origin.strip()
+            ]
         return list(value)
 
 

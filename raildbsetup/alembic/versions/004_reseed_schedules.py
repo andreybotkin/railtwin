@@ -5,12 +5,12 @@ Revises: 003_support_external_timetables
 Create Date: 2026-04-10 00:00:00.000000
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 revision = "004_reseed_schedules"
 down_revision = "003_support_external_timetables"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

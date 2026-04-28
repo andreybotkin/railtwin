@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.repositories.movement_plan import MovementPlanRepository
 from app.repositories.network import NetworkRepository
 from app.repositories.route import RouteRepository
 from app.repositories.schedule import ScheduleRepository
@@ -158,6 +159,147 @@ class ReferenceDataKeys:
     @property
     def physical_adjacency(self) -> str:
         return f"{self.ns}:network:physical_adjacency"
+
+    def movement_plan_by_train(self, train_id: int) -> str:
+        return f"{self.ns}:movement_plans:by_train:{train_id}"
+
+    @property
+    def movement_plan_ids(self) -> str:
+        return f"{self.ns}:movement_plans:ids"
+
+
+def _serialize_movement_plan(run: Any) -> dict[str, Any]:
+    """Serialise a :class:`PlannedTrainRun` ORM instance for Redis storage."""
+    segments = []
+    for seg in sorted(
+        run.segments or [],
+        key=lambda s: s.sequence,
+    ):
+        segments.append(
+            {
+                "id": int(seg.id),
+                "sequence": int(seg.sequence),
+                "segment_type": seg.segment_type,
+                "from_station_id": (
+                    int(seg.from_station_id)
+                    if seg.from_station_id is not None
+                    else None
+                ),
+                "to_station_id": (
+                    int(seg.to_station_id) if seg.to_station_id is not None else None
+                ),
+                "from_schedule_id": (
+                    int(seg.from_schedule_id)
+                    if seg.from_schedule_id is not None
+                    else None
+                ),
+                "to_schedule_id": (
+                    int(seg.to_schedule_id) if seg.to_schedule_id is not None else None
+                ),
+                "start_time_minutes": int(seg.start_time_minutes),
+                "end_time_minutes": int(seg.end_time_minutes),
+                "start_day_offset": int(seg.start_day_offset),
+                "end_day_offset": int(seg.end_day_offset),
+                "absolute_start_minutes": int(seg.absolute_start_minutes),
+                "absolute_end_minutes": int(seg.absolute_end_minutes),
+                "start_distance_m": (
+                    float(seg.start_distance_m)
+                    if seg.start_distance_m is not None
+                    else None
+                ),
+                "end_distance_m": (
+                    float(seg.end_distance_m)
+                    if seg.end_distance_m is not None
+                    else None
+                ),
+                "start_geom_fraction": (
+                    float(seg.start_geom_fraction)
+                    if seg.start_geom_fraction is not None
+                    else None
+                ),
+                "end_geom_fraction": (
+                    float(seg.end_geom_fraction)
+                    if seg.end_geom_fraction is not None
+                    else None
+                ),
+                "start_edge_id": (
+                    int(seg.start_edge_id) if seg.start_edge_id is not None else None
+                ),
+                "end_edge_id": (
+                    int(seg.end_edge_id) if seg.end_edge_id is not None else None
+                ),
+                "planned_speed_kmh": (
+                    float(seg.planned_speed_kmh)
+                    if seg.planned_speed_kmh is not None
+                    else None
+                ),
+                "quality_score": (
+                    float(seg.quality_score) if seg.quality_score is not None else None
+                ),
+                "warnings": seg.warnings or [],
+            }
+        )
+    return {
+        "id": int(run.id),
+        "train_id": int(run.train_id),
+        "route_id": int(run.route_id),
+        "service_date": str(run.service_date) if run.service_date else None,
+        "service_pattern": run.service_pattern,
+        "plan_version": run.plan_version,
+        "topology_version": run.topology_version,
+        "quality_score": (
+            float(run.quality_score) if run.quality_score is not None else None
+        ),
+        "status": run.status,
+        "warnings": run.warnings or [],
+        "segments": segments,
+    }
+
+
+def _movement_plan_to_domain(payload: dict[str, Any]) -> Any:
+    """Reconstruct a :class:`PlannedTrainRun` domain object from a Redis payload."""
+    from app.domain.movement_plan import PlannedMovementSegment, PlannedTrainRun
+
+    segments = []
+    for seg in payload.get("segments", []):
+        segments.append(
+            PlannedMovementSegment(
+                id=seg.get("id"),
+                planned_run_id=payload["id"],
+                sequence=int(seg["sequence"]),
+                segment_type=seg["segment_type"],
+                from_station_id=seg.get("from_station_id"),
+                to_station_id=seg.get("to_station_id"),
+                from_schedule_id=seg.get("from_schedule_id"),
+                to_schedule_id=seg.get("to_schedule_id"),
+                start_time_minutes=float(seg["start_time_minutes"]),
+                end_time_minutes=float(seg["end_time_minutes"]),
+                start_day_offset=int(seg["start_day_offset"]),
+                end_day_offset=int(seg["end_day_offset"]),
+                start_distance_m=seg.get("start_distance_m"),
+                end_distance_m=seg.get("end_distance_m"),
+                start_geom_fraction=seg.get("start_geom_fraction"),
+                end_geom_fraction=seg.get("end_geom_fraction"),
+                start_edge_id=seg.get("start_edge_id"),
+                end_edge_id=seg.get("end_edge_id"),
+                planned_speed_kmh=seg.get("planned_speed_kmh"),
+                quality_score=seg.get("quality_score"),
+                warnings=seg.get("warnings") or [],
+            )
+        )
+    return PlannedTrainRun(
+        id=payload.get("id"),
+        train_id=int(payload["train_id"]),
+        route_id=int(payload["route_id"]),
+        service_date=payload.get("service_date"),
+        service_pattern=payload.get("service_pattern"),
+        plan_version=payload.get("plan_version", ""),
+        topology_version=payload.get("topology_version"),
+        quality_score=payload.get("quality_score"),
+        status=payload.get("status", "invalid"),
+        warnings=payload.get("warnings") or [],
+        segments=segments,
+    )
 
 
 def _serialize_station(station: Any) -> dict[str, Any]:
@@ -336,6 +478,7 @@ class RedisReferenceDataLoader:
         train_repo = TrainRepository(self._session)
         schedule_repo = ScheduleRepository(self._session)
         network_repo = NetworkRepository(self._session)
+        movement_plan_repo = MovementPlanRepository(self._session)
 
         stations: list[dict[str, Any]] = []
         routes: list[dict[str, Any]] = []
@@ -496,6 +639,26 @@ class RedisReferenceDataLoader:
         pipe.set(self._keys.adjacency, _json_dumps(adjacency))
         pipe.set(self._keys.physical_adjacency, _json_dumps(physical_adjacency))
 
+        # Movement plan snapshot (best usable run per train).
+        movement_plan_train_ids: list[int] = []
+        try:
+            mp_runs = await movement_plan_repo.get_best_runs_for_all_trains()
+            for mp_run in mp_runs:
+                train_id = int(mp_run.train_id)
+                movement_plan_train_ids.append(train_id)
+                pipe.set(
+                    self._keys.movement_plan_by_train(train_id),
+                    _json_dumps(_serialize_movement_plan(mp_run)),
+                )
+            pipe.set(
+                self._keys.movement_plan_ids,
+                _json_dumps(movement_plan_train_ids),
+            )
+        except Exception as exc:  # noqa: BLE001
+            # Non-fatal: movement plans may not be built yet.
+            logger.warning("Could not load movement plans into Redis", error=str(exc))
+            movement_plan_train_ids = []
+
         meta = {
             "schema_version": 1,
             "load_status": "ready",
@@ -506,6 +669,7 @@ class RedisReferenceDataLoader:
             "trains_count": len(trains),
             "schedules_count": len(schedules),
             "route_stations_count": sum(len(route["stations"]) for route in routes),
+            "movement_plans_count": len(movement_plan_train_ids),
         }
         pipe.set(self._keys.meta, _json_dumps(meta))
         await pipe.execute()
@@ -819,6 +983,46 @@ class RedisReferenceReader:
             return []
         raw_values = await self._redis.hmget(key, [str(item) for item in ids])
         return [_json_loads(raw, {}) for raw in raw_values if raw is not None]
+
+    # ------------------------------------------------------------------ #
+    # Movement plan reader methods                                         #
+    # ------------------------------------------------------------------ #
+
+    async def get_movement_plan_for_train(self, train_id: int) -> Any | None:
+        """Return the best :class:`PlannedTrainRun` for *train_id*, or ``None``."""
+        raw = await self._redis.get(self._keys.movement_plan_by_train(train_id))
+        payload = _json_loads(raw, None)
+        if not payload:
+            return None
+        try:
+            return _movement_plan_to_domain(payload)
+        except Exception:  # noqa: BLE001
+            return None
+
+    async def get_movement_plans_bulk(
+        self, train_ids: list[int]
+    ) -> dict[int, Any | None]:
+        """Return best :class:`PlannedTrainRun` for each train ID (pipeline, no N+1).
+
+        Values are ``None`` for trains without a usable plan.
+        """
+        if not train_ids:
+            return {}
+        pipe = self._redis.pipeline()
+        for train_id in train_ids:
+            pipe.get(self._keys.movement_plan_by_train(train_id))
+        raw_values = await pipe.execute()
+        result: dict[int, Any | None] = {}
+        for train_id, raw in zip(train_ids, raw_values, strict=False):
+            payload = _json_loads(raw, None)
+            if payload:
+                try:
+                    result[train_id] = _movement_plan_to_domain(payload)
+                except Exception:  # noqa: BLE001
+                    result[train_id] = None
+            else:
+                result[train_id] = None
+        return result
 
 
 async def refresh_reference_data(

@@ -152,16 +152,32 @@ def _geometry_bounds(geometry: dict[str, Any]) -> BBox | None:
     geometry_type = geometry.get("type")
     coordinates = geometry.get("coordinates")
 
-    if geometry_type == "Point" and isinstance(coordinates, list) and len(coordinates) >= 2:
+    if (
+        geometry_type == "Point"
+        and isinstance(coordinates, list)
+        and len(coordinates) >= 2
+    ):
         lon = float(coordinates[0])
         lat = float(coordinates[1])
         return lon, lat, lon, lat
 
-    if geometry_type != "LineString" or not isinstance(coordinates, list) or not coordinates:
+    if (
+        geometry_type != "LineString"
+        or not isinstance(coordinates, list)
+        or not coordinates
+    ):
         return None
 
-    lons = [float(coord[0]) for coord in coordinates if isinstance(coord, list) and len(coord) >= 2]
-    lats = [float(coord[1]) for coord in coordinates if isinstance(coord, list) and len(coord) >= 2]
+    lons = [
+        float(coord[0])
+        for coord in coordinates
+        if isinstance(coord, list) and len(coord) >= 2
+    ]
+    lats = [
+        float(coord[1])
+        for coord in coordinates
+        if isinstance(coord, list) and len(coord) >= 2
+    ]
     if not lons or not lats:
         return None
     return min(lons), min(lats), max(lons), max(lats)

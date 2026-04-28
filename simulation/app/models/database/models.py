@@ -6,12 +6,13 @@ PostGIS geometry types for geospatial data.
 
 from __future__ import annotations
 
-from datetime import datetime, time
+from datetime import date, datetime, time
 from typing import Any
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     JSON,
+    Date,
     DateTime,
     ForeignKey,
     Integer,
@@ -185,6 +186,11 @@ class Route(Base):
         lazy="selectin",
         order_by="RouteStation.sequence",
     )
+    planned_runs: Mapped[list[PlannedTrainRun]] = relationship(
+        "PlannedTrainRun",
+        back_populates="route",
+        lazy="noload",
+    )
 
 
 class RouteStation(Base):
@@ -305,6 +311,11 @@ class Train(Base):
         "Schedule",
         back_populates="train",
         lazy="selectin",
+    )
+    planned_runs: Mapped[list[PlannedTrainRun]] = relationship(
+        "PlannedTrainRun",
+        back_populates="train",
+        lazy="noload",
     )
 
 
@@ -662,4 +673,194 @@ class RouteEdge(Base):
     edge: Mapped[NetworkEdge] = relationship(
         "NetworkEdge",
         back_populates="route_edges",
+    )
+
+
+class PlannedTrainRun(Base):
+    """Precomputed movement plan header for one train+route pair.
+
+    Stores plan metadata and links to the ordered movement segments.  No
+    route geometry is stored here — all coordinate data is accessed via
+    ``route_id`` and the existing ``route_edges`` / ``network_edges`` tables.
+
+    Uniqueness is enforced by two partial indexes instead of a single
+    UNIQUE constraint because ``service_date`` is nullable.  In PostgreSQL
+    a UNIQUE constraint treats NULL values as non-equal, which would allow
+    duplicate rows when ``service_date IS NULL``.  The partial indexes in
+    migration 010 encode the correct semantic:
+      - ``uq_planned_runs_no_date``  : (train_id, route_id, plan_version)
+                                       WHERE service_date IS NULL
+      - ``uq_planned_runs_with_date``: (train_id, route_id, service_date,
+                                       plan_version) WHERE service_date
+                                       IS NOT NULL
+
+    See docs/precomputed-movement-plan.md §3.1 for details.
+    """
+
+    __tablename__ = "planned_train_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    train_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("trains.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    route_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("routes.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # NULL means the plan applies to every operating day (typical).
+    service_date: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
+    # Optional human-readable tag for within-week variation.
+    service_pattern: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    # Opaque version string; incremented on each rebuild for the same key.
+    plan_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    # topology_metadata.topology_version at build time; NULL means unknown.
+    topology_version: Mapped[str | None] = mapped_column(
+        String(64), nullable=True, index=True
+    )
+    quality_score: Mapped[float | None] = mapped_column(Numeric(5, 4), nullable=True)
+    # Allowed values: 'ready' | 'degraded' | 'invalid'
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="ready", index=True
+    )
+    warnings: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    # Relationships
+    train: Mapped[Train] = relationship(
+        "Train",
+        back_populates="planned_runs",
+        lazy="noload",
+    )
+    route: Mapped[Route] = relationship(
+        "Route",
+        back_populates="planned_runs",
+        lazy="noload",
+    )
+    segments: Mapped[list[PlannedMovementSegment]] = relationship(
+        "PlannedMovementSegment",
+        back_populates="planned_run",
+        lazy="selectin",
+        order_by="PlannedMovementSegment.sequence",
+        cascade="all, delete-orphan",
+    )
+
+
+class PlannedMovementSegment(Base):
+    """Single contiguous movement or dwell period within a planned train run.
+
+    Time bounds are stored as integer minutes-since-midnight per calendar day
+    (mirroring ``schedule.arrival/departure_day_offset``).  Absolute minutes
+    (spanning midnight crossings) are stored as denormalised columns for
+    efficient range queries — the plan builder computes them as:
+
+        absolute_*_minutes = *_time_minutes + *_day_offset * 1440
+
+    **No geometry is duplicated.**  The route polyline is accessed via the
+    parent ``PlannedTrainRun.route_id`` and the existing ``route_edges`` /
+    ``network_edges`` tables.  ``start_geom_fraction`` / ``end_geom_fraction``
+    are precomputed fractions [0, 1] along that polyline, resolved once at
+    plan-build time so runtime interpolation needs no PostGIS calls.
+
+    See docs/precomputed-movement-plan.md §3.2 for the full field spec.
+    """
+
+    __tablename__ = "planned_movement_segments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    planned_run_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("planned_train_runs.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    sequence: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Allowed values: 'move' | 'dwell'
+    segment_type: Mapped[str] = mapped_column(String(8), nullable=False)
+
+    from_station_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("stations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    to_station_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("stations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    from_schedule_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("schedules.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    to_schedule_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("schedules.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    start_time_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    end_time_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    start_day_offset: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    end_day_offset: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # Denormalised absolute minutes for range queries; see class docstring.
+    absolute_start_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    absolute_end_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    start_distance_m: Mapped[float | None] = mapped_column(
+        Numeric(12, 2), nullable=True
+    )
+    end_distance_m: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
+    start_geom_fraction: Mapped[float | None] = mapped_column(
+        Numeric(10, 8), nullable=True
+    )
+    end_geom_fraction: Mapped[float | None] = mapped_column(
+        Numeric(10, 8), nullable=True
+    )
+
+    start_edge_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("network_edges.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    end_edge_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("network_edges.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
+    planned_speed_kmh: Mapped[float | None] = mapped_column(
+        Numeric(7, 2), nullable=True
+    )
+    quality_score: Mapped[float | None] = mapped_column(Numeric(5, 4), nullable=True)
+    warnings: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    # Relationships
+    planned_run: Mapped[PlannedTrainRun] = relationship(
+        "PlannedTrainRun",
+        back_populates="segments",
+        lazy="noload",
     )

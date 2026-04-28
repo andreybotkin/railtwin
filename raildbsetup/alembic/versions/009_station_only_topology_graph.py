@@ -5,16 +5,17 @@ Revises: 008
 Create Date: 2026-04-12 00:00:03.000000
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
 from geoalchemy2 import Geometry
 
+from alembic import op
+
 revision: str = "009_station_only_topology_graph"
-down_revision: Union[str, None] = "008"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "008"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def _drop_fk_if_present(
@@ -78,7 +79,9 @@ def upgrade() -> None:
             Geometry("POINT", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
             nullable=False,
         ),
-        sa.Column("node_type", sa.String(length=20), nullable=False, server_default="station"),
+        sa.Column(
+            "node_type", sa.String(length=20), nullable=False, server_default="station"
+        ),
         sa.Column("station_id", sa.Integer(), nullable=True),
         sa.Column("component_id", sa.Integer(), nullable=True),
         sa.Column(
@@ -103,11 +106,15 @@ def upgrade() -> None:
         sa.Column("to_station_id", sa.Integer(), nullable=False),
         sa.Column(
             "geometry",
-            Geometry("LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
+            Geometry(
+                "LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"
+            ),
             nullable=False,
         ),
         sa.Column("length_m", sa.Numeric(12, 2), nullable=True),
-        sa.Column("edge_kind", sa.String(length=32), nullable=False, server_default="track"),
+        sa.Column(
+            "edge_kind", sa.String(length=32), nullable=False, server_default="track"
+        ),
         sa.Column("component_id", sa.Integer(), nullable=True),
         sa.Column("route_type", sa.String(length=50), nullable=True),
         sa.Column("line_name", sa.String(length=255), nullable=True),
@@ -119,9 +126,15 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["from_station_id"], ["stations.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["from_station_id"], ["stations.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["to_station_id"], ["stations.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
@@ -132,8 +145,12 @@ def upgrade() -> None:
     )
     op.create_index("ix_network_edges_from_node_id", "network_edges", ["from_node_id"])
     op.create_index("ix_network_edges_to_node_id", "network_edges", ["to_node_id"])
-    op.create_index("ix_network_edges_from_station_id", "network_edges", ["from_station_id"])
-    op.create_index("ix_network_edges_to_station_id", "network_edges", ["to_station_id"])
+    op.create_index(
+        "ix_network_edges_from_station_id", "network_edges", ["from_station_id"]
+    )
+    op.create_index(
+        "ix_network_edges_to_station_id", "network_edges", ["to_station_id"]
+    )
     op.create_index("ix_network_edges_route_type", "network_edges", ["route_type"])
 
     op.create_table(
@@ -163,7 +180,9 @@ def upgrade() -> None:
         sa.Column("to_node_id", sa.Integer(), nullable=False),
         sa.Column(
             "geometry",
-            Geometry("LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
+            Geometry(
+                "LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"
+            ),
             nullable=False,
         ),
         sa.Column("length_m", sa.Numeric(12, 2), nullable=True),
@@ -177,8 +196,12 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
             "from_node_id",
@@ -234,7 +257,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["node_id"], ["network_nodes.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["edge_id"], ["network_edges.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("route_id", "sequence", name="uq_route_stations_route_sequence"),
+        sa.UniqueConstraint(
+            "route_id", "sequence", name="uq_route_stations_route_sequence"
+        ),
     )
     op.create_index("ix_route_stations_route_id", "route_stations", ["route_id"])
     op.create_index("ix_route_stations_station_id", "route_stations", ["station_id"])
@@ -251,4 +276,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    raise NotImplementedError("Downgrade is not supported for revision 009_station_only_topology_graph")
+    raise NotImplementedError(
+        "Downgrade is not supported for revision 009_station_only_topology_graph"
+    )

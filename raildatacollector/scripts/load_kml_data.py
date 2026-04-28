@@ -19,7 +19,6 @@ Run inside the simulation container:
 import asyncio
 import hashlib
 import re
-import sys
 import urllib.request
 from typing import Any
 from xml.etree import ElementTree as ET
@@ -27,7 +26,9 @@ from xml.etree import ElementTree as ET
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import create_async_engine
 
-KML_URL = "https://www.google.com/maps/d/kml?mid=1E6wO3YeI2OZwvSaRGc-pPbUEYchbFdY&forcekml=1"
+KML_URL = (
+    "https://www.google.com/maps/d/kml?mid=1E6wO3YeI2OZwvSaRGc-pPbUEYchbFdY&forcekml=1"
+)
 
 KML_NS = "http://www.opengis.net/kml/2.2"
 
@@ -44,17 +45,46 @@ FOLDER_TYPE_MAP = {
 # Infer route_type from route NAME when folder is not descriptive
 ROUTE_NAME_TYPE_MAP = [
     # Northern lines
-    (re.compile(r"chiang mai|lampang|lamphun|uttaradit|sawankhalok|sila at|den chai|thoen|nakhon lampang", re.I), "northern"),
+    (
+        re.compile(
+            r"chiang mai|lampang|lamphun|uttaradit|sawankhalok|sila at|den chai|thoen|nakhon lampang",
+            re.I,
+        ),
+        "northern",
+    ),
     # Northeastern lines
-    (re.compile(r"ubon|nong khai|bua yai|thanon chira|kaeng khoi|khon kaen|udon", re.I), "northeastern"),
+    (
+        re.compile(
+            r"ubon|nong khai|bua yai|thanon chira|kaeng khoi|khon kaen|udon", re.I
+        ),
+        "northeastern",
+    ),
     # Southern lines
-    (re.compile(r"padang besar|su.ngai kolok|sungai kolok|hat yai|kantang|nakhon si thammarat|khiri rat|"
-                r"chumphon|surat thani|hua hin|samut songkhram|samut sakhon|suphan buri|namtok", re.I), "southern"),
+    (
+        re.compile(
+            r"padang besar|su.ngai kolok|sungai kolok|hat yai|kantang|nakhon si thammarat|khiri rat|"
+            r"chumphon|surat thani|hua hin|samut songkhram|samut sakhon|suphan buri|namtok",
+            re.I,
+        ),
+        "southern",
+    ),
     # Eastern lines
-    (re.compile(r"aranyaprathet|ban khlong luk|chachoengsao|eastern|laem chabang|map ta phut|si racha|mae nam", re.I), "eastern"),
+    (
+        re.compile(
+            r"aranyaprathet|ban khlong luk|chachoengsao|eastern|laem chabang|map ta phut|si racha|mae nam",
+            re.I,
+        ),
+        "eastern",
+    ),
     # Urban/Bangkok
-    (re.compile(r"skytrain|bts|mrt|airport rail|red line|green line|blue line|purple line|orange line|gold line|"
-                r"dark red|light red|dark green|light green", re.I), "urban"),
+    (
+        re.compile(
+            r"skytrain|bts|mrt|airport rail|red line|green line|blue line|purple line|orange line|gold line|"
+            r"dark red|light red|dark green|light green",
+            re.I,
+        ),
+        "urban",
+    ),
 ]
 
 # Route color by route_type (fallback)
@@ -142,12 +172,20 @@ def parse_kml(kml_bytes: bytes) -> tuple[list[dict[str, Any]], list[dict[str, An
     # Process top-level folders (each = a railway line group)
     for folder in document.findall(kml_tag("Folder")):
         folder_name_el = folder.find(kml_tag("name"))
-        folder_name = folder_name_el.text.strip() if folder_name_el is not None and folder_name_el.text else "Unknown"
+        folder_name = (
+            folder_name_el.text.strip()
+            if folder_name_el is not None and folder_name_el.text
+            else "Unknown"
+        )
         rt = folder_route_type(folder_name)
 
         for placemark in folder.findall(kml_tag("Placemark")):
             pm_name_el = placemark.find(kml_tag("name"))
-            pm_name = pm_name_el.text.strip() if pm_name_el is not None and pm_name_el.text else "Unnamed"
+            pm_name = (
+                pm_name_el.text.strip()
+                if pm_name_el is not None and pm_name_el.text
+                else "Unnamed"
+            )
 
             style_url_el = placemark.find(kml_tag("styleUrl"))
             style_url = style_url_el.text if style_url_el is not None else None
@@ -159,10 +197,14 @@ def parse_kml(kml_bytes: bytes) -> tuple[list[dict[str, Any]], list[dict[str, An
                 if coords_el is not None and coords_el.text:
                     coords = parse_coordinates(coords_el.text)
                     if len(coords) >= 2:
-                        color = extract_style_color(style_url) or DEFAULT_COLOR.get(rt, "#546E7A")
+                        color = extract_style_color(style_url) or DEFAULT_COLOR.get(
+                            rt, "#546E7A"
+                        )
                         # Refine route_type from name if folder gave no useful info
                         final_rt = route_name_type(pm_name) or rt
-                        color = extract_style_color(style_url) or DEFAULT_COLOR.get(final_rt, "#546E7A")
+                        color = extract_style_color(style_url) or DEFAULT_COLOR.get(
+                            final_rt, "#546E7A"
+                        )
                         routes.append(
                             {
                                 "name": pm_name,
@@ -194,7 +236,11 @@ def parse_kml(kml_bytes: bytes) -> tuple[list[dict[str, Any]], list[dict[str, An
     # Also process placemarks directly under Document (not in a folder)
     for placemark in document.findall(kml_tag("Placemark")):
         pm_name_el = placemark.find(kml_tag("name"))
-        pm_name = pm_name_el.text.strip() if pm_name_el is not None and pm_name_el.text else "Unnamed"
+        pm_name = (
+            pm_name_el.text.strip()
+            if pm_name_el is not None and pm_name_el.text
+            else "Unnamed"
+        )
 
         point = placemark.find(kml_tag("Point"))
         if point is not None:
@@ -254,15 +300,13 @@ async def load_into_db(
             seen_codes.add(code)
 
             result = await conn.execute(
-                sa.text(
-                    """
+                sa.text("""
                     INSERT INTO stations (name, code, location, province, facilities)
                     VALUES (:name, :code,
                             ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
                             :province, cast(:facilities as jsonb))
                     RETURNING id
-                    """
-                ),
+                    """),
                 {
                     "name": name,
                     "code": code,
@@ -291,19 +335,19 @@ async def load_into_db(
             # Approximate distance using simple Euclidean sum (degrees → km ≈ 111km/deg avg)
             distance_km = 0.0
             for i in range(1, len(coords)):
-                dlon = (coords[i][0] - coords[i - 1][0]) * 111.0 * 0.9  # crude cos adjustment
+                dlon = (
+                    (coords[i][0] - coords[i - 1][0]) * 111.0 * 0.9
+                )  # crude cos adjustment
                 dlat = (coords[i][1] - coords[i - 1][1]) * 111.0
                 distance_km += (dlon**2 + dlat**2) ** 0.5
 
             result = await conn.execute(
-                sa.text(
-                    """
+                sa.text("""
                     INSERT INTO routes (name, name_th, route_type, distance_km, color, line_geometry)
                     VALUES (:name, NULL, :route_type, :distance_km, :color,
                             ST_SetSRID(ST_GeomFromText(:geom), 4326))
                     RETURNING id
-                    """
-                ),
+                    """),
                 {
                     "name": r["name"],
                     "route_type": r["route_type"],
@@ -327,8 +371,7 @@ async def load_into_db(
             max_lat = max(c[1] for c in coords) + 0.5
 
             nearby = await conn.execute(
-                sa.text(
-                    """
+                sa.text("""
                     SELECT id, name,
                            ST_X(location::geometry) as lon,
                            ST_Y(location::geometry) as lat,
@@ -344,8 +387,7 @@ async def load_into_db(
                               ST_SetSRID(ST_GeomFromText(:geom), 4326)::geography
                           ) < 2000
                     ORDER BY dist_to_line
-                    """
-                ),
+                    """),
                 {
                     "geom": wkt,
                     "min_lon": min_lon,
@@ -359,8 +401,7 @@ async def load_into_db(
             if nearby_stations:
                 # Order by position along the line
                 ordered = await conn.execute(
-                    sa.text(
-                        """
+                    sa.text("""
                         SELECT s.id,
                                ST_LineLocatePoint(
                                    ST_SetSRID(ST_GeomFromText(:geom), 4326),
@@ -369,8 +410,7 @@ async def load_into_db(
                         FROM stations s
                         WHERE s.id = ANY(:ids)
                         ORDER BY frac
-                        """
-                    ),
+                        """),
                     {
                         "geom": wkt,
                         "ids": [row[0] for row in nearby_stations],
@@ -385,13 +425,11 @@ async def load_into_db(
                     frac = float(row[1])
                     dist_from_start = round(frac * total_dist, 2)
                     await conn.execute(
-                        sa.text(
-                            """
+                        sa.text("""
                             INSERT INTO route_stations (route_id, station_id, sequence, distance_from_start)
                             VALUES (:route_id, :station_id, :sequence, :distance)
                             ON CONFLICT DO NOTHING
-                            """
-                        ),
+                            """),
                         {
                             "route_id": route_id,
                             "station_id": st_id,

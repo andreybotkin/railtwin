@@ -6,6 +6,7 @@ This module combines all endpoint routers for API version 1.
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
+    movement_plans,
     network,
     routes,
     schedules,
@@ -50,4 +51,10 @@ api_router.include_router(
     network.router,
     prefix="/network",
     tags=["Network"],
+)
+
+api_router.include_router(
+    movement_plans.router,
+    prefix="/movement-plans",
+    tags=["Movement Plans"],
 )

@@ -5,17 +5,18 @@ Revises: 007
 Create Date: 2026-04-12 00:00:00.000000
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects import postgresql
 
+from alembic import op
+
 revision: str = "008"
-down_revision: Union[str, None] = "007_topology_links"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "007_topology_links"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def _drop_fk_if_present(
@@ -125,7 +126,9 @@ def upgrade() -> None:
         sa.Column("color", sa.String(length=7), nullable=True),
         sa.Column(
             "line_geometry",
-            Geometry("LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
+            Geometry(
+                "LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"
+            ),
             nullable=True,
         ),
         sa.Column("distance_km", sa.Numeric(10, 2), nullable=True),
@@ -147,7 +150,9 @@ def upgrade() -> None:
             Geometry("POINT", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
             nullable=False,
         ),
-        sa.Column("node_type", sa.String(length=20), nullable=False, server_default="graph"),
+        sa.Column(
+            "node_type", sa.String(length=20), nullable=False, server_default="graph"
+        ),
         sa.Column("station_id", sa.Integer(), nullable=True),
         sa.Column("component_id", sa.Integer(), nullable=True),
         sa.Column(
@@ -170,11 +175,15 @@ def upgrade() -> None:
         sa.Column("to_node_id", sa.Integer(), nullable=False),
         sa.Column(
             "geometry",
-            Geometry("LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
+            Geometry(
+                "LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"
+            ),
             nullable=False,
         ),
         sa.Column("length_m", sa.Numeric(12, 2), nullable=True),
-        sa.Column("edge_kind", sa.String(length=32), nullable=False, server_default="track"),
+        sa.Column(
+            "edge_kind", sa.String(length=32), nullable=False, server_default="track"
+        ),
         sa.Column("component_id", sa.Integer(), nullable=True),
         sa.Column("route_type", sa.String(length=50), nullable=True),
         sa.Column("line_name", sa.String(length=255), nullable=True),
@@ -186,10 +195,16 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("from_node_id", "to_node_id", name="uq_network_edges_directed"),
+        sa.UniqueConstraint(
+            "from_node_id", "to_node_id", name="uq_network_edges_directed"
+        ),
     )
     op.create_index("ix_network_edges_from_node_id", "network_edges", ["from_node_id"])
     op.create_index("ix_network_edges_to_node_id", "network_edges", ["to_node_id"])
@@ -205,7 +220,12 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["route_id"], ["routes.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["edge_id"], ["network_edges.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("route_id", "sequence", "direction", name="uq_route_edges_route_sequence_direction"),
+        sa.UniqueConstraint(
+            "route_id",
+            "sequence",
+            "direction",
+            name="uq_route_edges_route_sequence_direction",
+        ),
     )
     op.create_index("ix_route_edges_route_id", "route_edges", ["route_id"])
     op.create_index("ix_route_edges_edge_id", "route_edges", ["edge_id"])
@@ -217,7 +237,9 @@ def upgrade() -> None:
         sa.Column("to_node_id", sa.Integer(), nullable=False),
         sa.Column(
             "geometry",
-            Geometry("LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
+            Geometry(
+                "LINESTRING", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"
+            ),
             nullable=False,
         ),
         sa.Column("length_m", sa.Numeric(12, 2), nullable=True),
@@ -231,10 +253,19 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["from_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["to_node_id"], ["network_nodes.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("from_node_id", "to_node_id", "link_kind", name="uq_network_links_directed_kind"),
+        sa.UniqueConstraint(
+            "from_node_id",
+            "to_node_id",
+            "link_kind",
+            name="uq_network_links_directed_kind",
+        ),
     )
     op.create_index("ix_network_links_from_node_id", "network_links", ["from_node_id"])
     op.create_index("ix_network_links_to_node_id", "network_links", ["to_node_id"])
@@ -253,7 +284,12 @@ def upgrade() -> None:
         sa.Column("disconnected_station_count", sa.Integer(), nullable=False),
         sa.Column("unsnapped_station_count", sa.Integer(), nullable=False),
         sa.Column("max_snap_distance_m", sa.Numeric(10, 2), nullable=True),
-        sa.Column("built_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
+        sa.Column(
+            "built_at",
+            sa.DateTime(timezone=True),
+            nullable=False,
+            server_default=sa.text("now()"),
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_topology_metadata_built_at", "topology_metadata", ["built_at"])
@@ -278,7 +314,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["node_id"], ["network_nodes.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["edge_id"], ["network_edges.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("route_id", "sequence", name="uq_route_stations_route_sequence"),
+        sa.UniqueConstraint(
+            "route_id", "sequence", name="uq_route_stations_route_sequence"
+        ),
     )
     op.create_index("ix_route_stations_route_id", "route_stations", ["route_id"])
     op.create_index("ix_route_stations_station_id", "route_stations", ["station_id"])
@@ -291,10 +329,22 @@ def upgrade() -> None:
         sa.Column("train_type", sa.String(length=50), nullable=False),
         sa.Column("name", sa.String(length=100), nullable=True),
         sa.Column("capacity", sa.Integer(), nullable=True),
-        sa.Column("operator", sa.String(length=100), nullable=False, server_default="State Railway of Thailand"),
-        sa.Column("source", sa.String(length=50), nullable=False, server_default="raildbsetup_raw"),
+        sa.Column(
+            "operator",
+            sa.String(length=100),
+            nullable=False,
+            server_default="State Railway of Thailand",
+        ),
+        sa.Column(
+            "source",
+            sa.String(length=50),
+            nullable=False,
+            server_default="raildbsetup_raw",
+        ),
         sa.Column("source_url", sa.Text(), nullable=True),
-        sa.Column("service_notes", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column(
+            "service_notes", postgresql.JSONB(astext_type=sa.Text()), nullable=True
+        ),
         sa.Column("current_route_id", sa.Integer(), nullable=True),
         sa.Column(
             "created_at",
@@ -302,7 +352,9 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["current_route_id"], ["routes.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["current_route_id"], ["routes.id"], ondelete="SET NULL"
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("train_number", name="uq_trains_train_number"),
     )
@@ -324,7 +376,11 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(["station_id"], ["stations.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("source", "normalized_alias", name="uq_station_aliases_source_normalized_alias"),
+        sa.UniqueConstraint(
+            "source",
+            "normalized_alias",
+            name="uq_station_aliases_source_normalized_alias",
+        ),
     )
     op.create_index("ix_station_aliases_station_id", "station_aliases", ["station_id"])
     op.create_index("ix_station_aliases_source", "station_aliases", ["source"])
@@ -338,16 +394,24 @@ def upgrade() -> None:
         sa.Column("station_name", sa.String(length=255), nullable=False),
         sa.Column("arrival_time", sa.Time(), nullable=True),
         sa.Column("departure_time", sa.Time(), nullable=True),
-        sa.Column("arrival_day_offset", sa.Integer(), nullable=False, server_default="0"),
-        sa.Column("departure_day_offset", sa.Integer(), nullable=False, server_default="0"),
-        sa.Column("day_of_week", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column(
+            "arrival_day_offset", sa.Integer(), nullable=False, server_default="0"
+        ),
+        sa.Column(
+            "departure_day_offset", sa.Integer(), nullable=False, server_default="0"
+        ),
+        sa.Column(
+            "day_of_week", postgresql.JSONB(astext_type=sa.Text()), nullable=True
+        ),
         sa.Column("platform", sa.String(length=10), nullable=True),
         sa.Column("sequence", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("distance_from_origin_km", sa.Numeric(10, 2), nullable=True),
         sa.Column("route_progress", sa.Numeric(8, 6), nullable=True),
         sa.ForeignKeyConstraint(["train_id"], ["trains.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["station_id"], ["stations.id"], ondelete="SET NULL"),
-        sa.ForeignKeyConstraint(["route_station_id"], ["route_stations.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["route_station_id"], ["route_stations.id"], ondelete="SET NULL"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_schedules_train_id", "schedules", ["train_id"])
@@ -366,7 +430,9 @@ def upgrade() -> None:
         ),
         sa.Column("speed", sa.Numeric(6, 2), nullable=True),
         sa.Column("heading", sa.Numeric(5, 2), nullable=True),
-        sa.Column("status", sa.String(length=20), nullable=False, server_default="moving"),
+        sa.Column(
+            "status", sa.String(length=20), nullable=False, server_default="moving"
+        ),
         sa.Column("delay_minutes", sa.Integer(), nullable=False, server_default="0"),
         sa.Column(
             "timestamp",

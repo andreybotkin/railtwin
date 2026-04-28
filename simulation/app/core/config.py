@@ -107,6 +107,14 @@ class Settings(BaseSettings):
     # geops compatibility
     position_tenant: str = "thailand_railway"
 
+    # Movement plan feature flags (Phase 4)
+    # diagnostics: enable /api/v1/movement-plans/* read-only endpoints
+    movement_plan_diagnostics_enabled: bool = True
+    # runtime: try precomputed movement plan resolver before build_trajectory()
+    movement_plan_runtime_enabled: bool = False
+    # fallback: when runtime is enabled but plan missing/bad, call build_trajectory()
+    movement_plan_fallback_enabled: bool = True
+
     def get_position_cache_interval_seconds(self) -> int:
         """Return the effective cache refresh interval for position snapshots."""
         interval = self.position_cache_interval_seconds or self.ws_heartbeat_interval

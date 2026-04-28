@@ -13,6 +13,10 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from app.application.use_cases.build_movement_plans import (
+    BuildMovementPlansUseCase,
+    MovementPlanBuildResult,
+)
 from app.application.use_cases.build_network_topology import (
     BuildNetworkTopologyUseCase,
     TopologyBuildResult,
@@ -26,6 +30,9 @@ from app.application.use_cases.init_schedules import (
     ScheduleInitResult,
 )
 from app.core.logging import get_logger
+from app.infrastructure.database.repositories.movement_plan import (
+    SqlMovementPlanRepository,
+)
 from app.infrastructure.database.repositories.network import SqlNetworkRepository
 from app.infrastructure.database.repositories.railroad import SqlRailroadRepository
 from app.infrastructure.database.session import get_session_factory
@@ -102,16 +109,26 @@ class SetupRunner:
 
         schedule_result = await self.run_schedules()
 
+        movement_plan_result = await self.run_movement_plans()
+        if movement_plan_result.get("error"):
+            logger.warning(
+                "Movement plan build failed – continuing without plans",
+                error=movement_plan_result["error"],
+            )
+
         self._status = {
             "migrations": migration_result,
             "railroad": railroad_result,
             "topology": topology_result,
             "schedules": schedule_result,
+            "movement_plans": movement_plan_result,
         }
         self._is_ready = True
         self._current_step = "done"
         logger.info("Full database initialization complete", status=self._status)
-        _print_issue_summary(railroad_result, topology_result, schedule_result)
+        _print_issue_summary(
+            railroad_result, topology_result, schedule_result, movement_plan_result
+        )
         return self._status
 
     async def run_migrations(self) -> dict[str, Any]:
@@ -186,9 +203,33 @@ class SetupRunner:
             self._status["schedules"] = d
             return d
 
+    async def run_movement_plans(self, force: bool = False) -> dict[str, Any]:
+        self._current_step = "movement_plans"
+        try:
+            async with get_session_factory()() as session, session.begin():
+                result: MovementPlanBuildResult = await BuildMovementPlansUseCase(
+                    SqlMovementPlanRepository(session)
+                ).execute(force=force)
+            d = asdict(result)
+            d = {k: v for k, v in d.items() if v is not None}
+            self._status["movement_plans"] = d
+            return d
+        except Exception as exc:
+            logger.error(
+                "Movement plan build raised unexpected exception", error=str(exc)
+            )
+            d = {"success": False, "error": str(exc)}
+            self._status["movement_plans"] = d
+            return d
+
 
 def _result_to_dict(
-    result: RailroadInitResult | ScheduleInitResult | TopologyBuildResult,
+    result: (
+        RailroadInitResult
+        | ScheduleInitResult
+        | TopologyBuildResult
+        | MovementPlanBuildResult
+    ),
 ) -> dict[str, Any]:
     d = asdict(result)
     # Remove None values for clean JSON output
@@ -199,6 +240,7 @@ def _print_issue_summary(
     railroad: dict[str, Any],
     topology: dict[str, Any],
     schedules: dict[str, Any],
+    movement_plans: dict[str, Any] | None = None,
 ) -> None:
     """Print a human-readable list of issues encountered during setup.
 
@@ -277,6 +319,22 @@ def _print_issue_summary(
             )
         if len(failed) > 50:
             lines.append(f"  … and {len(failed) - 50} more")
+
+    if movement_plans:
+        mp_error = movement_plans.get("error")
+        if mp_error:
+            lines.append(f"\n[MovementPlans] Build failed: {mp_error}")
+        else:
+            ready = movement_plans.get("plans_ready", 0)
+            degraded = movement_plans.get("plans_degraded", 0)
+            invalid = movement_plans.get("plans_invalid", 0)
+            top_codes = movement_plans.get("top_warning_codes") or []
+            lines.append(
+                f"\n[MovementPlans] {ready} ready, {degraded} degraded, "
+                f"{invalid} invalid plan(s) across {movement_plans.get('trains_seen', 0)} train(s)."
+            )
+            if top_codes:
+                lines.append(f"  Top warning codes: {', '.join(top_codes)}")
 
     if len(lines) == 3:
         lines.append("\nNo issues detected. All source data imported cleanly.")

@@ -49,6 +49,11 @@ ignore = ["E501", "S101", "B008"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"alembic/*.py" = ["TC002", "TC003"]
+"alembic/versions/*.py" = ["TC002", "TC003"]
+"railroad/arc/*.py" = ["B905", "PTH123", "T201"]
+"scripts/*.py" = ["T201", "PTH123"]
+"tests/*.py" = ["B905"]
 
 [tool.mypy]
 python_version = "3.14"
