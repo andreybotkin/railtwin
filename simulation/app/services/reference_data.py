@@ -292,9 +292,8 @@ def _movement_plan_to_domain(payload: dict[str, Any]) -> Any:
         train_id=int(payload["train_id"]),
         route_id=int(payload["route_id"]),
         service_date=payload.get("service_date"),
-        service_pattern=payload.get("service_pattern"),
-        plan_version=payload.get("plan_version", ""),
-        topology_version=payload.get("topology_version"),
+        plan_version=int(payload.get("plan_version") or 0),
+        topology_version=payload.get("topology_version") or "",
         quality_score=payload.get("quality_score"),
         status=payload.get("status", "invalid"),
         warnings=payload.get("warnings") or [],
@@ -644,10 +643,10 @@ class RedisReferenceDataLoader:
         try:
             mp_runs = await movement_plan_repo.get_best_runs_for_all_trains()
             for mp_run in mp_runs:
-                train_id = int(mp_run.train_id)
-                movement_plan_train_ids.append(train_id)
+                mp_train_id = int(mp_run.train_id)
+                movement_plan_train_ids.append(mp_train_id)
                 pipe.set(
-                    self._keys.movement_plan_by_train(train_id),
+                    self._keys.movement_plan_by_train(mp_train_id),
                     _json_dumps(_serialize_movement_plan(mp_run)),
                 )
             pipe.set(

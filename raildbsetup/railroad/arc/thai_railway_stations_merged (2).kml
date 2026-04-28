@@ -41,7 +41,7 @@
     <Folder>
       <name>Eastern Line</name>
       <open>0</open>
-      <description>1 новых из thaitrainguide</description>
+      <description>1 new from thaitrainguide</description>
       <Placemark>
         <name>Aranyaprathet</name>
         <description>&lt;b&gt;Aranyaprathet / อรัญประเทศ&lt;/b&gt;&lt;br/&gt;Code:อร. Class:2 Line:Eastern&lt;br/&gt;District:Aranyaprathet Province:Sa Kaeo&lt;br/&gt;Source:google_places </description>
@@ -4918,7 +4918,7 @@
     <Folder>
       <name>Northern Line</name>
       <open>0</open>
-      <description>1 новых из thaitrainguide</description>
+      <description>1 new from thaitrainguide</description>
       <Placemark>
         <name>Ban Bung</name>
         <description>&lt;b&gt;Ban Bung / บ้านบุ่ง&lt;/b&gt;&lt;br/&gt;Code:บง. Class:4 Line:Northern&lt;br/&gt;District:Phrom Phiram Province:Phitsanulok&lt;br/&gt;Source:google_places </description>
@@ -6555,7 +6555,7 @@
     <Folder>
       <name>Southern Line</name>
       <open>0</open>
-      <description>25 новых из thaitrainguide</description>
+      <description>25 new from thaitrainguide</description>
       <Placemark>
         <name>Ai Satia</name>
         <description>&lt;b&gt;Ai Satia / ไอสะเตีย&lt;/b&gt;&lt;br/&gt;Code:ไอ. Class:Halt Line:Southern&lt;br/&gt;District:Cho-airong Province:Narathiwat&lt;br/&gt;Source:osm_th_raw &lt;a href='https://www.thaitrainguide.com/stations/southern-line/ai-satia/'&gt;TTG&lt;/a&gt;</description>
