@@ -97,6 +97,7 @@ class Settings(BaseSettings):
     ws_heartbeat_interval: int = 10  # seconds
     position_cache_interval_seconds: int | None = None
     trajectory_refresh_interval_seconds: int = 20
+    enable_position_cache_updater: bool = True
 
     # Trajectory generation settings (geops mobility-toolbox-js pattern)
     trajectory_lookahead_seconds: int = (
