@@ -45,3 +45,6 @@ raildatacollector/
 └── Dockerfile         # Container image build config
 ```
 
+## License
+MIT License.
+
