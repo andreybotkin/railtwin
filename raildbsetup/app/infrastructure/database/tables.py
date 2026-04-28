@@ -205,3 +205,72 @@ t_topology_metadata = sa.Table(
     sa.Column("max_snap_distance_m", sa.Numeric(10, 2), nullable=True),
     sa.Column("built_at", sa.DateTime(timezone=True), nullable=False),
 )
+
+# ---------------------------------------------------------------------------
+# Precomputed movement plan tables (added by migration 010)
+# See docs/precomputed-movement-plan.md for the full design rationale.
+# ---------------------------------------------------------------------------
+
+t_planned_train_runs = sa.Table(
+    "planned_train_runs",
+    metadata,
+    sa.Column("id", sa.Integer(), primary_key=True),
+    sa.Column("train_id", sa.Integer(), nullable=False),
+    sa.Column("route_id", sa.Integer(), nullable=False),
+    # NULL means the plan applies to every operating day.
+    sa.Column("service_date", sa.Date(), nullable=True),
+    # Optional tag for within-week service variation (e.g. "weekday").
+    sa.Column("service_pattern", sa.String(64), nullable=True),
+    # Opaque version string; incremented on each rebuild.
+    sa.Column("plan_version", sa.String(64), nullable=False),
+    # Snapshot of topology_metadata.topology_version at build time.
+    sa.Column("topology_version", sa.String(64), nullable=True),
+    sa.Column("quality_score", sa.Numeric(5, 4), nullable=True),
+    # ready | degraded | invalid
+    sa.Column("status", sa.String(16), nullable=False),
+    sa.Column("warnings", postgresql.JSONB(), nullable=True),
+    sa.Column("created_at", sa.DateTime(timezone=True)),
+    sa.Column("updated_at", sa.DateTime(timezone=True)),
+)
+
+t_planned_movement_segments = sa.Table(
+    "planned_movement_segments",
+    metadata,
+    sa.Column("id", sa.Integer(), primary_key=True),
+    sa.Column("planned_run_id", sa.Integer(), nullable=False),
+    sa.Column("sequence", sa.Integer(), nullable=False),
+    # 'move' | 'dwell'
+    sa.Column("segment_type", sa.String(8), nullable=False),
+    # Station references — nullable for synthetic-connector segments.
+    sa.Column("from_station_id", sa.Integer(), nullable=True),
+    sa.Column("to_station_id", sa.Integer(), nullable=True),
+    # Schedule rows bounding this segment's timing.
+    sa.Column("from_schedule_id", sa.Integer(), nullable=True),
+    sa.Column("to_schedule_id", sa.Integer(), nullable=True),
+    # Time bounds: integer minutes-since-midnight per calendar day,
+    # mirroring schedule.arrival/departure_day_offset convention.
+    sa.Column("start_time_minutes", sa.Integer(), nullable=False),
+    sa.Column("end_time_minutes", sa.Integer(), nullable=False),
+    sa.Column("start_day_offset", sa.Integer(), nullable=False),
+    sa.Column("end_day_offset", sa.Integer(), nullable=False),
+    # Denormalised absolute minutes for efficient range queries:
+    #   absolute_*_minutes = *_time_minutes + *_day_offset * 1440
+    sa.Column("absolute_start_minutes", sa.Integer(), nullable=False),
+    sa.Column("absolute_end_minutes", sa.Integer(), nullable=False),
+    # Route distance bounds in metres — scalar offsets into existing
+    # route/network_edges geometry; no coordinates are duplicated here.
+    sa.Column("start_distance_m", sa.Numeric(12, 2), nullable=True),
+    sa.Column("end_distance_m", sa.Numeric(12, 2), nullable=True),
+    # Precomputed fractions [0, 1] along the route polyline.
+    # NULL if the builder could not resolve a reliable fraction.
+    sa.Column("start_geom_fraction", sa.Numeric(10, 8), nullable=True),
+    sa.Column("end_geom_fraction", sa.Numeric(10, 8), nullable=True),
+    # Optional edge references for edge-aligned admin queries.
+    sa.Column("start_edge_id", sa.Integer(), nullable=True),
+    sa.Column("end_edge_id", sa.Integer(), nullable=True),
+    # Planned average speed for move segments; NULL for dwell.
+    sa.Column("planned_speed_kmh", sa.Numeric(7, 2), nullable=True),
+    sa.Column("quality_score", sa.Numeric(5, 4), nullable=True),
+    sa.Column("warnings", postgresql.JSONB(), nullable=True),
+    sa.Column("created_at", sa.DateTime(timezone=True)),
+)

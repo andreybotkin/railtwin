@@ -62,6 +62,26 @@ async def trigger_topology(
 
 
 @router.post(
+    "/movement-plans",
+    summary="Re-build precomputed movement plans",
+    description=(
+        "Clears and rebuilds planned_train_runs and planned_movement_segments "
+        "from the current schedules and route geometry metadata. "
+        "Safe to run at any time; does not affect runtime trajectory generation. "
+        "Use ``force=true`` (currently a no-op, included for forward compatibility)."
+    ),
+)
+async def trigger_movement_plans(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    force: bool = False,
+) -> dict:
+    runner = request.app.state.runner
+    background_tasks.add_task(runner.run_movement_plans, force)
+    return {"message": "Movement plan build triggered", "force": force}
+
+
+@router.post(
     "/all",
     summary="Re-run full initialization",
     description="Re-runs the complete initialization sequence (railroad + topology + schedules).",

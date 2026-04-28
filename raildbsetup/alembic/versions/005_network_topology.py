@@ -20,16 +20,17 @@ Revises: 004_reseed_schedules
 Create Date: 2026-04-12 00:00:00.000000
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
 from geoalchemy2 import Geometry
 
+from alembic import op
+
 revision: str = "005_network_topology"
-down_revision: Union[str, None] = "004_reseed_schedules"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "004_reseed_schedules"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -102,7 +103,9 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.UniqueConstraint("from_node_id", "to_node_id", name="uq_network_edges_directed"),
+        sa.UniqueConstraint(
+            "from_node_id", "to_node_id", name="uq_network_edges_directed"
+        ),
     )
     op.create_index(
         "idx_network_edges_geometry",

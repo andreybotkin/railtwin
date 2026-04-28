@@ -27,10 +27,10 @@ class Settings(BaseSettings):
 
     # Local data paths — overridable via env vars in Docker
     kml_local_path: Path = (
-        _DEFAULT_BASE / "railroad" / "20260410RailwayMapofThailand.kml"
+        _DEFAULT_BASE / "railroad" / "20260428RailwayMapofThailand.kml"
     )
-    stations_json_path: Path = (
-        _DEFAULT_BASE / "railroad" / "thai_railway_stations_full.json"
+    stations_kml_path: Path = (
+        _DEFAULT_BASE / "railroad" / "20260428Thai_railway_stations.kml"
     )
     schedule_raw_dir: Path = _DEFAULT_BASE / "schedule" / "raw"
 

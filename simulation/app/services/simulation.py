@@ -13,10 +13,12 @@ from typing import Any
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.logging import get_logger
 from app.domain.trajectory import Trajectory
 from app.models.database.models import Schedule, Train
 from app.services import schedule_utils
+from app.services.movement_plan_runtime import resolve_trajectory as _resolve_from_plan
 from app.services.reference_data import (
     RedisReferenceReader,
     schedule_payloads_to_domain,
@@ -160,6 +162,13 @@ class TrainSimulationService:
                 else {}
             )
 
+            # Preload movement plans for this batch (no-op when flag is off).
+            movement_plans_by_train: dict[int, Any] = {}
+            if settings.movement_plan_runtime_enabled and self.reader is not None:
+                movement_plans_by_train = await self.reader.get_movement_plans_bulk(
+                    train_ids
+                )
+
             for index, payload in enumerate(train_payloads, start=1):
                 train = train_payload_to_domain(payload)
                 schedules = schedules_by_train.get(train.id, [])
@@ -187,16 +196,80 @@ class TrainSimulationService:
                 if current_minutes is None:
                     continue
 
-                trajectory = build_trajectory(
-                    train,
-                    schedules,
-                    route_coords,
-                    route_distance_km,
-                    delay=delay,
-                    current_minutes=current_minutes,
-                    topology_version=topology_version,
-                    route_segments=route_segments,
-                )
+                trajectory: Trajectory | None = None
+
+                # --- Movement plan fast path (feature-flagged) ----------- #
+                if settings.movement_plan_runtime_enabled:
+                    planned_run = movement_plans_by_train.get(train.id)
+                    if planned_run is not None and planned_run.is_usable():
+                        route_length_m = (
+                            route_distance_km * 1000.0
+                            if route_distance_km is not None
+                            else 0.0
+                        )
+                        try:
+                            trajectory = _resolve_from_plan(
+                                planned_run=planned_run,
+                                route_coords=route_coords or [],
+                                route_length_m=route_length_m,
+                                current_minutes=current_minutes,
+                                delay_minutes=delay,
+                                train=train,
+                                schedules=schedules,
+                                route_segments=route_segments,
+                                topology_version=topology_version,
+                            )
+                            if trajectory is not None:
+                                logger.debug(
+                                    "movement_plan_runtime_used",
+                                    train_id=train.id,
+                                )
+                            else:
+                                logger.debug(
+                                    "movement_plan_runtime_no_result",
+                                    train_id=train.id,
+                                )
+                        except Exception as exc:  # noqa: BLE001
+                            logger.warning(
+                                "movement_plan_runtime_error",
+                                train_id=train.id,
+                                error=str(exc),
+                            )
+                    else:
+                        logger.debug(
+                            "movement_plan_runtime_unavailable",
+                            train_id=train.id,
+                        )
+
+                # --- Fallback to build_trajectory() ---------------------- #
+                if trajectory is None:
+                    if (
+                        settings.movement_plan_runtime_enabled
+                        and not settings.movement_plan_fallback_enabled
+                    ):
+                        # Strict mode: skip trains without a usable plan.
+                        if index % _COOPERATIVE_YIELD_EVERY == 0:
+                            await asyncio.sleep(0)
+                        continue
+                    trajectory = build_trajectory(
+                        train,
+                        schedules,
+                        route_coords,
+                        route_distance_km,
+                        delay=delay,
+                        current_minutes=current_minutes,
+                        topology_version=topology_version,
+                        route_segments=route_segments,
+                    )
+                    if (
+                        trajectory is not None
+                        and settings.movement_plan_runtime_enabled
+                    ):
+                        logger.debug(
+                            "movement_plan_runtime_fallback",
+                            train_id=train.id,
+                        )
+
                 if trajectory is not None:
                     trajectories.append(trajectory)
 

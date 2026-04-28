@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 
 TrajectoryReader = Callable[[], Awaitable[list[dict[str, Any]]]]
 StopSequenceReader = Callable[[int], Awaitable[list[dict[str, Any]] | None]]
-TrajectoryFilter = Callable[
-    [list[dict[str, Any]], str | None], list[dict[str, Any]]
-]
+TrajectoryFilter = Callable[[list[dict[str, Any]], str | None], list[dict[str, Any]]]
 
 
 def _trajectory_version(trajectory: dict[str, Any]) -> int:
@@ -94,9 +92,7 @@ async def stream_trajectories(
         if keepalive_counter >= 3:
             keepalive_counter = 0
             try:
-                await websocket.send_json(
-                    {"source": "keepalive", "timestamp": now_ms}
-                )
+                await websocket.send_json({"source": "keepalive", "timestamp": now_ms})
             except Exception:
                 return
 

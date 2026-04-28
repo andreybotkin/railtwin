@@ -40,38 +40,55 @@ def upgrade() -> None:
 
     op.add_column(
         "trains",
-        sa.Column("source", sa.String(length=50), server_default="manual", nullable=False),
+        sa.Column(
+            "source", sa.String(length=50), server_default="manual", nullable=False
+        ),
     )
     op.add_column("trains", sa.Column("source_url", sa.Text(), nullable=True))
     op.add_column(
         "trains",
-        sa.Column("service_notes", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column(
+            "service_notes", postgresql.JSONB(astext_type=sa.Text()), nullable=True
+        ),
     )
 
-    op.add_column("schedules", sa.Column("station_name", sa.String(length=255), nullable=True))
-    op.add_column("schedules", sa.Column("route_station_id", sa.Integer(), nullable=True))
     op.add_column(
-        "schedules",
-        sa.Column("arrival_day_offset", sa.Integer(), server_default="0", nullable=False),
+        "schedules", sa.Column("station_name", sa.String(length=255), nullable=True)
+    )
+    op.add_column(
+        "schedules", sa.Column("route_station_id", sa.Integer(), nullable=True)
     )
     op.add_column(
         "schedules",
-        sa.Column("departure_day_offset", sa.Integer(), server_default="0", nullable=False),
+        sa.Column(
+            "arrival_day_offset", sa.Integer(), server_default="0", nullable=False
+        ),
     )
-    op.add_column("schedules", sa.Column("distance_from_origin_km", sa.Numeric(10, 2), nullable=True))
-    op.add_column("schedules", sa.Column("route_progress", sa.Numeric(8, 6), nullable=True))
+    op.add_column(
+        "schedules",
+        sa.Column(
+            "departure_day_offset", sa.Integer(), server_default="0", nullable=False
+        ),
+    )
+    op.add_column(
+        "schedules",
+        sa.Column("distance_from_origin_km", sa.Numeric(10, 2), nullable=True),
+    )
+    op.add_column(
+        "schedules", sa.Column("route_progress", sa.Numeric(8, 6), nullable=True)
+    )
 
-    op.execute(
-        """
+    op.execute("""
         UPDATE schedules
         SET station_name = stations.name
         FROM stations
         WHERE schedules.station_id = stations.id
-        """
-    )
+        """)
 
     op.alter_column("schedules", "station_name", nullable=False)
-    op.alter_column("schedules", "station_id", existing_type=sa.Integer(), nullable=True)
+    op.alter_column(
+        "schedules", "station_id", existing_type=sa.Integer(), nullable=True
+    )
 
     op.create_foreign_key(
         "fk_schedules_route_station_id_route_stations",
@@ -87,7 +104,9 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Remove external timetable support columns and tables."""
     op.drop_index("ix_schedules_route_station_id", table_name="schedules")
-    op.drop_constraint("fk_schedules_route_station_id_route_stations", "schedules", type_="foreignkey")
+    op.drop_constraint(
+        "fk_schedules_route_station_id_route_stations", "schedules", type_="foreignkey"
+    )
     op.drop_column("schedules", "route_progress")
     op.drop_column("schedules", "distance_from_origin_km")
     op.drop_column("schedules", "departure_day_offset")

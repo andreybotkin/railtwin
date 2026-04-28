@@ -13,8 +13,8 @@ from typing import TYPE_CHECKING
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.domain.railroad.service import RailroadDomainService
-from app.infrastructure.parsers.json_station_parser import parse_stations_json
 from app.infrastructure.parsers.kml_parser import parse_kml_routes
+from app.infrastructure.parsers.kml_station_parser import parse_stations_kml
 
 if TYPE_CHECKING:
     from app.domain.railroad.repository import RailroadRepository
@@ -51,14 +51,14 @@ class InitRailroadUseCase:
         routes = parse_kml_routes(kml_bytes)
         logger.info("KML routes parsed", routes=len(routes))
 
-        stations_path = settings.stations_json_path
+        stations_path = settings.stations_kml_path
         if not stations_path.exists():
-            return RailroadInitResult(error=f"Stations JSON not found: {stations_path}")
-        parsed = parse_stations_json(stations_path)
+            return RailroadInitResult(error=f"Stations KML not found: {stations_path}")
+        parsed = parse_stations_kml(stations_path)
         stations = parsed.stations
         aliases = parsed.aliases
         logger.info(
-            "Station JSON parsed",
+            "Station KML parsed",
             stations=len(stations),
             aliases=len(aliases),
         )
