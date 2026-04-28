@@ -25,8 +25,8 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import get_logger, setup_logging
 from app.models.database import async_session_factory
-from app.services.position_cache import build_position_cache_updater
 from app.services.reference_data import RedisReferenceDataLoader, RedisReferenceReader
+from app.workers.position_cache import build_position_cache_runtime
 
 # TTS scraper is owned by the raildatacollector service and writes to Redis.
 # The simulation service reads TTS delays from Redis via get_delays_from_redis() inside
@@ -65,15 +65,16 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
         loader = RedisReferenceDataLoader(session, redis_client)
         await loader.load()
 
-    position_cache_updater = build_position_cache_updater(
-        async_session_factory, redis_client
-    )
-    position_cache_updater.start()
+    position_cache_runtime = build_position_cache_runtime()
+    if settings.enable_position_cache_updater:
+        position_cache_runtime.start()
+    else:
+        logger.info("Position cache runtime disabled in API process")
 
     yield
 
     # Shutdown
-    await position_cache_updater.stop()
+    await position_cache_runtime.stop()
     await redis_client.aclose()
     logger.info("Shutting down Thailand Railway Digital Twin API")
 
