@@ -45,7 +45,7 @@ const WAGON_H = 9;
 
 // Spacing between consist bodies (pixels).
 const LEAD_SPACING = 22; // loco tail → first wagon centre
-const CAR_SPACING = 15;  // wagon centre → next wagon centre
+const CAR_SPACING = 15; // wagon centre → next wagon centre
 
 /**
  * DivIcon canvas size.
@@ -88,7 +88,7 @@ function applyToDOM(
   el: HTMLElement,
   headingDeg: number,
   wagons: WagonOffset[],
-  carCount: number,
+  carCount: number
 ): void {
   const cssRot = headingDeg + ROT_OFFSET;
 
@@ -137,8 +137,8 @@ function buildIcon({
   const halo = isSelected
     ? '0 0 0 3px rgba(250,204,21,0.9), 0 14px 28px rgba(15,23,42,0.28)'
     : delayMinutes > 0
-    ? `0 0 0 2px ${delayColor}, 0 10px 20px rgba(15,23,42,0.2)`
-    : '0 10px 20px rgba(15,23,42,0.18)';
+      ? `0 0 0 2px ${delayColor}, 0 10px 20px rgba(15,23,42,0.2)`
+      : '0 10px 20px rgba(15,23,42,0.18)';
 
   // Wagon placeholder elements — positions written by applyToDOM every rAF.
   let wagonsHtml = '';
@@ -201,7 +201,7 @@ export default function LeafletTrainMarker({
   const viewportWidthMeters = getViewportWidthMeters(map);
   const [zoom, setZoom] = useState(() => map.getZoom());
   const [scaleFactor, setScaleFactor] = useState(() =>
-    viewportWidthMeters > 100_000 ? 1 / 2 : 1,
+    viewportWidthMeters > 100_000 ? 1 / 2 : 1
   );
   const showWagons = zoom >= WAGONS_MIN_ZOOM;
   const showDelayBadge = viewportWidthMeters <= 100_000;
@@ -250,7 +250,15 @@ export default function LeafletTrainMarker({
         scaleFactor,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [trainType, delayMinutes, isSelected, carCount, showWagons, showDelayBadge, scaleFactor],
+    [
+      trainType,
+      delayMinutes,
+      isSelected,
+      carCount,
+      showWagons,
+      showDelayBadge,
+      scaleFactor,
+    ]
   );
 
   // After icon regeneration: reapply last-known rotation + wagon positions,
@@ -285,7 +293,7 @@ export default function LeafletTrainMarker({
             ([lon, lat]) => {
               const pt = map.latLngToContainerPoint([lat, lon]);
               return { x: pt.x, y: pt.y };
-            },
+            }
           );
 
           // Distance 0 = loco head; wagon distances trail behind the head.
@@ -296,7 +304,7 @@ export default function LeafletTrainMarker({
             ...(showWagons
               ? Array.from(
                   { length: carCount },
-                  (_, i) => sign * (LEAD_SPACING + i * CAR_SPACING),
+                  (_, i) => sign * (LEAD_SPACING + i * CAR_SPACING)
                 )
               : []),
           ];
@@ -305,7 +313,7 @@ export default function LeafletTrainMarker({
             polyline,
             frame.geomFraction,
             frame.rotation,
-            distances,
+            distances
           );
 
           const headPt = consistPoints[0];
@@ -347,7 +355,9 @@ export default function LeafletTrainMarker({
     };
 
     animRef.current = requestAnimationFrame(step);
-    return () => { cancelAnimationFrame(animRef.current); };
+    return () => {
+      cancelAnimationFrame(animRef.current);
+    };
   }, [trajectory, map, carCount, showWagons]);
 
   // Click handler.

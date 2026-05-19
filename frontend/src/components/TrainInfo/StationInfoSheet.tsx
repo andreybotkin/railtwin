@@ -12,7 +12,7 @@ import type { Schedule, Station } from '@/types';
 
 function findStation(
   topology: ReturnType<typeof useRailwayStore.getState>['topology'],
-  id: number | null,
+  id: number | null
 ): Station | null {
   if (topology == null || id == null) return null;
   return topology.stations.find((s) => s.id === id) ?? null;
@@ -46,16 +46,26 @@ export default function StationInfoSheet() {
     if (delta < 60) return t('schedule.inMin', { m: delta });
     const hours = Math.floor(delta / 60);
     const mins = delta % 60;
-    return t('schedule.inHourMin', { h: hours, m: mins.toString().padStart(2, '0') });
+    return t('schedule.inHourMin', {
+      h: hours,
+      m: mins.toString().padStart(2, '0'),
+    });
   }
 
   const localTypeName = (type: string | null | undefined) => {
     if (!type) return '';
     const key = `trains.${type}` as Parameters<typeof t>[0];
-    try { return t(key); } catch { return type; }
+    try {
+      return t(key);
+    } catch {
+      return type;
+    }
   };
 
-  const trainDisplay = (type: string | null | undefined, number: string | null | undefined) => {
+  const trainDisplay = (
+    type: string | null | undefined,
+    number: string | null | undefined
+  ) => {
     const typePart = localTypeName(type);
     if (!number) return typePart;
     return `${typePart} ${t('trains.trainNo')} ${number}`;
@@ -67,7 +77,7 @@ export default function StationInfoSheet() {
 
   const station = useMemo(
     () => findStation(topology, selectedStationId),
-    [topology, selectedStationId],
+    [topology, selectedStationId]
   );
 
   const [nowMinutes, setNowMinutes] = useState(() => {
@@ -98,17 +108,21 @@ export default function StationInfoSheet() {
     return ref ?? upcoming[0] ?? null;
   }, [upcoming, nowMinutes]);
 
-  const innerRef  = useRef<HTMLDivElement>(null);
-  const snap1Ref  = useRef<HTMLDivElement>(null);
-  const snap2Ref  = useRef<HTMLDivElement>(null);
-  const { sheetStyle, handleBarProps } = useBottomSheetDrag('station', { innerRef, snap1Ref, snap2Ref });
+  const innerRef = useRef<HTMLDivElement>(null);
+  const snap1Ref = useRef<HTMLDivElement>(null);
+  const snap2Ref = useRef<HTMLDivElement>(null);
+  const { sheetStyle, handleBarProps } = useBottomSheetDrag('station', {
+    innerRef,
+    snap1Ref,
+    snap2Ref,
+  });
 
   if (selectedStationId === null) return null;
 
   const displayName =
-    (locale === 'th' ? station?.name_th || station?.name : station?.name)
-    ?? schedule?.station?.name
-    ?? `${t('common.station')} #${selectedStationId}`;
+    (locale === 'th' ? station?.name_th || station?.name : station?.name) ??
+    schedule?.station?.name ??
+    `${t('common.station')} #${selectedStationId}`;
   const city = station?.city ?? null;
   const province = station?.province ?? null;
   const code = station?.code ?? schedule?.station?.code ?? null;
@@ -119,10 +133,10 @@ export default function StationInfoSheet() {
       className={cn(
         'info-sheet pointer-events-auto fixed z-[1000] text-zinc-900',
         'inset-x-0 bottom-0 rounded-t-3xl',
-        'sm:inset-x-auto sm:bottom-4 sm:right-4 sm:w-[22rem] sm:rounded-3xl',
+        'sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[22rem] sm:rounded-3xl',
         'backdrop-blur-xl',
         'flex flex-col overflow-hidden',
-        'sm:max-h-[80dvh]',
+        'sm:max-h-[80dvh]'
       )}
       style={{
         background: 'var(--panel-bg-strong)',
@@ -136,11 +150,17 @@ export default function StationInfoSheet() {
       <div
         {...handleBarProps}
         className="mx-auto mt-2 h-1.5 w-10 flex-shrink-0 rounded-full sm:hidden"
-        style={{ background: 'var(--panel-inner-ring)', ...handleBarProps.style }}
+        style={{
+          background: 'var(--panel-inner-ring)',
+          ...handleBarProps.style,
+        }}
         aria-label="Resize panel"
       />
 
-      <div ref={innerRef} className="relative flex-1 overflow-y-auto p-4 sm:p-5">
+      <div
+        ref={innerRef}
+        className="relative flex-1 overflow-y-auto p-4 sm:p-5"
+      >
         <header className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <div
@@ -194,9 +214,15 @@ export default function StationInfoSheet() {
         {nextStop && (
           <section
             className="mt-4 rounded-2xl p-4"
-            style={{ background: 'var(--station-next-bg)', color: 'var(--station-next-text)' }}
+            style={{
+              background: 'var(--station-next-bg)',
+              color: 'var(--station-next-text)',
+            }}
           >
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em]" style={{ opacity: 0.6 }}>
+            <div
+              className="flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase"
+              style={{ opacity: 0.6 }}
+            >
               <Timer className="h-3 w-3" /> {t('schedule.nextService')}
             </div>
             <div className="mt-2 flex items-center justify-between gap-3">
@@ -204,27 +230,43 @@ export default function StationInfoSheet() {
                 <div className="flex items-center gap-1.5">
                   {nextStop.train?.train_type && (
                     <span
-                      className="inline-flex h-5 items-center rounded-full px-2 text-[10px] font-semibold uppercase text-white"
-                      style={{ backgroundColor: getTrainTypeColor(nextStop.train.train_type) }}
+                      className="inline-flex h-5 items-center rounded-full px-2 text-[10px] font-semibold text-white uppercase"
+                      style={{
+                        backgroundColor: getTrainTypeColor(
+                          nextStop.train.train_type
+                        ),
+                      }}
                     >
                       #{nextStop.train.train_number ?? nextStop.train_id}
                     </span>
                   )}
                   <span className="truncate text-sm font-semibold">
-                    {trainDisplay(nextStop.train?.train_type, nextStop.train?.train_number)}
+                    {trainDisplay(
+                      nextStop.train?.train_type,
+                      nextStop.train?.train_number
+                    )}
                   </span>
                 </div>
                 <div className="mt-1 text-[11px]" style={{ opacity: 0.6 }}>
-                  {t('schedule.arrAbbr')} {formatTime(nextStop.arrival_time)} · {t('schedule.depAbbr')} {formatTime(nextStop.departure_time)}
+                  {t('schedule.arrAbbr')} {formatTime(nextStop.arrival_time)} ·{' '}
+                  {t('schedule.depAbbr')} {formatTime(nextStop.departure_time)}
                 </div>
               </div>
               <div className="shrink-0 text-right tabular-nums">
-                <div className="text-xs" style={{ opacity: 0.6 }}>{t('trains.eta')}</div>
-                <div className="text-xl font-bold leading-tight">
+                <div className="text-xs" style={{ opacity: 0.6 }}>
+                  {t('trains.eta')}
+                </div>
+                <div className="text-xl leading-tight font-bold">
                   {nextStop.departure_time
-                    ? formatCountdown(nowMinutes, timeToMinutes(nextStop.departure_time))
+                    ? formatCountdown(
+                        nowMinutes,
+                        timeToMinutes(nextStop.departure_time)
+                      )
                     : nextStop.arrival_time
-                      ? formatCountdown(nowMinutes, timeToMinutes(nextStop.arrival_time))
+                      ? formatCountdown(
+                          nowMinutes,
+                          timeToMinutes(nextStop.arrival_time)
+                        )
                       : '—'}
                 </div>
               </div>
@@ -236,7 +278,7 @@ export default function StationInfoSheet() {
 
         <section className="mt-4">
           <div
-            className="flex items-center justify-between text-[10px] uppercase tracking-[0.14em]"
+            className="flex items-center justify-between text-[10px] tracking-[0.14em] uppercase"
             style={{ color: 'var(--panel-subtext)' }}
           >
             <span className="flex items-center gap-1.5">
@@ -295,7 +337,10 @@ export default function StationInfoSheet() {
                         className="truncate text-xs font-medium"
                         style={{ color: 'var(--panel-text)' }}
                       >
-                        {trainDisplay(stop.train?.train_type, stop.train?.train_number)}
+                        {trainDisplay(
+                          stop.train?.train_type,
+                          stop.train?.train_number
+                        )}
                       </div>
                       <div
                         className="text-[11px]"
@@ -310,11 +355,14 @@ export default function StationInfoSheet() {
                       className="flex flex-col items-end text-[11px] leading-tight tabular-nums"
                       style={{ color: 'var(--panel-text)' }}
                     >
-                      <span className="font-semibold">{formatTime(stop.departure_time)}</span>
+                      <span className="font-semibold">
+                        {formatTime(stop.departure_time)}
+                      </span>
                       {stop.arrival_time &&
                         stop.arrival_time !== stop.departure_time && (
                           <span style={{ color: 'var(--panel-subtext)' }}>
-                            {t('schedule.arrAbbr')} {formatTime(stop.arrival_time)}
+                            {t('schedule.arrAbbr')}{' '}
+                            {formatTime(stop.arrival_time)}
                           </span>
                         )}
                     </div>

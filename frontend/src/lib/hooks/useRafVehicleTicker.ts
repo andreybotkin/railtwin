@@ -16,7 +16,10 @@ import type { GeoJSONSource } from 'maplibre-gl';
 
 import type { FeatureCollection, Feature, Point } from 'geojson';
 
-import { getTrajectoryFrameAt, isTrajectoryValid } from '@/lib/trajectory-interpolation';
+import {
+  getTrajectoryFrameAt,
+  isTrajectoryValid,
+} from '@/lib/trajectory-interpolation';
 import { buildConsistGeoPoints } from '@/lib/wagon-placement';
 import { useRailwayStore } from '@/lib/stores/railway-store';
 
@@ -44,7 +47,7 @@ export interface VehicleFeatureProps {
 function buildFeatureCollection(
   trajectories: Map<number, import('@/types').Trajectory>,
   selectedTrainId: number | null,
-  nowMs: number,
+  nowMs: number
 ): FeatureCollection<Point, VehicleFeatureProps> {
   const features: Feature<Point, VehicleFeatureProps>[] = [];
 
@@ -58,7 +61,7 @@ function buildFeatureCollection(
       trajectory.route_coords,
       frame.headDistanceM,
       trajectory.consist,
-      frame.travelForward,
+      frame.travelForward
     );
 
     for (const body of placements) {
@@ -86,7 +89,9 @@ function buildFeatureCollection(
   return { type: 'FeatureCollection', features };
 }
 
-export function useRafVehicleTicker(mapRef: React.RefObject<MapRef | null>): void {
+export function useRafVehicleTicker(
+  mapRef: React.RefObject<MapRef | null>
+): void {
   useEffect(() => {
     let frameId: number | null = null;
     let cancelled = false;
@@ -104,7 +109,7 @@ export function useRafVehicleTicker(mapRef: React.RefObject<MapRef | null>): voi
         const fc = buildFeatureCollection(
           trajectories,
           selectedTrainId,
-          Date.now(),
+          Date.now()
         );
         source.setData(fc);
       }
