@@ -3,7 +3,7 @@ name = "thailand-railway-simulation"
 version = "1.0.0"
 description = "Thailand Railway Digital Twin - Simulation API"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Thailand Railway Team" }]
 dependencies = [
