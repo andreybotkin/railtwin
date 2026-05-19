@@ -38,7 +38,7 @@ export const STATIONS_INTERACTIVE_LAYERS = [
 
 function toFeatureCollection(
   stations: Station[],
-  selectedStationId: number | null,
+  selectedStationId: number | null
 ): FeatureCollection<Point, StationProps> {
   const features: Feature<Point, StationProps>[] = stations
     .filter((station) => station.location?.coordinates?.length === 2)
@@ -65,7 +65,7 @@ export default function StationsLayer({
 }: StationsLayerProps) {
   const data = useMemo(
     () => toFeatureCollection(stations ?? [], selectedStationId),
-    [selectedStationId, stations],
+    [selectedStationId, stations]
   );
 
   return (
@@ -79,11 +79,17 @@ export default function StationsLayer({
           'circle-stroke-color': '#FFFFFF',
           'circle-stroke-width': 1.8,
           'circle-radius': [
-            'interpolate', ['linear'], ['zoom'],
-            5.5, 1.8,
-            7, 2.6,
-            11, 4.8,
-            15, 7,
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5.5,
+            1.8,
+            7,
+            2.6,
+            11,
+            4.8,
+            15,
+            7,
           ],
           'circle-opacity': 0.96,
         }}
@@ -98,10 +104,15 @@ export default function StationsLayer({
           'circle-stroke-color': '#FFFFFF',
           'circle-stroke-width': 1.6,
           'circle-radius': [
-            'interpolate', ['linear'], ['zoom'],
-            10, 1.5,
-            12, 2.2,
-            15, 5,
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10,
+            1.5,
+            12,
+            2.2,
+            15,
+            5,
           ],
           'circle-opacity': 0.34,
         }}
@@ -115,10 +126,15 @@ export default function StationsLayer({
           'circle-stroke-color': '#F59E0B',
           'circle-stroke-width': 2,
           'circle-radius': [
-            'interpolate', ['linear'], ['zoom'],
-            7, 9,
-            11, 12,
-            15, 16,
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7,
+            9,
+            11,
+            12,
+            15,
+            16,
           ],
         }}
       />
@@ -131,10 +147,15 @@ export default function StationsLayer({
           'circle-stroke-color': '#0F172A',
           'circle-stroke-width': 2,
           'circle-radius': [
-            'interpolate', ['linear'], ['zoom'],
-            7, 4.5,
-            11, 6,
-            15, 8,
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7,
+            4.5,
+            11,
+            6,
+            15,
+            8,
           ],
         }}
       />

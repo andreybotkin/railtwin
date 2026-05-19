@@ -56,7 +56,7 @@ export function useTrains(): UseQueryResult<PaginatedResponse<Train>> {
 }
 
 export function useTrainSchedule(
-  trainId: number | null,
+  trainId: number | null
 ): UseQueryResult<TrainSchedule | null> {
   return useQuery({
     queryKey: ['train-schedule', trainId],
@@ -67,11 +67,12 @@ export function useTrainSchedule(
 }
 
 export function useStationSchedule(
-  stationId: number | null,
+  stationId: number | null
 ): UseQueryResult<StationSchedule | null> {
   return useQuery({
     queryKey: ['station-schedule', stationId],
-    queryFn: () => (stationId ? scheduleApi.getStationSchedule(stationId) : null),
+    queryFn: () =>
+      stationId ? scheduleApi.getStationSchedule(stationId) : null,
     enabled: !!stationId,
     staleTime: 5 * 60 * 1000,
   });
@@ -79,7 +80,7 @@ export function useStationSchedule(
 
 /** Cold-start trajectory snapshot — used before the WS delivers its first frame. */
 export function useInitialTrajectories(
-  bbox?: string | null,
+  bbox?: string | null
 ): UseQueryResult<Trajectory[]> {
   return useQuery({
     queryKey: ['trajectories', bbox ?? 'all'],
@@ -89,7 +90,7 @@ export function useInitialTrajectories(
 }
 
 export function useStopSequence(
-  trainId: number | null,
+  trainId: number | null
 ): UseQueryResult<TrainStopSequence | null> {
   return useQuery({
     queryKey: ['stopsequence', trainId],
@@ -141,7 +142,8 @@ export type AppTheme = 'light' | 'dark' | 'satellite';
 function applyThemeClass(theme: AppTheme): void {
   document.documentElement.classList.remove('dark', 'satellite');
   if (theme === 'dark') document.documentElement.classList.add('dark');
-  else if (theme === 'satellite') document.documentElement.classList.add('satellite');
+  else if (theme === 'satellite')
+    document.documentElement.classList.add('satellite');
 }
 
 function resolveInitialTheme(): AppTheme {
@@ -149,7 +151,9 @@ function resolveInitialTheme(): AppTheme {
   const stored = window.localStorage.getItem('theme') as AppTheme | null;
   if (stored === 'dark' || stored === 'satellite') return stored;
   if (stored === 'light') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 }
 
 export function useTheme(): { theme: AppTheme; cycleTheme: () => void } {

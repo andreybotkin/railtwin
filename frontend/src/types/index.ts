@@ -8,7 +8,12 @@
  */
 
 // Re-export map topic types
-export type { MapLayer, MapTopic, LayerCategory, ZoomGeneralization } from './map-topics';
+export type {
+  MapLayer,
+  MapTopic,
+  LayerCategory,
+  ZoomGeneralization,
+} from './map-topics';
 
 // --------------------------------------------------------------------------- //
 // GeoJSON + domain primitives                                                  //
