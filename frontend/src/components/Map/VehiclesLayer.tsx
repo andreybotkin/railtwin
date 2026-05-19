@@ -31,16 +31,16 @@ import {
 const EMPTY_FC = { type: 'FeatureCollection' as const, features: [] };
 
 // Right-facing icon expressions (eastward baseline, bearing ∈ [0°, 180°)).
-const LOCO_ICON_EXPR = buildLocoMatchExpression() as
-  unknown as DataDrivenPropertyValueSpecification<string>;
-const CARRIAGE_ICON_EXPR = buildCarriageMatchExpression() as
-  unknown as DataDrivenPropertyValueSpecification<string>;
+const LOCO_ICON_EXPR =
+  buildLocoMatchExpression() as unknown as DataDrivenPropertyValueSpecification<string>;
+const CARRIAGE_ICON_EXPR =
+  buildCarriageMatchExpression() as unknown as DataDrivenPropertyValueSpecification<string>;
 
 // Left-facing icon expressions (westward baseline, bearing ∈ [180°, 360°)).
-const LOCO_ICON_LEFT_EXPR = buildLocoMatchExpressionLeft() as
-  unknown as DataDrivenPropertyValueSpecification<string>;
-const CARRIAGE_ICON_LEFT_EXPR = buildCarriageMatchExpressionLeft() as
-  unknown as DataDrivenPropertyValueSpecification<string>;
+const LOCO_ICON_LEFT_EXPR =
+  buildLocoMatchExpressionLeft() as unknown as DataDrivenPropertyValueSpecification<string>;
+const CARRIAGE_ICON_LEFT_EXPR =
+  buildCarriageMatchExpressionLeft() as unknown as DataDrivenPropertyValueSpecification<string>;
 
 /**
  * MapLibre `case` expression that picks the left or right icon variant based
@@ -49,7 +49,7 @@ const CARRIAGE_ICON_LEFT_EXPR = buildCarriageMatchExpressionLeft() as
  */
 function directedIconExpr(
   rightExpr: DataDrivenPropertyValueSpecification<string>,
-  leftExpr: DataDrivenPropertyValueSpecification<string>,
+  leftExpr: DataDrivenPropertyValueSpecification<string>
 ): DataDrivenPropertyValueSpecification<string> {
   return [
     'case',
@@ -92,9 +92,12 @@ export default function VehiclesLayer() {
             'interpolate',
             ['linear'],
             ['zoom'],
-            6, 0.4,
-            11, 0.6,
-            15, 1.0,
+            6,
+            0.4,
+            11,
+            0.6,
+            15,
+            1.0,
           ],
           'icon-anchor': 'center',
         }}
@@ -103,8 +106,10 @@ export default function VehiclesLayer() {
             'interpolate',
             ['linear'],
             ['zoom'],
-            6, 0.7,
-            15, 0.95,
+            6,
+            0.7,
+            15,
+            0.95,
           ],
         }}
       />
@@ -113,8 +118,12 @@ export default function VehiclesLayer() {
         type="symbol"
         filter={['==', ['get', 'body_kind'], 'carriage']}
         layout={{
-          'icon-image': directedIconExpr(CARRIAGE_ICON_EXPR, CARRIAGE_ICON_LEFT_EXPR),
-          'icon-rotate': DIRECTED_ROTATION_EXPR as DataDrivenPropertyValueSpecification<number>,
+          'icon-image': directedIconExpr(
+            CARRIAGE_ICON_EXPR,
+            CARRIAGE_ICON_LEFT_EXPR
+          ),
+          'icon-rotate':
+            DIRECTED_ROTATION_EXPR as DataDrivenPropertyValueSpecification<number>,
           'icon-rotation-alignment': 'map',
           'icon-pitch-alignment': 'map',
           'icon-allow-overlap': true,
@@ -124,10 +133,14 @@ export default function VehiclesLayer() {
             'interpolate',
             ['linear'],
             ['zoom'],
-            6, 0.28,
-            9, 0.42,
-            12, 0.7,
-            15, 1.1,
+            6,
+            0.28,
+            9,
+            0.42,
+            12,
+            0.7,
+            15,
+            1.1,
           ],
         }}
         paint={{
@@ -140,7 +153,8 @@ export default function VehiclesLayer() {
         filter={['==', ['get', 'body_kind'], 'locomotive']}
         layout={{
           'icon-image': directedIconExpr(LOCO_ICON_EXPR, LOCO_ICON_LEFT_EXPR),
-          'icon-rotate': DIRECTED_ROTATION_EXPR as DataDrivenPropertyValueSpecification<number>,
+          'icon-rotate':
+            DIRECTED_ROTATION_EXPR as DataDrivenPropertyValueSpecification<number>,
           'icon-rotation-alignment': 'map',
           'icon-pitch-alignment': 'map',
           'icon-allow-overlap': true,
@@ -150,10 +164,14 @@ export default function VehiclesLayer() {
             'interpolate',
             ['linear'],
             ['zoom'],
-            6, 0.32,
-            9, 0.5,
-            12, 0.8,
-            15, 1.25,
+            6,
+            0.32,
+            9,
+            0.5,
+            12,
+            0.8,
+            15,
+            1.25,
           ],
         }}
       />
@@ -164,13 +182,7 @@ export default function VehiclesLayer() {
         filter={['==', ['get', 'body_kind'], 'locomotive']}
         layout={{
           'text-field': ['concat', '#', ['get', 'train_number']],
-          'text-size': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            10, 10,
-            15, 13,
-          ],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 10, 10, 15, 13],
           'text-offset': [0, -1.6],
           'text-anchor': 'bottom',
           'text-allow-overlap': true,

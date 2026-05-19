@@ -87,7 +87,7 @@ function roundedRectPath(
   y: number,
   w: number,
   h: number,
-  radius: number,
+  radius: number
 ) {
   const r = Math.min(radius, w / 2, h / 2);
   ctx.beginPath();
@@ -120,7 +120,7 @@ function drawLocomotive(
   ctx: CanvasRenderingContext2D,
   w: number,
   h: number,
-  color: string,
+  color: string
 ) {
   const dark = mix(color, '#000000', 0.5);
   const light = mix(color, '#FFFFFF', 0.18);
@@ -158,7 +158,12 @@ function drawLocomotive(
     ctx.moveTo(tailX + tailR, bodyTop);
     ctx.lineTo(shoulderX, bodyTop);
     ctx.quadraticCurveTo(w * 0.92, bodyTop + h * 0.04, noseTipX, midY);
-    ctx.quadraticCurveTo(w * 0.92, bodyBottom - h * 0.04, shoulderX, bodyBottom);
+    ctx.quadraticCurveTo(
+      w * 0.92,
+      bodyBottom - h * 0.04,
+      shoulderX,
+      bodyBottom
+    );
     ctx.lineTo(tailX + tailR, bodyBottom);
     ctx.quadraticCurveTo(tailX, bodyBottom, tailX, bodyBottom - tailR);
     ctx.lineTo(tailX, bodyTop + tailR);
@@ -192,7 +197,7 @@ function drawLocomotive(
     w * 0.89,
     bodyTop + h * 0.2,
     w * 0.92,
-    bodyTop + h * 0.32,
+    bodyTop + h * 0.32
   );
   ctx.lineTo(w * 0.7, bodyTop + h * 0.32);
   ctx.closePath();
@@ -206,7 +211,7 @@ function drawLocomotive(
     bodyTop + h * 0.16,
     w * 0.48,
     h * 0.16,
-    h * 0.04,
+    h * 0.04
   );
   ctx.fill();
 
@@ -234,7 +239,7 @@ function drawCarriage(
   ctx: CanvasRenderingContext2D,
   w: number,
   h: number,
-  color: string,
+  color: string
 ) {
   const dark = mix(color, '#000000', 0.55);
   const light = mix(color, '#FFFFFF', 0.12);
@@ -307,7 +312,14 @@ function drawHalo(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const cx = w / 2;
   const cy = h / 2;
   const radius = Math.min(w, h) / 2;
-  const gradient = ctx.createRadialGradient(cx, cy, radius * 0.15, cx, cy, radius);
+  const gradient = ctx.createRadialGradient(
+    cx,
+    cy,
+    radius * 0.15,
+    cx,
+    cy,
+    radius
+  );
   gradient.addColorStop(0, 'rgba(255, 234, 145, 0.95)');
   gradient.addColorStop(0.55, 'rgba(245, 158, 11, 0.45)');
   gradient.addColorStop(1, 'rgba(245, 158, 11, 0)');
@@ -346,7 +358,7 @@ export function registerVehicleIcons(map: MapLibreMap): void {
     if (!map.hasImage(locoId)) {
       try {
         const img = renderToImageData(72, 30, (ctx, w, h) =>
-          drawLocomotive(ctx, w, h, color),
+          drawLocomotive(ctx, w, h, color)
         );
         map.addImage(locoId, img, { pixelRatio: DEVICE_SCALE });
       } catch (err) {
@@ -371,7 +383,7 @@ export function registerVehicleIcons(map: MapLibreMap): void {
     if (!map.hasImage(carriageId)) {
       try {
         const img = renderToImageData(54, 22, (ctx, w, h) =>
-          drawCarriage(ctx, w, h, color),
+          drawCarriage(ctx, w, h, color)
         );
         map.addImage(carriageId, img, { pixelRatio: DEVICE_SCALE });
       } catch (err) {

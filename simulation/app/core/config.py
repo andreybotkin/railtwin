@@ -5,10 +5,11 @@ simulation application using Pydantic Settings for environment variable manageme
 """
 
 import json
+import secrets
 from functools import lru_cache
 from typing import Annotated, Any
 
-from pydantic import PostgresDsn, field_validator
+from pydantic import Field, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
@@ -46,7 +47,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
 
     # Security settings
-    secret_key: str = "your-secret-key-change-in-production"
+    secret_key: str = Field(default_factory=lambda: secrets.token_urlsafe(32))
     access_token_expire_minutes: int = 60 * 24  # 24 hours
     algorithm: str = "HS256"
 

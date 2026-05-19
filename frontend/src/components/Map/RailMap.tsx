@@ -38,11 +38,15 @@ import LeafletStationMarker from './LeafletStationMarker';
 import LeafletTrainMarker from './LeafletTrainMarker';
 
 // Fix Leaflet's default icon broken in Next.js / webpack
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
+  ._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconRetinaUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
 // Thailand geographic centre
@@ -57,7 +61,11 @@ interface RailMapProps {
 
 const VIEW_STORAGE_KEY = 'rt-map-view';
 
-interface SavedView { lat: number; lng: number; zoom: number; }
+interface SavedView {
+  lat: number;
+  lng: number;
+  zoom: number;
+}
 
 function loadSavedView(): { center: [number, number]; zoom: number } {
   try {
@@ -65,21 +73,29 @@ function loadSavedView(): { center: [number, number]; zoom: number } {
     if (raw) {
       const v = JSON.parse(raw) as SavedView;
       if (
-        typeof v.lat === 'number' && isFinite(v.lat) &&
-        typeof v.lng === 'number' && isFinite(v.lng) &&
-        typeof v.zoom === 'number' && v.zoom >= 1 && v.zoom <= 20
+        typeof v.lat === 'number' &&
+        isFinite(v.lat) &&
+        typeof v.lng === 'number' &&
+        isFinite(v.lng) &&
+        typeof v.zoom === 'number' &&
+        v.zoom >= 1 &&
+        v.zoom <= 20
       ) {
         return { center: [v.lat, v.lng], zoom: v.zoom };
       }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return { center: THAILAND_CENTER, zoom: INITIAL_ZOOM };
 }
 
 function saveView(lat: number, lng: number, zoom: number): void {
   try {
     localStorage.setItem(VIEW_STORAGE_KEY, JSON.stringify({ lat, lng, zoom }));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 // ─── Tile URL helpers ─────────────────────────────────────────────────────────
@@ -123,7 +139,9 @@ function SelectedRouteHighlight({
   // Keep a stable ref to travelForward so the RAF closure always sees the
   // current direction without restarting the loop.
   const travelForwardRef = useRef(travelForward);
-  useEffect(() => { travelForwardRef.current = travelForward; }, [travelForward]);
+  useEffect(() => {
+    travelForwardRef.current = travelForward;
+  }, [travelForward]);
 
   useEffect(() => {
     const latLngs = routeCoords.map(([lon, lat]) => L.latLng(lat, lon));
@@ -158,7 +176,7 @@ function SelectedRouteHighlight({
     // Drive stroke-dashoffset directly so the animation is frame-accurate and
     // never fights with CSS resets from react-leaflet re-renders.
     const PERIOD = 32; // dashArray sum: 18+14
-    const SPEED = 30;  // px/s
+    const SPEED = 30; // px/s
     let offset = 0;
     let last: number | null = null;
     let rafId: number;
@@ -173,8 +191,9 @@ function SelectedRouteHighlight({
       last = t;
       const path = (waveLine as unknown as { _path: SVGElement | null })._path;
       if (path) {
-        (path as SVGElement & { style: CSSStyleDeclaration }).style.strokeDashoffset =
-          String(-offset);
+        (
+          path as SVGElement & { style: CSSStyleDeclaration }
+        ).style.strokeDashoffset = String(-offset);
       }
       rafId = requestAnimationFrame(step);
     };
@@ -186,9 +205,9 @@ function SelectedRouteHighlight({
       map.removeLayer(fillLine);
       map.removeLayer(waveLine);
     };
-  // Re-create layers only when the route itself or base color changes.
-  // travelForward changes are handled via ref.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Re-create layers only when the route itself or base color changes.
+    // travelForward changes are handled via ref.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, routeCoords, color]);
 
   return null;
@@ -202,7 +221,7 @@ function SelectedRouteHighlight({
  */
 function interpolateRoutePoint(
   routeCoords: [number, number][],
-  fraction: number,
+  fraction: number
 ): [number, number] | null {
   const n = routeCoords.length;
   if (n === 0) return null;
@@ -223,8 +242,10 @@ function interpolateRoutePoint(
   for (let i = 1; i < n; i++) {
     if (cumDist[i] >= target) {
       const t = (target - cumDist[i - 1]) / (cumDist[i] - cumDist[i - 1]);
-      const lon = routeCoords[i - 1][0] + (routeCoords[i][0] - routeCoords[i - 1][0]) * t;
-      const lat = routeCoords[i - 1][1] + (routeCoords[i][1] - routeCoords[i - 1][1]) * t;
+      const lon =
+        routeCoords[i - 1][0] + (routeCoords[i][0] - routeCoords[i - 1][0]) * t;
+      const lat =
+        routeCoords[i - 1][1] + (routeCoords[i][1] - routeCoords[i - 1][1]) * t;
       return [lat, lon];
     }
   }
@@ -262,11 +283,13 @@ function RouteStopMarkers({ trajectory }: { trajectory: Trajectory }) {
     // geom_fraction placement — train is at the station on departure).
     const stationMap = new Map<
       string,
-      { pos: typeof anchors[number]; time: typeof anchors[number] }
+      { pos: (typeof anchors)[number]; time: (typeof anchors)[number] }
     >();
     for (const anchor of anchors) {
       const key =
-        anchor.station_id !== null ? String(anchor.station_id) : anchor.station_name;
+        anchor.station_id !== null
+          ? String(anchor.station_id)
+          : anchor.station_name;
       const entry = stationMap.get(key);
       if (!entry) {
         stationMap.set(key, { pos: anchor, time: anchor });
@@ -282,14 +305,15 @@ function RouteStopMarkers({ trajectory }: { trajectory: Trajectory }) {
 
     // Current position fraction
     const frame = getTrajectoryFrameAt(Date.now(), trajectory);
-    const currentFraction = frame?.geomFraction ?? trajectory.meta.route_progress_pct / 100;
+    const currentFraction =
+      frame?.geomFraction ?? trajectory.meta.route_progress_pct / 100;
     const travelForward = frame?.travelForward ?? true;
 
     // Sort stops in travel direction
     stops.sort((a, b) =>
       travelForward
         ? a.pos.geom_fraction - b.pos.geom_fraction
-        : b.pos.geom_fraction - a.pos.geom_fraction,
+        : b.pos.geom_fraction - a.pos.geom_fraction
     );
 
     const layers: L.CircleMarker[] = [];
@@ -415,7 +439,7 @@ function MapCore() {
     map.flyTo(
       [flyTo.lat, flyTo.lon],
       flyTo.zoom ?? Math.max(map.getZoom(), 11),
-      { duration: 0.9 },
+      { duration: 0.9 }
     );
     requestFlyTo(null);
   }, [flyTo, map, requestFlyTo]);
@@ -464,13 +488,16 @@ function MapCore() {
   // Trajectory list for rendering
   const trajectoryList = useMemo(
     () => Array.from(trajectories.values()),
-    [trajectories],
+    [trajectories]
   );
 
   // Selected train trajectory for highlight polyline
   const selectedTrajectory = useMemo(
-    () => (selectedTrainId === null ? null : trajectories.get(selectedTrainId) ?? null),
-    [trajectories, selectedTrainId],
+    () =>
+      selectedTrainId === null
+        ? null
+        : (trajectories.get(selectedTrainId) ?? null),
+    [trajectories, selectedTrainId]
   );
 
   const selectedRouteCoords = useMemo(() => {
@@ -522,7 +549,7 @@ function MapCore() {
       {/* Route network — thick coloured polylines */}
       {displayEdges.map((edge, idx) => {
         const positions = edge.geometry.coordinates.map(
-          ([lon, lat]) => [lat, lon] as [number, number],
+          ([lon, lat]) => [lat, lon] as [number, number]
         );
         const routeType = edge.properties.route_type ?? '';
         return (
@@ -565,7 +592,11 @@ function MapCore() {
 
 // ─── Locate-me control ───────────────────────────────────────────────────────
 
-function LocateMeControl({ onLocateReady }: { onLocateReady?: (locateFn: (() => void) | null) => void }) {
+function LocateMeControl({
+  onLocateReady,
+}: {
+  onLocateReady?: (locateFn: (() => void) | null) => void;
+}) {
   const map = useMap();
   const locatingRef = useRef(false);
 
@@ -579,13 +610,13 @@ function LocateMeControl({ onLocateReady }: { onLocateReady?: (locateFn: (() => 
         map.flyTo(
           [pos.coords.latitude, pos.coords.longitude],
           Math.max(map.getZoom(), 13),
-          { duration: 0.8 },
+          { duration: 0.8 }
         );
       },
       () => {
         locatingRef.current = false;
       },
-      { enableHighAccuracy: true, timeout: 10_000 },
+      { enableHighAccuracy: true, timeout: 10_000 }
     );
   }, [map]);
 
