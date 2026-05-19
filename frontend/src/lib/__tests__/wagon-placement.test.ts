@@ -20,11 +20,17 @@ function equatorPolyline(lengthM: number): [number, number][] {
 
 describe('buildConsistGeoPoints', () => {
   it('returns one entry per body with the locomotive first', () => {
-    const placements = buildConsistGeoPoints(equatorPolyline(5_000), 1_000, CONSIST);
+    const placements = buildConsistGeoPoints(
+      equatorPolyline(5_000),
+      1_000,
+      CONSIST
+    );
     expect(placements).toHaveLength(1 + CONSIST.car_count);
     expect(placements[0].kind).toBe('locomotive');
     expect(placements[0].index).toBe(0);
-    expect(placements.slice(1).every((body) => body.kind === 'carriage')).toBe(true);
+    expect(placements.slice(1).every((body) => body.kind === 'carriage')).toBe(
+      true
+    );
   });
 
   it('places carriages behind the locomotive along the polyline', () => {
@@ -68,7 +74,7 @@ describe('buildConsistGeoPoints', () => {
     const forward = buildConsistGeoPoints(polyline, 5_000, CONSIST, true);
     const backward = buildConsistGeoPoints(polyline, 5_000, CONSIST, false);
     const diff =
-      ((backward[0].rotationDeg - forward[0].rotationDeg) % 360 + 360) % 360;
+      (((backward[0].rotationDeg - forward[0].rotationDeg) % 360) + 360) % 360;
     expect(Math.abs(diff - 180)).toBeLessThan(1);
   });
 });

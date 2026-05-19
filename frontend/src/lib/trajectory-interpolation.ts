@@ -49,7 +49,8 @@ function lerp(a: number, b: number, t: number): number {
  */
 function detectTravelForward(frames: TrajectoryFrame[]): boolean {
   if (frames.length < 2) return true;
-  const delta = frames[frames.length - 1].geom_fraction - frames[0].geom_fraction;
+  const delta =
+    frames[frames.length - 1].geom_fraction - frames[0].geom_fraction;
   if (Math.abs(delta) < 1e-9) {
     // All frames have the same fraction (fully dwelling) — pick forward
     // so the consist lays out in the polyline's natural direction.
@@ -61,7 +62,7 @@ function detectTravelForward(frames: TrajectoryFrame[]): boolean {
 function fromFrame(
   frame: TrajectoryFrame,
   fresh: boolean,
-  travelForward: boolean,
+  travelForward: boolean
 ): InterpolatedFrame {
   return {
     lon: frame.lon,
@@ -85,7 +86,7 @@ function fromFrame(
  */
 export function getTrajectoryFrameAt(
   nowMs: number,
-  trajectory: Trajectory,
+  trajectory: Trajectory
 ): InterpolatedFrame | null {
   const { frames } = trajectory;
   if (!frames.length) return null;
@@ -132,7 +133,7 @@ export function getTrajectoryFrameAt(
 export function isTrajectoryValid(
   trajectory: Trajectory,
   nowMs: number,
-  graceMs = 5_000,
+  graceMs = 5_000
 ): boolean {
   return nowMs < trajectory.valid_until_ms + graceMs;
 }

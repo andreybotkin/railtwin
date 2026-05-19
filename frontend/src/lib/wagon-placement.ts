@@ -85,7 +85,7 @@ function normaliseBearing(deg: number): number {
 function bearingBetween(
   a: [number, number],
   b: [number, number],
-  fallback: number,
+  fallback: number
 ): number {
   const dx = b[0] - a[0];
   const dy = b[1] - a[1];
@@ -107,7 +107,7 @@ export function buildConsistGeoPoints(
   routeCoords: [number, number][],
   headDistanceM: number,
   consist: ConsistSpec,
-  travelForward = true,
+  travelForward = true
 ): BodyPlacement[] {
   if (routeCoords.length < 2) return [];
 
@@ -123,7 +123,7 @@ export function buildConsistGeoPoints(
   const lastBearing = bearingBetween(
     routeCoords[routeCoords.length - 2],
     routeCoords[routeCoords.length - 1],
-    firstBearing,
+    firstBearing
   );
   const epsilonKm = 0.002; // 2 metres — short enough to stay on one segment.
 
@@ -175,15 +175,13 @@ export function buildConsistGeoPoints(
 
     const targetKm = targetM / 1_000;
     const centre = along(line, targetKm, { units: 'kilometers' });
-    const lookBack = along(
-      line,
-      Math.max(0, targetKm - epsilonKm),
-      { units: 'kilometers' },
-    );
+    const lookBack = along(line, Math.max(0, targetKm - epsilonKm), {
+      units: 'kilometers',
+    });
     const lookAhead = along(
       line,
       Math.min(totalLengthKm, targetKm + epsilonKm),
-      { units: 'kilometers' },
+      { units: 'kilometers' }
     );
 
     const [cx, cy] = centre.geometry.coordinates as [number, number];
@@ -212,7 +210,7 @@ export function buildConsistGeoPoints(
 function offsetPoint(
   origin: [number, number],
   bearingDeg: number,
-  distanceKm: number,
+  distanceKm: number
 ): [number, number] {
   const R = 6_371; // Earth radius (km) — matches turf's default.
   const bearingRad = (bearingDeg * Math.PI) / 180;
@@ -222,13 +220,13 @@ function offsetPoint(
 
   const lat2 = Math.asin(
     Math.sin(lat1) * Math.cos(angular) +
-      Math.cos(lat1) * Math.sin(angular) * Math.cos(bearingRad),
+      Math.cos(lat1) * Math.sin(angular) * Math.cos(bearingRad)
   );
   const lon2 =
     lon1 +
     Math.atan2(
       Math.sin(bearingRad) * Math.sin(angular) * Math.cos(lat1),
-      Math.cos(angular) - Math.sin(lat1) * Math.sin(lat2),
+      Math.cos(angular) - Math.sin(lat1) * Math.sin(lat2)
     );
 
   return [(lon2 * 180) / Math.PI, (lat2 * 180) / Math.PI];
