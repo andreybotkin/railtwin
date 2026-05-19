@@ -20,17 +20,20 @@ Next.js frontend for the Thailand Railway Digital Twin application.
 ### Installation
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Copy the environment file and configure API URLs:
+
 ```bash
 cp .env.example .env.local
 # Edit .env.local if needed
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```

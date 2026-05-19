@@ -213,7 +213,10 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
           className="flex items-center gap-2 px-3"
           style={{ borderBottom: '1px solid var(--panel-border)' }}
         >
-          <Search className="h-4 w-4" style={{ color: 'var(--panel-subtext)' }} />
+          <Search
+            className="h-4 w-4"
+            style={{ color: 'var(--panel-subtext)' }}
+          />
           <input
             ref={inputRef}
             value={query}
@@ -250,7 +253,10 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
 
         <ul className="max-h-[min(28rem,70dvh)] overflow-y-auto py-1">
           {results.length === 0 ? (
-            <li className="px-4 py-6 text-center text-xs" style={{ color: 'var(--panel-subtext)' }}>
+            <li
+              className="px-4 py-6 text-center text-xs"
+              style={{ color: 'var(--panel-subtext)' }}
+            >
               {query.trim()
                 ? 'No matches. Try a station code or train number.'
                 : 'Start typing to search.'}
@@ -266,7 +272,9 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                     onMouseEnter={() => setFocusIndex(idx)}
                     className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition"
                     style={{
-                      background: focused ? 'var(--header-logo-bg)' : 'transparent',
+                      background: focused
+                        ? 'var(--header-logo-bg)'
+                        : 'transparent',
                       color: focused ? '#ffffff' : 'var(--panel-text)',
                     }}
                   >
@@ -281,7 +289,9 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                       <span
                         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
                         style={{
-                          background: focused ? 'rgba(255,255,255,0.15)' : 'var(--panel-inner)',
+                          background: focused
+                            ? 'rgba(255,255,255,0.15)'
+                            : 'var(--panel-inner)',
                           color: focused ? '#ffffff' : 'var(--panel-subtext)',
                         }}
                       >
@@ -289,10 +299,16 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                       </span>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{r.name}</div>
+                      <div className="truncate text-sm font-semibold">
+                        {r.name}
+                      </div>
                       <div
                         className="truncate text-[11px]"
-                        style={{ color: focused ? 'rgba(255,255,255,0.7)' : 'var(--panel-subtext)' }}
+                        style={{
+                          color: focused
+                            ? 'rgba(255,255,255,0.7)'
+                            : 'var(--panel-subtext)',
+                        }}
                       >
                         {r.subtitle}
                       </div>
@@ -301,7 +317,9 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                       <span
                         className="rounded px-1.5 py-0.5 font-mono text-[10px] tracking-wide"
                         style={{
-                          background: focused ? 'rgba(255,255,255,0.15)' : 'var(--panel-inner)',
+                          background: focused
+                            ? 'rgba(255,255,255,0.15)'
+                            : 'var(--panel-inner)',
                           color: focused ? '#ffffff' : 'var(--panel-subtext)',
                         }}
                       >
@@ -310,7 +328,11 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                     ) : r.kind === 'train' ? (
                       <Train
                         className="h-3.5 w-3.5"
-                        style={{ color: focused ? 'rgba(255,255,255,0.7)' : 'var(--panel-subtext)' }}
+                        style={{
+                          color: focused
+                            ? 'rgba(255,255,255,0.7)'
+                            : 'var(--panel-subtext)',
+                        }}
                       />
                     ) : null}
                   </button>
@@ -330,7 +352,9 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
           <span>
             {results.length} result{results.length === 1 ? '' : 's'}
           </span>
-          <span className="hidden sm:inline">↑↓ navigate · ↵ select · esc close</span>
+          <span className="hidden sm:inline">
+            ↑↓ navigate · ↵ select · esc close
+          </span>
         </div>
       </div>
     </div>

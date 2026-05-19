@@ -35,7 +35,7 @@ const createApiClient = (): AxiosInstance => {
     (error: AxiosError) => {
       console.error('API Error:', error.message);
       return Promise.reject(error);
-    },
+    }
   );
 
   return client;
@@ -66,7 +66,7 @@ export const routeApi = {
   getAll: async (
     page = 1,
     size = 100,
-    routeType?: string,
+    routeType?: string
   ): Promise<PaginatedResponse<Route>> => {
     const response = await api.get<PaginatedResponse<Route>>('/routes', {
       params: { page, size, route_type: routeType },
@@ -84,7 +84,7 @@ export const trainApi = {
     page = 1,
     size = 100,
     trainType?: string,
-    routeId?: number,
+    routeId?: number
   ): Promise<PaginatedResponse<Train>> => {
     const response = await api.get<PaginatedResponse<Train>>('/trains', {
       params: { page, size, train_type: trainType, route_id: routeId },
@@ -94,12 +94,17 @@ export const trainApi = {
   getAllPages: async (
     trainType?: string,
     routeId?: number,
-    pageSize = 100,
+    pageSize = 100
   ): Promise<Train[]> => {
     const firstPage = await trainApi.getAll(1, pageSize, trainType, routeId);
     const items = [...firstPage.items];
     for (let page = 2; page <= firstPage.pages; page += 1) {
-      const response = await trainApi.getAll(page, pageSize, trainType, routeId);
+      const response = await trainApi.getAll(
+        page,
+        pageSize,
+        trainType,
+        routeId
+      );
       items.push(...response.items);
     }
     return items;
@@ -116,7 +121,7 @@ export const scheduleApi = {
     size = 100,
     trainId?: number,
     stationId?: number,
-    dayOfWeek?: number,
+    dayOfWeek?: number
   ): Promise<PaginatedResponse<Schedule>> => {
     const response = await api.get<PaginatedResponse<Schedule>>('/schedules', {
       params: {
@@ -131,31 +136,31 @@ export const scheduleApi = {
   },
   getTrainSchedule: async (
     trainId: number,
-    dayOfWeek?: number,
+    dayOfWeek?: number
   ): Promise<TrainSchedule> => {
     const response = await api.get<TrainSchedule>(
       `/schedules/train/${trainId}`,
-      { params: { day_of_week: dayOfWeek } },
+      { params: { day_of_week: dayOfWeek } }
     );
     return response.data;
   },
   getStationSchedule: async (
     stationId: number,
-    dayOfWeek?: number,
+    dayOfWeek?: number
   ): Promise<StationSchedule> => {
     const response = await api.get<StationSchedule>(
       `/schedules/station/${stationId}`,
-      { params: { day_of_week: dayOfWeek } },
+      { params: { day_of_week: dayOfWeek } }
     );
     return response.data;
   },
   getUpcomingDepartures: async (
     stationId: number,
-    limit = 10,
+    limit = 10
   ): Promise<Schedule[]> => {
     const response = await api.get<Schedule[]>(
       `/schedules/station/${stationId}/upcoming`,
-      { params: { limit } },
+      { params: { limit } }
     );
     return response.data;
   },
@@ -186,7 +191,7 @@ export const gatewayApi = {
   },
   getStopSequence: async (trainId: number): Promise<TrainStopSequence> => {
     const response = await api.get<TrainStopSequence>(
-      `/trains/${trainId}/stopsequence`,
+      `/trains/${trainId}/stopsequence`
     );
     return response.data;
   },
@@ -195,7 +200,7 @@ export const gatewayApi = {
 export const healthApi = {
   check: async (): Promise<{ status: string }> => {
     const response = await axios.get<{ status: string }>(
-      `${API_BASE_URL}/health`,
+      `${API_BASE_URL}/health`
     );
     return response.data;
   },

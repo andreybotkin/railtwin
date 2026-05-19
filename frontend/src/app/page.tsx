@@ -9,7 +9,16 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Database, Loader2, LocateFixed, Moon, Satellite, Search, Sun, Train } from 'lucide-react';
+import {
+  Database,
+  Loader2,
+  LocateFixed,
+  Moon,
+  Satellite,
+  Search,
+  Sun,
+  Train,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -21,7 +30,10 @@ import { useTheme } from '@/lib/hooks';
 const RailMap = dynamic(() => import('@/components/Map/RailMap'), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full w-full items-center justify-center" style={{ background: 'var(--page-bg, #f4f4f5)' }}>
+    <div
+      className="flex h-full w-full items-center justify-center"
+      style={{ background: 'var(--page-bg, #f4f4f5)' }}
+    >
       <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
     </div>
   ),
@@ -53,8 +65,10 @@ export default function HomePage() {
         ? t('footer.mapSources.dark')
         : t('footer.mapSources.light');
 
-  const footerTextColor = theme === 'light' ? 'rgba(15,23,42,0.96)' : 'rgba(248,250,252,0.96)';
-  const footerMutedColor = theme === 'light' ? 'rgba(15,23,42,0.82)' : 'rgba(226,232,240,0.9)';
+  const footerTextColor =
+    theme === 'light' ? 'rgba(15,23,42,0.96)' : 'rgba(248,250,252,0.96)';
+  const footerMutedColor =
+    theme === 'light' ? 'rgba(15,23,42,0.82)' : 'rgba(226,232,240,0.9)';
   const footerTextShadow =
     theme === 'light'
       ? '0 1px 2px rgba(255,255,255,0.96), 0 0 10px rgba(255,255,255,0.92)'
@@ -130,72 +144,78 @@ export default function HomePage() {
             boxShadow: 'var(--panel-shadow)',
           }}
         >
-            <div className="flex min-w-0 items-center gap-2">
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-2xl"
-                style={{ background: 'var(--header-logo-bg)', color: 'var(--header-logo-text)' }}
-              >
-                <Train className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <h1
-                  className="truncate text-sm font-semibold tracking-tight"
-                  style={{ color: 'var(--panel-text)' }}
-                >
-                  {t('appTitle')}
-                </h1>
-                <p className="hidden text-xs sm:block" style={{ color: 'var(--panel-subtext)' }}>
-                  {t('header.subtitle')}
-                </p>
-              </div>
+          <div className="flex min-w-0 items-center gap-2">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-2xl"
+              style={{
+                background: 'var(--header-logo-bg)',
+                color: 'var(--header-logo-text)',
+              }}
+            >
+              <Train className="h-4 w-4" />
             </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <Button
-                onClick={() => setSearchOpen(true)}
-                title="Search (⌘K)"
-                aria-label="Open search"
-                className="rounded-2xl transition-colors"
+            <div className="min-w-0">
+              <h1
+                className="truncate text-sm font-semibold tracking-tight"
+                style={{ color: 'var(--panel-text)' }}
+              >
+                {t('appTitle')}
+              </h1>
+              <p
+                className="hidden text-xs sm:block"
                 style={{ color: 'var(--panel-subtext)' }}
               >
-                <Search className="h-4 w-4" />
-              </Button>
-                            <Button
-                asChild
-                variant="ghost"
-                size="icon"
-                title={t('header.openData.buttonLabel')}
-                aria-label={t('header.openData.buttonLabel')}
-                className="rounded-2xl transition-colors"
-                style={{ color: 'var(--panel-subtext)' }}
-              >
-                <Link href="/open-data">
-                  <Database className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={cycleTheme}
-                title={THEME_TITLES[theme]}
-                aria-label={THEME_TITLES[theme]}
-                className="rounded-2xl transition-colors"
-                style={{ color: 'var(--panel-subtext)' }}
-              >
-                <ThemeIcon className="h-4 w-4" />
-              </Button>
-              <LanguageSwitcher />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => locateMap?.()}
-                disabled={!locateMap}
-                title="Go to current location"
-                aria-label="Go to current location"
-                className="rounded-2xl transition-colors"
-                style={{ color: 'var(--panel-subtext)' }}
-              >
-                <LocateFixed className="h-4 w-4" />
-              </Button>
+                {t('header.subtitle')}
+              </p>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button
+              onClick={() => setSearchOpen(true)}
+              title="Search (⌘K)"
+              aria-label="Open search"
+              className="rounded-2xl transition-colors"
+              style={{ color: 'var(--panel-subtext)' }}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              title={t('header.openData.buttonLabel')}
+              aria-label={t('header.openData.buttonLabel')}
+              className="rounded-2xl transition-colors"
+              style={{ color: 'var(--panel-subtext)' }}
+            >
+              <Link href="/open-data">
+                <Database className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={cycleTheme}
+              title={THEME_TITLES[theme]}
+              aria-label={THEME_TITLES[theme]}
+              className="rounded-2xl transition-colors"
+              style={{ color: 'var(--panel-subtext)' }}
+            >
+              <ThemeIcon className="h-4 w-4" />
+            </Button>
+            <LanguageSwitcher />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => locateMap?.()}
+              disabled={!locateMap}
+              title="Go to current location"
+              aria-label="Go to current location"
+              className="rounded-2xl transition-colors"
+              style={{ color: 'var(--panel-subtext)' }}
+            >
+              <LocateFixed className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
@@ -216,7 +236,10 @@ export default function HomePage() {
                 style={{ color: 'var(--panel-subtext)' }}
                 title={t('cookiesBanner.message')}
               >
-                <span className="font-medium" style={{ color: 'var(--panel-text)' }}>
+                <span
+                  className="font-medium"
+                  style={{ color: 'var(--panel-text)' }}
+                >
                   {t('cookiesBanner.label')}:
                 </span>{' '}
                 {t('cookiesBanner.message')}
@@ -249,7 +272,10 @@ export default function HomePage() {
               style={{ color: footerMutedColor, textShadow: footerTextShadow }}
               title={`${t('footer.mapSummaryLabel')}: ${mapSourceSummary} · ${t('footer.leafletSummary')}`}
             >
-              <span className="font-medium" style={{ color: footerTextColor, textShadow: footerTextShadow }}>
+              <span
+                className="font-medium"
+                style={{ color: footerTextColor, textShadow: footerTextShadow }}
+              >
                 {t('footer.mapSummaryLabel')}:
               </span>{' '}
               {mapSourceSummary} · {t('footer.leafletSummary')}
@@ -262,7 +288,13 @@ export default function HomePage() {
               >
                 {t('footer.privacyPolicy')}
               </Link>
-              <span aria-hidden="true" style={{ color: footerMutedColor, textShadow: footerTextShadow }}>
+              <span
+                aria-hidden="true"
+                style={{
+                  color: footerMutedColor,
+                  textShadow: footerTextShadow,
+                }}
+              >
                 |
               </span>
               <Link

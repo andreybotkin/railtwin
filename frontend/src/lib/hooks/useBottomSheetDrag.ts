@@ -42,7 +42,7 @@ const HANDLE_H = 20;
 /** Extra padding below the last visible element so content isn't flush. */
 const SNAP_BOTTOM_PAD = 16;
 /** Max fraction of viewport height the sheet can occupy. */
-const MAX_RATIO = 0.90;
+const MAX_RATIO = 0.9;
 
 export interface BottomSheetRefs {
   /** The scrollable inner content div. Must be `position: relative`. */
@@ -71,12 +71,18 @@ function getOffsetBottom(el: HTMLElement, ancestor: HTMLElement): number {
   return offset;
 }
 
-function nearestSnapIdx(height: number, snaps: [number, number, number]): number {
+function nearestSnapIdx(
+  height: number,
+  snaps: [number, number, number]
+): number {
   let best = 0;
   let bestDist = Infinity;
   for (let i = 0; i < snaps.length; i++) {
     const d = Math.abs(snaps[i] - height);
-    if (d < bestDist) { bestDist = d; best = i; }
+    if (d < bestDist) {
+      bestDist = d;
+      best = i;
+    }
   }
   return best;
 }
@@ -88,14 +94,18 @@ function loadSnapIdx(type: SheetType): number {
       const n = Number(raw);
       if (n === 0 || n === 1 || n === 2) return n;
     }
-  } catch { /* localStorage unavailable */ }
+  } catch {
+    /* localStorage unavailable */
+  }
   return 1; // default: mid snap
 }
 
 function saveSnapIdx(type: SheetType, idx: number): void {
   try {
     localStorage.setItem(STORAGE_KEY[type], String(idx));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
@@ -121,10 +131,16 @@ export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
     let snap3 = HANDLE_H + 400;
 
     if (inner && s1) {
-      snap1 = Math.min(HANDLE_H + getOffsetBottom(s1, inner) + SNAP_BOTTOM_PAD, maxH);
+      snap1 = Math.min(
+        HANDLE_H + getOffsetBottom(s1, inner) + SNAP_BOTTOM_PAD,
+        maxH
+      );
     }
     if (inner && s2) {
-      snap2 = Math.min(HANDLE_H + getOffsetBottom(s2, inner) + SNAP_BOTTOM_PAD, maxH);
+      snap2 = Math.min(
+        HANDLE_H + getOffsetBottom(s2, inner) + SNAP_BOTTOM_PAD,
+        maxH
+      );
     }
     if (inner) {
       snap3 = Math.min(HANDLE_H + inner.scrollHeight, maxH);
@@ -172,7 +188,10 @@ export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
   // Recalculate on viewport resize (orientation change, etc.).
   useEffect(() => {
     const onResize = () => {
-      if (window.innerWidth >= SM_PX) { setHeight(null); return; }
+      if (window.innerWidth >= SM_PX) {
+        setHeight(null);
+        return;
+      }
       const snaps = measureSnaps();
       snapsRef.current = snaps;
       setHeight(snaps[snapIdxRef.current]);
@@ -181,19 +200,22 @@ export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
     return () => window.removeEventListener('resize', onResize);
   }, [measureSnaps]);
 
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    if (window.innerWidth >= SM_PX) return;
-    e.preventDefault();
-    const snaps = measureSnaps();
-    snapsRef.current = snaps;
-    dragRef.current = {
-      active: true,
-      startY: e.clientY,
-      startHeight: snaps[snapIdxRef.current],
-    };
-    setIsDragging(true);
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  }, [measureSnaps]);
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (window.innerWidth >= SM_PX) return;
+      e.preventDefault();
+      const snaps = measureSnaps();
+      snapsRef.current = snaps;
+      dragRef.current = {
+        active: true,
+        startY: e.clientY,
+        startHeight: snaps[snapIdxRef.current],
+      };
+      setIsDragging(true);
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [measureSnaps]
+  );
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragRef.current.active) return;
@@ -203,20 +225,23 @@ export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
     setHeight(Math.max(min, Math.min(max, startHeight + delta)));
   }, []);
 
-  const onPointerUp = useCallback((e: React.PointerEvent) => {
-    if (!dragRef.current.active) return;
-    const { startY, startHeight } = dragRef.current;
-    dragRef.current.active = false;
-    setIsDragging(false);
-    const delta = startY - e.clientY;
-    const snaps = snapsRef.current;
-    const [min, , max] = snaps;
-    const clamped = Math.max(min, Math.min(max, startHeight + delta));
-    const idx = nearestSnapIdx(clamped, snaps);
-    snapIdxRef.current = idx;
-    setHeight(snaps[idx]);
-    saveSnapIdx(type, idx);
-  }, [type]);
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragRef.current.active) return;
+      const { startY, startHeight } = dragRef.current;
+      dragRef.current.active = false;
+      setIsDragging(false);
+      const delta = startY - e.clientY;
+      const snaps = snapsRef.current;
+      const [min, , max] = snaps;
+      const clamped = Math.max(min, Math.min(max, startHeight + delta));
+      const idx = nearestSnapIdx(clamped, snaps);
+      snapIdxRef.current = idx;
+      setHeight(snaps[idx]);
+      saveSnapIdx(type, idx);
+    },
+    [type]
+  );
 
   const onPointerCancel = useCallback(() => {
     if (!dragRef.current.active) return;
@@ -229,12 +254,15 @@ export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
    * Apply to the outer sheet container `<div>`.
    * On desktop (≥ 640 px) height is unset so natural CSS sizing applies.
    */
-  const sheetStyle: React.CSSProperties = height !== null
-    ? {
-        height: `${height}px`,
-        transition: isDragging ? 'none' : 'height 0.28s cubic-bezier(0.32,0.72,0,1)',
-      }
-    : {};
+  const sheetStyle: React.CSSProperties =
+    height !== null
+      ? {
+          height: `${height}px`,
+          transition: isDragging
+            ? 'none'
+            : 'height 0.28s cubic-bezier(0.32,0.72,0,1)',
+        }
+      : {};
 
   /**
    * Spread onto the drag-handle bar element.

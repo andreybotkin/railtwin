@@ -23,9 +23,12 @@ export default async function PrivacyPolicyPage() {
   }));
 
   return (
-    <main className="min-h-dvh" style={{ background: 'var(--page-bg)', color: 'var(--panel-text)' }}>
+    <main
+      className="min-h-dvh"
+      style={{ background: 'var(--page-bg)', color: 'var(--panel-text)' }}
+    >
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 pb-8 sm:px-6 sm:py-6">
-        <div className="sticky top-0 z-20 -mx-1 px-1 pb-2 pt-1">
+        <div className="sticky top-0 z-20 -mx-1 px-1 pt-1 pb-2">
           <div
             className="rounded-3xl border p-2 backdrop-blur-xl"
             style={{
@@ -34,7 +37,12 @@ export default async function PrivacyPolicyPage() {
               boxShadow: 'var(--panel-shadow)',
             }}
           >
-            <Button asChild variant="ghost" className="h-12 w-full justify-start rounded-2xl px-4 text-sm" style={{ color: 'var(--panel-text)' }}>
+            <Button
+              asChild
+              variant="ghost"
+              className="h-12 w-full justify-start rounded-2xl px-4 text-sm"
+              style={{ color: 'var(--panel-text)' }}
+            >
               <Link href="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {t('legal.backToMap')}
@@ -54,16 +62,27 @@ export default async function PrivacyPolicyPage() {
           <div className="flex items-start gap-3">
             <div
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-              style={{ background: 'var(--panel-inner)', color: 'var(--panel-text)' }}
+              style={{
+                background: 'var(--panel-inner)',
+                color: 'var(--panel-text)',
+              }}
             >
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: 'var(--panel-subtext)' }}>
+              <p
+                className="text-[11px] font-semibold tracking-[0.24em] uppercase"
+                style={{ color: 'var(--panel-subtext)' }}
+              >
                 {t('legal.eyebrow')}
               </p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{t('privacyPolicyPage.title')}</h1>
-              <p className="mt-3 text-sm leading-6" style={{ color: 'var(--panel-subtext)' }}>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+                {t('privacyPolicyPage.title')}
+              </h1>
+              <p
+                className="mt-3 text-sm leading-6"
+                style={{ color: 'var(--panel-subtext)' }}
+              >
                 {t('legal.lastUpdated')}. {t('privacyPolicyPage.description')}
               </p>
             </div>
@@ -81,8 +100,13 @@ export default async function PrivacyPolicyPage() {
                 boxShadow: 'var(--panel-shadow)',
               }}
             >
-              <h2 className="text-sm font-semibold tracking-tight">{section.title}</h2>
-              <p className="mt-2 text-sm leading-6" style={{ color: 'var(--panel-subtext)' }}>
+              <h2 className="text-sm font-semibold tracking-tight">
+                {section.title}
+              </h2>
+              <p
+                className="mt-2 text-sm leading-6"
+                style={{ color: 'var(--panel-subtext)' }}
+              >
                 {section.body}
               </p>
             </article>

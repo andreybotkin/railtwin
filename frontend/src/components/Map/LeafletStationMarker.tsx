@@ -19,9 +19,21 @@ interface LeafletStationMarkerProps {
 }
 
 // Well-known major interchange stations
-const MAJOR_STATIONS = ['BKK', 'BSG', 'CNX', 'HDY', 'UBN', 'NKI', 'PSL', 'NKR', 'SRT'];
+const MAJOR_STATIONS = [
+  'BKK',
+  'BSG',
+  'CNX',
+  'HDY',
+  'UBN',
+  'NKI',
+  'PSL',
+  'NKR',
+  'SRT',
+];
 
-export default function LeafletStationMarker({ station }: LeafletStationMarkerProps) {
+export default function LeafletStationMarker({
+  station,
+}: LeafletStationMarkerProps) {
   const selectStation = useRailwayStore((s) => s.selectStation);
   const selectedStationId = useRailwayStore((s) => s.selectedStationId);
   const isMajor = MAJOR_STATIONS.includes(station.code);
@@ -32,13 +44,14 @@ export default function LeafletStationMarker({ station }: LeafletStationMarkerPr
   // GeoJSON [lon, lat] → Leaflet [lat, lon]
   const position = useMemo<[number, number]>(
     () => [station.location.coordinates[1], station.location.coordinates[0]],
-    [station.location.coordinates],
+    [station.location.coordinates]
   );
 
   const radius = isMajor ? 8 : 5.5;
   const strokeWeight = isMajor ? 2.5 : 1.8;
 
-  const displayName = locale === 'th' && station.name_th ? station.name_th : station.name;
+  const displayName =
+    locale === 'th' && station.name_th ? station.name_th : station.name;
 
   return (
     <CircleMarker
@@ -65,4 +78,3 @@ export default function LeafletStationMarker({ station }: LeafletStationMarkerPr
     </CircleMarker>
   );
 }
-

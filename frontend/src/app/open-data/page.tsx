@@ -91,7 +91,7 @@ export default async function OpenDataPage() {
       style={{ background: 'var(--page-bg)', color: 'var(--panel-text)' }}
     >
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 pb-8 sm:px-6 sm:py-6">
-        <div className="sticky top-0 z-20 -mx-1 px-1 pb-2 pt-1">
+        <div className="sticky top-0 z-20 -mx-1 px-1 pt-1 pb-2">
           <div
             className="rounded-3xl border p-2 backdrop-blur-xl"
             style={{
@@ -123,7 +123,7 @@ export default async function OpenDataPage() {
           }}
         >
           <p
-            className="text-[11px] font-semibold uppercase tracking-[0.24em]"
+            className="text-[11px] font-semibold tracking-[0.24em] uppercase"
             style={{ color: 'var(--panel-subtext)' }}
           >
             {t('openDataPage.eyebrow')}
@@ -131,7 +131,10 @@ export default async function OpenDataPage() {
           <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
             {t('openDataPage.title')}
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6" style={{ color: 'var(--panel-subtext)' }}>
+          <p
+            className="mt-3 max-w-2xl text-sm leading-6"
+            style={{ color: 'var(--panel-subtext)' }}
+          >
             {t('openDataPage.description')}
           </p>
         </section>
@@ -156,13 +159,21 @@ export default async function OpenDataPage() {
                 <div className="flex items-start gap-3">
                   <div
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
-                    style={{ background: 'var(--panel-inner)', color: 'var(--panel-text)' }}
+                    style={{
+                      background: 'var(--panel-inner)',
+                      color: 'var(--panel-text)',
+                    }}
                   >
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-semibold tracking-tight">{label}</h3>
-                    <p className="mt-2 text-sm leading-6" style={{ color: 'var(--panel-subtext)' }}>
+                    <h3 className="text-sm font-semibold tracking-tight">
+                      {label}
+                    </h3>
+                    <p
+                      className="mt-2 text-sm leading-6"
+                      style={{ color: 'var(--panel-subtext)' }}
+                    >
                       {detail}
                     </p>
                   </div>
@@ -192,13 +203,21 @@ export default async function OpenDataPage() {
                 <div className="flex items-start gap-3">
                   <div
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
-                    style={{ background: 'var(--panel-inner)', color: 'var(--panel-text)' }}
+                    style={{
+                      background: 'var(--panel-inner)',
+                      color: 'var(--panel-text)',
+                    }}
                   >
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-semibold tracking-tight">{label}</h3>
-                    <p className="mt-2 text-sm leading-6" style={{ color: 'var(--panel-subtext)' }}>
+                    <h3 className="text-sm font-semibold tracking-tight">
+                      {label}
+                    </h3>
+                    <p
+                      className="mt-2 text-sm leading-6"
+                      style={{ color: 'var(--panel-subtext)' }}
+                    >
                       {detail}
                     </p>
                   </div>
@@ -221,7 +240,10 @@ export default async function OpenDataPage() {
           </h2>
           <ul className="mt-3 space-y-3">
             {notes.map((note) => (
-              <li key={note} className="flex items-start gap-3 text-sm leading-6">
+              <li
+                key={note}
+                className="flex items-start gap-3 text-sm leading-6"
+              >
                 <span
                   className="mt-2 h-2 w-2 shrink-0 rounded-full"
                   style={{ background: 'var(--header-logo-bg)' }}

@@ -9,7 +9,10 @@ module.exports = [
   ...nextConfig,
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
       'prefer-const': 'warn',
       // React 19 strict rules — downgraded to warn pending refactoring
       'react-hooks/purity': 'warn',

@@ -85,6 +85,6 @@ export const useRailwayStore = create<RailwayState>((set) => ({
               zoom: target.zoom,
               nonce: (state.flyTo?.nonce ?? 0) + 1,
             },
-          },
+          }
     ),
 }));

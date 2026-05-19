@@ -24,8 +24,8 @@ export default function SelectedRouteLayer() {
   const selectedTrainId = useRailwayStore((s) => s.selectedTrainId);
   const routeCoords = useRailwayStore((s) =>
     selectedTrainId !== null
-      ? s.trajectories.get(selectedTrainId)?.route_coords ?? null
-      : null,
+      ? (s.trajectories.get(selectedTrainId)?.route_coords ?? null)
+      : null
   );
 
   const data = useMemo<FeatureCollection<LineString>>(() => {

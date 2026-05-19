@@ -72,10 +72,10 @@ export const useMapTopicStore = create<MapTopicState>((set, get) => ({
     const state = get();
     const topic = state.getActiveTopic();
     const layers = topic.layers.map((l) =>
-      l.key === layerKey ? { ...l, opacity } : l,
+      l.key === layerKey ? { ...l, opacity } : l
     );
     const topics = state.topics.map((t) =>
-      t.key === topic.key ? { ...t, layers } : t,
+      t.key === topic.key ? { ...t, layers } : t
     );
     set({ topics });
   },
@@ -113,6 +113,9 @@ export const useMapTopicStore = create<MapTopicState>((set, get) => ({
 
   getActiveTopic: () => {
     const state = get();
-    return state.topics.find((t) => t.key === state.activeTopicKey) ?? state.topics[0];
+    return (
+      state.topics.find((t) => t.key === state.activeTopicKey) ??
+      state.topics[0]
+    );
   },
 }));
