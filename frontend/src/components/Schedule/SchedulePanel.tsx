@@ -8,7 +8,7 @@ import { useState, useMemo } from 'react';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 
 import { useRoutes, useStations } from '@/lib/hooks';
-import { formatTime, getRouteTypeName, getDayName, cn } from '@/lib/utils';
+import { formatTime, getRouteTypeName, cn } from '@/lib/utils';
 import {
   Card,
   CardContent,
