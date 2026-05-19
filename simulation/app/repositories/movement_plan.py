@@ -13,7 +13,10 @@ from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.logging import get_logger
 from app.models.database.models import PlannedMovementSegment, PlannedTrainRun
+
+logger = get_logger(__name__)
 
 # Minimum quality_score for a run to be used at runtime.
 RUNTIME_QUALITY_THRESHOLD = 0.5
@@ -78,7 +81,9 @@ class MovementPlanRepository:
 
         # Top warning codes (JSONB unnest — PostgreSQL only)
         try:
-            warning_rows = (await self._session.execute(text("""
+            warning_rows = (
+                await self._session.execute(
+                    text("""
                         SELECT elem AS code, count(*)::int AS cnt
                         FROM planned_train_runs,
                              jsonb_array_elements_text(warnings::jsonb) AS elem
@@ -87,7 +92,9 @@ class MovementPlanRepository:
                         GROUP BY elem
                         ORDER BY cnt DESC
                         LIMIT 10
-                        """))).all()
+                        """)
+                )
+            ).all()
             top_warning_codes = [row.code for row in warning_rows]
         except Exception:  # noqa: BLE001 — SQLite fallback in tests
             top_warning_codes = []
@@ -163,7 +170,9 @@ class MovementPlanRepository:
     async def get_warning_counts(self) -> list[dict[str, Any]]:
         """Warning code frequency across all runs (PostgreSQL only)."""
         try:
-            rows = (await self._session.execute(text("""
+            rows = (
+                await self._session.execute(
+                    text("""
                         SELECT elem AS code, count(*)::int AS count
                         FROM planned_train_runs,
                              jsonb_array_elements_text(warnings::jsonb) AS elem
@@ -171,9 +180,12 @@ class MovementPlanRepository:
                           AND warnings::text <> 'null'
                         GROUP BY elem
                         ORDER BY count DESC
-                        """))).all()
+                        """)
+                )
+            ).all()
             return [{"code": row.code, "count": row.count} for row in rows]
-        except Exception:  # noqa: BLE001
+        except Exception:
+            logger.exception("Failed to query warning counts")
             return []
 
     async def get_problems(
@@ -194,8 +206,11 @@ class MovementPlanRepository:
                         code=warning_code
                     )
                 )
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception:
+                logger.exception(
+                    "Failed to apply warning_code filter",
+                    warning_code=warning_code,
+                )
 
         count_q = select(func.count()).select_from(q.subquery())
         total = int((await self._session.execute(count_q)).scalar_one())
