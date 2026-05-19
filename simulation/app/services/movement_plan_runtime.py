@@ -392,9 +392,14 @@ def resolve_trajectory(
 
         seg = planned_run.find_segment(step_effective)
         if seg is None:
-            if i == 0:
-                return None
-            break
+            if planned_run.segments and step_effective < planned_run.segments[0].absolute_start_minutes:
+                seg = planned_run.segments[0]
+            elif planned_run.segments and step_effective > planned_run.segments[-1].absolute_end_minutes:
+                seg = planned_run.segments[-1]
+            else:
+                if i == 0:
+                    return None
+                break
 
         geom_fraction = _compute_geom_fraction(seg, step_effective)
         if geom_fraction is None:

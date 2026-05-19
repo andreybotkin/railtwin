@@ -247,6 +247,9 @@ def _find_bounding_stops(
 ) -> tuple[int | None, int | None]:
     """Return ``(prev_index, next_index)`` for the segment enclosing ``step_minutes``."""
 
+    if not schedules:
+        return None, None
+
     prev_index: int | None = None
     next_index: int | None = None
     for i, schedule in enumerate(schedules):
@@ -257,8 +260,16 @@ def _find_bounding_stops(
             next_index = i
             if i > 0:
                 prev_index = i - 1
+            else:
+                prev_index = 0  # Clamp to start if before the first departure
             break
         prev_index = i
+
+    # If we finished the loop and next_index is still None, it means the train has
+    # passed the final scheduled time.
+    if next_index is None and prev_index is not None:
+        next_index = prev_index  # Clamp to end
+
     return prev_index, next_index
 
 

@@ -220,9 +220,10 @@ def test_build_trajectory_returns_none_when_service_has_ended() -> None:
         current_minutes=current_minutes,
         now_unix_ms=1_700_000_000_000,
     )
-    assert trajectory is None
-
-
+    # The train should remain clamped at the last station
+    assert trajectory is not None
+    assert trajectory.frames[0].geom_fraction == 1.0
+    assert trajectory.meta.segment_progress_pct == 100.0
 def test_build_trajectory_anchors_cover_full_route_schedule() -> None:
     train = _make_train()
     schedules = _three_stop_schedule()
