@@ -28,7 +28,7 @@ import { useStopSequence } from '@/lib/hooks';
 import { useBottomSheetDrag } from '@/lib/hooks/useBottomSheetDrag';
 import { useRailwayStore } from '@/lib/stores/railway-store';
 import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
-import { cn, formatDelay, formatSpeed, getTrainTypeName } from '@/lib/utils';
+import { cn, formatDelay, formatSpeed } from '@/lib/utils';
 import type { StopSequenceItem } from '@/types';
 
 function delayColor(minutes: number): string {
@@ -231,7 +231,6 @@ export default function TrainInfoSheet() {
   const segmentPct = Math.round(Math.max(0, Math.min(100, meta.segment_progress_pct)));
   const statusClass = statusTint(status, speed);
   const statusText = t(`trains.${statusKey(status, speed)}`);
-  const knownTrainTypes = ['special_express', 'express', 'rapid', 'ordinary', 'commuter'];
   const localTypeName = (type: string) => {
     const key = `trains.${type}` as Parameters<typeof t>[0];
     try { return t(key); } catch { return type || '—'; }

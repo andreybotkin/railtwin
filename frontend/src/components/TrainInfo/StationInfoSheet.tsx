@@ -7,7 +7,7 @@ import { Building2, Clock, MapPin, Timer, X } from 'lucide-react';
 import { useStationSchedule } from '@/lib/hooks';
 import { useBottomSheetDrag } from '@/lib/hooks/useBottomSheetDrag';
 import { useRailwayStore } from '@/lib/stores/railway-store';
-import { cn, getTrainTypeColor, getTrainTypeName } from '@/lib/utils';
+import { cn, getTrainTypeColor } from '@/lib/utils';
 import type { Schedule, Station } from '@/types';
 
 function findStation(
