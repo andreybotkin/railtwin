@@ -539,8 +539,9 @@ def build_movement_plan(
                 elif right_val is not None:
                     resolved[i].geom_fraction = right_val
 
-                if route_total_m and resolved[i].geom_fraction is not None:
-                    resolved[i].distance_m = resolved[i].geom_fraction * route_total_m
+                gf = resolved[i].geom_fraction
+                if route_total_m is not None and gf is not None:
+                    resolved[i].distance_m = gf * route_total_m
     abs_times = [
         r.departure_abs if r.departure_abs is not None else r.arrival_abs
         for r in resolved

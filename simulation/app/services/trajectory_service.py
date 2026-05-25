@@ -197,12 +197,13 @@ def _stop_fractions(
         raw_reference.append(None)
 
     # Interpolate missing values
+    reference: list[float]
     if all(p is None for p in raw_reference):
         reference = [float(i) / max(1, total_stops - 1) for i in range(total_stops)]
     else:
-        reference = list(raw_reference)
+        temp_reference: list[float | None] = list(raw_reference)
         for i in range(total_stops):
-            if reference[i] is None:
+            if temp_reference[i] is None:
                 left_idx = i - 1
                 while left_idx >= 0 and raw_reference[left_idx] is None:
                     left_idx -= 1
@@ -217,15 +218,15 @@ def _stop_fractions(
 
                 if left_val is not None and right_val is not None:
                     span = right_idx - left_idx
-                    reference[i] = left_val + (right_val - left_val) * (
+                    temp_reference[i] = left_val + (right_val - left_val) * (
                         (i - left_idx) / span
                     )
                 elif left_val is not None:
-                    reference[i] = left_val
+                    temp_reference[i] = left_val
                 elif right_val is not None:
-                    reference[i] = right_val
+                    temp_reference[i] = right_val
 
-        reference = [max(0.0, min(1.0, r)) for r in reference]
+        reference = [max(0.0, min(1.0, cast(float, r))) for r in temp_reference]
 
     if total_stops < 2 or len(polyline) < 2:
         return reference
