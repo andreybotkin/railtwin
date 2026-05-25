@@ -7,13 +7,10 @@ station name directly.
 
 import json
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from app.core.logging import get_logger
 from app.domain.railroad.entities import StationData
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 logger = get_logger(__name__)
 

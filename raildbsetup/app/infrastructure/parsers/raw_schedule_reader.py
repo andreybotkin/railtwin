@@ -20,14 +20,11 @@ Raw file format::
 
 import json
 import re
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.domain.schedule.entities import ScheduleStopData, TrainData
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 logger = get_logger(__name__)
 

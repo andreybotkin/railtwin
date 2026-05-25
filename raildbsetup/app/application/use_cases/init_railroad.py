@@ -8,16 +8,13 @@ Order:
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.domain.railroad.repository import RailroadRepository
 from app.domain.railroad.service import RailroadDomainService
 from app.infrastructure.parsers.kml_parser import parse_kml_routes
 from app.infrastructure.parsers.kml_station_parser import parse_stations_kml
-
-if TYPE_CHECKING:
-    from app.domain.railroad.repository import RailroadRepository
 
 logger = get_logger(__name__)
 

@@ -20,8 +20,8 @@ The simulation service must declare a dependency on this service before starting
 """
 
 import asyncio
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from fastapi import FastAPI
@@ -31,9 +31,6 @@ from app.api.v1.router import router as v1_router
 from app.application.runner import SetupRunner
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
-
-if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
 
 logger = get_logger(__name__)
 

@@ -6,14 +6,11 @@ don't match any station name directly.
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 from xml.etree import ElementTree as ET
 
 from app.core.logging import get_logger
 from app.domain.railroad.entities import StationData
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 logger = get_logger(__name__)
 

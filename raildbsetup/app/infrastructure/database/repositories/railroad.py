@@ -1,13 +1,14 @@
 import hashlib
 import math
 import re
-from typing import TYPE_CHECKING
 
 from geoalchemy2 import WKTElement
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.domain.railroad.entities import RouteData, StationData
 from app.domain.railroad.repository import RailroadRepository
 from app.infrastructure.database.tables import (
     t_network_edges,
@@ -20,11 +21,6 @@ from app.infrastructure.database.tables import (
     t_stations,
     t_trains,
 )
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
-
-    from app.domain.railroad.entities import RouteData, StationData
 
 logger = get_logger(__name__)
 

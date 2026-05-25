@@ -6,10 +6,10 @@ This module provides repository methods for Schedule model operations.
 from datetime import time
 from typing import Any, cast
 
+from geoalchemy2.functions import ST_AsGeoJSON
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from geoalchemy2.functions import ST_AsGeoJSON
 
 from app.models.database.models import Schedule, Station
 from app.repositories.base import BaseRepository

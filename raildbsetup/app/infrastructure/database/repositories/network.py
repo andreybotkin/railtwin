@@ -1,11 +1,12 @@
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from geoalchemy2 import WKTElement
 from geoalchemy2.functions import ST_AsText, ST_Length, ST_LineSubstring, ST_Reverse
 from geoalchemy2.types import Geography
 from sqlalchemy import Float, cast, delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -21,9 +22,6 @@ from app.infrastructure.database.tables import (
     t_stations,
     t_topology_metadata,
 )
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = get_logger(__name__)
 

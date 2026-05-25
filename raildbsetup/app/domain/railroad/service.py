@@ -1,8 +1,6 @@
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from app.domain.railroad.entities import RouteData, StationData
-    from app.domain.railroad.repository import RailroadRepository
+from app.domain.railroad.entities import RouteData, StationData
+from app.domain.railroad.repository import RailroadRepository
 
 
 class RailroadDomainService:

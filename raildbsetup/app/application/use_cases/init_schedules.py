@@ -10,17 +10,18 @@ Strategy:
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from sqlalchemy.ext.asyncio import async_sessionmaker
+
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.domain.schedule.repository import ScheduleRepository
 from app.domain.schedule.service import ScheduleDomainService
 from app.infrastructure.database.repositories.schedule import SqlScheduleRepository
 from app.infrastructure.parsers.raw_schedule_reader import read_all_raw_schedules
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import async_sessionmaker
 
     from app.domain.schedule.entities import TrainData
-    from app.domain.schedule.repository import ScheduleRepository
 
 logger = get_logger(__name__)
 

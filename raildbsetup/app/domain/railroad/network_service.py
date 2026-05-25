@@ -1,12 +1,9 @@
 """Domain service for railway network topology operations."""
 
-from typing import TYPE_CHECKING
 
 from app.core.logging import get_logger
-
-if TYPE_CHECKING:
-    from app.domain.railroad.network_entities import NetworkTopologyResult
-    from app.domain.railroad.network_repository import NetworkRepository
+from app.domain.railroad.network_entities import NetworkTopologyResult
+from app.domain.railroad.network_repository import NetworkRepository
 
 logger = get_logger(__name__)
 

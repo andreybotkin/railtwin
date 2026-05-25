@@ -1,15 +1,17 @@
 import re
 import unicodedata
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import time as dt_time
 from difflib import SequenceMatcher
 from math import atan2, cos, radians, sin, sqrt
-from typing import TYPE_CHECKING
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.domain.schedule.entities import TrainData
 from app.domain.schedule.repository import ScheduleRepository
 from app.infrastructure.database.tables import (
     t_route_stations,
@@ -19,13 +21,6 @@ from app.infrastructure.database.tables import (
     t_stations,
     t_trains,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from sqlalchemy.ext.asyncio import AsyncSession
-
-    from app.domain.schedule.entities import TrainData
 
 logger = get_logger(__name__)
 

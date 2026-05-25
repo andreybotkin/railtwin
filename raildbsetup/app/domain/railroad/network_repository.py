@@ -1,10 +1,8 @@
 """Abstract repository interface for railway network topology."""
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from app.domain.railroad.network_entities import NetworkTopologyResult
+from app.domain.railroad.network_entities import NetworkTopologyResult
 
 
 class NetworkRepository(ABC):

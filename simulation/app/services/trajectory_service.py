@@ -179,7 +179,7 @@ def _stop_fractions(
     """
 
     total_stops = len(schedules)
-    
+
     # Gather raw route progress, falling back to distance if available
     raw_reference: list[float | None] = []
     for schedule in schedules:
@@ -188,14 +188,14 @@ def _stop_fractions(
             if dist is not None:
                 raw_reference.append(float(dist) / route_distance_km)
                 continue
-                
+
         progress = getattr(schedule, "route_progress", None)
         if progress is not None:
             raw_reference.append(float(progress))
             continue
-            
+
         raw_reference.append(None)
-        
+
     # Interpolate missing values
     if all(p is None for p in raw_reference):
         reference = [float(i) / max(1, total_stops - 1) for i in range(total_stops)]
@@ -209,10 +209,10 @@ def _stop_fractions(
                 right_idx = i + 1
                 while right_idx < total_stops and raw_reference[right_idx] is None:
                     right_idx += 1
-                    
+
                 left_val = raw_reference[left_idx] if left_idx >= 0 else None
                 right_val = raw_reference[right_idx] if right_idx < total_stops else None
-                
+
                 if left_val is not None and right_val is not None:
                     span = right_idx - left_idx
                     reference[i] = left_val + (right_val - left_val) * ((i - left_idx) / span)
@@ -220,7 +220,7 @@ def _stop_fractions(
                     reference[i] = left_val
                 elif right_val is not None:
                     reference[i] = right_val
-                    
+
         reference = [max(0.0, min(1.0, r)) for r in reference]
 
     if total_stops < 2 or len(polyline) < 2:
@@ -284,10 +284,7 @@ def _find_bounding_stops(
             continue
         if dep_mins + delay > step_minutes:
             next_index = i
-            if i > 0:
-                prev_index = i - 1
-            else:
-                prev_index = 0  # Clamp to start if before the first departure
+            prev_index = i - 1 if i > 0 else 0  # Clamp to start if before the first departure
             break
         prev_index = i
 

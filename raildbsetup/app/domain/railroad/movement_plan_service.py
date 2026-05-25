@@ -501,7 +501,7 @@ def build_movement_plan(
         _resolve_stop(stop, route_total_m, i, len(usable))
         for i, stop in enumerate(usable)
     ]
-    
+
     # Interpolate missing geom_fraction
     total_usable = len(usable)
     if all(r.geom_fraction is None for r in resolved):
@@ -518,10 +518,10 @@ def build_movement_plan(
                 right_idx = i + 1
                 while right_idx < total_usable and resolved[right_idx].geom_fraction is None:
                     right_idx += 1
-                    
+
                 left_val = resolved[left_idx].geom_fraction if left_idx >= 0 else None
                 right_val = resolved[right_idx].geom_fraction if right_idx < total_usable else None
-                
+
                 if left_val is not None and right_val is not None:
                     span = right_idx - left_idx
                     resolved[i].geom_fraction = left_val + (right_val - left_val) * ((i - left_idx) / span)
@@ -529,7 +529,7 @@ def build_movement_plan(
                     resolved[i].geom_fraction = left_val
                 elif right_val is not None:
                     resolved[i].geom_fraction = right_val
-                    
+
                 if route_total_m and resolved[i].geom_fraction is not None:
                     resolved[i].distance_m = resolved[i].geom_fraction * route_total_m
     abs_times = [
