@@ -11,36 +11,115 @@
 import type { MapTopic, ZoomGeneralization } from '@/types/map-topics';
 
 // ── Tile URLs ──────────────────────────────────────────────────────
-const TILE_VOYAGER = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-const TILE_SATELLITE = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const TILE_VOYAGER =
+  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const TILE_DARK =
+  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const TILE_SATELLITE =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
-const ATTR_CARTO = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>';
-const ATTR_ESRI = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+const ATTR_CARTO =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>';
+const ATTR_ESRI =
+  'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
 
 // ── Shared layer definitions ───────────────────────────────────────
 
 function makeRouteLayers(visible: boolean) {
   return [
-    { key: 'routes-northern', name: 'Northern Line', nameKey: 'layers.routeNorthern', category: 'routes' as const, visible, opacity: 1, icon: '🔴' },
-    { key: 'routes-northeastern', name: 'Northeastern Line', nameKey: 'layers.routeNortheastern', category: 'routes' as const, visible, opacity: 1, icon: '🔵' },
-    { key: 'routes-southern', name: 'Southern Line', nameKey: 'layers.routeSouthern', category: 'routes' as const, visible, opacity: 1, icon: '🟢' },
-    { key: 'routes-eastern', name: 'Eastern Line', nameKey: 'layers.routeEastern', category: 'routes' as const, visible, opacity: 1, icon: '🟠' },
+    {
+      key: 'routes-northern',
+      name: 'Northern Line',
+      nameKey: 'layers.routeNorthern',
+      category: 'routes' as const,
+      visible,
+      opacity: 1,
+      icon: '🔴',
+    },
+    {
+      key: 'routes-northeastern',
+      name: 'Northeastern Line',
+      nameKey: 'layers.routeNortheastern',
+      category: 'routes' as const,
+      visible,
+      opacity: 1,
+      icon: '🔵',
+    },
+    {
+      key: 'routes-southern',
+      name: 'Southern Line',
+      nameKey: 'layers.routeSouthern',
+      category: 'routes' as const,
+      visible,
+      opacity: 1,
+      icon: '🟢',
+    },
+    {
+      key: 'routes-eastern',
+      name: 'Eastern Line',
+      nameKey: 'layers.routeEastern',
+      category: 'routes' as const,
+      visible,
+      opacity: 1,
+      icon: '🟠',
+    },
   ];
 }
 
 function makeStationLayers(visible: boolean) {
   return [
-    { key: 'stations-major', name: 'Major Stations', nameKey: 'layers.stationsMajor', category: 'stations' as const, visible, opacity: 1, minZoom: 0, icon: '🏛️' },
-    { key: 'stations-all', name: 'All Stations', nameKey: 'layers.stationsAll', category: 'stations' as const, visible, opacity: 1, minZoom: 8, icon: '📍' },
+    {
+      key: 'stations-major',
+      name: 'Major Stations',
+      nameKey: 'layers.stationsMajor',
+      category: 'stations' as const,
+      visible,
+      opacity: 1,
+      minZoom: 0,
+      icon: '🏛️',
+    },
+    {
+      key: 'stations-all',
+      name: 'All Stations',
+      nameKey: 'layers.stationsAll',
+      category: 'stations' as const,
+      visible,
+      opacity: 1,
+      minZoom: 8,
+      icon: '📍',
+    },
   ];
 }
 
 function makeTrainLayers(visible: boolean) {
   return [
-    { key: 'trains-special-express', name: 'Special Express', nameKey: 'layers.trainsSpecialExpress', category: 'trains' as const, visible, opacity: 1, icon: '🚅' },
-    { key: 'trains-rapid', name: 'Rapid', nameKey: 'layers.trainsRapid', category: 'trains' as const, visible, opacity: 1, icon: '🚆' },
-    { key: 'trains-ordinary', name: 'Ordinary', nameKey: 'layers.trainsOrdinary', category: 'trains' as const, visible, opacity: 1, icon: '🚃' },
+    {
+      key: 'trains-special-express',
+      name: 'Special Express',
+      nameKey: 'layers.trainsSpecialExpress',
+      category: 'trains' as const,
+      visible,
+      opacity: 1,
+      icon: '🚅',
+    },
+    {
+      key: 'trains-rapid',
+      name: 'Rapid',
+      nameKey: 'layers.trainsRapid',
+      category: 'trains' as const,
+      visible,
+      opacity: 1,
+      icon: '🚆',
+    },
+    {
+      key: 'trains-ordinary',
+      name: 'Ordinary',
+      nameKey: 'layers.trainsOrdinary',
+      category: 'trains' as const,
+      visible,
+      opacity: 1,
+      icon: '🚃',
+    },
   ];
 }
 
@@ -54,7 +133,8 @@ function makeInfrastructureLayers(visible: boolean) {
       visible,
       opacity: 0.8,
       minZoom: 7,
-      description: 'Station-to-station directed track segments (network topology graph)',
+      description:
+        'Station-to-station directed track segments (network topology graph)',
       icon: '🛤️',
     },
   ];
@@ -67,7 +147,8 @@ export const DEFAULT_TOPICS: MapTopic[] = [
     key: 'railway',
     name: 'Light Map',
     nameKey: 'topics.railway',
-    description: 'Real-time train operations with routes, stations, and live positions',
+    description:
+      'Real-time train operations with routes, stations, and live positions',
     tileUrl: TILE_VOYAGER,
     tileAttribution: ATTR_CARTO,
     thumbnail: '/images/topic-railway.png',

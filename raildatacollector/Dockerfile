@@ -1,4 +1,5 @@
 FROM python:3.14-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
@@ -9,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml .
-RUN pip install --no-cache-dir .
+RUN uv pip install --system --no-cache-dir .
 
 COPY . .
 
@@ -20,4 +21,4 @@ RUN mkdir -p /app/railroad /app/schedule \
 
 USER collector
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["/usr/local/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]

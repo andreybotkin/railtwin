@@ -133,8 +133,14 @@ def candidate_current_minutes(
     if first_departure is None or last_arrival is None:
         return None
 
-    first_departure += delay
-    last_arrival += delay
+    # Expand the service window bounds to include the delay.
+    # Note: If delay is negative (early), it expands the window earlier.
+    # If delay is positive (late), it expands the window later.
+    # We want to ensure the train is visible early and stays visible late.
+    if delay > 0:
+        last_arrival += delay
+    elif delay < 0:
+        first_departure += delay
 
     now_dt = datetime.now(timezone.utc) + BANGKOK_OFFSET  # noqa: UP017
     current_weekday = now_dt.weekday()

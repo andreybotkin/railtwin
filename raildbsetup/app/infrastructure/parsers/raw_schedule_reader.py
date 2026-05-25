@@ -95,6 +95,7 @@ def _infer_day_offsets(
                 while (
                     last_absolute_minutes is not None
                     and arrival_minutes + arrival_offset * 1440 < last_absolute_minutes
+                    and (arrival_minutes + (arrival_offset + 1) * 1440 - last_absolute_minutes) <= 1080
                 ):
                     arrival_offset += 1
             arrival_absolute = arrival_minutes + arrival_offset * 1440
@@ -114,6 +115,7 @@ def _infer_day_offsets(
                 while (
                     reference_absolute is not None
                     and departure_minutes + departure_offset * 1440 < reference_absolute
+                    and (departure_minutes + (departure_offset + 1) * 1440 - reference_absolute) <= 1080
                 ):
                     departure_offset += 1
             departure_absolute = departure_minutes + departure_offset * 1440

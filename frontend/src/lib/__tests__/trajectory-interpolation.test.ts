@@ -5,7 +5,8 @@ import {
 import type { Trajectory, TrajectoryFrame } from '@/types';
 
 function makeFrame(
-  partial: Partial<TrajectoryFrame> & Pick<TrajectoryFrame, 't_ms' | 'lon' | 'lat'>,
+  partial: Partial<TrajectoryFrame> &
+    Pick<TrajectoryFrame, 't_ms' | 'lon' | 'lat'>
 ): TrajectoryFrame {
   return {
     t_ms: partial.t_ms,
@@ -95,8 +96,20 @@ describe('getTrajectoryFrameAt', () => {
 
   it('linearly interpolates inside the bracketing pair', () => {
     const trajectory = makeTrajectory([
-      makeFrame({ t_ms: 1_000, lon: 100, lat: 13, head_distance_m: 0, geom_fraction: 0 }),
-      makeFrame({ t_ms: 3_000, lon: 101, lat: 13, head_distance_m: 200, geom_fraction: 1 }),
+      makeFrame({
+        t_ms: 1_000,
+        lon: 100,
+        lat: 13,
+        head_distance_m: 0,
+        geom_fraction: 0,
+      }),
+      makeFrame({
+        t_ms: 3_000,
+        lon: 101,
+        lat: 13,
+        head_distance_m: 200,
+        geom_fraction: 1,
+      }),
     ]);
     const midpoint = getTrajectoryFrameAt(2_000, trajectory)!;
     expect(midpoint.lon).toBeCloseTo(100.5, 5);

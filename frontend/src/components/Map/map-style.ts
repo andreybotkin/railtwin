@@ -68,7 +68,9 @@ const SATELLITE_STYLE: StyleSpecification = {
   ],
 };
 
-export function getMapStyleForTheme(theme: AppTheme): string | StyleSpecification {
+export function getMapStyleForTheme(
+  theme: AppTheme
+): string | StyleSpecification {
   if (theme === 'dark') return DARK_STYLE;
   if (theme === 'satellite') return SATELLITE_STYLE;
   return process.env.NEXT_PUBLIC_MAP_STYLE_URL || DEFAULT_LIGHT_STYLE;

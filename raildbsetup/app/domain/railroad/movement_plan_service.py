@@ -211,9 +211,9 @@ def _resolve_stop(
         warnings.append(WARN_PROJECTION_FALLBACK)
 
     else:
-        # Priority 4: linear index fallback — last resort
-        frac = (stop_index / (total_stops - 1)) if total_stops > 1 else 0.0
-        dist_m = frac * route_total_m if route_total_m else None
+        # We will interpolate missing fractions later.
+        frac = None
+        dist_m = None
         warnings.append(WARN_MISSING_ROUTE_DISTANCE)
         warnings.append(WARN_PROJECTION_FALLBACK)
 
@@ -501,8 +501,37 @@ def build_movement_plan(
         _resolve_stop(stop, route_total_m, i, len(usable))
         for i, stop in enumerate(usable)
     ]
-
-    # Check time monotonicity across the whole run.
+    
+    # Interpolate missing geom_fraction
+    total_usable = len(usable)
+    if all(r.geom_fraction is None for r in resolved):
+        for i, r in enumerate(resolved):
+            r.geom_fraction = float(i) / max(1, total_usable - 1)
+            if route_total_m:
+                r.distance_m = r.geom_fraction * route_total_m
+    else:
+        for i in range(total_usable):
+            if resolved[i].geom_fraction is None:
+                left_idx = i - 1
+                while left_idx >= 0 and resolved[left_idx].geom_fraction is None:
+                    left_idx -= 1
+                right_idx = i + 1
+                while right_idx < total_usable and resolved[right_idx].geom_fraction is None:
+                    right_idx += 1
+                    
+                left_val = resolved[left_idx].geom_fraction if left_idx >= 0 else None
+                right_val = resolved[right_idx].geom_fraction if right_idx < total_usable else None
+                
+                if left_val is not None and right_val is not None:
+                    span = right_idx - left_idx
+                    resolved[i].geom_fraction = left_val + (right_val - left_val) * ((i - left_idx) / span)
+                elif left_val is not None:
+                    resolved[i].geom_fraction = left_val
+                elif right_val is not None:
+                    resolved[i].geom_fraction = right_val
+                    
+                if route_total_m and resolved[i].geom_fraction is not None:
+                    resolved[i].distance_m = resolved[i].geom_fraction * route_total_m
     abs_times = [
         r.departure_abs if r.departure_abs is not None else r.arrival_abs
         for r in resolved

@@ -22,13 +22,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { ChevronRight, Gauge, MapPin, Navigation, Train as TrainIcon, X } from 'lucide-react';
+import {
+  ChevronRight,
+  Gauge,
+  MapPin,
+  Navigation,
+  Train as TrainIcon,
+  X,
+} from 'lucide-react';
 
 import { useStopSequence } from '@/lib/hooks';
 import { useBottomSheetDrag } from '@/lib/hooks/useBottomSheetDrag';
 import { useRailwayStore } from '@/lib/stores/railway-store';
 import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
-import { cn, formatDelay, formatSpeed, getTrainTypeName } from '@/lib/utils';
+import { cn, formatDelay, formatSpeed } from '@/lib/utils';
 import type { StopSequenceItem } from '@/types';
 
 function delayColor(minutes: number): string {
@@ -49,13 +56,19 @@ function statusKey(status: string, speedKmh: number): StatusKey {
 }
 
 function statusTint(status: string, speedKmh: number): string {
-  if (status === 'dwelling' || status === 'boarding') return 'bg-amber-100 text-amber-900 ring-amber-200';
-  if (status === 'arrived') return 'bg-emerald-100 text-emerald-900 ring-emerald-200';
+  if (status === 'dwelling' || status === 'boarding')
+    return 'bg-amber-100 text-amber-900 ring-amber-200';
+  if (status === 'arrived')
+    return 'bg-emerald-100 text-emerald-900 ring-emerald-200';
   if (speedKmh < 1) return 'bg-zinc-200 text-zinc-700 ring-zinc-300';
   return 'bg-emerald-100 text-emerald-900 ring-emerald-200';
 }
 
-function formatCountdown(targetMs: number | null, nowMs: number, t: ReturnType<typeof useTranslations>): string {
+function formatCountdown(
+  targetMs: number | null,
+  nowMs: number,
+  t: ReturnType<typeof useTranslations>
+): string {
   if (targetMs === null) return '—';
   const deltaSec = Math.max(0, Math.round((targetMs - nowMs) / 1000));
   if (deltaSec <= 0) return t('schedule.now');
@@ -94,7 +107,10 @@ function StopRow({
   isLast: boolean;
   locale: string;
 }) {
-  const displayName = locale === 'th' && stop.station_name_th ? stop.station_name_th : stop.station_name;
+  const displayName =
+    locale === 'th' && stop.station_name_th
+      ? stop.station_name_th
+      : stop.station_name;
   const dot =
     stop.state === 'PASSED'
       ? 'bg-zinc-300'
@@ -119,7 +135,7 @@ function StopRow({
         <span className={cn('h-2 w-2 rounded-full', dot)} />
         {!isLast && (
           <span
-            className="absolute left-1/2 top-full h-[22px] w-px -translate-x-1/2"
+            className="absolute top-full left-1/2 h-[22px] w-px -translate-x-1/2"
             style={{ background: 'var(--panel-inner-ring)' }}
           />
         )}
@@ -127,7 +143,10 @@ function StopRow({
       <div
         className="flex min-w-0 flex-1 items-center justify-between gap-2 text-sm"
         style={{
-          color: stop.state === 'PASSED' ? 'var(--panel-subtext)' : 'var(--panel-text)',
+          color:
+            stop.state === 'PASSED'
+              ? 'var(--panel-subtext)'
+              : 'var(--panel-text)',
           fontWeight: isActive ? 600 : 400,
           opacity: stop.state === 'PASSED' ? 0.6 : 1,
         }}
@@ -136,17 +155,28 @@ function StopRow({
 
         {/* Time column */}
         <span
-          className="flex flex-col items-end gap-0.5 tabular-nums text-[11px]"
+          className="flex flex-col items-end gap-0.5 text-[11px] tabular-nums"
           style={{ color: 'var(--panel-subtext)' }}
         >
           {/* Arrival row: sched (+ adjusted if delayed) */}
           {stop.aimed_arrival_minutes !== null && (
             <span className="flex items-center gap-1">
-              <span style={{ textDecoration: adjustedArrMins !== null ? 'line-through' : 'none', opacity: adjustedArrMins !== null ? 0.45 : 1 }}>
+              <span
+                style={{
+                  textDecoration:
+                    adjustedArrMins !== null ? 'line-through' : 'none',
+                  opacity: adjustedArrMins !== null ? 0.45 : 1,
+                }}
+              >
                 {formatStopTime(stop.aimed_arrival_minutes)}
               </span>
               {adjustedArrMins !== null && (
-                <span style={{ fontWeight: 700, color: stop.delay_minutes > 0 ? '#C2410C' : '#15803D' }}>
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: stop.delay_minutes > 0 ? '#C2410C' : '#15803D',
+                  }}
+                >
                   {formatStopTime(adjustedArrMins)}
                 </span>
               )}
@@ -161,14 +191,19 @@ function StopRow({
           )}
 
           {/* Departure on its own line when arrival is also shown and delayed */}
-          {stop.aimed_arrival_minutes !== null && adjustedArrMins !== null && showDep && (
-            <span style={{ opacity: 0.65 }}>→ {formatStopTime(stop.aimed_departure_minutes)}</span>
-          )}
+          {stop.aimed_arrival_minutes !== null &&
+            adjustedArrMins !== null &&
+            showDep && (
+              <span style={{ opacity: 0.65 }}>
+                → {formatStopTime(stop.aimed_departure_minutes)}
+              </span>
+            )}
 
           {/* Departure-only stop */}
-          {stop.aimed_arrival_minutes === null && stop.aimed_departure_minutes !== null && (
-            <span>{formatStopTime(stop.aimed_departure_minutes)}</span>
-          )}
+          {stop.aimed_arrival_minutes === null &&
+            stop.aimed_departure_minutes !== null && (
+              <span>{formatStopTime(stop.aimed_departure_minutes)}</span>
+            )}
         </span>
       </div>
     </li>
@@ -180,7 +215,9 @@ export default function TrainInfoSheet() {
   const locale = useLocale();
   const selectedTrainId = useRailwayStore((s) => s.selectedTrainId);
   const trajectory = useRailwayStore((s) =>
-    selectedTrainId !== null ? s.trajectories.get(selectedTrainId) ?? null : null,
+    selectedTrainId !== null
+      ? (s.trajectories.get(selectedTrainId) ?? null)
+      : null
   );
   const selectTrain = useRailwayStore((s) => s.selectTrain);
   const { data: stopSequence } = useStopSequence(selectedTrainId);
@@ -195,13 +232,13 @@ export default function TrainInfoSheet() {
   const liveFrame = useMemo(
     () => (trajectory ? getTrajectoryFrameAt(Date.now(), trajectory) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [trajectory, tick],
+    [trajectory, tick]
   );
 
   const nowMs = useMemo(
     () => Date.now(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick],
+    [tick]
   );
 
   const timelineStops = useMemo(() => {
@@ -216,32 +253,53 @@ export default function TrainInfoSheet() {
     return timelineStops.findIndex((s) => s.state !== 'PASSED');
   }, [timelineStops]);
 
-  const innerRef  = useRef<HTMLDivElement>(null);
-  const snap1Ref  = useRef<HTMLDivElement>(null);
-  const snap2Ref  = useRef<HTMLDivElement>(null);
-  const { sheetStyle, handleBarProps } = useBottomSheetDrag('train', { innerRef, snap1Ref, snap2Ref });
+  const innerRef = useRef<HTMLDivElement>(null);
+  const snap1Ref = useRef<HTMLDivElement>(null);
+  const snap2Ref = useRef<HTMLDivElement>(null);
+  const { sheetStyle, handleBarProps } = useBottomSheetDrag('train', {
+    innerRef,
+    snap1Ref,
+    snap2Ref,
+  });
 
   if (!trajectory) return null;
 
   const meta = trajectory.meta;
   const speed = liveFrame?.speedKmh ?? 0;
   const status = liveFrame?.status ?? 'moving';
-  const liveGeomFraction = liveFrame?.geomFraction ?? meta.route_progress_pct / 100;
-  const progressPct = Math.round(Math.max(0, Math.min(100, liveGeomFraction * 100)));
-  const segmentPct = Math.round(Math.max(0, Math.min(100, meta.segment_progress_pct)));
+  const liveGeomFraction =
+    liveFrame?.geomFraction ?? meta.route_progress_pct / 100;
+  const progressPct = Math.round(
+    Math.max(0, Math.min(100, liveGeomFraction * 100))
+  );
+  const segmentPct = Math.round(
+    Math.max(0, Math.min(100, meta.segment_progress_pct))
+  );
   const statusClass = statusTint(status, speed);
   const statusText = t(`trains.${statusKey(status, speed)}`);
-  const knownTrainTypes = ['special_express', 'express', 'rapid', 'ordinary', 'commuter'];
   const localTypeName = (type: string) => {
     const key = `trains.${type}` as Parameters<typeof t>[0];
-    try { return t(key); } catch { return type || '—'; }
+    try {
+      return t(key);
+    } catch {
+      return type || '—';
+    }
   };
   const trainLabel = meta.train_number
     ? `${localTypeName(meta.train_type as string)} ${t('trains.trainNo')} ${meta.train_number}`
     : meta.train_name || localTypeName(meta.train_type as string);
-  const nextStationDisplay = locale === 'th' && meta.next_station_th ? meta.next_station_th : (meta.next_station ?? '—');
-  const destDisplay = locale === 'th' && meta.destination_station_th ? meta.destination_station_th : (meta.destination_station ?? '—');
-  const originDisplay = locale === 'th' && meta.origin_station_th ? meta.origin_station_th : (meta.origin_station ?? '—');
+  const nextStationDisplay =
+    locale === 'th' && meta.next_station_th
+      ? meta.next_station_th
+      : (meta.next_station ?? '—');
+  const destDisplay =
+    locale === 'th' && meta.destination_station_th
+      ? meta.destination_station_th
+      : (meta.destination_station ?? '—');
+  const originDisplay =
+    locale === 'th' && meta.origin_station_th
+      ? meta.origin_station_th
+      : (meta.origin_station ?? '—');
   const delayHex = delayColor(meta.delay_minutes);
 
   return (
@@ -251,11 +309,11 @@ export default function TrainInfoSheet() {
         // Mobile: bottom sheet spanning the viewport.
         'inset-x-0 bottom-0 rounded-t-3xl',
         // Desktop: floating card.
-        'sm:inset-x-auto sm:bottom-4 sm:right-4 sm:w-[22rem] sm:rounded-3xl',
+        'sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[22rem] sm:rounded-3xl',
         'backdrop-blur-xl',
         // overflow-hidden so explicit height clips content; inner div scrolls.
         'flex flex-col overflow-hidden',
-        'sm:max-h-[80dvh]',
+        'sm:max-h-[80dvh]'
       )}
       style={{
         background: 'var(--panel-bg-strong)',
@@ -270,11 +328,17 @@ export default function TrainInfoSheet() {
       <div
         {...handleBarProps}
         className="mx-auto mt-2 h-1.5 w-10 flex-shrink-0 rounded-full sm:hidden"
-        style={{ background: 'var(--panel-inner-ring)', ...handleBarProps.style }}
+        style={{
+          background: 'var(--panel-inner-ring)',
+          ...handleBarProps.style,
+        }}
         aria-label="Resize panel"
       />
 
-      <div ref={innerRef} className="relative flex-1 overflow-y-auto p-4 sm:p-5">
+      <div
+        ref={innerRef}
+        className="relative flex-1 overflow-y-auto p-4 sm:p-5"
+      >
         <header className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <div
@@ -294,7 +358,7 @@ export default function TrainInfoSheet() {
                 <span
                   className={cn(
                     'inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-semibold ring-1',
-                    statusClass,
+                    statusClass
                   )}
                 >
                   {statusText}
@@ -306,7 +370,6 @@ export default function TrainInfoSheet() {
               >
                 {trainLabel}
               </div>
-
             </div>
           </div>
           <button
@@ -333,7 +396,10 @@ export default function TrainInfoSheet() {
             {
               label: t('trains.delay'),
               icon: null,
-              value: meta.delay_minutes === 0 ? t('trains.onTime') : formatDelay(meta.delay_minutes, locale),
+              value:
+                meta.delay_minutes === 0
+                  ? t('trains.onTime')
+                  : formatDelay(meta.delay_minutes, locale),
               color: delayHex,
               sub: undefined as string | undefined,
             },
@@ -342,16 +408,22 @@ export default function TrainInfoSheet() {
               icon: <Navigation className="h-3 w-3" />,
               value: formatWallClock(meta.eta_next_ms),
               color: undefined,
-              sub: meta.eta_next_ms !== null ? formatCountdown(meta.eta_next_ms, nowMs, t) : undefined,
+              sub:
+                meta.eta_next_ms !== null
+                  ? formatCountdown(meta.eta_next_ms, nowMs, t)
+                  : undefined,
             },
           ].map(({ label, icon, value, color, sub }) => (
             <div
               key={label}
               className="rounded-2xl px-3 py-2"
-              style={{ background: 'var(--panel-inner)', boxShadow: `0 0 0 1px var(--panel-inner-ring)` }}
+              style={{
+                background: 'var(--panel-inner)',
+                boxShadow: `0 0 0 1px var(--panel-inner-ring)`,
+              }}
             >
               <div
-                className="flex items-center gap-1 text-[10px] uppercase tracking-[0.14em]"
+                className="flex items-center gap-1 text-[10px] tracking-[0.14em] uppercase"
                 style={{ color: 'var(--panel-subtext)' }}
               >
                 {icon} {label}
@@ -364,7 +436,7 @@ export default function TrainInfoSheet() {
               </div>
               {sub && (
                 <div
-                  className="tabular-nums text-[10px]"
+                  className="text-[10px] tabular-nums"
                   style={{ color: 'var(--panel-subtext)', marginTop: '1px' }}
                 >
                   {sub}
@@ -376,7 +448,10 @@ export default function TrainInfoSheet() {
 
         <section
           className="mt-3 rounded-2xl px-3 py-2.5"
-          style={{ background: 'var(--panel-inner)', boxShadow: `0 0 0 1px var(--panel-inner-ring)` }}
+          style={{
+            background: 'var(--panel-inner)',
+            boxShadow: `0 0 0 1px var(--panel-inner-ring)`,
+          }}
         >
           <div
             className="flex items-center justify-between text-xs"
@@ -384,12 +459,15 @@ export default function TrainInfoSheet() {
           >
             <span className="truncate">
               <span style={{ opacity: 0.6 }}>{t('trains.next')}</span>{' '}
-              <span className="font-semibold" style={{ color: 'var(--panel-text)' }}>
+              <span
+                className="font-semibold"
+                style={{ color: 'var(--panel-text)' }}
+              >
                 {nextStationDisplay}
               </span>
             </span>
             <span
-              className="tabular-nums text-[11px] font-semibold"
+              className="text-[11px] font-semibold tabular-nums"
               style={{ color: 'var(--panel-text)' }}
             >
               {segmentPct}%
@@ -408,10 +486,15 @@ export default function TrainInfoSheet() {
             className="mt-2 flex items-center justify-between text-[11px]"
             style={{ color: 'var(--panel-subtext)' }}
           >
-            <span>{t('trains.routeProgress')} {progressPct}%</span>
+            <span>
+              {t('trains.routeProgress')} {progressPct}%
+            </span>
             <span className="truncate">
               <span style={{ opacity: 0.6 }}>{t('trains.to')}</span>{' '}
-              <span className="font-medium" style={{ color: 'var(--panel-text)', opacity: 0.8 }}>
+              <span
+                className="font-medium"
+                style={{ color: 'var(--panel-text)', opacity: 0.8 }}
+              >
                 {destDisplay}
               </span>
             </span>
@@ -422,7 +505,11 @@ export default function TrainInfoSheet() {
           >
             <div
               className="h-full rounded-full transition-[width] duration-500"
-              style={{ width: `${progressPct}%`, background: 'var(--panel-text)', opacity: 0.8 }}
+              style={{
+                width: `${progressPct}%`,
+                background: 'var(--panel-text)',
+                opacity: 0.8,
+              }}
             />
           </div>
         </section>
@@ -432,7 +519,7 @@ export default function TrainInfoSheet() {
         {timelineStops.length > 0 && (
           <section className="mt-4">
             <div
-              className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em]"
+              className="flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase"
               style={{ color: 'var(--panel-subtext)' }}
             >
               <MapPin className="h-3 w-3" /> {t('trains.stopTimeline')}
@@ -461,13 +548,22 @@ export default function TrainInfoSheet() {
           >
             <span className="truncate">
               <span style={{ opacity: 0.6 }}>{t('trains.from')}</span>{' '}
-              <span className="font-medium" style={{ color: 'var(--panel-text)' }}>
+              <span
+                className="font-medium"
+                style={{ color: 'var(--panel-text)' }}
+              >
                 {originDisplay}
               </span>
             </span>
-            <ChevronRight className="h-3.5 w-3.5 shrink-0" style={{ opacity: 0.4 }} />
+            <ChevronRight
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ opacity: 0.4 }}
+            />
             <span className="truncate text-right">
-              <span className="font-medium" style={{ color: 'var(--panel-text)' }}>
+              <span
+                className="font-medium"
+                style={{ color: 'var(--panel-text)' }}
+              >
                 {destDisplay}
               </span>
             </span>

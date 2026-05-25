@@ -1,0 +1,211 @@
+{
+  "name": "Local No. 416",
+  "link": "https://ttsview.railway.co.th/searchresult_2023.php?trainno=416&lang=eng",
+  "notes": [
+    "Local service with 3rd class seating cars.",
+    "Tickets can be purchased on the day of travel.",
+    "Runs Udon Thani to Nakhon Ratchasima."
+  ],
+  "timetable": [
+    {
+      "station": "Udon Thani",
+      "arrival": "-",
+      "departure": "05:55"
+    },
+    {
+      "station": "Nong Khon Kwang",
+      "arrival": "05:58",
+      "departure": "05:59"
+    },
+    {
+      "station": "Kham Kling",
+      "arrival": "06:03",
+      "departure": "06:04"
+    },
+    {
+      "station": "Nong Takai",
+      "arrival": "06:11",
+      "departure": "06:12"
+    },
+    {
+      "station": "Huai Sam Phat",
+      "arrival": "06:18",
+      "departure": "06:19"
+    },
+    {
+      "station": "Kumphawapi",
+      "arrival": "06:26",
+      "departure": "06:30"
+    },
+    {
+      "station": "Huai Koeng",
+      "arrival": "06:37",
+      "departure": "06:38"
+    },
+    {
+      "station": "Non Sa-at",
+      "arrival": "06:46",
+      "departure": "06:47"
+    },
+    {
+      "station": "Khao Suan Kwang",
+      "arrival": "06:58",
+      "departure": "06:59"
+    },
+    {
+      "station": "Huai Sieo",
+      "arrival": "07:08",
+      "departure": "07:09"
+    },
+    {
+      "station": "Nam Phong",
+      "arrival": "07:14",
+      "departure": "07:15"
+    },
+    {
+      "station": "Ban Wang Chai",
+      "arrival": "07:25",
+      "departure": "07:26"
+    },
+    {
+      "station": "Non Phayom",
+      "arrival": "07:25",
+      "departure": "07:26"
+    },
+    {
+      "station": "Samran",
+      "arrival": "07:37",
+      "departure": "07:38"
+    },
+    {
+      "station": "Khon Kaen",
+      "arrival": "07:47",
+      "departure": "07:50"
+    },
+    {
+      "station": "Tha Phra",
+      "arrival": "07:59",
+      "departure": "08:00"
+    },
+    {
+      "station": "Ban Haet",
+      "arrival": "08:12",
+      "departure": "08:13"
+    },
+    {
+      "station": "Ban Phai",
+      "arrival": "08:25",
+      "departure": "08:26"
+    },
+    {
+      "station": "Ban Han",
+      "arrival": "08:35",
+      "departure": "08:36"
+    },
+    {
+      "station": "Muang Phon",
+      "arrival": "08:51",
+      "departure": "08:52"
+    },
+    {
+      "station": "Nong Makhua",
+      "arrival": "08:58",
+      "departure": "08:59"
+    },
+    {
+      "station": "Sala Din",
+      "arrival": "09:16",
+      "departure": "09:17"
+    },
+    {
+      "station": "Nong Bua Lai",
+      "arrival": "09:11",
+      "departure": "09:12"
+    },
+    {
+      "station": "Bua Yai Junction",
+      "arrival": "09:22",
+      "departure": "09:25"
+    },
+    {
+      "station": "Huai Rahat",
+      "arrival": "09:41",
+      "departure": "09:42"
+    },
+    {
+      "station": "Non Thong Lang",
+      "arrival": "09:35",
+      "departure": "09:36"
+    },
+    {
+      "station": "Ban Rai",
+      "arrival": "09:57",
+      "departure": "09:58"
+    },
+    {
+      "station": "Muang Khong",
+      "arrival": "09:46",
+      "departure": "09:47"
+    },
+    {
+      "station": "Ban Don Yai",
+      "arrival": "09:53",
+      "departure": "09:54"
+    },
+    {
+      "station": "Phon Songkhram",
+      "arrival": "09:58",
+      "departure": "09:59"
+    },
+    {
+      "station": "Noen Thua Paep",
+      "arrival": "10:25",
+      "departure": "10:26"
+    },
+    {
+      "station": "Ban Makha",
+      "arrival": "10:07",
+      "departure": "10:08"
+    },
+    {
+      "station": "Ban Dong Phlong",
+      "arrival": "10:13",
+      "departure": "10:14"
+    },
+    {
+      "station": "Non Sung",
+      "arrival": "10:20",
+      "departure": "10:21"
+    },
+    {
+      "station": "Nong Maeo",
+      "arrival": "10:26",
+      "departure": "10:27"
+    },
+    {
+      "station": "Ban Kradon",
+      "arrival": "10:31",
+      "departure": "10:32"
+    },
+    {
+      "station": "Nong Khai Nam",
+      "arrival": "10:34",
+      "departure": "10:35"
+    },
+    {
+      "station": "Ban Ko",
+      "arrival": "10:43",
+      "departure": "10:44"
+    },
+    {
+      "station": "Thanon Chira Junction",
+      "arrival": "10:49",
+      "departure": "10:50"
+    },
+    {
+      "station": "Nakhon Ratchasima",
+      "arrival": "10:55",
+      "departure": "-"
+    }
+  ]
+}

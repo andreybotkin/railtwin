@@ -123,8 +123,8 @@ services:
     ports:
       - "${GATEWAY_PORT:-8002}:8002"
     depends_on:
-      # simulation:
-      #   condition: service_healthy
+      simulation:
+        condition: service_healthy
       redis:
         condition: service_healthy
     volumes:

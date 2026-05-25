@@ -28,7 +28,7 @@ function normalizeHeading(rotation: number): number {
 function getHeadingDegrees(
   from: ScreenPoint,
   to: ScreenPoint,
-  fallbackRotation: number,
+  fallbackRotation: number
 ): number {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
@@ -42,7 +42,7 @@ function getHeadingDegrees(
 function interpolatePoint(
   start: ScreenPoint,
   end: ScreenPoint,
-  distanceFromStart: number,
+  distanceFromStart: number
 ): ScreenPoint {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
@@ -67,7 +67,7 @@ export function buildConsistScreenPoints(
   polyline: ScreenPoint[],
   geomFraction: number,
   fallbackRotation: number,
-  distancesBehindHead: number[],
+  distancesBehindHead: number[]
 ): ConsistScreenPoint[] {
   if (polyline.length < 2 || distancesBehindHead.length === 0) return [];
 
@@ -77,7 +77,7 @@ export function buildConsistScreenPoints(
   for (let i = 0; i < polyline.length - 1; i++) {
     totalLength += Math.hypot(
       polyline[i + 1].x - polyline[i].x,
-      polyline[i + 1].y - polyline[i].y,
+      polyline[i + 1].y - polyline[i].y
     );
     cumulative.push(totalLength);
   }
@@ -93,14 +93,22 @@ export function buildConsistScreenPoints(
   const headDistance = Math.max(0, Math.min(1, geomFraction)) * totalLength;
 
   // For extrapolation before the start.
-  const firstTangentHeading = getHeadingDegrees(polyline[0], polyline[1], fallbackRotation);
+  const firstTangentHeading = getHeadingDegrees(
+    polyline[0],
+    polyline[1],
+    fallbackRotation
+  );
   const firstDx = polyline[1].x - polyline[0].x;
   const firstDy = polyline[1].y - polyline[0].y;
   const firstLen = Math.hypot(firstDx, firstDy) || 1;
 
   // For extrapolation past the end.
   const lastIdx = polyline.length - 1;
-  const lastTangentHeading = getHeadingDegrees(polyline[lastIdx - 1], polyline[lastIdx], fallbackRotation);
+  const lastTangentHeading = getHeadingDegrees(
+    polyline[lastIdx - 1],
+    polyline[lastIdx],
+    fallbackRotation
+  );
   const lastDx = polyline[lastIdx].x - polyline[lastIdx - 1].x;
   const lastDy = polyline[lastIdx].y - polyline[lastIdx - 1].y;
   const lastLen = Math.hypot(lastDx, lastDy) || 1;
@@ -134,7 +142,10 @@ export function buildConsistScreenPoints(
 
     // Find the segment containing targetDistance.
     let segIdx = 0;
-    while (segIdx < cumulative.length - 1 && cumulative[segIdx + 1] < targetDistance) {
+    while (
+      segIdx < cumulative.length - 1 &&
+      cumulative[segIdx + 1] < targetDistance
+    ) {
       segIdx++;
     }
 

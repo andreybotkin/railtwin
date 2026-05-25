@@ -3,6 +3,7 @@
 
 # Stage 1: Build dependencies
 FROM python:3.14-slim AS builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
@@ -13,9 +14,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY pyproject.toml .
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip wheel --no-cache-dir --wheel-dir /wheels -e .
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-install-project
+
+COPY . .
+RUN uv sync --frozen
 
 # Stage 2: Production image
 FROM python:3.14-slim AS production
@@ -28,13 +32,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --shell /bin/bash appuser
 
-# Copy wheels from builder
-COPY --from=builder /wheels /wheels
-
-# Install dependencies from wheels
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir /wheels/* \
-    && rm -rf /wheels
+# Copy virtual environment from builder
+COPY --from=builder --chown=appuser:appuser /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy application code
 COPY --chown=appuser:appuser . .

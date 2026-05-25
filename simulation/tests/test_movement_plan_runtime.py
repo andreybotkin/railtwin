@@ -503,9 +503,9 @@ def test_resolve_trajectory_returns_none_when_no_active_segment_at_time_zero() -
         lookahead_seconds=60,
         step_seconds=60,
     )
-    assert result is None
-
-
+    # The new behavior clamps to the first station, so it should not be None
+    assert result is not None
+    assert result.frames[0].geom_fraction == 0.0
 def test_resolve_trajectory_returns_none_when_missing_geom_fraction() -> None:
     seg = PlannedMovementSegment(
         id=1,

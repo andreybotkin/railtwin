@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Theme class strategy: html.dark / html.satellite */
 @custom-variant dark (&:is(.dark *));
@@ -44,18 +44,31 @@
 }
 
 @keyframes accordion-down {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @layer base {
@@ -82,15 +95,15 @@
     --radius: 0.5rem;
 
     /* Panel glass-morphic tokens */
-    --panel-bg: rgba(252,249,242,0.86);
-    --panel-bg-strong: rgba(252,249,242,0.94);
-    --panel-border: rgba(255,255,255,0.55);
-    --panel-shadow: 0 18px 40px -28px rgba(15,23,42,0.55);
-    --panel-shadow-up: 0 -18px 48px -22px rgba(15,23,42,0.45);
+    --panel-bg: rgba(252, 249, 242, 0.86);
+    --panel-bg-strong: rgba(252, 249, 242, 0.94);
+    --panel-border: rgba(255, 255, 255, 0.55);
+    --panel-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.55);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(15, 23, 42, 0.45);
     --panel-text: #09090b;
     --panel-subtext: #71717a;
-    --panel-inner: rgba(255,255,255,0.70);
-    --panel-inner-ring: rgba(0,0,0,0.05);
+    --panel-inner: rgba(255, 255, 255, 0.7);
+    --panel-inner-ring: rgba(0, 0, 0, 0.05);
     --page-bg: #f4f4f5;
     --header-logo-bg: #09090b;
     --header-logo-text: #ffffff;
@@ -123,15 +136,15 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
 
-    --panel-bg: rgba(15,18,30,0.88);
-    --panel-bg-strong: rgba(12,15,25,0.95);
-    --panel-border: rgba(255,255,255,0.10);
-    --panel-shadow: 0 18px 40px -28px rgba(0,0,0,0.80);
-    --panel-shadow-up: 0 -18px 48px -22px rgba(0,0,0,0.70);
+    --panel-bg: rgba(15, 18, 30, 0.88);
+    --panel-bg-strong: rgba(12, 15, 25, 0.95);
+    --panel-border: rgba(255, 255, 255, 0.1);
+    --panel-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.8);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(0, 0, 0, 0.7);
     --panel-text: #f1f5f9;
     --panel-subtext: #94a3b8;
-    --panel-inner: rgba(255,255,255,0.06);
-    --panel-inner-ring: rgba(255,255,255,0.08);
+    --panel-inner: rgba(255, 255, 255, 0.06);
+    --panel-inner-ring: rgba(255, 255, 255, 0.08);
     --page-bg: #0a0c16;
     --header-logo-bg: #f1f5f9;
     --header-logo-text: #09090b;
@@ -165,15 +178,15 @@
     --input: 148 28% 14%;
     --ring: 142 71% 45%;
 
-    --panel-bg: rgba(8,26,14,0.88);
-    --panel-bg-strong: rgba(6,20,10,0.95);
-    --panel-border: rgba(74,222,128,0.22);
-    --panel-shadow: 0 18px 40px -28px rgba(0,0,0,0.80);
-    --panel-shadow-up: 0 -18px 48px -22px rgba(0,0,0,0.70);
+    --panel-bg: rgba(8, 26, 14, 0.88);
+    --panel-bg-strong: rgba(6, 20, 10, 0.95);
+    --panel-border: rgba(74, 222, 128, 0.22);
+    --panel-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.8);
+    --panel-shadow-up: 0 -18px 48px -22px rgba(0, 0, 0, 0.7);
     --panel-text: #f0fdf4;
     --panel-subtext: #86efac;
-    --panel-inner: rgba(74,222,128,0.08);
-    --panel-inner-ring: rgba(74,222,128,0.15);
+    --panel-inner: rgba(74, 222, 128, 0.08);
+    --panel-inner-ring: rgba(74, 222, 128, 0.15);
     --page-bg: #050f07;
     --header-logo-bg: #16a34a;
     --header-logo-text: #ffffff;
@@ -289,7 +302,8 @@
 }
 
 @keyframes pulse-train {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   50% {
@@ -346,40 +360,48 @@
 
 /* On time — green */
 .leaflet-tooltip.stop-tip-ontime {
-  background: #16A34A;
-  border: 1px solid #15803D;
+  background: #16a34a;
+  border: 1px solid #15803d;
   color: #fff;
   box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
 }
-.leaflet-tooltip-top.stop-tip-ontime::before { border-top-color: #16A34A; }
+.leaflet-tooltip-top.stop-tip-ontime::before {
+  border-top-color: #16a34a;
+}
 
 /* Small delay (1–14 m) — amber */
 .leaflet-tooltip.stop-tip-warn {
-  background: #D97706;
-  border: 1px solid #B45309;
+  background: #d97706;
+  border: 1px solid #b45309;
   color: #fff;
   box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
 }
-.leaflet-tooltip-top.stop-tip-warn::before { border-top-color: #D97706; }
+.leaflet-tooltip-top.stop-tip-warn::before {
+  border-top-color: #d97706;
+}
 
 /* Large delay (15 m+) — red */
 .leaflet-tooltip.stop-tip-late {
-  background: #DC2626;
-  border: 1px solid #B91C1C;
+  background: #dc2626;
+  border: 1px solid #b91c1c;
   color: #fff;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
 }
-.leaflet-tooltip-top.stop-tip-late::before { border-top-color: #DC2626; }
+.leaflet-tooltip-top.stop-tip-late::before {
+  border-top-color: #dc2626;
+}
 
 /* Passed stop — gray, hover only */
 .leaflet-tooltip.stop-tip-passed {
   background: rgba(243, 244, 246, 0.95);
-  border: 1px solid #D1D5DB;
-  color: #6B7280;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   font-weight: 400;
 }
-.leaflet-tooltip-top.stop-tip-passed::before { border-top-color: rgba(243, 244, 246, 0.95); }
+.leaflet-tooltip-top.stop-tip-passed::before {
+  border-top-color: rgba(243, 244, 246, 0.95);
+}
 
 /* Popup styles */
 .leaflet-popup-content-wrapper {

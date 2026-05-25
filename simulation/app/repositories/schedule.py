@@ -9,8 +9,9 @@ from typing import Any, cast
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from geoalchemy2.functions import ST_AsGeoJSON
 
-from app.models.database.models import Schedule
+from app.models.database.models import Schedule, Station
 from app.repositories.base import BaseRepository
 
 
@@ -150,7 +151,9 @@ class ScheduleRepository(BaseRepository[Schedule]):
         Returns:
             List of schedules with train and station info.
         """
-        query = select(Schedule).options(
+        query = select(Schedule, ST_AsGeoJSON(Station.location)).outerjoin(
+            Station, Schedule.station_id == Station.id
+        ).options(
             selectinload(Schedule.train),
             selectinload(Schedule.station),
         )
@@ -173,7 +176,14 @@ class ScheduleRepository(BaseRepository[Schedule]):
         )
 
         result = await self.session.execute(query)
-        return list(result.scalars().all())
+        schedules = []
+        for row in result.all():
+            schedule = row[0]
+            geojson = row[1]
+            if schedule.station is not None:
+                schedule.station._geojson = geojson
+            schedules.append(schedule)
+        return schedules
 
     async def get_upcoming_departures(
         self,

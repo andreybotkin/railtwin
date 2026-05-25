@@ -107,8 +107,12 @@ def parse_stations_kml(path: Path) -> ParsedStations:
                             try:
                                 lon_str = parts[0]
                                 lat_str = parts[1]
-                            except (IndexError, ValueError):
-                                pass
+                            except (IndexError, ValueError) as e:
+                                logger.warning(
+                                    "Failed to parse Placemark coordinates",
+                                    error=str(e),
+                                    text=coords_el.text,
+                                )
 
             if lat_str is None or lon_str is None:
                 skipped += 1
@@ -175,8 +179,12 @@ def parse_stations_kml(path: Path) -> ParsedStations:
                         try:
                             lon_str = parts[0]
                             lat_str = parts[1]
-                        except (IndexError, ValueError):
-                            pass
+                        except (IndexError, ValueError) as e:
+                            logger.warning(
+                                "Failed to parse Placemark coordinates",
+                                error=str(e),
+                                text=coords_el.text,
+                            )
 
         if lat_str is None or lon_str is None:
             skipped += 1
