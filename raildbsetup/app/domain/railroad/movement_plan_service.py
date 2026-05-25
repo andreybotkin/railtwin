@@ -516,15 +516,24 @@ def build_movement_plan(
                 while left_idx >= 0 and resolved[left_idx].geom_fraction is None:
                     left_idx -= 1
                 right_idx = i + 1
-                while right_idx < total_usable and resolved[right_idx].geom_fraction is None:
+                while (
+                    right_idx < total_usable
+                    and resolved[right_idx].geom_fraction is None
+                ):
                     right_idx += 1
 
                 left_val = resolved[left_idx].geom_fraction if left_idx >= 0 else None
-                right_val = resolved[right_idx].geom_fraction if right_idx < total_usable else None
+                right_val = (
+                    resolved[right_idx].geom_fraction
+                    if right_idx < total_usable
+                    else None
+                )
 
                 if left_val is not None and right_val is not None:
                     span = right_idx - left_idx
-                    resolved[i].geom_fraction = left_val + (right_val - left_val) * ((i - left_idx) / span)
+                    resolved[i].geom_fraction = left_val + (right_val - left_val) * (
+                        (i - left_idx) / span
+                    )
                 elif left_val is not None:
                     resolved[i].geom_fraction = left_val
                 elif right_val is not None:

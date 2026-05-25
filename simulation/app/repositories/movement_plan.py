@@ -81,9 +81,7 @@ class MovementPlanRepository:
 
         # Top warning codes (JSONB unnest — PostgreSQL only)
         try:
-            warning_rows = (
-                await self._session.execute(
-                    text("""
+            warning_rows = (await self._session.execute(text("""
                         SELECT elem AS code, count(*)::int AS cnt
                         FROM planned_train_runs,
                              jsonb_array_elements_text(warnings::jsonb) AS elem
@@ -92,9 +90,7 @@ class MovementPlanRepository:
                         GROUP BY elem
                         ORDER BY cnt DESC
                         LIMIT 10
-                        """)
-                )
-            ).all()
+                        """))).all()
             top_warning_codes = [row.code for row in warning_rows]
         except Exception:  # noqa: BLE001 — SQLite fallback in tests
             top_warning_codes = []
@@ -170,9 +166,7 @@ class MovementPlanRepository:
     async def get_warning_counts(self) -> list[dict[str, Any]]:
         """Warning code frequency across all runs (PostgreSQL only)."""
         try:
-            rows = (
-                await self._session.execute(
-                    text("""
+            rows = (await self._session.execute(text("""
                         SELECT elem AS code, count(*)::int AS count
                         FROM planned_train_runs,
                              jsonb_array_elements_text(warnings::jsonb) AS elem
@@ -180,9 +174,7 @@ class MovementPlanRepository:
                           AND warnings::text <> 'null'
                         GROUP BY elem
                         ORDER BY count DESC
-                        """)
-                )
-            ).all()
+                        """))).all()
             return [{"code": row.code, "count": row.count} for row in rows]
         except Exception:
             logger.exception("Failed to query warning counts")

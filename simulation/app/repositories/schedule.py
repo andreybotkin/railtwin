@@ -151,11 +151,13 @@ class ScheduleRepository(BaseRepository[Schedule]):
         Returns:
             List of schedules with train and station info.
         """
-        query = select(Schedule, ST_AsGeoJSON(Station.location)).outerjoin(
-            Station, Schedule.station_id == Station.id
-        ).options(
-            selectinload(Schedule.train),
-            selectinload(Schedule.station),
+        query = (
+            select(Schedule, ST_AsGeoJSON(Station.location))
+            .outerjoin(Station, Schedule.station_id == Station.id)
+            .options(
+                selectinload(Schedule.train),
+                selectinload(Schedule.station),
+            )
         )
 
         filters = []

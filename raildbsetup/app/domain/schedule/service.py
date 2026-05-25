@@ -1,4 +1,3 @@
-
 from app.domain.schedule.entities import TrainData
 from app.domain.schedule.repository import ScheduleRepository
 

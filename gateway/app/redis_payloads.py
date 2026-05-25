@@ -107,7 +107,7 @@ def parse_bbox(bbox: str | None) -> BBox | None:
         raw_min_lon, raw_min_lat, raw_max_lon, raw_max_lat = (
             float(value) for value in bbox.split(",")
         )
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         return None
 
     min_lon, max_lon = sorted((raw_min_lon, raw_max_lon))

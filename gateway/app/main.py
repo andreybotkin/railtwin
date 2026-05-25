@@ -316,7 +316,7 @@ async def ws_trajectory(websocket: WebSocket) -> None:
             filter_trajectories=_filter_trajectories_for_viewport,
             update_interval_seconds=settings.trajectory_poll_interval,
         )
-    except (WebSocketDisconnect, asyncio.CancelledError):
+    except WebSocketDisconnect, asyncio.CancelledError:
         return
 
 
@@ -331,7 +331,7 @@ async def ws_stopsequence(websocket: WebSocket, train_id: int) -> None:
             ),
             ws_poll_interval=settings.ws_poll_interval,
         )
-    except (WebSocketDisconnect, asyncio.CancelledError):
+    except WebSocketDisconnect, asyncio.CancelledError:
         return
 
 

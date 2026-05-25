@@ -392,9 +392,15 @@ def resolve_trajectory(
 
         seg = planned_run.find_segment(step_effective)
         if seg is None:
-            if planned_run.segments and step_effective < planned_run.segments[0].absolute_start_minutes:
+            if (
+                planned_run.segments
+                and step_effective < planned_run.segments[0].absolute_start_minutes
+            ):
                 seg = planned_run.segments[0]
-            elif planned_run.segments and step_effective > planned_run.segments[-1].absolute_end_minutes:
+            elif (
+                planned_run.segments
+                and step_effective > planned_run.segments[-1].absolute_end_minutes
+            ):
                 seg = planned_run.segments[-1]
             else:
                 if i == 0:

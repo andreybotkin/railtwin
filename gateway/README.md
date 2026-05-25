@@ -48,5 +48,25 @@ gateway/
 └── Dockerfile         # Container image build config
 ```
 
+## Development
+
+### Code Quality
+
+Run these verification commands locally before committing or pushing changes:
+
+```bash
+# Format code
+uv run black app tests
+
+# Format check only
+uv run black --check app tests
+
+# Lint code
+uv run ruff check .
+
+# Type checking
+uv run mypy app
+```
+
 ## License
 MIT License.

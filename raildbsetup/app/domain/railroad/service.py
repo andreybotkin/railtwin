@@ -1,4 +1,3 @@
-
 from app.domain.railroad.entities import RouteData, StationData
 from app.domain.railroad.repository import RailroadRepository
 

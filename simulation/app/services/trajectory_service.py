@@ -211,11 +211,15 @@ def _stop_fractions(
                     right_idx += 1
 
                 left_val = raw_reference[left_idx] if left_idx >= 0 else None
-                right_val = raw_reference[right_idx] if right_idx < total_stops else None
+                right_val = (
+                    raw_reference[right_idx] if right_idx < total_stops else None
+                )
 
                 if left_val is not None and right_val is not None:
                     span = right_idx - left_idx
-                    reference[i] = left_val + (right_val - left_val) * ((i - left_idx) / span)
+                    reference[i] = left_val + (right_val - left_val) * (
+                        (i - left_idx) / span
+                    )
                 elif left_val is not None:
                     reference[i] = left_val
                 elif right_val is not None:
@@ -284,7 +288,9 @@ def _find_bounding_stops(
             continue
         if dep_mins + delay > step_minutes:
             next_index = i
-            prev_index = i - 1 if i > 0 else 0  # Clamp to start if before the first departure
+            prev_index = (
+                i - 1 if i > 0 else 0
+            )  # Clamp to start if before the first departure
             break
         prev_index = i
 

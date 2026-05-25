@@ -58,14 +58,14 @@ npm run test
 
 ## Code Style
 
-This project follows strict code style guidelines:
+This project follows strict code style guidelines and validates them automatically on every push in GitHub Actions.
 
-**Python (Simulation)**:
-- Formatter: Black
-- Linter: Ruff
-- Type Checker: mypy
+**Python (All services: simulation, raildbsetup, raildatacollector, gateway)**:
+- Formatter: Black (`uv run black app tests` to format; `uv run black --check app tests` to check)
+- Linter: Ruff (`uv run ruff check .` or `uv run ruff check --fix .`)
+- Type Checker: mypy (`uv run mypy app`)
 
-**TypeScript**:
+**TypeScript (Frontend)**:
 - Formatter: Prettier
 - Linter: ESLint
 - Type Checker: TypeScript

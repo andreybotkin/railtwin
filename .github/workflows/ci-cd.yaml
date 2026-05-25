@@ -330,10 +330,13 @@ jobs:
             ${{ runner.os }}-pip-gateway-
 
       - name: Install dependencies
-        run: pip install -e . pytest pytest-cov ruff mypy
+        run: pip install -e ".[dev]"
 
       - name: Run linting (Ruff)
         run: ruff check app tests
+
+      - name: Run formatting check (Black)
+        run: black --check app tests
 
       - name: Run type checking (mypy)
         run: mypy app

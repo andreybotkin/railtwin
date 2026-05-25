@@ -15,12 +15,25 @@ dependencies = [
     "structlog>=25.5.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.15.0",
+    "black>=25.0.0",
+    "mypy>=1.15.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+]
+
 [build-system]
 requires = ["setuptools>=69.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["app*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py314"]
 
 [tool.ruff]
 line-length = 88
