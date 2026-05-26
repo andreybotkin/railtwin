@@ -111,6 +111,15 @@ railtwin/
 
 See full API documentation at `/docs` when running the simulation service. Frontend traffic should use the gateway service.
 
+## Precomputed Movement Plan
+
+For high-performance trajectory generation, the simulation service supports a precomputed movement plan resolver (geops mobility-toolbox-js pattern). Rather than projecting station coordinates onto route polylines on every simulation tick, movement plans are calculated once by the `raildbsetup` service and persisted in the database. The simulation service then resolves active positions via binary search and linear interpolation.
+
+This feature can be configured in the simulation service via the following environment variables:
+- `MOVEMENT_PLAN_RUNTIME_ENABLED` (default: `false`): Set to `true` to use the precomputed plan resolver at runtime.
+- `MOVEMENT_PLAN_FALLBACK_ENABLED` (default: `true`): Set to `true` to fall back to the on-the-fly trajectory generator if a precomputed plan is missing or invalid.
+- `MOVEMENT_PLAN_DIAGNOSTICS_ENABLED` (default: `true`): Set to `true` to enable read-only admin endpoints for inspecting plans.
+
 ## Data Sources
 
 - **Railway Network**: State Railway of Thailand (SRT)

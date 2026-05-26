@@ -1,8 +1,8 @@
-# Precomputed Movement Plan — Phase 1 Design
+# Precomputed Movement Plan
 
-**Status:** design / pre-implementation  
-**Author:** automated analysis, April 2026  
-**Scope:** analysis of current codebase + concrete proposal for Phase 1
+**Status:** Completed & Fully Integrated
+**Author:** Automated Analysis & Updates, May 2026
+**Scope:** Full-system implementation of precomputed movement plans for high-performance trajectory resolution.
 
 ---
 
@@ -283,6 +283,11 @@ The `Trajectory` object produced is **structurally identical** to what
 ---
 
 ## 5. Phased Implementation Plan
+
+> [!NOTE]
+> **Implementation Status:** All phases (Phase 1 through Phase 6) have been fully implemented, tested, and integrated. The system resolver is fully functional and operates at runtime under the `MOVEMENT_PLAN_RUNTIME_ENABLED` configuration flag (which defaults to `false` in development but can be toggled to `true`).
+> 
+> The historical plan details below describe the design roadmap that was successfully followed.
 
 ### Phase 1 — Diagnostics and schema design *(this document)*
 
