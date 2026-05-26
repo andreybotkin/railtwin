@@ -597,7 +597,6 @@ Leaflet.setLatLng() updates map markers
 
 ## **Missing/Incomplete**
 
-- **Station search autocomplete** — hook exists (`useStationSearch`) but no UI component
 - **Historical playback** — no timeline scrubber
 - **Performance metrics** — no Lighthouse/profiling setup
 - **E2E tests** — frontend/TESTING_TODO.md lists Cypress TODOs
