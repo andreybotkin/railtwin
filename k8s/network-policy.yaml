@@ -47,6 +47,28 @@ spec:
       ports:
         - protocol: TCP
           port: 443
-        # TTS socket.io server (ttsview.railway.co.th:5000)
+        # TTS socket.io server (ttsview.railway.co.th:5000) - required for raildatacollector
         - protocol: TCP
           port: 5000
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: railway
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-pdb
+  namespace: railway
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis

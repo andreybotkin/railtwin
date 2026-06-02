@@ -9,11 +9,14 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from fastapi import WebSocket
+
+logger = logging.getLogger(__name__)
 
 TrajectoryReader = Callable[[], Awaitable[list[dict[str, Any]]]]
 StopSequenceReader = Callable[[int], Awaitable[list[dict[str, Any]] | None]]
@@ -85,7 +88,8 @@ async def stream_trajectories(
                 now_ms,
                 force_resend=force_resend,
             )
-        except Exception:
+        except Exception as exc:
+            logger.debug("WebSocket send error, disconnecting client: %s", exc)
             return
         force_resend = False
         keepalive_counter += 1
@@ -93,7 +97,8 @@ async def stream_trajectories(
             keepalive_counter = 0
             try:
                 await websocket.send_json({"source": "keepalive", "timestamp": now_ms})
-            except Exception:
+            except Exception as exc:
+                logger.debug("WebSocket keepalive send error: %s", exc)
                 return
 
         deadline = asyncio.get_running_loop().time() + update_interval_s
@@ -115,7 +120,8 @@ async def stream_trajectories(
                     break
             except TimeoutError:
                 continue
-            except Exception:
+            except Exception as exc:
+                logger.debug("WebSocket receive error, disconnecting client: %s", exc)
                 return
 
 
@@ -142,7 +148,8 @@ async def stream_stopsequence(
         if serialized != last_payload:
             try:
                 await websocket.send_json(payload)
-            except Exception:
+            except Exception as exc:
+                logger.debug("WebSocket send error for train %s: %s", train_id, exc)
                 return
             last_payload = serialized
 
@@ -156,7 +163,8 @@ async def stream_stopsequence(
                         "timestamp": asyncio.get_running_loop().time(),
                     }
                 )
-            except Exception:
+            except Exception as exc:
+                logger.debug("WebSocket keepalive error for train %s: %s", train_id, exc)
                 return
 
         try:
@@ -167,7 +175,8 @@ async def stream_stopsequence(
                 await websocket.send_text("pong")
         except TimeoutError:
             continue
-        except Exception:
+        except Exception as exc:
+            logger.debug("WebSocket receive error for train %s: %s", train_id, exc)
             return
 
 
