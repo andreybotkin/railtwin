@@ -384,7 +384,11 @@ def _validate_path(path: str) -> None:
     if not path:
         return
     lower_path = path.lower()
-    if "://" in lower_path or lower_path.startswith("//") or lower_path.startswith("/http"):
+    if (
+        "://" in lower_path
+        or lower_path.startswith("//")
+        or lower_path.startswith("/http")
+    ):
         raise HTTPException(
             status_code=400,
             detail="Invalid path: potential SSRF attack detected",
