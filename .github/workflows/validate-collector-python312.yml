@@ -9,7 +9,7 @@ on:
       - fix/46-raildatacollector-python-312
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: fix/46-raildatacollector-python-312
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -53,9 +56,14 @@ jobs:
       - name: Build Docker image
         run: docker build -t raildatacollector:python312 raildatacollector
 
-      - name: Upload regenerated lock
-        uses: actions/upload-artifact@v4
-        with:
-          name: raildatacollector-uv-lock
-          path: raildatacollector/uv.lock
-          if-no-files-found: error
+      - name: Commit regenerated lock
+        run: |
+          if git diff --quiet -- raildatacollector/uv.lock; then
+            echo "Lock file is already current"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add raildatacollector/uv.lock
+          git commit -m 'chore(collector): regenerate lock for Python 3.12'
+          git push origin HEAD:fix/46-raildatacollector-python-312
