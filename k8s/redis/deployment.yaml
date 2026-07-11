@@ -1,3 +1,18 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: railway
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: cache
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,12 +27,15 @@ spec:
     matchLabels:
       app.kubernetes.io/name: redis
       app.kubernetes.io/component: cache
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app.kubernetes.io/name: redis
         app.kubernetes.io/component: cache
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: redis
           image: redis:8-alpine
@@ -27,10 +45,17 @@ spec:
               name: redis
           args:
             - redis-server
-            - --save
-            - ""
             - --appendonly
-            - "no"
+            - "yes"
+            - --appendfsync
+            - everysec
+            - --save
+            - "900 1 300 10 60 10000"
+            - --dir
+            - /data
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
           readinessProbe:
             exec:
               command: ["redis-cli", "ping"]
@@ -48,3 +73,7 @@ spec:
             limits:
               cpu: 300m
               memory: 256Mi
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
