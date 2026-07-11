@@ -1,20 +1,16 @@
 name: Apply PR 47 Migration
 
 on:
-  issue_comment:
-    types: [created]
+  push:
+    branches: [main]
+    paths:
+      - '.github/trigger-pr47'
 
 permissions:
   contents: write
-  pull-requests: read
 
 jobs:
   apply-and-validate:
-    if: >-
-      github.event.issue.pull_request &&
-      github.event.issue.number == 47 &&
-      github.event.comment.body == '/apply-pr47' &&
-      github.event.comment.user.login == 'andreybotkin'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR source branch
