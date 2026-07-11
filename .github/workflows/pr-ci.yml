@@ -7,7 +7,6 @@ on:
       - 'frontend/**'
       - 'gateway/**'
       - 'k8s/**'
-      - 'tools/**'
       - '.github/workflows/pr-ci.yml'
 
 concurrency:
@@ -78,22 +77,3 @@ jobs:
           PY
         env:
           PYTHONUNBUFFERED: '1'
-
-  prepare-railmap:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: perf/47-fast-cold-start
-          fetch-depth: 0
-      - run: python tools/apply_railmap.py
-      - name: Commit generated RailMap
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'perf(frontend): preserve train route UX with Canvas network'
-          git push origin HEAD:perf/47-fast-cold-start
