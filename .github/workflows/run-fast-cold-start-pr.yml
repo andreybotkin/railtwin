@@ -1,5 +1,6 @@
 name: Run Fast Cold Start Migration
 
+# Trigger the trusted pull_request_target validator for PR #47.
 on:
   pull_request:
     branches:
