@@ -23,7 +23,6 @@ import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 
 import type { NetworkEdgeCollection } from '@/types';
-import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
 import { useMapTopology, useTheme, useTrajectoryStream } from '@/lib/hooks';
 import { useRailwayStore } from '@/lib/stores/railway-store';
 import { getRouteColor, getTrainTypeColor } from '@/lib/utils';
@@ -143,7 +142,9 @@ function TracksCanvasLayer({ edges }: { edges?: NetworkEdgeCollection | null }) 
       }),
     });
     const group = L.layerGroup([casing, routes]).addTo(map);
-    return () => map.removeLayer(group);
+    return () => {
+      map.removeLayer(group);
+    };
   }, [collection, map, renderer]);
 
   return null;
@@ -198,9 +199,6 @@ function MapCore() {
   );
   const selectedTrajectory =
     selectedTrainId === null ? null : trajectories.get(selectedTrainId) ?? null;
-  const selectedFrame = selectedTrajectory
-    ? getTrajectoryFrameAt(Date.now(), selectedTrajectory)
-    : null;
   const selectedPositions = selectedTrajectory?.route_coords.map(
     ([lon, lat]) => [lat, lon] as [number, number]
   );
@@ -219,11 +217,14 @@ function MapCore() {
       {selectedPositions && selectedPositions.length >= 2 && (
         <Polyline
           positions={selectedPositions}
-          color={getTrainTypeColor(selectedTrajectory?.meta.train_type ?? '')}
+          color={
+            selectedTrajectory
+              ? getTrainTypeColor(selectedTrajectory.meta.train_type)
+              : '#2196F3'
+          }
           weight={8}
           opacity={0.9}
           interactive={false}
-          dashArray={selectedFrame?.travelForward === false ? '8 10' : undefined}
         />
       )}
 
