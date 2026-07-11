@@ -164,7 +164,9 @@ async def stream_stopsequence(
                     }
                 )
             except Exception as exc:
-                logger.debug("WebSocket keepalive error for train %s: %s", train_id, exc)
+                logger.debug(
+                    "WebSocket keepalive error for train %s: %s", train_id, exc
+                )
                 return
 
         try:
