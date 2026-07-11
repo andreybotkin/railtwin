@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
+from unittest.mock import AsyncMock
+
 import pytest
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 
+import app.main as gateway_main
 from app.main import ALLOWED_HEADERS, SENSITIVE_HEADERS, _validate_path, app
 
 
@@ -76,3 +81,42 @@ class TestPublicProxyMethods:
 
         assert route.methods == {"GET", "HEAD", "OPTIONS"}
         assert not ({"POST", "PUT", "PATCH", "DELETE"} & route.methods)
+
+
+class TestReadiness:
+    """Readiness must fail closed while runtime cache data is unavailable."""
+
+    def test_not_ready_without_redis_client(self, monkeypatch) -> None:
+        monkeypatch.setattr(gateway_main, "redis_client", None)
+
+        response = asyncio.run(gateway_main.ready())
+
+        assert isinstance(response, JSONResponse)
+        assert response.status_code == 503
+
+    def test_not_ready_without_topology_snapshot(self, monkeypatch) -> None:
+        redis_client = AsyncMock()
+        redis_client.ping.return_value = True
+        monkeypatch.setattr(gateway_main, "redis_client", redis_client)
+        monkeypatch.setattr(
+            gateway_main,
+            "read_topology_metadata",
+            AsyncMock(return_value=None),
+        )
+
+        response = asyncio.run(gateway_main.ready())
+
+        assert isinstance(response, JSONResponse)
+        assert response.status_code == 503
+
+    def test_ready_with_redis_and_topology(self, monkeypatch) -> None:
+        redis_client = AsyncMock()
+        redis_client.ping.return_value = True
+        monkeypatch.setattr(gateway_main, "redis_client", redis_client)
+        monkeypatch.setattr(
+            gateway_main,
+            "read_topology_metadata",
+            AsyncMock(return_value={"topology_version": "v1"}),
+        )
+
+        assert asyncio.run(gateway_main.ready()) == {"status": "ready"}
