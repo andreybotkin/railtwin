@@ -1,16 +1,101 @@
 from __future__ import annotations
 
+import argparse
+import shutil
 import subprocess
 from pathlib import Path
 
 BASE_COMMIT = "528dd0633dc0d704e5be2a71fbf83342c3cfe1d4"
-SOURCE_PATH = "frontend/src/components/Map/RailMap.tsx"
+SOURCE_PATH = Path("frontend/src/components/Map/RailMap.tsx")
 OUTPUT_PATH = Path("generated/RailMap.tsx")
+PR_CI_PATH = Path(".github/workflows/pr-ci.yml")
+TEMP_WORKFLOW_PATH = Path(".github/workflows/prepare-railmap.yml")
+
+FINAL_PR_CI = """name: Pull Request CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'gateway/**'
+      - 'k8s/**'
+      - '.github/workflows/pr-ci.yml'
+
+concurrency:
+  group: pr-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gateway:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gateway
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install uv
+      - run: uv pip install --system -e \".[dev]\"
+      - run: ruff check app tests
+      - run: black --check app tests
+      - run: mypy app
+      - run: pytest --cov=app --cov-report=term-missing
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - name: Type-check
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run type-check 2>&1 | tee typecheck.log
+      - name: Upload type-check diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-typecheck-log
+          path: frontend/typecheck.log
+          if-no-files-found: error
+      - run: npm run test -- --coverage --passWithNoTests
+      - run: npm run build
+
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pyyaml
+      - name: Validate Kubernetes YAML
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          for path in Path('k8s').rglob('*.yaml'):
+              list(yaml.safe_load_all(path.read_text()))
+              print(path)
+          PY
+        env:
+          PYTHONUNBUFFERED: '1'
+"""
 
 
 def baseline() -> str:
     result = subprocess.run(
-        ["git", "show", f"{BASE_COMMIT}:{SOURCE_PATH}"],
+        ["git", "show", f"{BASE_COMMIT}:{SOURCE_PATH.as_posix()}"],
         check=True,
         capture_output=True,
         text=True,
@@ -24,7 +109,7 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new, 1)
 
 
-def main() -> None:
+def generate_railmap() -> str:
     text = baseline()
     text = replace_once(
         text,
@@ -158,7 +243,7 @@ function TracksCanvasLayer({
     map_props = """        zoomControl={false}
         scrollWheelZoom
       >"""
-    text = replace_once(
+    return replace_once(
         text,
         map_props,
         """        zoomControl={false}
@@ -168,8 +253,23 @@ function TracksCanvasLayer({
         "MapContainer props",
     )
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(text)
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--apply", action="store_true")
+    args = parser.parse_args()
+
+    text = generate_railmap()
+    if not args.apply:
+        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        OUTPUT_PATH.write_text(text)
+        return
+
+    SOURCE_PATH.write_text(text)
+    PR_CI_PATH.write_text(FINAL_PR_CI)
+    TEMP_WORKFLOW_PATH.unlink(missing_ok=True)
+    shutil.rmtree(OUTPUT_PATH.parent, ignore_errors=True)
+    Path(__file__).unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
