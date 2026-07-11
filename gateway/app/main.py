@@ -1,22 +1,4 @@
-"""Gateway — a thin edge layer in front of the simulation service.
-
-Endpoints:
-
-* ``GET /health``, ``GET /ready`` — probes.
-* ``GET /api/v1/system/topology`` — topology metadata snapshot.
-* ``GET /api/v1/map/topology`` — one-shot ``{stations, network_edges}`` snapshot
-  with ETag for cheap client-side cache invalidation.
-* ``GET /api/v1/trains/trajectories`` — initial load of all active trajectories
-  (optionally bbox-filtered to head position).
-* ``GET /api/v1/trains/{id}/trajectory`` — single trajectory.
-* ``GET /api/v1/trains/{id}/stopsequence`` — upcoming stops with state.
-* ``WS /ws/trajectory`` — delta stream of trajectory versions.
-* ``WS /ws/stopsequence/{id}`` — per-train stop sequence updates.
-
-All other public API reads are proxied to the simulation service via
-:func:`proxy_to_simulation`. Mutating methods are intentionally not exposed by
-this internet-facing gateway.
-"""
+"""Public edge gateway for the Thailand Railway Digital Twin."""
 
 from __future__ import annotations
 
@@ -25,11 +7,13 @@ import hashlib
 import json
 import logging
 from contextlib import asynccontextmanager
+from time import perf_counter
 from typing import TYPE_CHECKING, Annotated, Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -48,12 +32,7 @@ from app.redis_payloads import (
     read_topology_metadata,
     read_trajectories,
 )
-from app.schemas import (
-    MapSnapshot,
-    StopSequenceItem,
-    TopologyMetadata,
-    Trajectory,
-)
+from app.schemas import MapSnapshot, StopSequenceItem, TopologyMetadata, Trajectory
 from app.websocket_streams import stream_stopsequence, stream_trajectories
 
 logger = logging.getLogger(__name__)
@@ -71,13 +50,14 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "Thailand Railway Digital Twin Gateway"
-    app_version: str = "2.0.0"
+    app_version: str = "2.1.0"
     simulation_url: str = "http://simulation:8000"
     redis_url: str = "redis://redis:6379/0"
     trajectory_poll_interval: int = 10
     ws_poll_interval: int = 10
     viewport_buffer_ratio: float = 0.1
     viewport_min_buffer_degrees: float = 0.05
+    gzip_minimum_size: int = 1_024
     cors_origins: Annotated[list[str], NoDecode] = [
         "http://localhost:3000",
         "http://localhost:8002",
@@ -88,17 +68,16 @@ class Settings(BaseSettings):
     def parse_cors_origins(cls, value: Any) -> list[str]:
         if isinstance(value, str):
             parsed_value = value.strip()
-
             if not parsed_value:
                 return []
-
             if parsed_value.startswith("["):
                 decoded = json.loads(parsed_value)
                 if isinstance(decoded, list):
                     return [
-                        str(origin).strip() for origin in decoded if str(origin).strip()
+                        str(origin).strip()
+                        for origin in decoded
+                        if str(origin).strip()
                     ]
-
             return [
                 origin.strip() for origin in parsed_value.split(",") if origin.strip()
             ]
@@ -108,16 +87,19 @@ class Settings(BaseSettings):
 settings = Settings()
 redis_client: Redis | None = None
 http_client: httpx.AsyncClient | None = None
+_map_snapshot_cache: tuple[str, bytes, str] | None = None
+_map_snapshot_lock = asyncio.Lock()
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
-    global redis_client, http_client
+    global redis_client, http_client, _map_snapshot_cache
     redis_client = Redis.from_url(settings.redis_url, decode_responses=True)
     http_client = httpx.AsyncClient(
         base_url=settings.simulation_url,
         timeout=httpx.Timeout(connect=5.0, read=60.0, write=10.0, pool=5.0),
     )
+    _map_snapshot_cache = None
     yield
     if http_client is not None:
         await http_client.aclose()
@@ -142,12 +124,19 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=settings.gzip_minimum_size)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "HEAD", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=[
+        "ETag",
+        "Server-Timing",
+        "X-Topology-Cache",
+        "X-Trajectory-Count",
+    ],
 )
 
 
@@ -195,11 +184,6 @@ def _filter_network_for_viewport(
     )
 
 
-# --------------------------------------------------------------------------- #
-# Liveness / readiness                                                         #
-# --------------------------------------------------------------------------- #
-
-
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "healthy"}
@@ -212,7 +196,6 @@ async def ready() -> dict[str, str] | JSONResponse:
             status_code=503,
             content={"status": "not_ready", "detail": "Redis client not initialized"},
         )
-
     try:
         await redis_client.ping()
         topology = await read_topology_metadata(redis_client)
@@ -224,13 +207,7 @@ async def ready() -> dict[str, str] | JSONResponse:
             status_code=503,
             content={"status": "not_ready", "detail": "Runtime cache not ready"},
         )
-
     return {"status": "ready"}
-
-
-# --------------------------------------------------------------------------- #
-# Topology + map                                                               #
-# --------------------------------------------------------------------------- #
 
 
 @app.get("/api/v1/system/topology", response_model=TopologyMetadata | None)
@@ -241,61 +218,76 @@ async def get_topology_metadata() -> TopologyMetadata:
     return metadata
 
 
-def _etag_for(payload: dict[str, Any]) -> str:
-    body = json.dumps(payload, sort_keys=True, default=str).encode()
-    digest = hashlib.sha1(body).hexdigest()  # noqa: S324 - not a crypto use
-    return f'W/"{digest[:16]}"'
+def _etag_for_topology_version(version: str) -> str:
+    digest = hashlib.sha256(version.encode()).hexdigest()[:20]
+    return f'W/"{digest}"'
+
+
+async def _get_cached_map_snapshot() -> tuple[bytes, str, bool]:
+    global _map_snapshot_cache
+
+    topology = await read_topology_metadata(redis_client)
+    topology_version = topology.topology_version if topology else "missing"
+    cached = _map_snapshot_cache
+    if cached is not None and cached[0] == topology_version:
+        return cached[1], cached[2], True
+
+    async with _map_snapshot_lock:
+        cached = _map_snapshot_cache
+        if cached is not None and cached[0] == topology_version:
+            return cached[1], cached[2], True
+
+        stations, network_edges = await asyncio.gather(
+            read_map_stations(redis_client),
+            read_map_network_edges(redis_client),
+        )
+        body = (
+            MapSnapshot(
+                topology=topology,
+                stations=stations,
+                network_edges=network_edges,
+            )
+            .model_dump_json()
+            .encode()
+        )
+        etag = _etag_for_topology_version(topology_version)
+        _map_snapshot_cache = (topology_version, body, etag)
+        return body, etag, False
 
 
 @app.get("/api/v1/map/topology")
 async def get_map_topology(request: Request) -> Response:
-    """Return the entire static map (stations + tracks) in a single payload.
-
-    Supports ``If-None-Match`` → ``304 Not Modified`` so the frontend only has
-    to download the full network once per topology version.
-    """
-
-    stations = await read_map_stations(redis_client)
-    network_edges = await read_map_network_edges(redis_client)
-    topology = await read_topology_metadata(redis_client)
-    payload = MapSnapshot(
-        topology=topology,
-        stations=stations,
-        network_edges=network_edges,
-    ).model_dump(mode="json")
-
-    etag = _etag_for(payload)
+    started_at = perf_counter()
+    body, etag, cache_hit = await _get_cached_map_snapshot()
+    duration_ms = (perf_counter() - started_at) * 1_000
+    cache_status = "HIT" if cache_hit else "MISS"
+    headers = {
+        "ETag": etag,
+        "Cache-Control": "public, max-age=300, stale-while-revalidate=86400",
+        "Vary": "Accept-Encoding",
+        "X-Topology-Cache": cache_status,
+        "Server-Timing": f'topology;dur={duration_ms:.2f};desc="{cache_status}"',
+    }
     if request.headers.get("if-none-match") == etag:
-        return Response(
-            status_code=304,
-            headers={
-                "ETag": etag,
-                "Cache-Control": "public, max-age=60, must-revalidate",
-            },
-        )
-    return JSONResponse(
-        content=payload,
-        headers={
-            "ETag": etag,
-            "Cache-Control": "public, max-age=60, must-revalidate",
-        },
-    )
-
-
-# --------------------------------------------------------------------------- #
-# Trajectories + stop sequences                                                #
-# --------------------------------------------------------------------------- #
+        return Response(status_code=304, headers=headers)
+    return Response(content=body, media_type="application/json", headers=headers)
 
 
 @app.get("/api/v1/trains/trajectories", response_model=list[Trajectory])
-async def get_trajectories(bbox: str | None = None) -> list[dict[str, Any]]:
-    """Return every active trajectory, optionally filtered to the viewport."""
-
+async def get_trajectories(
+    response: Response,
+    bbox: str | None = None,
+) -> list[dict[str, Any]]:
+    started_at = perf_counter()
     trajectories = await read_trajectories(redis_client)
-    if bbox is None:
-        return trajectories
-    _validate_bbox_or_raise(bbox)
-    return _filter_trajectories_for_viewport(trajectories, bbox)
+    if bbox is not None:
+        _validate_bbox_or_raise(bbox)
+        trajectories = _filter_trajectories_for_viewport(trajectories, bbox)
+    duration_ms = (perf_counter() - started_at) * 1_000
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-Trajectory-Count"] = str(len(trajectories))
+    response.headers["Server-Timing"] = f"trajectories;dur={duration_ms:.2f}"
+    return trajectories
 
 
 @app.get("/api/v1/trains/{train_id}/trajectory", response_model=Trajectory)
@@ -314,23 +306,29 @@ async def get_train_trajectory(train_id: int) -> dict[str, Any]:
     response_model=list[StopSequenceItem],
 )
 async def get_train_stopsequence(train_id: int) -> list[dict[str, Any]]:
-    seq = await read_stopsequence(redis_client, train_id)
-    if seq is None:
+    sequence = await read_stopsequence(redis_client, train_id)
+    if sequence is None:
         raise HTTPException(
             status_code=404,
             detail=f"Stop sequence for train {train_id} not found",
         )
-    return seq
+    return sequence
 
 
 @app.websocket("/ws/trajectory")
 async def ws_trajectory(websocket: WebSocket) -> None:
+    initial_bbox = websocket.query_params.get("bbox")
+    if initial_bbox is not None and parse_bbox(initial_bbox) is None:
+        await websocket.accept()
+        await websocket.close(code=1008, reason="Invalid bbox")
+        return
     try:
         await stream_trajectories(
             websocket,
             read_trajectories=lambda: read_trajectories(redis_client),
             filter_trajectories=_filter_trajectories_for_viewport,
             update_interval_seconds=settings.trajectory_poll_interval,
+            initial_bbox=initial_bbox,
         )
     except (WebSocketDisconnect, asyncio.CancelledError):
         return
@@ -351,20 +349,12 @@ async def ws_stopsequence(websocket: WebSocket, train_id: int) -> None:
         return
 
 
-# --------------------------------------------------------------------------- #
-# Catch-all read-only proxy (stations, routes, schedules, trains, etc.)        #
-# --------------------------------------------------------------------------- #
-
-# Sensitive headers are documented explicitly and never included in the
-# forwarding allowlist below.
 SENSITIVE_HEADERS = {
     "authorization",
     "cookie",
     "x-api-key",
     "x-auth-token",
 }
-
-# Allowed headers to forward to the backend.
 ALLOWED_HEADERS = {
     "accept",
     "accept-encoding",
@@ -377,10 +367,6 @@ ALLOWED_HEADERS = {
 
 
 def _validate_path(path: str) -> None:
-    """Validate that the path doesn't contain suspicious patterns.
-
-    Prevents SSRF attacks via path manipulation.
-    """
     if not path:
         return
     lower_path = path.lower()
@@ -394,19 +380,12 @@ def _validate_path(path: str) -> None:
             detail="Invalid path: potential SSRF attack detected",
         )
     if " " in path or "\0" in path:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid path: malformed path",
-        )
+        raise HTTPException(status_code=400, detail="Invalid path: malformed path")
 
 
-@app.api_route(
-    "/api/v1/{path:path}",
-    methods=["GET", "OPTIONS", "HEAD"],
-)
+@app.api_route("/api/v1/{path:path}", methods=["GET", "OPTIONS", "HEAD"])
 async def proxy_to_simulation(path: str, request: Request) -> Response:
     _validate_path(path)
-
     if http_client is None:
         return JSONResponse(status_code=503, content={"detail": "Gateway not ready"})
 
@@ -415,7 +394,6 @@ async def proxy_to_simulation(path: str, request: Request) -> Response:
         for key, value in request.headers.items()
         if key.lower() in ALLOWED_HEADERS
     }
-
     try:
         simulation_response = await http_client.request(
             method=request.method,
