@@ -56,7 +56,7 @@ spec:
                 name: raildatacollector-secrets
           env:
             - name: KML_LOCAL_PATH
-              value: /app/railroad/20260410RailwayMapofThailand.kml
+              value: /app/railroad/20260428RailwayMapofThailand.kml
             - name: SCHEDULE_DATA_DIR
               value: /app/schedule
           resources:
