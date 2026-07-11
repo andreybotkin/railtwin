@@ -109,7 +109,7 @@ railtwin/
 | GET | `/api/v1/schedules` | List schedules |
 | WS | `/ws/trains` | Real-time train positions |
 
-See full API documentation at `/docs` when running the simulation service. Frontend traffic should use the gateway service.
+See full API documentation at `/docs` when running the simulation service. Frontend traffic should use the gateway service. The public gateway is read-only; administrative writes must not be exposed through the internet-facing ingress.
 
 ## Precomputed Movement Plan
 
@@ -130,10 +130,29 @@ This feature can be configured in the simulation service via the following envir
 
 ### K3s Cluster
 
-1. Apply Kubernetes manifests:
+1. Apply the namespace and network policy:
 ```bash
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/network-policy.yaml
+```
+
+2. Create local secret manifests from the tracked templates. Replace every placeholder with real values before applying them. The resulting `secrets.yaml` files are ignored by Git and must never be committed:
+```bash
+cp k8s/postgres/secrets.yaml.example k8s/postgres/secrets.yaml
+cp k8s/raildbsetup/secrets.yaml.example k8s/raildbsetup/secrets.yaml
+cp k8s/simulation/secrets.yaml.example k8s/simulation/secrets.yaml
+cp k8s/raildatacollector/secrets.yaml.example k8s/raildatacollector/secrets.yaml
+
+kubectl apply -f k8s/postgres/secrets.yaml -n railway
+kubectl apply -f k8s/raildbsetup/secrets.yaml -n railway
+kubectl apply -f k8s/simulation/secrets.yaml -n railway
+kubectl apply -f k8s/raildatacollector/secrets.yaml -n railway
+```
+
+Use the same database username and password in `postgres-secrets` and in every service `DATABASE_URL`. Rotate credentials immediately if a real password has ever been committed to Git history.
+
+3. Apply the infrastructure and application manifests:
+```bash
 kubectl apply -f k8s/postgres/
 kubectl apply -f k8s/redis/
 kubectl apply -f k8s/raildbsetup/
@@ -143,17 +162,7 @@ kubectl apply -f k8s/raildatacollector/
 kubectl apply -f k8s/frontend/
 ```
 
-2. Configure the ignored secret manifests locally before applying them:
-```bash
-cp k8s/raildbsetup/secrets.yaml.example k8s/raildbsetup/secrets.yaml
-cp k8s/simulation/secrets.yaml.example k8s/simulation/secrets.yaml
-cp k8s/raildatacollector/secrets.yaml.example k8s/raildatacollector/secrets.yaml
-kubectl apply -f k8s/raildbsetup/secrets.yaml -n railway
-kubectl apply -f k8s/simulation/secrets.yaml -n railway
-kubectl apply -f k8s/raildatacollector/secrets.yaml -n railway
-```
-
-3. Open the local ingress:
+4. Open the local ingress:
    - Frontend: http://railtwin.localhost
    - Gateway API: http://api.railtwin.localhost
 
@@ -164,7 +173,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for deployment architecture details.
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+4. Push the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ### Code Style
