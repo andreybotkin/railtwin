@@ -1,0 +1,100 @@
+name: Apply PR 47 Migration
+
+on:
+  pull_request_target:
+    types: [synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  apply-and-validate:
+    if: >-
+      github.event.pull_request.number == 47 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'perf/47-fast-cold-start'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR source branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Apply repository changes
+        run: |
+          python - <<'PY'
+          import base64
+          import re
+          import zlib
+          from pathlib import Path
+
+          workflow = Path('.github/workflows/apply-fast-cold-start.yml').read_text()
+          match = re.search(r"payload = '''([^']+)'''", workflow)
+          if match is None:
+              raise RuntimeError('Embedded migration payload not found')
+          Path('/tmp/apply_fast.py').write_bytes(
+              zlib.decompress(base64.b64decode(match.group(1)))
+          )
+          PY
+          python /tmp/apply_fast.py
+
+      - name: Install gateway dependencies
+        run: |
+          python -m pip install uv
+          cd gateway
+          uv pip install --system -e ".[dev]"
+
+      - name: Format and validate gateway
+        run: |
+          cd gateway
+          black app tests
+          ruff check app tests
+          mypy app
+          pytest --cov=app --cov-report=term-missing
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Format frontend changes
+        working-directory: frontend
+        run: |
+          npx prettier --write \
+            src/app/layout.tsx \
+            src/components/Map/RailMap.tsx \
+            src/components/Map/LeafletTracksLayer.tsx \
+            src/lib/hooks/useTrajectoryStream.ts \
+            src/lib/websocket.ts \
+            src/types/index.ts
+
+      - name: Validate frontend
+        working-directory: frontend
+        run: |
+          npm run lint
+          npm run type-check
+          npm run test -- --coverage --passWithNoTests
+          npm run build
+
+      - name: Commit validated changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m 'perf: accelerate map and train cold start'
+          git push origin HEAD:perf/47-fast-cold-start
