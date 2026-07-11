@@ -45,7 +45,18 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
-      - run: npm run type-check
+      - name: Type-check
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run type-check 2>&1 | tee typecheck.log
+      - name: Upload type-check diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-typecheck-log
+          path: frontend/typecheck.log
+          if-no-files-found: error
       - run: npm run test -- --coverage --passWithNoTests
       - run: npm run build
 
