@@ -93,7 +93,9 @@ class PositionCacheUpdater:
             return False
 
         try:
-            logger.warning("Reference data missing from Redis; rebuilding from PostgreSQL")
+            logger.warning(
+                "Reference data missing from Redis; rebuilding from PostgreSQL"
+            )
             async with self._session_factory() as session:
                 loader = RedisReferenceDataLoader(session, self._redis)
                 metadata = await loader.load()
@@ -112,7 +114,10 @@ class PositionCacheUpdater:
                     token,
                 )
             except Exception as exc:  # noqa: BLE001
-                logger.warning("Could not release reference data rebuild lock", error=str(exc))
+                logger.warning(
+                    "Could not release reference data rebuild lock",
+                    error=str(exc),
+                )
 
     async def _tick(self) -> None:
         if not await self._ensure_reference_data():
