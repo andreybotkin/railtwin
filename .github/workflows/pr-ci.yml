@@ -7,7 +7,7 @@ on:
       - 'frontend/**'
       - 'gateway/**'
       - 'k8s/**'
-      - 'tools/prepare_railmap.py'
+      - 'tools/**'
       - '.github/workflows/pr-ci.yml'
 
 concurrency:
@@ -89,8 +89,8 @@ jobs:
         with:
           ref: perf/47-fast-cold-start
           fetch-depth: 0
-      - run: python tools/prepare_railmap.py --apply
-      - name: Commit generated map and remove migration helpers
+      - run: python tools/apply_railmap.py
+      - name: Commit generated RailMap
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
