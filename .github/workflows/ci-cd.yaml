@@ -160,18 +160,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.12'
 
-      - name: Cache pip dependencies
+      - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-uv-
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          uv pip install --system -e ".[dev]"
 
       - name: Run linting (Ruff)
         run: ruff check app tests
@@ -215,18 +216,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.12'
 
-      - name: Cache pip dependencies
+      - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-rdc-${{ hashFiles('raildatacollector/pyproject.toml') }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-rdc-${{ hashFiles('raildatacollector/pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-pip-rdc-
+            ${{ runner.os }}-uv-rdc-
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev]"
 
       - name: Run linting (Ruff)
         run: ruff check app tests
@@ -267,18 +270,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.12'
 
-      - name: Cache pip dependencies
+      - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-rds-${{ hashFiles('raildbsetup/pyproject.toml') }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-rds-${{ hashFiles('raildbsetup/pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-pip-rds-
+            ${{ runner.os }}-uv-rds-
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev]"
 
       - name: Run linting (Ruff)
         run: ruff check app tests
@@ -319,18 +324,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.12'
 
-      - name: Cache pip dependencies
+      - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-gateway-${{ hashFiles('gateway/pyproject.toml') }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-gateway-${{ hashFiles('gateway/pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-pip-gateway-
+            ${{ runner.os }}-uv-gateway-
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev]"
 
       - name: Run linting (Ruff)
         run: ruff check app tests

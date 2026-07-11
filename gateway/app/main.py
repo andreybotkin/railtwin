@@ -316,7 +316,7 @@ async def ws_trajectory(websocket: WebSocket) -> None:
             filter_trajectories=_filter_trajectories_for_viewport,
             update_interval_seconds=settings.trajectory_poll_interval,
         )
-    except WebSocketDisconnect, asyncio.CancelledError:
+    except (WebSocketDisconnect, asyncio.CancelledError):
         return
 
 
@@ -331,7 +331,7 @@ async def ws_stopsequence(websocket: WebSocket, train_id: int) -> None:
             ),
             ws_poll_interval=settings.ws_poll_interval,
         )
-    except WebSocketDisconnect, asyncio.CancelledError:
+    except (WebSocketDisconnect, asyncio.CancelledError):
         return
 
 
@@ -339,14 +339,62 @@ async def ws_stopsequence(websocket: WebSocket, train_id: int) -> None:
 # Catch-all proxy (stations, routes, schedules, trains CRUD, etc.)             #
 # --------------------------------------------------------------------------- #
 
+# Headers that should not be forwarded to the backend
+SENSITIVE_HEADERS = {
+    "authorization",
+    "cookie",
+    "X-Api-Key",
+    "X-Auth-Token",
+}
+
+# Allowed headers to forward to the backend
+ALLOWED_HEADERS = {
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "content-type",
+    "content-length",
+    "if-none-match",
+    "if-modified-since",
+}
+
+
+def _validate_path(path: str) -> None:
+    """Validate that the path doesn't contain suspicious patterns.
+
+    Prevents SSRF attacks via path manipulation.
+    """
+    if not path:
+        return
+    lower_path = path.lower()
+    if "://" in lower_path or lower_path.startswith("//") or lower_path.startswith("/http"):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid path: potential SSRF attack detected",
+        )
+    if " " in path or "\0" in path:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid path: malformed path",
+        )
+
 
 @app.api_route(
     "/api/v1/{path:path}",
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
 )
 async def proxy_to_simulation(path: str, request: Request) -> Response:
+    _validate_path(path)
+
     if http_client is None:
         return JSONResponse(status_code=503, content={"detail": "Gateway not ready"})
+
+    # Filter headers to only allow safe ones
+    forward_headers = {
+        k: v
+        for k, v in request.headers.items()
+        if k.lower() in ALLOWED_HEADERS
+    }
 
     try:
         simulation_response = await http_client.request(
@@ -354,7 +402,7 @@ async def proxy_to_simulation(path: str, request: Request) -> Response:
             url=f"/api/v1/{path}",
             params=request.query_params,
             content=await request.body(),
-            headers={k: v for k, v in request.headers.items() if k.lower() != "host"},
+            headers=forward_headers,
         )
     except httpx.ReadTimeout:
         logger.warning("Backend read timeout for %s %s", request.method, path)

@@ -3,7 +3,7 @@ name = "thailand-railway-simulation"
 version = "1.0.0"
 description = "Thailand Railway Digital Twin - Simulation API"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "MIT"
 authors = [{ name = "Thailand Railway Team" }]
 dependencies = [
@@ -49,29 +49,11 @@ include = ["app*"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py314"
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "N", "UP", "S", "B", "A", "C4", "DTZ", "T20", "RET", "SIM", "TCH", "ERA", "PTH"]
-ignore = ["E501", "S101", "B008", "TC001", "TC002", "TC003", "TC006", "S105", "UP046", "A002", "N806", "SIM105", "S110", "DTZ005", "DTZ006", "DTZ007", "DTZ003", "ERA001"]
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["S101", "S105"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["app"]
-
-[tool.mypy]
-python_version = "3.14"
-warn_unused_configs = true
-ignore_missing_imports = true
-strict = false
-disable_error_code = ["misc"]
+target-version = "py312"
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ["py312"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -84,6 +66,13 @@ exclude = '''
     | __pycache__
 )/
 '''
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+ignore_missing_imports = true
+strict = false
+disable_error_code = ["misc"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
