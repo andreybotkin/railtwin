@@ -1,8 +1,8 @@
 name: Apply PR 47 Migration
 
 on:
-  pull_request_target:
-    types: [synchronize, reopened, edited]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -11,16 +11,16 @@ permissions:
 jobs:
   apply-and-validate:
     if: >-
-      github.event.pull_request.number == 47 &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'perf/47-fast-cold-start'
+      github.event.issue.pull_request &&
+      github.event.issue.number == 47 &&
+      github.event.comment.body == '/apply-pr47' &&
+      github.event.comment.user.login == 'andreybotkin'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR source branch
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: perf/47-fast-cold-start
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
