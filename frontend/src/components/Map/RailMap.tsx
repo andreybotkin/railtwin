@@ -28,7 +28,7 @@ import {
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 
-import type { Trajectory } from '@/types';
+import type { NetworkEdgeCollection, Trajectory } from '@/types';
 import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
 import { useMapTopology, useTheme, useTrajectoryStream } from '@/lib/hooks';
 import { useRailwayStore } from '@/lib/stores/railway-store';
@@ -401,6 +401,71 @@ function RouteStopMarkers({ trajectory }: { trajectory: Trajectory }) {
   return null;
 }
 
+// ─── Canvas-backed static network ────────────────────────────────────────────
+
+const EMPTY_NETWORK: NetworkEdgeCollection = {
+  type: 'FeatureCollection',
+  features: [],
+};
+
+function TracksCanvasLayer({
+  edges,
+}: {
+  edges?: NetworkEdgeCollection | null;
+}) {
+  const map = useMap();
+  const renderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
+
+  const collection = useMemo<NetworkEdgeCollection>(() => {
+    const source = edges ?? EMPTY_NETWORK;
+    const seen = new Set<string>();
+    return {
+      type: 'FeatureCollection',
+      features: source.features.filter((edge) => {
+        const a = edge.properties.from_node_id;
+        const b = edge.properties.to_node_id;
+        const key = `${Math.min(a, b)}:${Math.max(a, b)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      }),
+    };
+  }, [edges]);
+
+  useEffect(() => {
+    if (collection.features.length === 0) return;
+
+    const casing = L.geoJSON(collection as never, {
+      interactive: false,
+      style: {
+        renderer,
+        color: '#FFFFFF',
+        weight: 6,
+        opacity: 0.62,
+        lineCap: 'round',
+        lineJoin: 'round',
+      },
+    });
+    const routes = L.geoJSON(collection as never, {
+      interactive: false,
+      style: (feature) => ({
+        renderer,
+        color: getRouteColor(String(feature?.properties?.route_type ?? '')),
+        weight: 4,
+        opacity: 0.82,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }),
+    });
+    const group = L.layerGroup([casing, routes]).addTo(map);
+    return () => {
+      map.removeLayer(group);
+    };
+  }, [collection, map, renderer]);
+
+  return null;
+}
+
 // ─── Inner map component (has access to useMap / useMapEvents) ────────────────
 
 function MapCore() {
@@ -470,20 +535,6 @@ function MapCore() {
   // ── Derived data ──────────────────────────────────────────────────────────
 
   const stations = topology?.stations ?? [];
-  const networkEdges = topology?.network_edges?.features ?? [];
-
-  // Deduplicate edges (same segment may appear from both directions)
-  const displayEdges = useMemo(() => {
-    const seen = new Set<string>();
-    return networkEdges.filter((edge) => {
-      const a = edge.properties.from_node_id;
-      const b = edge.properties.to_node_id;
-      const key = `${Math.min(a, b)}:${Math.max(a, b)}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }, [networkEdges]);
 
   // Trajectory list for rendering
   const trajectoryList = useMemo(
@@ -546,23 +597,8 @@ function MapCore() {
         <RouteStopMarkers trajectory={selectedTrajectory} />
       )}
 
-      {/* Route network — thick coloured polylines */}
-      {displayEdges.map((edge, idx) => {
-        const positions = edge.geometry.coordinates.map(
-          ([lon, lat]) => [lat, lon] as [number, number]
-        );
-        const routeType = edge.properties.route_type ?? '';
-        return (
-          <Polyline
-            key={`edge-${idx}`}
-            positions={positions}
-            color={getRouteColor(routeType)}
-            weight={4}
-            opacity={0.8}
-            interactive={false}
-          />
-        );
-      })}
+      {/* Route network — one Canvas-backed GeoJSON layer */}
+      <TracksCanvasLayer edges={topology?.network_edges} />
 
       {/* Stations — clustered at low zoom, individual markers above zoom 10 */}
       <MarkerClusterGroup
@@ -642,6 +678,7 @@ export default function RailMap({ onLocateReady }: RailMapProps) {
         attributionControl={false}
         zoomControl={false}
         scrollWheelZoom
+        preferCanvas
       >
         <MapCore />
         <LocateMeControl onLocateReady={onLocateReady} />

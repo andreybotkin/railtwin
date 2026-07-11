@@ -1,8 +1,8 @@
 """WebSocket stream helpers.
 
-Delta-based trajectory streaming: the gateway only re-sends a trajectory when
-its ``generated_at_ms`` advances (or when the client ``RESET`` s / changes the
-``BBOX``), which keeps the payload on the wire small.
+The first payload and every viewport reset are sent as one batch snapshot.
+Subsequent updates use per-train deltas, keeping both cold-start latency and
+steady-state bandwidth low.
 """
 
 from __future__ import annotations
@@ -30,21 +30,36 @@ def _trajectory_version(trajectory: dict[str, Any]) -> int:
     return 0
 
 
+def _trajectory_versions(trajectories: list[dict[str, Any]]) -> dict[int, int]:
+    return {
+        int(trajectory["train_id"]): _trajectory_version(trajectory)
+        for trajectory in trajectories
+    }
+
+
+async def _send_trajectory_snapshot(
+    websocket: WebSocket,
+    trajectories: list[dict[str, Any]],
+    now_ms: int,
+) -> dict[int, int]:
+    await websocket.send_json(
+        {"source": "snapshot", "content": trajectories, "timestamp": now_ms}
+    )
+    return _trajectory_versions(trajectories)
+
+
 async def _send_trajectory_delta(
     websocket: WebSocket,
     trajectories: list[dict[str, Any]],
     last_versions: dict[int, int],
     now_ms: int,
-    *,
-    force_resend: bool = False,
 ) -> dict[int, int]:
-    current_versions: dict[int, int] = {}
+    current_versions = _trajectory_versions(trajectories)
 
     for trajectory in trajectories:
         train_id = int(trajectory["train_id"])
-        version = _trajectory_version(trajectory)
-        current_versions[train_id] = version
-        if force_resend or last_versions.get(train_id) != version:
+        version = current_versions[train_id]
+        if last_versions.get(train_id) != version:
             await websocket.send_json(
                 {"source": "trajectory", "content": trajectory, "timestamp": now_ms}
             )
@@ -63,12 +78,13 @@ async def stream_trajectories(
     read_trajectories: TrajectoryReader,
     filter_trajectories: TrajectoryFilter,
     update_interval_seconds: int,
+    initial_bbox: str | None = None,
 ) -> None:
     await websocket.accept()
-    client_bbox: str | None = None
+    client_bbox = initial_bbox
     last_versions: dict[int, int] = {}
     keepalive_counter = 0
-    force_resend = False
+    send_snapshot = True
 
     update_interval_s = max(1, update_interval_seconds)
 
@@ -81,17 +97,19 @@ async def stream_trajectories(
         )
         now_ms = int(asyncio.get_running_loop().time() * 1000)
         try:
-            last_versions = await _send_trajectory_delta(
-                websocket,
-                filtered,
-                last_versions,
-                now_ms,
-                force_resend=force_resend,
-            )
+            if send_snapshot:
+                last_versions = await _send_trajectory_snapshot(
+                    websocket, filtered, now_ms
+                )
+                send_snapshot = False
+            else:
+                last_versions = await _send_trajectory_delta(
+                    websocket, filtered, last_versions, now_ms
+                )
         except Exception as exc:
             logger.debug("WebSocket send error, disconnecting client: %s", exc)
             return
-        force_resend = False
+
         keepalive_counter += 1
         if keepalive_counter >= 3:
             keepalive_counter = 0
@@ -112,12 +130,14 @@ async def stream_trajectories(
                     await websocket.send_text("pong")
                 elif message == "RESET":
                     client_bbox = None
-                    force_resend = True
+                    send_snapshot = True
                     break
                 elif message.startswith("BBOX "):
-                    client_bbox = message[5:].strip() or None
-                    force_resend = True
-                    break
+                    next_bbox = message[5:].strip() or None
+                    if next_bbox != client_bbox:
+                        client_bbox = next_bbox
+                        send_snapshot = True
+                        break
             except TimeoutError:
                 continue
             except Exception as exc:

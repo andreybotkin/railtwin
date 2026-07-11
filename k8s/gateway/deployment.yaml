@@ -7,7 +7,12 @@ metadata:
     app.kubernetes.io/name: gateway
     app.kubernetes.io/component: edge
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: gateway
@@ -30,11 +35,11 @@ spec:
                 name: gateway-config
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: "192Mi"
+              cpu: "100m"
             limits:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: "384Mi"
+              cpu: "500m"
           livenessProbe:
             httpGet:
               path: /health
@@ -55,3 +60,12 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
             allowPrivilegeEscalation: false
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: gateway
+                topologyKey: kubernetes.io/hostname
