@@ -13,8 +13,9 @@ Endpoints:
 * ``WS /ws/trajectory`` — delta stream of trajectory versions.
 * ``WS /ws/stopsequence/{id}`` — per-train stop sequence updates.
 
-Everything else (trains CRUD, schedules, routes, stations…) is proxied to
-the simulation service via :func:`proxy_to_simulation`.
+All other public API reads are proxied to the simulation service via
+:func:`proxy_to_simulation`. Mutating methods are intentionally not exposed by
+this internet-facing gateway.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ import hashlib
 import json
 import logging
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Annotated, Any, cast
+from typing import TYPE_CHECKING, Annotated, Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -145,7 +146,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "HEAD", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -204,11 +205,26 @@ async def health() -> dict[str, str]:
     return {"status": "healthy"}
 
 
-@app.get("/ready")
-async def ready() -> dict[str, str]:
+@app.get("/ready", response_model=None)
+async def ready() -> dict[str, str] | JSONResponse:
     if redis_client is None:
-        return {"status": "not_ready"}
-    await cast("Any", redis_client.ping())
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "detail": "Redis client not initialized"},
+        )
+
+    try:
+        await redis_client.ping()
+        topology = await read_topology_metadata(redis_client)
+        if topology is None:
+            raise RuntimeError("Topology snapshot is not available")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Gateway readiness check failed: %s", exc)
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "detail": "Runtime cache not ready"},
+        )
+
     return {"status": "ready"}
 
 
@@ -336,18 +352,19 @@ async def ws_stopsequence(websocket: WebSocket, train_id: int) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Catch-all proxy (stations, routes, schedules, trains CRUD, etc.)             #
+# Catch-all read-only proxy (stations, routes, schedules, trains, etc.)        #
 # --------------------------------------------------------------------------- #
 
-# Headers that should not be forwarded to the backend
+# Sensitive headers are documented explicitly and never included in the
+# forwarding allowlist below.
 SENSITIVE_HEADERS = {
     "authorization",
     "cookie",
-    "X-Api-Key",
-    "X-Auth-Token",
+    "x-api-key",
+    "x-auth-token",
 }
 
-# Allowed headers to forward to the backend
+# Allowed headers to forward to the backend.
 ALLOWED_HEADERS = {
     "accept",
     "accept-encoding",
@@ -367,7 +384,11 @@ def _validate_path(path: str) -> None:
     if not path:
         return
     lower_path = path.lower()
-    if "://" in lower_path or lower_path.startswith("//") or lower_path.startswith("/http"):
+    if (
+        "://" in lower_path
+        or lower_path.startswith("//")
+        or lower_path.startswith("/http")
+    ):
         raise HTTPException(
             status_code=400,
             detail="Invalid path: potential SSRF attack detected",
@@ -381,7 +402,7 @@ def _validate_path(path: str) -> None:
 
 @app.api_route(
     "/api/v1/{path:path}",
-    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+    methods=["GET", "OPTIONS", "HEAD"],
 )
 async def proxy_to_simulation(path: str, request: Request) -> Response:
     _validate_path(path)
@@ -389,11 +410,10 @@ async def proxy_to_simulation(path: str, request: Request) -> Response:
     if http_client is None:
         return JSONResponse(status_code=503, content={"detail": "Gateway not ready"})
 
-    # Filter headers to only allow safe ones
     forward_headers = {
-        k: v
-        for k, v in request.headers.items()
-        if k.lower() in ALLOWED_HEADERS
+        key: value
+        for key, value in request.headers.items()
+        if key.lower() in ALLOWED_HEADERS
     }
 
     try:

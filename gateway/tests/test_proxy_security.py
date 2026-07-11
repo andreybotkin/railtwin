@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+import asyncio
+from unittest.mock import AsyncMock
+
 import pytest
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
+from fastapi.routing import APIRoute
 
-from app.main import ALLOWED_HEADERS, SENSITIVE_HEADERS, _validate_path
+import app.main as gateway_main
+from app.main import ALLOWED_HEADERS, SENSITIVE_HEADERS, _validate_path, app
 
 
 class TestValidatePath:
@@ -44,22 +50,14 @@ class TestHeaderFiltering:
     """Tests for header filtering in proxy."""
 
     def test_sensitive_headers_are_blocked(self) -> None:
-        """Sensitive headers should be in the blocked list."""
-        assert "authorization" in SENSITIVE_HEADERS
-        assert "cookie" in SENSITIVE_HEADERS
-<<<<<<< ours
-<<<<<<< ours
-        assert "x-api-key" in SENSITIVE_HEADERS
-=======
-        # Headers in SENSITIVE_HEADERS preserve original case - check lowercase version
-        assert any("x-api-key" == h.lower() for h in SENSITIVE_HEADERS)
-        assert any("x-auth-token" == h.lower() for h in SENSITIVE_HEADERS)
->>>>>>> theirs
-=======
-        # Headers in SENSITIVE_HEADERS preserve original case - check lowercase version
-        assert any(h.lower() == "x-api-key" for h in SENSITIVE_HEADERS)
-        assert any(h.lower() == "x-auth-token" for h in SENSITIVE_HEADERS)
->>>>>>> theirs
+        """Sensitive headers must never enter the forwarding allowlist."""
+        assert {
+            "authorization",
+            "cookie",
+            "x-api-key",
+            "x-auth-token",
+        } <= SENSITIVE_HEADERS
+        assert SENSITIVE_HEADERS.isdisjoint(ALLOWED_HEADERS)
 
     def test_allowed_headers_are_whitelisted(self) -> None:
         """Only safe headers should be forwarded."""
@@ -67,12 +65,58 @@ class TestHeaderFiltering:
         assert "content-type" in ALLOWED_HEADERS
         assert "if-none-match" in ALLOWED_HEADERS
         assert "authorization" not in ALLOWED_HEADERS
-<<<<<<< ours
-<<<<<<< ours
         assert "cookie" not in ALLOWED_HEADERS
-=======
-        assert "cookie" not in ALLOWED_HEADERS
->>>>>>> theirs
-=======
-        assert "cookie" not in ALLOWED_HEADERS
->>>>>>> theirs
+
+
+class TestPublicProxyMethods:
+    """Regression tests for the internet-facing read-only API contract."""
+
+    def test_catch_all_proxy_is_read_only(self) -> None:
+        route = next(
+            candidate
+            for candidate in app.routes
+            if isinstance(candidate, APIRoute)
+            and candidate.path == "/api/v1/{path:path}"
+        )
+
+        assert route.methods == {"GET", "HEAD", "OPTIONS"}
+        assert not ({"POST", "PUT", "PATCH", "DELETE"} & route.methods)
+
+
+class TestReadiness:
+    """Readiness must fail closed while runtime cache data is unavailable."""
+
+    def test_not_ready_without_redis_client(self, monkeypatch) -> None:
+        monkeypatch.setattr(gateway_main, "redis_client", None)
+
+        response = asyncio.run(gateway_main.ready())
+
+        assert isinstance(response, JSONResponse)
+        assert response.status_code == 503
+
+    def test_not_ready_without_topology_snapshot(self, monkeypatch) -> None:
+        redis_client = AsyncMock()
+        redis_client.ping.return_value = True
+        monkeypatch.setattr(gateway_main, "redis_client", redis_client)
+        monkeypatch.setattr(
+            gateway_main,
+            "read_topology_metadata",
+            AsyncMock(return_value=None),
+        )
+
+        response = asyncio.run(gateway_main.ready())
+
+        assert isinstance(response, JSONResponse)
+        assert response.status_code == 503
+
+    def test_ready_with_redis_and_topology(self, monkeypatch) -> None:
+        redis_client = AsyncMock()
+        redis_client.ping.return_value = True
+        monkeypatch.setattr(gateway_main, "redis_client", redis_client)
+        monkeypatch.setattr(
+            gateway_main,
+            "read_topology_metadata",
+            AsyncMock(return_value={"topology_version": "v1"}),
+        )
+
+        assert asyncio.run(gateway_main.ready()) == {"status": "ready"}
