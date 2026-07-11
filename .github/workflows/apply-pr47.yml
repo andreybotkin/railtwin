@@ -2,7 +2,7 @@ name: Apply PR 47 Migration
 
 on:
   pull_request_target:
-    types: [synchronize, reopened]
+    types: [synchronize, reopened, edited]
 
 permissions:
   contents: write
