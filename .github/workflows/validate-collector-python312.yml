@@ -1,6 +1,9 @@
 name: Validate Collector Python 3.12
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - fix/46-raildatacollector-python-312
