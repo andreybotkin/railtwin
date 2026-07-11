@@ -120,9 +120,9 @@ function TracksCanvasLayer({ edges }: { edges?: NetworkEdgeCollection | null }) 
     if (collection.features.length === 0) return;
 
     const casing = L.geoJSON(collection as never, {
-      renderer,
       interactive: false,
       style: {
+        renderer,
         color: '#ffffff',
         weight: 6,
         opacity: 0.62,
@@ -131,9 +131,9 @@ function TracksCanvasLayer({ edges }: { edges?: NetworkEdgeCollection | null }) 
       },
     });
     const routes = L.geoJSON(collection as never, {
-      renderer,
       interactive: false,
       style: (feature) => ({
+        renderer,
         color: getRouteColor(String(feature?.properties?.route_type ?? '')),
         weight: 4,
         opacity: 0.82,
