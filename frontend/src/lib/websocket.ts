@@ -3,6 +3,7 @@
  *
  * Delta-protocol spoken with `gateway /ws/trajectory`:
  *   Server → Client:
+ *     {"source":"snapshot","content":[<Trajectory>, ...],"timestamp":<ms>}
  *     {"source":"trajectory","content":<Trajectory>,"timestamp":<ms>}
  *     {"source":"deleted_vehicles","content":<train_id>,"timestamp":<ms>}
  *     {"source":"keepalive","timestamp":<ms>}
@@ -12,7 +13,13 @@
  *     "RESET"                               — request a full retransmit.
  */
 
-import type { Trajectory, TrajectoryWSMessage } from '@/types';
+import type { Trajectory } from '@/types';
+
+type TrajectoryWSMessage =
+  | { source: 'snapshot'; content: Trajectory[]; timestamp: number }
+  | { source: 'trajectory'; content: Trajectory; timestamp: number }
+  | { source: 'deleted_vehicles'; content: number; timestamp: number }
+  | { source: 'keepalive'; timestamp: number };
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8002';
 const HEARTBEAT_INTERVAL_MS = 10_000;
@@ -27,6 +34,7 @@ export class TrajectoryWebSocketClient {
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   private shouldReconnect = true;
   private currentBBox: string | null = null;
+  private lastSentBBox: string | null = null;
   private visibilityHandler: (() => void) | null = null;
   private notifyFrameId: number | null = null;
   private notifyTimeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -35,20 +43,33 @@ export class TrajectoryWebSocketClient {
   private updateHandlers = new Set<UpdateHandler>();
 
   connect(): void {
-    if (this.ws?.readyState === WebSocket.OPEN) return;
+    if (
+      this.ws?.readyState === WebSocket.OPEN ||
+      this.ws?.readyState === WebSocket.CONNECTING
+    )
+      return;
+
     this.shouldReconnect = true;
+    const bboxAtConnect = this.currentBBox;
+    const query = bboxAtConnect
+      ? `?bbox=${encodeURIComponent(bboxAtConnect)}`
+      : '';
 
     try {
-      this.ws = new WebSocket(`${WS_BASE_URL}/ws/trajectory`);
+      this.ws = new WebSocket(`${WS_BASE_URL}/ws/trajectory${query}`);
     } catch {
       return;
     }
 
     this.ws.onopen = () => {
       this.reconnectAttempts = 0;
+      this.lastSentBBox = bboxAtConnect;
       this.startHeartbeat();
       this.setupVisibilityHandler();
-      if (this.currentBBox) this.ws?.send(`BBOX ${this.currentBBox}`);
+
+      if (this.currentBBox && this.currentBBox !== bboxAtConnect) {
+        this.sendBBox(this.currentBBox);
+      }
     };
 
     this.ws.onmessage = (event) => {
@@ -59,7 +80,13 @@ export class TrajectoryWebSocketClient {
         return;
       }
 
-      if (msg.source === 'trajectory') {
+      if (msg.source === 'snapshot') {
+        this.trajectories.clear();
+        for (const trajectory of msg.content) {
+          this.trajectories.set(trajectory.train_id, trajectory);
+        }
+        this.scheduleNotify();
+      } else if (msg.source === 'trajectory') {
         this.trajectories.set(msg.content.train_id, msg.content);
         this.scheduleNotify();
       } else if (msg.source === 'deleted_vehicles') {
@@ -75,6 +102,7 @@ export class TrajectoryWebSocketClient {
 
     this.ws.onclose = () => {
       this.stopHeartbeat();
+      this.lastSentBBox = null;
       if (this.shouldReconnect) this.scheduleReconnect();
     };
   }
@@ -84,6 +112,7 @@ export class TrajectoryWebSocketClient {
     this.stopHeartbeat();
     this.teardownVisibilityHandler();
     this.cancelScheduledNotify();
+    this.lastSentBBox = null;
     if (this.ws) {
       this.ws.close();
       this.ws = null;
@@ -93,8 +122,12 @@ export class TrajectoryWebSocketClient {
 
   sendBBox(bbox: string): void {
     this.currentBBox = bbox;
-    if (this.ws?.readyState === WebSocket.OPEN) {
+    if (
+      this.ws?.readyState === WebSocket.OPEN &&
+      bbox !== this.lastSentBBox
+    ) {
       this.ws.send(`BBOX ${bbox}`);
+      this.lastSentBBox = bbox;
     }
   }
 
@@ -164,7 +197,7 @@ export class TrajectoryWebSocketClient {
   }
 
   private setupVisibilityHandler(): void {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined' || this.visibilityHandler) return;
     this.visibilityHandler = () => {
       if (document.hidden) {
         this.stopHeartbeat();
@@ -172,7 +205,7 @@ export class TrajectoryWebSocketClient {
       }
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.startHeartbeat();
-        if (this.currentBBox) this.ws.send(`BBOX ${this.currentBBox}`);
+        if (this.currentBBox) this.sendBBox(this.currentBBox);
       } else if (this.shouldReconnect) {
         this.reconnectAttempts = 0;
         this.connect();
