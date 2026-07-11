@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "raildatacollector"
 version = "1.0.0"
 description = "Thailand Railway data collector microservice"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.135.0",
     "uvicorn[standard]>=0.44.0",
@@ -41,11 +41,11 @@ include = ["app*"]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ["py312"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py314"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "N", "UP", "S", "B", "A", "C4", "DTZ", "T20", "RET", "SIM", "TCH", "ERA", "PTH"]
@@ -56,7 +56,7 @@ ignore = ["E501", "S101", "B008", "TC001", "TC002", "TC003", "DTZ003", "DTZ011",
 "scripts/*.py" = ["T201", "B905", "SIM102", "F841", "S310", "PTH123"]
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.12"
 warn_unused_configs = true
 ignore_missing_imports = true
 
