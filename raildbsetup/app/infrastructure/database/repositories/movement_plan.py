@@ -24,9 +24,9 @@ from app.domain.railroad.movement_plan_service import (
     TrainBuildInput,
 )
 from app.infrastructure.database.tables import (
+    t_network_edges,
     t_planned_movement_segments,
     t_planned_train_runs,
-    t_network_edges,
     t_route_stations,
     t_routes,
     t_schedules,

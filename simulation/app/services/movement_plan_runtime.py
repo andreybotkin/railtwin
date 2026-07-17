@@ -427,6 +427,9 @@ def resolve_trajectory(
                 head_distance_m=round(geom_fraction * route_length_m, 3),
                 rotation_deg=geo_utils.normalize_bearing(rotation),
                 speed_kmh=round(speed, 2),
+                elevation_m=0.0,
+                grade_permille=0.0,
+                speed_limit_kmh=200.0,
                 status=status,
             )
         )

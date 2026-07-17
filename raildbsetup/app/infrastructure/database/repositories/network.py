@@ -579,11 +579,11 @@ class SqlNetworkRepository(NetworkRepository):
                 .values(component_id=component_id)
             )
         for edge in edge_rows:
-            component_id = component_by_node.get(int(edge.from_node_id))
+            edge_component_id = component_by_node.get(int(edge.from_node_id))
             await self._s.execute(
                 update(t_network_edges)
                 .where(t_network_edges.c.id == int(edge.id))
-                .values(component_id=component_id)
+                .values(component_id=edge_component_id)
             )
         main_count = len(ordered[0]) if ordered else 0
         return len(ordered), main_count, max(0, len(node_rows) - main_count)

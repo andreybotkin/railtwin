@@ -126,11 +126,13 @@ def integrate_dem_elevations(
         if left == right:
             enriched[i][2] = float(elevations[left] or 0.0)
         else:
+            left_elevation = elevations[left]
+            right_elevation = elevations[right]
+            # ``valid`` only contains indices whose elevation is present.
+            assert left_elevation is not None
+            assert right_elevation is not None
             ratio = (i - left) / (right - left)
-            enriched[i][2] = (
-                float(elevations[left])
-                + (float(elevations[right]) - float(elevations[left])) * ratio
-            )
+            enriched[i][2] = left_elevation + (right_elevation - left_elevation) * ratio
     return enriched
 
 

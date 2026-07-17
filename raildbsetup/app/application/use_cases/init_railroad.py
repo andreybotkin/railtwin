@@ -13,9 +13,9 @@ from app.core.config import settings
 from app.core.logging import get_logger
 from app.domain.railroad.repository import RailroadRepository
 from app.domain.railroad.service import RailroadDomainService
+from app.infrastructure.parsers.json_station_parser import parse_stations_json
 from app.infrastructure.parsers.kml_parser import parse_kml_routes
 from app.infrastructure.parsers.kml_station_parser import parse_stations_kml
-from app.infrastructure.parsers.json_station_parser import parse_stations_json
 
 logger = get_logger(__name__)
 
