@@ -58,6 +58,8 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
                 NetworkEdge.route_type,
                 NetworkEdge.line_name,
                 NetworkEdge.max_speed_kmh,
+                NetworkEdge.elevation_profile,
+                NetworkEdge.speed_limit_zones,
                 ST_AsGeoJSON(NetworkEdge.geometry).label("geojson"),
             )
             .where(
@@ -86,6 +88,8 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
                         "route_type": row.route_type,
                         "line_name": row.line_name,
                         "max_speed_kmh": row.max_speed_kmh,
+                        "elevation_profile": row.elevation_profile or [],
+                        "speed_limit_zones": row.speed_limit_zones or [],
                     },
                 }
             )
@@ -144,6 +148,8 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
             NetworkEdge.route_type,
             NetworkEdge.line_name,
             NetworkEdge.max_speed_kmh,
+            NetworkEdge.elevation_profile,
+            NetworkEdge.speed_limit_zones,
             ST_AsGeoJSON(NetworkEdge.geometry).label("geojson"),
         ).order_by(NetworkEdge.id)
         if not include_synthetic:
@@ -167,6 +173,8 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
                         "route_type": row.route_type,
                         "line_name": row.line_name,
                         "max_speed_kmh": row.max_speed_kmh,
+                        "elevation_profile": row.elevation_profile or [],
+                        "speed_limit_zones": row.speed_limit_zones or [],
                     },
                 }
             )

@@ -576,6 +576,16 @@ def build_movement_plan(
     has_move = any(s.segment_type == "move" for s in segments)
     quality = _run_quality(segments, run_warnings)
     status = _determine_status(quality, has_move)
+    if any(
+        warning in run_warnings
+        for warning in (
+            WARN_NON_MONOTONIC_DISTANCE,
+            WARN_NON_MONOTONIC_TIME,
+            WARN_ZERO_OR_NEGATIVE_DURATION,
+            WARN_SUSPICIOUS_SPEED,
+        )
+    ):
+        status = "invalid"
 
     # Deduplicate run-level warnings while preserving insertion order.
     seen: set[str] = set()

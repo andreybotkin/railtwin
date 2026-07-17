@@ -3,6 +3,11 @@ from dataclasses import dataclass, field
 
 _TIME_RE = re.compile(r"^\d{1,2}:\d{2}$")
 
+
+def _absolute_minutes(value: str, day_offset: int) -> int:
+    hours, minutes = (int(part) for part in value.split(":", 1))
+    return hours * 60 + minutes + day_offset * 1440
+
 VALID_ROUTE_TYPES = frozenset(
     {
         "northern",
@@ -106,4 +111,26 @@ class TrainData:
         # Validate each stop
         for stop in self.stops:
             errors.extend(stop.validate(self.train_number))
+        for left, right in zip(self.stops, self.stops[1:], strict=False):
+            left_time = left.departure_time or left.arrival_time
+            right_time = right.arrival_time or right.departure_time
+            if left_time is None or right_time is None:
+                continue
+            left_offset = (
+                left.departure_day_offset
+                if left.departure_time is not None
+                else left.arrival_day_offset
+            )
+            right_offset = (
+                right.arrival_day_offset
+                if right.arrival_time is not None
+                else right.departure_day_offset
+            )
+            if _absolute_minutes(right_time, right_offset) <= _absolute_minutes(
+                left_time, left_offset
+            ):
+                errors.append(
+                    f"Train {self.train_number}: non-positive travel time "
+                    f"'{left.station_name}' -> '{right.station_name}'"
+                )
         return errors

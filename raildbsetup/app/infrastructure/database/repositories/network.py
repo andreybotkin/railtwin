@@ -71,12 +71,20 @@ class SqlNetworkRepository(NetworkRepository):
         nodes_count = await self.count_nodes()
         edges_count = await self.count_edges()
         snapped_count = await self._count_snapped_stations()
+        (
+            component_count,
+            main_component_station_count,
+            disconnected_station_count,
+        ) = await self._compute_and_store_components()
         await self._persist_topology_metadata(
             nodes_count=nodes_count,
             edges_count=edges_count,
             snapped_count=snapped_count,
             unsnapped_count=len(unsnapped_stations),
             max_snap_distance_m=max_snap_distance_m,
+            component_count=component_count,
+            main_component_station_count=main_component_station_count,
+            disconnected_station_count=disconnected_station_count,
         )
 
         logger.info(
@@ -90,6 +98,10 @@ class SqlNetworkRepository(NetworkRepository):
             nodes_count=nodes_count,
             edges_count=edges_count,
             snapped_count=snapped_count,
+            physical_component_count=component_count,
+            station_component_count=component_count,
+            main_component_station_count=main_component_station_count,
+            disconnected_station_count=disconnected_station_count,
             max_snap_distance_m=max_snap_distance_m,
             unsnapped_stations=unsnapped_stations[:50],
         )
@@ -530,6 +542,66 @@ class SqlNetworkRepository(NetworkRepository):
         )
         return result.scalar_one() or 0
 
+    async def _compute_and_store_components(self) -> tuple[int, int, int]:
+        """Compute undirected station-graph components and persist their IDs."""
+
+        node_rows = (
+            await self._s.execute(
+                select(t_network_nodes.c.id, t_network_nodes.c.station_id)
+            )
+        ).fetchall()
+        edge_rows = (
+            await self._s.execute(
+                select(
+                    t_network_edges.c.id,
+                    t_network_edges.c.from_node_id,
+                    t_network_edges.c.to_node_id,
+                )
+            )
+        ).fetchall()
+        parent = {int(row.id): int(row.id) for row in node_rows}
+
+        def find(node_id: int) -> int:
+            while parent[node_id] != node_id:
+                parent[node_id] = parent[parent[node_id]]
+                node_id = parent[node_id]
+            return node_id
+
+        def union(left: int, right: int) -> None:
+            left_root, right_root = find(left), find(right)
+            if left_root != right_root:
+                parent[right_root] = left_root
+
+        for edge in edge_rows:
+            left, right = int(edge.from_node_id), int(edge.to_node_id)
+            if left in parent and right in parent:
+                union(left, right)
+
+        members: dict[int, list[int]] = {}
+        for node_id in parent:
+            members.setdefault(find(node_id), []).append(node_id)
+        ordered = sorted(members.values(), key=lambda group: (-len(group), min(group)))
+        component_by_node = {
+            node_id: component_id
+            for component_id, group in enumerate(ordered, start=1)
+            for node_id in group
+        }
+        for node_id, component_id in component_by_node.items():
+            await self._s.execute(
+                update(t_network_nodes)
+                .where(t_network_nodes.c.id == node_id)
+                .values(component_id=component_id)
+            )
+        for edge in edge_rows:
+            component_id = component_by_node.get(int(edge.from_node_id))
+            await self._s.execute(
+                update(t_network_edges)
+                .where(t_network_edges.c.id == int(edge.id))
+                .values(component_id=component_id)
+            )
+        main_count = len(ordered[0]) if ordered else 0
+        return len(ordered), main_count, max(0, len(node_rows) - main_count)
+
     async def _persist_topology_metadata(
         self,
         *,
@@ -538,19 +610,25 @@ class SqlNetworkRepository(NetworkRepository):
         snapped_count: int,
         unsnapped_count: int,
         max_snap_distance_m: float | None,
+        component_count: int,
+        main_component_station_count: int,
+        disconnected_station_count: int,
     ) -> None:
-        topology_version = f"station-nodes-{nodes_count}-station-edges-{edges_count}-stations-{snapped_count}"
+        topology_version = (
+            f"station-nodes-{nodes_count}-station-edges-{edges_count}"
+            f"-stations-{snapped_count}-components-{component_count}"
+        )
         await self._s.execute(
             pg_insert(t_topology_metadata).values(
                 topology_version=topology_version,
                 physical_nodes_count=nodes_count,
                 physical_edges_count=edges_count,
                 station_nodes_count=nodes_count,
-                physical_components_count=0,
-                station_components_count=0,
+                physical_components_count=component_count,
+                station_components_count=component_count,
                 operational_links_count=0,
-                main_component_station_count=snapped_count,
-                disconnected_station_count=unsnapped_count,
+                main_component_station_count=main_component_station_count,
+                disconnected_station_count=disconnected_station_count,
                 unsnapped_station_count=unsnapped_count,
                 max_snap_distance_m=max_snap_distance_m,
                 built_at=datetime.now(UTC),

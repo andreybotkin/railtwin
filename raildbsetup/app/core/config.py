@@ -42,9 +42,9 @@ class Settings(BaseSettings):
     # Network topology settings
     # Maximum distance (metres) between a station point and a route LineString
     # for the station to be considered part of that route.
-    # Increased from 500 → 2000 because many JSON station coordinates are offset
-    # a few hundred metres from the KML track lines.
-    topology_snap_distance_m: float = 2000.0
+    # Stations farther away than this are not allowed to become members of a
+    # route. A wide (2 km) corridor produced false matches across branches.
+    topology_snap_distance_m: float = 500.0
     # Route rebuild tolerance: stations are considered part of a route when the
     # route LineString passes close enough to the station point.
     topology_route_match_distance_m: float = 25.0

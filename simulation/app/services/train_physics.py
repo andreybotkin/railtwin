@@ -45,6 +45,10 @@ class MotionState:
     speed_mps: float
 
 
+class InfeasibleLegError(ValueError):
+    """The train cannot cover a scheduled leg within its physical limits."""
+
+
 _DEFAULTS: dict[str, tuple[float, float, float, float, float]] = {
     # locomotive tonnes, trailing-stock tonnes, horsepower, tractive kN, max km/h
     "special_express": (84.0, 480.0, 2900.0, 270.0, 160.0),
@@ -317,6 +321,14 @@ def simulate_leg(
     if duration_s <= 0 or abs(end_m - start_m) <= 0.05:
         return [MotionState(0.0, end_m, 0.0)]
     max_cap = spec.max_speed_kmh / 3.6
+    maximum = _run_leg(
+        start_m, end_m, duration_s, spec, track, max_cap, record=False
+    )[0]
+    shortfall_m = abs(end_m - maximum.distance_m)
+    if shortfall_m > 0.1:
+        raise InfeasibleLegError(
+            f"scheduled leg is physically infeasible; shortfall={shortfall_m:.1f}m"
+        )
     low, high = 0.1, max_cap
     # Pick the lowest cruise cap that can cover the leg in the available time.
     for _ in range(11):

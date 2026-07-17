@@ -31,6 +31,7 @@ from app.domain.trajectory import (
 from app.models.database.models import Schedule, Train
 from app.services import geo_utils, schedule_utils
 from app.services.train_physics import (
+    InfeasibleLegError,
     MotionState,
     TrackProfile,
     TrainPhysicsSpec,
@@ -163,14 +164,12 @@ def _station_coord(schedule: Schedule) -> tuple[float, float] | None:
     return float(point.x), float(point.y)
 
 
-_PROJECTION_CORRIDOR = 0.35
-
-
 def _stop_fractions(
     schedules: list[Schedule],
     polyline: list[list[float]],
     route_distance_km: float | None,
-) -> list[float]:
+    route_stop_positions: list[dict[str, Any]] | None = None,
+) -> list[float] | None:
     """Resolve each schedule stop to its fraction along the polyline.
 
     Strategy:
@@ -179,21 +178,44 @@ def _stop_fractions(
        monotonic by construction (distance-from-start / route-progress /
        linear-by-index) and therefore safe as a fallback.
     2. For every stop with real geometry, project it onto the polyline.
-    3. Accept the projection only when it lands within a corridor
-       (``_PROJECTION_CORRIDOR``) of the reference — otherwise the
-       projection is an obvious outlier (wrong polyline, ambiguous
-       branch, stale coordinate) and the reference wins.
-    4. A final running-max/min sweep guarantees strict monotonicity
-       without letting a single outlier collapse the whole sequence.
+    3. Prefer the real projection and use the reference only when station
+       geometry is unavailable.
+    4. Reject a sequence that changes direction or collapses distinct stops;
+       silently clamping it would make a moving train appear stuck.
     """
 
     total_stops = len(schedules)
 
+    graph_positions_by_id = {
+        int(position["schedule_id"]): float(position["distance_m"])
+        for position in route_stop_positions or []
+        if position.get("schedule_id") is not None
+    }
+    graph_positions_by_sequence = {
+        int(position["sequence"]): float(position["distance_m"])
+        for position in route_stop_positions or []
+        if position.get("sequence") is not None
+    }
+
     # Gather raw route progress, falling back to distance if available
     raw_reference: list[float | None] = []
+    graph_positions_complete = True
     for schedule in schedules:
+        graph_distance = graph_positions_by_id.get(int(getattr(schedule, "id", -1)))
+        if graph_distance is None:
+            graph_distance = graph_positions_by_sequence.get(
+                int(getattr(schedule, "sequence", -1))
+            )
+        if graph_distance is not None and route_distance_km and route_distance_km > 0:
+            raw_reference.append(graph_distance / (route_distance_km * 1000.0))
+            continue
+        if route_stop_positions:
+            graph_positions_complete = False
         if route_distance_km and route_distance_km > 0:
             dist = getattr(schedule, "route_station_distance_from_start", None)
+            route_station = getattr(schedule, "route_station", None)
+            if dist is None and route_station is not None:
+                dist = getattr(route_station, "distance_from_start", None)
             if dist is not None:
                 raw_reference.append(float(dist) / route_distance_km)
                 continue
@@ -252,24 +274,30 @@ def _stop_fractions(
             continue
         projected.append(max(0.0, min(1.0, float(frac))))
 
-    resolved: list[float] = []
-    for ref, proj in zip(reference, projected, strict=False):
-        if proj is not None and abs(proj - ref) <= _PROJECTION_CORRIDOR:
-            resolved.append(proj)
-        else:
-            resolved.append(ref)
-
-    ascending = reference[-1] >= reference[0]
-    if ascending:
-        running = resolved[0]
-        for i in range(1, len(resolved)):
-            running = max(running, resolved[i])
-            resolved[i] = running
+    if route_stop_positions:
+        if not graph_positions_complete:
+            return None
+        resolved = list(reference)
     else:
-        running = resolved[0]
-        for i in range(1, len(resolved)):
-            running = min(running, resolved[i])
-            resolved[i] = running
+        resolved = []
+        for ref, proj in zip(reference, projected, strict=False):
+            resolved.append(proj if proj is not None else ref)
+
+    ascending = resolved[-1] >= resolved[0]
+    epsilon = 1e-7
+    for index, (left, right) in enumerate(
+        zip(resolved, resolved[1:], strict=False)
+    ):
+        left_station = getattr(schedules[index], "station_id", None)
+        right_station = getattr(schedules[index + 1], "station_id", None)
+        same_station = left_station is not None and left_station == right_station
+        delta = right - left
+        if same_station:
+            continue
+        if abs(delta) <= epsilon or (ascending and delta < 0) or (
+            not ascending and delta > 0
+        ):
+            return None
 
     return resolved
 
@@ -362,13 +390,16 @@ def _compute_frame(
             cache_key = (prev_index, next_index)
             states = motion_cache.get(cache_key)
             if states is None:
-                states = simulate_leg(
-                    start_frac * route_length_m,
-                    end_frac * route_length_m,
-                    duration * 60.0,
-                    physics,
-                    track_profile,
-                )
+                try:
+                    states = simulate_leg(
+                        start_frac * route_length_m,
+                        end_frac * route_length_m,
+                        duration * 60.0,
+                        physics,
+                        track_profile,
+                    )
+                except InfeasibleLegError:
+                    return None
                 motion_cache[cache_key] = states
             state = state_at(
                 states,
@@ -389,10 +420,17 @@ def _compute_frame(
         geom_fraction=round(geom_fraction, 6),
         head_distance_m=round(head_distance_m, 3),
         rotation_deg=round(rotation % 360.0, 2),
-        # Thai rolling stock tops out around 160 km/h, so clamping at 200 km/h
-        # leaves a small safety margin while rejecting the ~400 km/h values that
-        # used to surface when a schedule's timing was too tight for the route.
-        speed_kmh=round(max(0.0, min(200.0, speed_kmh)), 2),
+        speed_kmh=round(
+            max(
+                0.0,
+                min(
+                    physics.max_speed_kmh,
+                    track_profile.speed_limit_at(head_distance_m),
+                    speed_kmh,
+                ),
+            ),
+            2,
+        ),
         elevation_m=round(track_profile.elevation_at(head_distance_m), 2),
         grade_permille=round(
             track_profile.grade_at(
@@ -475,6 +513,7 @@ def build_trajectory(
     now_unix_ms: int | None = None,
     topology_version: str | None = None,
     route_segments: list[dict[str, Any]] | None = None,
+    route_stop_positions: list[dict[str, Any]] | None = None,
 ) -> Trajectory | None:
     """Return a :class:`Trajectory` for ``train`` at ``current_minutes`` or ``None``.
 
@@ -509,7 +548,14 @@ def build_trajectory(
         return None
 
     effective_distance_km = route_length_m / 1000.0
-    stop_fractions = _stop_fractions(schedules, polyline, effective_distance_km)
+    stop_fractions = _stop_fractions(
+        schedules,
+        polyline,
+        effective_distance_km,
+        route_stop_positions,
+    )
+    if stop_fractions is None:
+        return None
     physics = resolve_train_physics(train)
     track_profile = build_track_profile(polyline, route_length_m, route_segments)
     motion_cache: dict[tuple[int, int], list[MotionState]] = {}

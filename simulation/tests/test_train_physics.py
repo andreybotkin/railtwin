@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.services.train_physics import (
+    InfeasibleLegError,
     build_track_profile,
     integrate_dem_elevations,
     resolve_train_physics,
@@ -79,3 +80,12 @@ def test_simulation_accelerates_and_brakes_to_stop() -> None:
     assert max(state.speed_mps for state in states) <= 90 / 3.6 + 1e-6
     assert states[-1].distance_m == pytest.approx(10_000.0, abs=0.1)
     assert states[-1].speed_mps == 0.0
+
+
+def test_rejects_physically_impossible_schedule() -> None:
+    spec = resolve_train_physics(_train(max_speed_kmh=60))
+    track = build_track_profile(
+        [[100.0, 13.0], [100.1, 13.0]], 10_000.0, None
+    )
+    with pytest.raises(InfeasibleLegError):
+        simulate_leg(0.0, 10_000.0, 60.0, spec, track)

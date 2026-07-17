@@ -77,6 +77,7 @@ class TrainSimulationService:
         route_coords: list[list[float]] | None,
         route_distance_km: float | None = None,
         route_segments: list[dict[str, Any]] | None = None,
+        route_stop_positions: list[dict[str, Any]] | None = None,
         *,
         topology_version: str | None = None,
     ) -> Trajectory | None:
@@ -95,6 +96,7 @@ class TrainSimulationService:
             current_minutes=current_minutes,
             topology_version=topology_version,
             route_segments=route_segments,
+            route_stop_positions=route_stop_positions,
         )
 
     def get_stop_sequence(
@@ -149,18 +151,7 @@ class TrainSimulationService:
                 for train_id, payloads in raw_schedules.items()
             }
 
-            route_ids = list(
-                {
-                    int(payload["current_route_id"])
-                    for payload in train_payloads
-                    if payload.get("current_route_id") is not None
-                }
-            )
-            geometry_by_route = (
-                await self.reader.get_route_geometry_bulk(route_ids)
-                if route_ids
-                else {}
-            )
+            geometry_by_train = await self.reader.get_train_geometry_bulk(train_ids)
 
             # Preload movement plans for this batch (no-op when flag is off).
             movement_plans_by_train: dict[int, Any] = {}
@@ -178,16 +169,27 @@ class TrainSimulationService:
                 route_coords: list[list[float]] | None = None
                 route_distance_km: float | None = None
                 route_segments: list[dict[str, Any]] | None = None
-                if (
-                    train.current_route_id
-                    and train.current_route_id in geometry_by_route
-                ):
-                    route_payload = geometry_by_route[train.current_route_id]
+                route_stop_positions: list[dict[str, Any]] | None = None
+                route_payload = geometry_by_train.get(train.id) or {}
+                if route_payload.get("valid"):
                     route_coords = route_payload.get("coords")
                     route_distance_km = route_payload.get("distance_km")
                     route_segments = route_payload.get("segments")
+                    route_stop_positions = route_payload.get("stop_positions")
                     if not route_coords:
                         route_coords = None
+                else:
+                    logger.warning(
+                        "train_geometry_invalid",
+                        train_id=train.id,
+                        train_number=train.train_number,
+                        issues=route_payload.get("issues") or [
+                            {"code": "missing_train_geometry"}
+                        ],
+                    )
+                    if index % _COOPERATIVE_YIELD_EVERY == 0:
+                        await asyncio.sleep(0)
+                    continue
 
                 delay = self._tts_delays.get(train.train_number, 0)
                 current_minutes = self._get_candidate_current_minutes_with_delay(
@@ -199,7 +201,10 @@ class TrainSimulationService:
                 trajectory: Trajectory | None = None
 
                 # --- Movement plan fast path (feature-flagged) ----------- #
-                if settings.movement_plan_runtime_enabled:
+                if (
+                    settings.movement_plan_runtime_enabled
+                    and route_payload.get("source") != "station_graph"
+                ):
                     planned_run = movement_plans_by_train.get(train.id)
                     if planned_run is not None and planned_run.is_usable():
                         route_length_m = (
@@ -260,6 +265,7 @@ class TrainSimulationService:
                         current_minutes=current_minutes,
                         topology_version=topology_version,
                         route_segments=route_segments,
+                        route_stop_positions=route_stop_positions,
                     )
                     if (
                         trajectory is not None
