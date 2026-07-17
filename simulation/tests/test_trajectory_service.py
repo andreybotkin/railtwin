@@ -385,8 +385,8 @@ def test_build_trajectory_projects_stations_onto_polyline_when_available() -> No
     assert head.geom_fraction == pytest.approx(0.35, abs=5e-3)
 
 
-def test_stop_fractions_enforce_monotonicity() -> None:
-    """A mid-sequence outlier must not push later fractions backwards."""
+def test_stop_fractions_reject_non_monotonic_projection() -> None:
+    """A mid-sequence outlier invalidates the route instead of pinning stops."""
 
     from app.services.trajectory_service import _stop_fractions
 
@@ -408,9 +408,7 @@ def test_stop_fractions_enforce_monotonicity() -> None:
 
     polyline = [[100.0, 0.0], [101.0, 0.0]]
     fractions = _stop_fractions(schedules, polyline, 111.0)
-    # Must be non-decreasing.
-    for a, b in zip(fractions, fractions[1:], strict=False):
-        assert b >= a
+    assert fractions is None
 
 
 def test_build_stop_sequence_marks_passed_boarding_pending_states() -> None:

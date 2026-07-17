@@ -3,12 +3,6 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-# Install build deps for asyncpg, lxml, shapely
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        gcc \
-        libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY pyproject.toml .
 RUN uv pip install --system --no-cache-dir .
 

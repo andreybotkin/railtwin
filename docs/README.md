@@ -23,6 +23,7 @@ This directory contains additional project documentation and quick references.
 - [Rail DB Setup README](../raildbsetup/README.md) - Database initialization service
 - [Rail Data Collector README](../raildatacollector/README.md) - Data ingestion service
 - [Precomputed Movement Plan](precomputed-movement-plan.md) - Precomputed trajectory resolution design
+- [Physics-based Movement](physics-simulation.md) - DEM profiles, train parameters, and speed-limit zones
 - [Data Collection & Frontend](data-collection.md) - Real-time tracking data sources and frontend details
 
 ## API Documentation

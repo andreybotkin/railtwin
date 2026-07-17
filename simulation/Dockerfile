@@ -7,12 +7,6 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-# Install system dependencies for building Python packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install Python dependencies
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 COPY pyproject.toml uv.lock ./
@@ -26,11 +20,9 @@ FROM python:3.12-slim AS production
 
 WORKDIR /app
 
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --shell /bin/bash appuser
+# All native dependencies are provided as locked manylinux wheels. asyncpg does
+# not use libpq at runtime.
+RUN useradd --create-home --shell /bin/bash appuser
 
 # Copy virtual environment from builder
 COPY --from=builder --chown=appuser:appuser /opt/venv /opt/venv

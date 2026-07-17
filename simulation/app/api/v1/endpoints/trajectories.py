@@ -58,15 +58,23 @@ async def get_trajectory(
     route_coords: list[list[float]] | None = None
     route_distance_km: float | None = None
     route_segments: list[dict[str, Any]] | None = None
-    if train.current_route_id is not None:
-        geometry_map = await service.reader.get_route_geometry_bulk(
-            [train.current_route_id]
+    route_stop_positions: list[dict[str, Any]] | None = None
+    geometry_map = await service.reader.get_train_geometry_bulk([train_id])
+    geometry = geometry_map.get(train_id) or {}
+    if not geometry.get("valid"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                "message": "Train timetable does not form a connected track path",
+                "issues": geometry.get("issues") or [
+                    {"code": "missing_train_geometry"}
+                ],
+            },
         )
-        geometry = geometry_map.get(train.current_route_id)
-        if geometry:
-            route_coords = geometry.get("coords")
-            route_distance_km = geometry.get("distance_km")
-            route_segments = geometry.get("segments")
+    route_coords = geometry.get("coords")
+    route_distance_km = geometry.get("distance_km")
+    route_segments = geometry.get("segments")
+    route_stop_positions = geometry.get("stop_positions")
 
     await service._load_delays()  # noqa: SLF001
     trajectory = await service.get_train_trajectory(
@@ -75,6 +83,7 @@ async def get_trajectory(
         route_coords,
         route_distance_km,
         route_segments=route_segments,
+        route_stop_positions=route_stop_positions,
     )
     if trajectory is None:
         raise HTTPException(

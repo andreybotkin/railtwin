@@ -66,6 +66,9 @@ class RouteRepository(BaseRepository[Route]):
                 NetworkEdge.from_station_id,
                 NetworkEdge.to_station_id,
                 NetworkEdge.length_m,
+                NetworkEdge.max_speed_kmh,
+                NetworkEdge.elevation_profile,
+                NetworkEdge.speed_limit_zones,
                 ST_AsGeoJSON(NetworkEdge.geometry).label("edge_geojson"),
             )
             .join(NetworkEdge, NetworkEdge.id == RouteEdge.edge_id)
@@ -96,6 +99,9 @@ class RouteRepository(BaseRepository[Route]):
                     "from_station_id": int(row.from_station_id),
                     "to_station_id": int(row.to_station_id),
                     "length_km": length_km,
+                    "max_speed_kmh": row.max_speed_kmh,
+                    "elevation_profile": row.elevation_profile or [],
+                    "speed_limit_zones": row.speed_limit_zones or [],
                     "start_km": start_km,
                     "end_km": end_km,
                     "coords": coords,

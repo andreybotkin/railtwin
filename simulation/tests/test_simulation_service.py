@@ -29,6 +29,20 @@ class _DummyReader:
     ) -> dict[int, list[dict[str, int]]]:
         return {train_id: [{"train_id": train_id}] for train_id in train_ids}
 
+    async def get_train_geometry_bulk(
+        self, train_ids: list[int]
+    ) -> dict[int, dict[str, Any]]:
+        return {
+            train_id: {
+                "valid": True,
+                "coords": [[100.0, 13.0], [100.1, 13.1]],
+                "distance_km": 10.0,
+                "segments": [],
+                "source": "station_graph",
+            }
+            for train_id in train_ids
+        }
+
 
 @pytest.mark.asyncio
 async def test_get_all_active_train_data_yields_control_during_bulk_processing(

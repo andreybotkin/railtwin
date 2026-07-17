@@ -276,6 +276,7 @@ class TestSuspiciousSpeed:
         ]
         run = build_movement_plan(_train(stops), _PLAN_VERSION, _TOPO_VERSION)
         assert WARN_SUSPICIOUS_SPEED in run.warnings
+        assert run.status == "invalid"
 
     def test_normal_speed_not_flagged(self) -> None:
         # 100 km in 120 minutes ≈ 50 km/h — realistic

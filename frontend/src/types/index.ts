@@ -104,6 +104,14 @@ export interface Train {
   train_type: TrainType;
   name: string | null;
   capacity: number | null;
+  locomotive_mass_t?: number | null;
+  rolling_stock_mass_t?: number | null;
+  horsepower?: number | null;
+  max_tractive_effort_kn?: number | null;
+  max_brake_deceleration_mps2?: number | null;
+  max_speed_kmh?: number | null;
+  passenger_load?: number | null;
+  passenger_mass_kg?: number | null;
   operator: string;
   current_route_id: number | null;
   current_route: RouteSummary | null;
@@ -138,6 +146,9 @@ export interface TrajectoryFrame {
   head_distance_m: number;
   rotation_deg: number;
   speed_kmh: number;
+  elevation_m?: number;
+  grade_permille?: number;
+  speed_limit_kmh?: number;
   status: TrajectoryStatus;
 }
 

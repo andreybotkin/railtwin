@@ -131,6 +131,9 @@ class TrajectoryFrame(BaseModel):
         description="Compass bearing of the locomotive (clockwise from North).",
     )
     speed_kmh: float = Field(..., ge=0.0, le=400.0)
+    elevation_m: float = Field(0.0, description="DEM-derived track elevation.")
+    grade_permille: float = Field(0.0, description="Signed track grade in ‰.")
+    speed_limit_kmh: float = Field(200.0, gt=0.0, le=400.0)
     status: TrajectoryStatus = "moving"
 
 

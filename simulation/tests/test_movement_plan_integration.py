@@ -121,6 +121,12 @@ class _DummyReader:
     async def get_route_geometry_bulk(self, route_ids: list[int]) -> dict[int, dict]:
         return dict.fromkeys(route_ids, _ROUTE_GEOMETRY)
 
+    async def get_train_geometry_bulk(self, train_ids: list[int]) -> dict[int, dict]:
+        return {
+            train_id: {**_ROUTE_GEOMETRY, "valid": True, "source": "legacy_test"}
+            for train_id in train_ids
+        }
+
     async def get_movement_plans_bulk(
         self, train_ids: list[int]
     ) -> dict[int, PlannedTrainRun | None]:

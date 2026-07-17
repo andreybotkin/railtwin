@@ -20,6 +20,7 @@ from app.repositories.route import RouteRepository
 from app.repositories.schedule import ScheduleRepository
 from app.repositories.station import StationRepository
 from app.repositories.train import TrainRepository
+from app.services.train_route_geometry import build_train_route_geometry
 
 logger = get_logger(__name__)
 
@@ -104,6 +105,9 @@ class ReferenceDataKeys:
 
     def route_geometry(self, route_id: int) -> str:
         return f"{self.ns}:route_geometry:by_route:{route_id}"
+
+    def train_geometry(self, train_id: int) -> str:
+        return f"{self.ns}:train_geometry:by_train:{train_id}"
 
     def route_edges(self, route_id: int) -> str:
         return f"{self.ns}:route_edges:by_route:{route_id}"
@@ -367,6 +371,16 @@ def _serialize_train(train: Any) -> dict[str, Any]:
         "train_type": train.train_type,
         "name": train.name,
         "capacity": train.capacity,
+        "locomotive_mass_t": _to_float(train.locomotive_mass_t),
+        "rolling_stock_mass_t": _to_float(train.rolling_stock_mass_t),
+        "horsepower": _to_float(train.horsepower),
+        "max_tractive_effort_kn": _to_float(train.max_tractive_effort_kn),
+        "max_brake_deceleration_mps2": _to_float(
+            train.max_brake_deceleration_mps2
+        ),
+        "max_speed_kmh": _to_float(train.max_speed_kmh),
+        "passenger_load": train.passenger_load,
+        "passenger_mass_kg": _to_float(train.passenger_mass_kg),
         "operator": train.operator,
         "source": train.source,
         "source_url": train.source_url,
@@ -466,7 +480,7 @@ class RedisReferenceDataLoader:
     async def load(self) -> dict[str, Any]:
         await self._clear_namespace()
         loading_meta = {
-            "schema_version": 1,
+            "schema_version": 2,
             "load_status": "loading",
             "loaded_at": None,
         }
@@ -578,6 +592,13 @@ class RedisReferenceDataLoader:
         for grouped in schedules_by_station.values():
             grouped.sort(key=_schedule_sort_key)
 
+        train_geometry_by_train = {
+            int(train["id"]): build_train_route_geometry(
+                schedules_by_train.get(int(train["id"]), []), network_edges
+            )
+            for train in trains
+        }
+
         pipe = self._redis.pipeline()
         for station in stations:
             station_id = str(station["id"])
@@ -606,6 +627,10 @@ class RedisReferenceDataLoader:
                 pipe.sadd(
                     self._keys.trains_by_route(int(train["current_route_id"])), train_id
                 )
+            pipe.set(
+                self._keys.train_geometry(int(train_id)),
+                _json_dumps(train_geometry_by_train[int(train_id)]),
+            )
 
         for schedule in schedules:
             pipe.hset(
@@ -659,7 +684,7 @@ class RedisReferenceDataLoader:
             movement_plan_train_ids = []
 
         meta = {
-            "schema_version": 1,
+            "schema_version": 2,
             "load_status": "ready",
             "loaded_at": datetime.utcnow().isoformat(),
             "source_topology_version": (topology or {}).get("topology_version"),
@@ -669,6 +694,14 @@ class RedisReferenceDataLoader:
             "schedules_count": len(schedules),
             "route_stations_count": sum(len(route["stations"]) for route in routes),
             "movement_plans_count": len(movement_plan_train_ids),
+            "valid_train_geometries_count": sum(
+                bool(geometry.get("valid"))
+                for geometry in train_geometry_by_train.values()
+            ),
+            "invalid_train_geometries_count": sum(
+                not geometry.get("valid")
+                for geometry in train_geometry_by_train.values()
+            ),
         }
         pipe.set(self._keys.meta, _json_dumps(meta))
         await pipe.execute()
@@ -931,6 +964,21 @@ class RedisReferenceReader:
             result[route_id] = _json_loads(raw, {})
         return result
 
+    async def get_train_geometry_bulk(
+        self,
+        train_ids: list[int],
+    ) -> dict[int, dict[str, Any]]:
+        if not train_ids:
+            return {}
+        pipe = self._redis.pipeline()
+        for train_id in train_ids:
+            pipe.get(self._keys.train_geometry(train_id))
+        raw_payloads = await pipe.execute()
+        return {
+            train_id: _json_loads(raw, {})
+            for train_id, raw in zip(train_ids, raw_payloads, strict=False)
+        }
+
     async def get_network_edges(self) -> list[dict[str, Any]]:
         return _json_loads(await self._redis.get(self._keys.network_edges), [])
 
@@ -1039,6 +1087,15 @@ def train_payload_to_domain(payload: dict[str, Any]) -> Any:
         id=int(payload["id"]),
         train_number=payload["train_number"],
         train_type=payload["train_type"],
+        capacity=payload.get("capacity"),
+        locomotive_mass_t=payload.get("locomotive_mass_t"),
+        rolling_stock_mass_t=payload.get("rolling_stock_mass_t"),
+        horsepower=payload.get("horsepower"),
+        max_tractive_effort_kn=payload.get("max_tractive_effort_kn"),
+        max_brake_deceleration_mps2=payload.get("max_brake_deceleration_mps2"),
+        max_speed_kmh=payload.get("max_speed_kmh"),
+        passenger_load=payload.get("passenger_load"),
+        passenger_mass_kg=payload.get("passenger_mass_kg"),
         current_route_id=payload.get("current_route_id"),
         name=payload.get("name"),
         operator=payload.get("operator"),
