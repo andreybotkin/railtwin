@@ -151,20 +151,32 @@ kubectl apply -f k8s/raildatacollector/secrets.yaml -n railway
 
 Use the same database username and password in `postgres-secrets` and in every service `DATABASE_URL`. Rotate credentials immediately if a real password has ever been committed to Git history.
 
+Create `ghcr-registry-secret` as described in `k8s/ghcr-secret.yaml.example` so
+K3s can pull the immutable application images from GHCR.
+
 3. Apply the infrastructure and application manifests:
 ```bash
-kubectl apply -f k8s/postgres/
-kubectl apply -f k8s/redis/
-kubectl apply -f k8s/raildbsetup/
-kubectl apply -f k8s/simulation/
-kubectl apply -f k8s/gateway/
-kubectl apply -f k8s/raildatacollector/
-kubectl apply -f k8s/frontend/
+kubectl apply -k k8s
+kubectl -n railway rollout status deployment/raildbsetup --timeout=20m
 ```
 
-4. Open the local ingress:
-   - Frontend: http://railtwin.localhost
-   - Gateway API: http://api.railtwin.localhost
+When a new image contains corrected KML, station aliases, or schedules and the
+PostgreSQL PVC already exists, rebuild the persisted reference data and then
+reload the simulation cache:
+
+```bash
+k8s/rebuild-reference-data.sh
+kubectl -n railway rollout restart deployment/simulation
+kubectl -n railway rollout status deployment/simulation --timeout=15m
+```
+
+Pushes to `main` perform this sequence automatically. The GitHub repository
+must contain a base64-encoded `KUBECONFIG` Actions secret with access to the
+cluster; application secrets remain pre-provisioned in the `railway` namespace.
+
+4. Open the production ingress:
+   - Frontend: https://rthfi.com
+   - Gateway API: https://api.rthfi.com
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for deployment architecture details.
 

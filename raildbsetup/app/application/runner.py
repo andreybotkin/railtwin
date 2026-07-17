@@ -78,12 +78,22 @@ class SetupRunner:
         self._is_failed = True
         self._error = error
 
-    async def run_all(self) -> dict[str, Any]:
-        """Run complete initialization: migrations → railroad → topology → schedules."""
+    async def run_all(self, force: bool = False) -> dict[str, Any]:
+        """Run the complete initialization sequence exactly once at a time.
+
+        ``force`` replaces railroad source data and rebuilds all derived topology
+        and movement plans.  This is required when a new container image ships
+        corrected KML/JSON data while PostgreSQL keeps its persistent volume.
+        """
         async with self._lock:
             self._is_ready = False
             self._is_failed = False
             self._error = None
+
+            return await self._run_all(force=force)
+
+    async def _run_all(self, *, force: bool) -> dict[str, Any]:
+        """Implementation for :meth:`run_all`; caller holds ``self._lock``."""
 
         migration_result = await self.run_migrations()
         if not migration_result.get("success"):
@@ -92,14 +102,14 @@ class SetupRunner:
             logger.error("Alembic migrations failed, aborting", error=self._error)
             return {"migrations": migration_result}
 
-        railroad_result = await self.run_railroad()
+        railroad_result = await self.run_railroad(force=force)
         if railroad_result.get("error") and not railroad_result.get("skipped"):
             self._is_failed = True
             self._error = railroad_result["error"]
             logger.error("Railroad initialization failed, aborting", error=self._error)
             return {"migrations": migration_result, "railroad": railroad_result}
 
-        topology_result = await self.run_network_topology()
+        topology_result = await self.run_network_topology(force=force)
         if topology_result.get("error"):
             # Topology failure is non-fatal: log and continue to schedules.
             logger.warning(
@@ -109,7 +119,7 @@ class SetupRunner:
 
         schedule_result = await self.run_schedules()
 
-        movement_plan_result = await self.run_movement_plans()
+        movement_plan_result = await self.run_movement_plans(force=force)
         if movement_plan_result.get("error"):
             logger.warning(
                 "Movement plan build failed – continuing without plans",

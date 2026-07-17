@@ -220,9 +220,9 @@ jobs:
         run: pytest --cov=app --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
-          file: ./simulation/coverage.xml
+          files: ./simulation/coverage.xml
           flags: simulation
 
   ##############################################################
@@ -274,9 +274,9 @@ jobs:
         run: pytest --cov=app --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
-          file: ./raildatacollector/coverage.xml
+          files: ./raildatacollector/coverage.xml
           flags: raildatacollector
 
   ##############################################################
@@ -328,9 +328,9 @@ jobs:
         run: pytest --cov=app --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
-          file: ./raildbsetup/coverage.xml
+          files: ./raildbsetup/coverage.xml
           flags: raildbsetup
 
   ##############################################################
@@ -382,9 +382,9 @@ jobs:
         run: pytest --cov=app --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
-          file: ./gateway/coverage.xml
+          files: ./gateway/coverage.xml
           flags: gateway
 
   ##############################################################
@@ -485,92 +485,130 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}/${{ matrix.component }}:${{ steps.tags.outputs.DATE_TAG }}
             ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}/${{ matrix.component }}:${{ steps.tags.outputs.SHORT_SHA }}
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ secrets.API_URL }}
-            NEXT_PUBLIC_WS_URL=${{ secrets.WS_URL }}
+            NEXT_PUBLIC_API_URL=https://api.rthfi.com
+            NEXT_PUBLIC_WS_URL=wss://api.rthfi.com
           platforms: linux/amd64
           provenance: false
 
   ##############################################################
   # 4. Deploy to K3s
   ##############################################################
-  # deploy:
-  #   name: Deploy to K3s
-  #   runs-on: ubuntu-latest
-  #   needs: [detect-changes, build-images]
-  #   if: |
-  #     always() &&
-  #     github.event_name == 'push' &&
-  #     github.ref == 'refs/heads/main' &&
-  #     needs.build-images.result != 'failure' &&
-  #     needs.build-images.result != 'cancelled' &&
-  #     (needs.build-images.result == 'success' || needs.detect-changes.outputs.k8s == 'true')
-  #   permissions:
-  #     contents: read
+  deploy:
+    name: Deploy to K3s
+    runs-on: ubuntu-latest
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, gateway-ci, frontend-ci, build-images]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      (needs.build-images.result == 'success' || needs.detect-changes.outputs.k8s == 'true')
+    permissions:
+      contents: read
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Set up kubectl
-  #       uses: azure/setup-kubectl@v3
-  #       with:
-  #         version: 'v1.28.0'
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.31.0'
 
-  #     - name: Configure kubeconfig
-  #       run: |
-  #         mkdir -p ~/.kube
-  #         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+      - name: Configure kubeconfig
+        run: |
+          set -eu
+          mkdir -p "$HOME/.kube"
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+          kubectl cluster-info
 
-  #     - name: Deploy to K3s
-  #       run: |
-  #         kubectl apply -f k8s/namespace.yaml
-  #         kubectl apply -f k8s/network-policy.yaml
+      - name: Validate cluster prerequisites
+        run: |
+          set -eu
+          kubectl apply -f k8s/namespace.yaml
+          for secret in ghcr-registry-secret postgres-secrets raildbsetup-secrets simulation-secrets raildatacollector-secrets; do
+            kubectl -n railway get "secret/$secret" >/dev/null || {
+              echo "Missing required pre-provisioned secret railway/$secret" >&2
+              exit 1
+            }
+          done
+          if kubectl -n railway get deployment/raildbsetup >/dev/null 2>&1; then
+            echo "RAILDBSETUP_EXISTED=true" >> "$GITHUB_ENV"
+          else
+            echo "RAILDBSETUP_EXISTED=false" >> "$GITHUB_ENV"
+          fi
 
-  #         kubectl apply -f k8s/postgres/deployment.yaml
-  #         kubectl apply -f k8s/postgres/service.yaml
-  #         kubectl apply -f k8s/redis/deployment.yaml
-  #         kubectl apply -f k8s/redis/service.yaml
+      - name: Apply manifests and deploy reference-data service
+        env:
+          RAILDBSETUP_CHANGED: ${{ needs.detect-changes.outputs.raildbsetup }}
+          K8S_CHANGED: ${{ needs.detect-changes.outputs.k8s }}
+        run: |
+          set -eu
+          kubectl apply -k k8s
+          image_repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          image_tag="${GITHUB_SHA:0:7}"
 
-  #         kubectl apply -f k8s/raildbsetup/configmap.yaml
-  #         kubectl apply -f k8s/raildbsetup/secrets.yaml
-  #         kubectl apply -f k8s/raildbsetup/deployment.yaml
-  #         kubectl apply -f k8s/raildbsetup/service.yaml
-  #
-  #         kubectl apply -f k8s/simulation/configmap.yaml
-  #         kubectl apply -f k8s/simulation/secrets.yaml
+          if [ "$RAILDBSETUP_CHANGED" = "true" ]; then
+            kubectl -n railway set image deployment/raildbsetup \
+              raildbsetup="${REGISTRY}/${image_repo}/raildbsetup:${image_tag}"
+          elif [ "$K8S_CHANGED" = "true" ] && [ "$RAILDBSETUP_EXISTED" = "true" ]; then
+            kubectl -n railway rollout restart deployment/raildbsetup
+          fi
 
-  #         kubectl apply -f k8s/simulation/deployment.yaml
-  #         kubectl apply -f k8s/simulation/service.yaml
-  #         kubectl apply -f k8s/simulation/hpa.yaml
+          kubectl -n railway rollout status deployment/postgres --timeout=10m
+          kubectl -n railway rollout status deployment/redis --timeout=5m
+          kubectl -n railway rollout status deployment/raildbsetup --timeout=20m
 
-  #         kubectl apply -f k8s/gateway/configmap.yaml
-  #         kubectl apply -f k8s/gateway/deployment.yaml
-  #         kubectl apply -f k8s/gateway/service.yaml
-  #
-  #         kubectl apply -f k8s/raildatacollector/configmap.yaml
-  #         kubectl apply -f k8s/raildatacollector/secrets.yaml
-  #         kubectl apply -f k8s/raildatacollector/deployment.yaml
-  #         kubectl apply -f k8s/raildatacollector/service.yaml
-  #
-  #         kubectl apply -f k8s/frontend/deployment.yaml
-  #         kubectl apply -f k8s/frontend/service.yaml
-  #         kubectl apply -f k8s/frontend/ingress.yaml
+      - name: Rebuild maps and derived movement plans
+        if: env.RAILDBSETUP_EXISTED == 'true' && (needs.detect-changes.outputs.raildbsetup == 'true' || needs.detect-changes.outputs.k8s == 'true')
+        run: k8s/rebuild-reference-data.sh
 
-  #         if [ "${{ needs.detect-changes.outputs.simulation }}" = "true" ]; then
-  #           kubectl rollout restart deployment/simulation -n railway
-  #           kubectl rollout status deployment/simulation -n railway --timeout=300s
-  #         fi
-  #         if [ "${{ needs.detect-changes.outputs.frontend }}" = "true" ]; then
-  #           kubectl rollout restart deployment/frontend -n railway
-  #           kubectl rollout status deployment/frontend -n railway --timeout=300s
-  #         fi
+      - name: Deploy application services
+        env:
+          SIMULATION_CHANGED: ${{ needs.detect-changes.outputs.simulation }}
+          FRONTEND_CHANGED: ${{ needs.detect-changes.outputs.frontend }}
+          COLLECTOR_CHANGED: ${{ needs.detect-changes.outputs.raildatacollector }}
+          GATEWAY_CHANGED: ${{ needs.detect-changes.outputs.gateway }}
+          K8S_CHANGED: ${{ needs.detect-changes.outputs.k8s }}
+          REFERENCE_DATA_CHANGED: ${{ needs.detect-changes.outputs.raildbsetup }}
+        run: |
+          set -eu
+          image_repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          image_tag="${GITHUB_SHA:0:7}"
+
+          deploy_component() {
+            component="$1"
+            changed="$2"
+            if [ "$changed" = "true" ]; then
+              kubectl -n railway set image "deployment/$component" \
+                "$component=${REGISTRY}/${image_repo}/${component}:${image_tag}"
+            elif [ "$K8S_CHANGED" = "true" ] && [ "$RAILDBSETUP_EXISTED" = "true" ]; then
+              kubectl -n railway rollout restart "deployment/$component"
+            fi
+          }
+
+          deploy_component simulation "$SIMULATION_CHANGED"
+          deploy_component gateway "$GATEWAY_CHANGED"
+          deploy_component raildatacollector "$COLLECTOR_CHANGED"
+          deploy_component frontend "$FRONTEND_CHANGED"
+
+          if [ "$REFERENCE_DATA_CHANGED" = "true" ] && [ "$SIMULATION_CHANGED" != "true" ]; then
+            kubectl -n railway rollout restart deployment/simulation
+          fi
+
+          kubectl -n railway rollout status deployment/simulation --timeout=15m
+          kubectl -n railway rollout status deployment/gateway --timeout=10m
+          kubectl -n railway rollout status deployment/raildatacollector --timeout=10m
+          kubectl -n railway rollout status deployment/frontend --timeout=10m
 
   ##############################################################
   # 5. Notifications
   ##############################################################
   notify:
     name: Send Notifications
-    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, gateway-ci, frontend-ci, build-images]
+    needs: [detect-changes, simulation-ci, raildatacollector-ci, raildbsetup-ci, gateway-ci, frontend-ci, build-images, deploy]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -586,10 +624,12 @@ jobs:
                [ "${{ needs.raildbsetup-ci.result }}" = "failure" ] || \
               [ "${{ needs.gateway-ci.result }}" = "failure" ] || \
                [ "${{ needs.frontend-ci.result }}" = "failure" ] || \
-               [ "${{ needs.build-images.result }}" = "failure" ]; then
+               [ "${{ needs.build-images.result }}" = "failure" ] || \
+               [ "${{ needs.deploy.result }}" = "failure" ]; then
             echo "status=❌ Failed" >> $GITHUB_OUTPUT
             echo "emoji=❌" >> $GITHUB_OUTPUT
-          elif [ "${{ needs.build-images.result }}" = "success" ]; then
+          elif [ "${{ needs.deploy.result }}" = "success" ] || \
+               [ "${{ needs.build-images.result }}" = "success" ]; then
             echo "status=✅ Success" >> $GITHUB_OUTPUT
             echo "emoji=✅" >> $GITHUB_OUTPUT
           elif [ "${{ needs.build-images.result }}" = "cancelled" ]; then
@@ -621,6 +661,7 @@ jobs:
             • Gateway CI: ${{ needs.gateway-ci.result == 'success' && '✅' || needs.gateway-ci.result == 'failure' && '❌' || needs.gateway-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Frontend CI: ${{ needs.frontend-ci.result == 'success' && '✅' || needs.frontend-ci.result == 'failure' && '❌' || needs.frontend-ci.result == 'skipped' && '⏭️' || '⚠️' }}
             • Build Images: ${{ needs.build-images.result == 'success' && '✅' || needs.build-images.result == 'failure' && '❌' || needs.build-images.result == 'skipped' && '⏭️' || '⚠️' }}
+            • Deploy: ${{ needs.deploy.result == 'success' && '✅' || needs.deploy.result == 'failure' && '❌' || needs.deploy.result == 'skipped' && '⏭️' || '⚠️' }}
 
             ${{ github.event_name == 'push' && format('*Commit:* `{0}`', github.event.head_commit.message) || '' }}
             ${{ github.event_name == 'push' && format('*Author:* {0}', github.event.head_commit.author.name) || '' }}

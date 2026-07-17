@@ -23,6 +23,8 @@ spec:
         app.kubernetes.io/name: gateway
         app.kubernetes.io/component: edge
     spec:
+      imagePullSecrets:
+        - name: ghcr-registry-secret
       containers:
         - name: gateway
           image: ghcr.io/andreybotkin/railtwin/gateway:latest

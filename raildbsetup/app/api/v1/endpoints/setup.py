@@ -92,7 +92,7 @@ async def trigger_all(
     force: bool = False,
 ) -> dict:
     runner = request.app.state.runner
-    background_tasks.add_task(runner.run_all)
+    background_tasks.add_task(runner.run_all, force)
     return {"message": "Full initialization triggered", "force": force}
 
 

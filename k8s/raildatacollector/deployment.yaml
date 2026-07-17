@@ -19,6 +19,8 @@ spec:
         app.kubernetes.io/name: raildatacollector
         app.kubernetes.io/component: collector
     spec:
+      imagePullSecrets:
+        - name: ghcr-registry-secret
       initContainers:
         - name: wait-for-postgres
           image: busybox:1.36
@@ -42,6 +44,17 @@ spec:
                 sleep 5
               done
               echo "Raildbsetup is ready"
+        - name: wait-for-redis
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z redis-service 6379; do
+                echo "Waiting for redis..."
+                sleep 3
+              done
+              echo "Redis is ready"
       containers:
         - name: raildatacollector
           image: ghcr.io/andreybotkin/railtwin/raildatacollector:latest
@@ -54,11 +67,6 @@ spec:
                 name: raildatacollector-config
             - secretRef:
                 name: raildatacollector-secrets
-          env:
-            - name: KML_LOCAL_PATH
-              value: /app/railroad/20260428RailwayMapofThailand.kml
-            - name: SCHEDULE_DATA_DIR
-              value: /app/schedule
           resources:
             requests:
               memory: "256Mi"
@@ -82,9 +90,7 @@ spec:
             periodSeconds: 15
             timeoutSeconds: 3
             failureThreshold: 3
-          volumeMounts: []
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
             allowPrivilegeEscalation: false
-      volumes: []
