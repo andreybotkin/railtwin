@@ -13,6 +13,13 @@ on:
       - 'gateway/**'
       - 'k8s/**'
       - '.github/workflows/ci-cd.yaml'
+  workflow_dispatch:
+    inputs:
+      rebuild_all:
+        description: 'Force rebuild and push all services'
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -45,14 +52,36 @@ jobs:
 
       - name: Detect changed components
         id: changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
 
-          if [ "${{ github.event_name }}" = "push" ]; then
-            if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.rebuild_all }}" = "true" ]; then
+            echo "Force rebuilding all components due to workflow_dispatch input"
+            echo "simulation=true"           >> $GITHUB_OUTPUT
+            echo "frontend=true"          >> $GITHUB_OUTPUT
+            echo "raildatacollector=true" >> $GITHUB_OUTPUT
+            echo "k8s=true"               >> $GITHUB_OUTPUT
+            echo "raildbsetup=true"       >> $GITHUB_OUTPUT
+            echo "gateway=true"           >> $GITHUB_OUTPUT
+            echo 'build-matrix=["simulation","frontend","raildatacollector","gateway","raildbsetup"]' >> $GITHUB_OUTPUT
+            echo "has-build-changes=true"                                  >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Query GitHub API to find the last successful commit SHA of this workflow on the current branch
+            LAST_SUCCESSFUL_SHA=$(gh run list --branch "${{ github.ref_name }}" --status success --workflow "${{ github.workflow }}" --limit 1 --json headSha --jq '.[0].headSha' 2>/dev/null || echo "")
+            if [ -n "$LAST_SUCCESSFUL_SHA" ]; then
+              BASE_COMMIT="$LAST_SUCCESSFUL_SHA"
+              echo "Comparing against last successful commit: $BASE_COMMIT"
+            elif [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
               BASE_COMMIT="${{ github.event.before }}"
+              echo "Comparing against previous commit: $BASE_COMMIT"
             else
               BASE_COMMIT="HEAD^"
+              echo "Comparing against HEAD^: $BASE_COMMIT"
             fi
           else
             BASE_COMMIT="origin/${{ github.base_ref }}"
