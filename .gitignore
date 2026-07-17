@@ -58,6 +58,7 @@ yarn-error.log*
 
 # Kubernetes secrets (never commit actual secrets)
 k8s/**/secrets.yaml
+k8s/ghcr-secret.yaml
 
 # Temporary files
 tmp/
