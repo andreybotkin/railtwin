@@ -5,9 +5,14 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json* ./
-RUN npm install --legacy-peer-deps
+# Install the exact lock-file dependency graph. Network retries make clean
+# cluster builds resilient to short registry interruptions without allowing
+# package versions to drift.
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps \
+    --fetch-retries=5 \
+    --fetch-retry-mintimeout=20000 \
+    --fetch-retry-maxtimeout=120000
 
 # Stage 2: Builder
 FROM node:22-alpine AS builder
