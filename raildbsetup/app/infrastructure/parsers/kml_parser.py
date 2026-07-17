@@ -47,7 +47,7 @@ ROUTE_NAME_TYPE_MAP = [
     (
         re.compile(
             r"aranyaprathet|ban khlong luk|chachoengsao|eastern|"
-            r"laem chabang|map ta phut|si racha|mae nam",
+            r"laem chabang|map ta phut|si racha|mae nam|chuk samet",
             re.I,
         ),
         "eastern",
@@ -147,7 +147,9 @@ def _iter_line_strings(pm: ET.Element) -> list[ET.Element]:
 def parse_kml_bytes(kml_bytes: bytes) -> tuple[list[RouteData], list[StationData]]:
     """Parse KML bytes and return (routes, stations) as domain entities."""
     root = ET.fromstring(kml_bytes)  # noqa: S314
-    document = root.find(_tag("Document")) or root
+    document = root.find(_tag("Document"))
+    if document is None:
+        document = root
 
     routes: list[RouteData] = []
     stations: list[StationData] = []
@@ -228,7 +230,9 @@ def parse_kml_routes(kml_bytes: bytes) -> list[RouteData]:
     Use this when station data is loaded from a separate source (e.g. JSON).
     """
     root = ET.fromstring(kml_bytes)  # noqa: S314
-    document = root.find(_tag("Document")) or root
+    document = root.find(_tag("Document"))
+    if document is None:
+        document = root
 
     routes: list[RouteData] = []
 

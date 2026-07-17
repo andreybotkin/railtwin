@@ -8,6 +8,7 @@ def _absolute_minutes(value: str, day_offset: int) -> int:
     hours, minutes = (int(part) for part in value.split(":", 1))
     return hours * 60 + minutes + day_offset * 1440
 
+
 VALID_ROUTE_TYPES = frozenset(
     {
         "northern",

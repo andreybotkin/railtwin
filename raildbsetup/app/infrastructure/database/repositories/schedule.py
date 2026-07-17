@@ -124,6 +124,7 @@ class SqlScheduleRepository(ScheduleRepository):
         self._station_cache: _StationCache = {}
         self._station_candidates: list[StationCandidate] | None = None
         self._stations_by_key: dict[str, list[StationCandidate]] | None = None
+        self._stations_by_exact_name: dict[str, StationCandidate] = {}
         self._station_aliases: dict[str, int] | None = None
         self._candidate_by_id: dict[int, StationCandidate] = {}
         self._issues = issues
@@ -403,6 +404,7 @@ class SqlScheduleRepository(ScheduleRepository):
             )
             self._station_candidates.append(candidate)
             self._candidate_by_id[candidate.id] = candidate
+            self._stations_by_exact_name[candidate.name.casefold().strip()] = candidate
             self._stations_by_key.setdefault(candidate.match_key, []).append(candidate)
 
         alias_rows = (
@@ -430,10 +432,18 @@ class SqlScheduleRepository(ScheduleRepository):
         prev_station_id: int | None,
     ) -> int | None:
         await self._ensure_station_catalog()
-        normalized_key = _station_match_key(station_name)
-        cache_key = (normalized_key, route_type_hint, prev_station_id)
+        exact_name_key = station_name.casefold().strip()
+        cache_key = (exact_name_key, route_type_hint, prev_station_id)
         if cache_key in self._station_cache:
             return self._station_cache[cache_key]
+
+        # Exact canonical names must win before the parenthetical-insensitive
+        # matching used for aliases.  Otherwise distinct stops such as
+        # "Padang Besar" and "Padang Besar (Thai)" collapse to one station.
+        exact_match = self._stations_by_exact_name.get(exact_name_key)
+        if exact_match is not None:
+            self._station_cache[cache_key] = exact_match.id
+            return exact_match.id
 
         variants = _station_match_variants(station_name)
         manual_target = next(

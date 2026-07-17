@@ -14,11 +14,22 @@ import math
 __all__ = [
     "interpolate_position",
     "great_circle_bearing",
+    "normalize_bearing",
     "haversine_km",
     "segment_distance_km",
     "cumulative_haversine_km",
     "project_onto_polyline",
 ]
+
+
+def normalize_bearing(bearing: float, precision: int = 2) -> float:
+    """Round a compass bearing while preserving the half-open ``[0, 360)`` range.
+
+    Applying modulo before rounding is insufficient: values such as
+    ``359.999`` round to ``360.0`` and violate the trajectory schema.
+    """
+    normalized = round(bearing % 360.0, precision) % 360.0
+    return 0.0 if normalized == 0.0 else normalized
 
 
 def haversine_km(lon1: float, lat1: float, lon2: float, lat2: float) -> float:

@@ -105,8 +105,14 @@ def integrate_dem_elevations(
     for coord in coords:
         lon, lat = float(coord[0]), float(coord[1])
         existing = float(coord[2]) if len(coord) > 2 else None
-        value = existing if existing is not None and math.isfinite(existing) else sampler(lon, lat)
-        elevations.append(float(value) if value is not None and math.isfinite(value) else None)
+        value = (
+            existing
+            if existing is not None and math.isfinite(existing)
+            else sampler(lon, lat)
+        )
+        elevations.append(
+            float(value) if value is not None and math.isfinite(value) else None
+        )
         enriched.append([lon, lat, 0.0])
     valid = [i for i, value in enumerate(elevations) if value is not None]
     if not valid:
@@ -121,9 +127,10 @@ def integrate_dem_elevations(
             enriched[i][2] = float(elevations[left] or 0.0)
         else:
             ratio = (i - left) / (right - left)
-            enriched[i][2] = float(elevations[left]) + (
-                float(elevations[right]) - float(elevations[left])
-            ) * ratio
+            enriched[i][2] = (
+                float(elevations[left])
+                + (float(elevations[right]) - float(elevations[left])) * ratio
+            )
     return enriched
 
 
@@ -160,8 +167,10 @@ class TrackProfile:
         high = min(self.length_m, distance_m + window)
         if high <= low:
             return 0.0
-        return direction * (self.elevation_at(high) - self.elevation_at(low)) / (
-            high - low
+        return (
+            direction
+            * (self.elevation_at(high) - self.elevation_at(low))
+            / (high - low)
         )
 
     def speed_limit_at(self, distance_m: float) -> float:
@@ -207,8 +216,7 @@ def build_track_profile(
         for left, right in zip(coords, coords[1:], strict=False):
             cumulative.append(
                 cumulative[-1]
-                + geo_utils.haversine_km(left[0], left[1], right[0], right[1])
-                * 1000.0
+                + geo_utils.haversine_km(left[0], left[1], right[0], right[1]) * 1000.0
             )
         geometric_length = cumulative[-1] or route_length_m
         elevations = [
@@ -321,9 +329,9 @@ def simulate_leg(
     if duration_s <= 0 or abs(end_m - start_m) <= 0.05:
         return [MotionState(0.0, end_m, 0.0)]
     max_cap = spec.max_speed_kmh / 3.6
-    maximum = _run_leg(
-        start_m, end_m, duration_s, spec, track, max_cap, record=False
-    )[0]
+    maximum = _run_leg(start_m, end_m, duration_s, spec, track, max_cap, record=False)[
+        0
+    ]
     shortfall_m = abs(end_m - maximum.distance_m)
     if shortfall_m > 0.1:
         raise InfeasibleLegError(
@@ -333,9 +341,7 @@ def simulate_leg(
     # Pick the lowest cruise cap that can cover the leg in the available time.
     for _ in range(11):
         cap = (low + high) * 0.5
-        final = _run_leg(
-            start_m, end_m, duration_s, spec, track, cap, record=False
-        )[0]
+        final = _run_leg(start_m, end_m, duration_s, spec, track, cap, record=False)[0]
         covered = abs(final.distance_m - start_m)
         if covered >= abs(end_m - start_m) - 0.1:
             high = cap

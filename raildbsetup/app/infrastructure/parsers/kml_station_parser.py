@@ -75,7 +75,9 @@ def parse_stations_kml(path: Path) -> ParsedStations:
     """
     raw = path.read_bytes()
     root = ET.fromstring(raw)  # noqa: S314
-    document = root.find(_tag("Document")) or root
+    document = root.find(_tag("Document"))
+    if document is None:
+        document = root
 
     stations: list[StationData] = []
     skipped = 0
@@ -231,10 +233,20 @@ def parse_stations_kml(path: Path) -> ParsedStations:
             )
         )
 
+    # The curated file may contain an older fuzzy/geocoded record immediately
+    # followed by its corrected TTG record.  Keep the latest record by name so
+    # a bad earlier coordinate cannot silently win in the database repository.
+    deduplicated: dict[str, StationData] = {}
+    for station in stations:
+        deduplicated[station.name.casefold()] = station
+    duplicate_count = len(stations) - len(deduplicated)
+    stations = list(deduplicated.values())
+
     logger.info(
         "Stations parsed from KML",
         loaded=len(stations),
         skipped=skipped,
+        duplicate_names_replaced=duplicate_count,
         path=str(path),
     )
     return ParsedStations(stations=stations, aliases={})

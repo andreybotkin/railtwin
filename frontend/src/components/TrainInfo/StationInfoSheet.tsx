@@ -132,7 +132,7 @@ export default function StationInfoSheet() {
     <div
       className={cn(
         'info-sheet pointer-events-auto fixed z-[1000] text-zinc-900',
-        'inset-x-0 bottom-0 rounded-t-3xl',
+        'inset-x-2 bottom-[max(0.5rem,env(safe-area-inset-bottom))] rounded-3xl',
         'sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[22rem] sm:rounded-3xl',
         'backdrop-blur-xl',
         'flex flex-col overflow-hidden',
@@ -159,12 +159,12 @@ export default function StationInfoSheet() {
 
       <div
         ref={innerRef}
-        className="relative flex-1 overflow-y-auto p-4 sm:p-5"
+        className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-4 sm:p-5"
       >
-        <header className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
+        <header className="flex items-start justify-between gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-sm sm:h-11 sm:w-11 sm:rounded-2xl"
               style={{ background: 'var(--station-icon-bg)' }}
             >
               <Building2 className="h-5 w-5" />
@@ -202,7 +202,7 @@ export default function StationInfoSheet() {
           <button
             aria-label={t('common.close')}
             onClick={() => selectStation(null)}
-            className="rounded-full p-2 transition"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition"
             style={{ color: 'var(--panel-subtext)' }}
           >
             <X className="h-4 w-4" />
@@ -213,7 +213,7 @@ export default function StationInfoSheet() {
 
         {nextStop && (
           <section
-            className="mt-4 rounded-2xl p-4"
+            className="mt-3 rounded-2xl p-3 sm:mt-4 sm:p-4"
             style={{
               background: 'var(--station-next-bg)',
               color: 'var(--station-next-text)',

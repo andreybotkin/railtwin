@@ -32,6 +32,7 @@ import type { NetworkEdgeCollection, Trajectory } from '@/types';
 import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
 import { useMapTopology, useTheme, useTrajectoryStream } from '@/lib/hooks';
 import { useRailwayStore } from '@/lib/stores/railway-store';
+import { nearestTrainId } from '@/lib/train-selection';
 import { getRouteColor, getTrainTypeColor } from '@/lib/utils';
 
 import LeafletStationMarker from './LeafletStationMarker';
@@ -401,7 +402,7 @@ function RouteStopMarkers({ trajectory }: { trajectory: Trajectory }) {
   return null;
 }
 
-// ─── Canvas-backed static network ────────────────────────────────────────────
+// ─── Static network ──────────────────────────────────────────────────────────
 
 const EMPTY_NETWORK: NetworkEdgeCollection = {
   type: 'FeatureCollection',
@@ -414,7 +415,6 @@ function TracksCanvasLayer({
   edges?: NetworkEdgeCollection | null;
 }) {
   const map = useMap();
-  const renderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
 
   const collection = useMemo<NetworkEdgeCollection>(() => {
     const source = edges ?? EMPTY_NETWORK;
@@ -435,10 +435,24 @@ function TracksCanvasLayer({
   useEffect(() => {
     if (collection.features.length === 0) return;
 
-    const casing = L.geoJSON(collection as never, {
+    if (!map.getPane('tracks-pane')) {
+      map.createPane('tracks-pane');
+      const pane = map.getPane('tracks-pane');
+      if (pane) {
+        pane.style.zIndex = '250';
+        pane.style.pointerEvents = 'none';
+      }
+    }
+    const renderer = L.svg({ pane: 'tracks-pane', padding: 0.5 });
+    const layerOptions = {
       interactive: false,
+      pane: 'tracks-pane',
+      renderer,
+    } as L.GeoJSONOptions;
+
+    const casing = L.geoJSON(collection as never, {
+      ...layerOptions,
       style: {
-        renderer,
         color: '#FFFFFF',
         weight: 6,
         opacity: 0.62,
@@ -447,9 +461,8 @@ function TracksCanvasLayer({
       },
     });
     const routes = L.geoJSON(collection as never, {
-      interactive: false,
+      ...layerOptions,
       style: (feature) => ({
-        renderer,
         color: getRouteColor(String(feature?.properties?.route_type ?? '')),
         weight: 4,
         opacity: 0.82,
@@ -461,7 +474,7 @@ function TracksCanvasLayer({
     return () => {
       map.removeLayer(group);
     };
-  }, [collection, map, renderer]);
+  }, [collection, map]);
 
   return null;
 }
@@ -488,8 +501,8 @@ function MapCore() {
     if (!map.getPane('selected-route-pane')) {
       map.createPane('selected-route-pane');
       const pane = map.getPane('selected-route-pane');
-      // 201 = just above tile pane (200), always below overlayPane (400) and markerPane (600)
-      if (pane) pane.style.zIndex = '201';
+      // Above the static tracks, below stop markers and train markers.
+      if (pane) pane.style.zIndex = '350';
     }
   }, [map]);
 
@@ -566,6 +579,20 @@ function MapCore() {
     return frame?.travelForward ?? true;
   }, [selectedTrajectory]);
 
+  const selectNearestTrain = useCallback(
+    (clickedTrainId: number, pointer: L.Point) => {
+      const screenPoints = trajectoryList.flatMap((trajectory) => {
+        const frame = getTrajectoryFrameAt(Date.now(), trajectory);
+        if (!frame) return [];
+        const point = map.latLngToContainerPoint([frame.lat, frame.lon]);
+        return [{ trainId: trajectory.train_id, x: point.x, y: point.y }];
+      });
+      const trainId = nearestTrainId(pointer, screenPoints, clickedTrainId);
+      selectTrain(trainId === selectedTrainId ? null : trainId);
+    },
+    [map, selectTrain, selectedTrainId, trajectoryList]
+  );
+
   // ── Tile URL (theme-driven) ───────────────────────────────────────────────
   const tileUrl = getTileUrl(theme as AppTheme);
   const tileAttribution = getTileAttribution(theme as AppTheme);
@@ -597,7 +624,7 @@ function MapCore() {
         <RouteStopMarkers trajectory={selectedTrajectory} />
       )}
 
-      {/* Route network — one Canvas-backed GeoJSON layer */}
+      {/* Complete route network, visible independently of train selection. */}
       <TracksCanvasLayer edges={topology?.network_edges} />
 
       {/* Stations — clustered at low zoom, individual markers above zoom 10 */}
@@ -619,7 +646,7 @@ function MapCore() {
           key={trajectory.train_id}
           trajectory={trajectory}
           isSelected={trajectory.train_id === selectedTrainId}
-          onSelect={selectTrain}
+          onSelectAt={selectNearestTrain}
         />
       ))}
     </>

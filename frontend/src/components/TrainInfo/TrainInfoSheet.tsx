@@ -34,6 +34,7 @@ import {
 import { useStopSequence } from '@/lib/hooks';
 import { useBottomSheetDrag } from '@/lib/hooks/useBottomSheetDrag';
 import { useRailwayStore } from '@/lib/stores/railway-store';
+import { buildStopTimeline } from '@/lib/stop-timeline';
 import { getTrajectoryFrameAt } from '@/lib/trajectory-interpolation';
 import { cn, formatDelay, formatSpeed } from '@/lib/utils';
 import type { StopSequenceItem } from '@/types';
@@ -241,17 +242,10 @@ export default function TrainInfoSheet() {
     [tick]
   );
 
-  const timelineStops = useMemo(() => {
-    if (!stopSequence) return [];
-    const pivot = stopSequence.findIndex((s) => s.state !== 'PASSED');
-    const start = pivot <= 1 ? 0 : pivot - 1;
-    return stopSequence.slice(start, start + 6);
-  }, [stopSequence]);
-
-  const activeIndex = useMemo(() => {
-    if (timelineStops.length === 0) return -1;
-    return timelineStops.findIndex((s) => s.state !== 'PASSED');
-  }, [timelineStops]);
+  const { stops: timelineStops, activeIndex } = useMemo(
+    () => buildStopTimeline(stopSequence),
+    [stopSequence]
+  );
 
   const innerRef = useRef<HTMLDivElement>(null);
   const snap1Ref = useRef<HTMLDivElement>(null);
@@ -307,7 +301,7 @@ export default function TrainInfoSheet() {
       className={cn(
         'info-sheet pointer-events-auto fixed z-[1000] text-zinc-900',
         // Mobile: bottom sheet spanning the viewport.
-        'inset-x-0 bottom-0 rounded-t-3xl',
+        'inset-x-2 bottom-[max(0.5rem,env(safe-area-inset-bottom))] rounded-3xl',
         // Desktop: floating card.
         'sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[22rem] sm:rounded-3xl',
         'backdrop-blur-xl',
@@ -337,27 +331,27 @@ export default function TrainInfoSheet() {
 
       <div
         ref={innerRef}
-        className="relative flex-1 overflow-y-auto p-4 sm:p-5"
+        className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-4 sm:p-5"
       >
-        <header className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
+        <header className="flex items-start justify-between gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-sm sm:h-11 sm:w-11 sm:rounded-2xl"
               style={{ backgroundColor: meta.color }}
             >
               <TrainIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0 leading-tight">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
                 <span
-                  className="inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold text-white"
+                  className="inline-flex h-6 shrink-0 items-center rounded-full px-2 text-xs font-semibold text-white sm:px-2.5"
                   style={{ backgroundColor: meta.color }}
                 >
                   #{meta.train_number}
                 </span>
                 <span
                   className={cn(
-                    'inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-semibold ring-1',
+                    'inline-flex h-6 min-w-0 items-center truncate rounded-full px-2 text-[11px] font-semibold ring-1 sm:px-2.5',
                     statusClass
                   )}
                 >
@@ -375,7 +369,7 @@ export default function TrainInfoSheet() {
           <button
             aria-label={t('common.close')}
             onClick={() => selectTrain(null)}
-            className="rounded-full p-2 transition"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition"
             style={{ color: 'var(--panel-subtext)' }}
           >
             <X className="h-4 w-4" />
@@ -384,7 +378,7 @@ export default function TrainInfoSheet() {
         {/* Snap-1 sentinel: sheet stops here showing only the header */}
         <div ref={snap1Ref} />
 
-        <section className="mt-4 grid grid-cols-3 gap-2">
+        <section className="mt-3 grid grid-cols-3 gap-1.5 sm:mt-4 sm:gap-2">
           {[
             {
               label: t('trains.speed'),
@@ -416,20 +410,20 @@ export default function TrainInfoSheet() {
           ].map(({ label, icon, value, color, sub }) => (
             <div
               key={label}
-              className="rounded-2xl px-3 py-2"
+              className="min-w-0 rounded-xl px-2 py-2 sm:rounded-2xl sm:px-3"
               style={{
                 background: 'var(--panel-inner)',
                 boxShadow: `0 0 0 1px var(--panel-inner-ring)`,
               }}
             >
               <div
-                className="flex items-center gap-1 text-[10px] tracking-[0.14em] uppercase"
+                className="flex items-center gap-1 truncate text-[9px] tracking-[0.08em] uppercase sm:text-[10px] sm:tracking-[0.14em]"
                 style={{ color: 'var(--panel-subtext)' }}
               >
                 {icon} {label}
               </div>
               <div
-                className="mt-0.5 text-lg font-semibold tabular-nums"
+                className="mt-0.5 truncate text-base font-semibold tabular-nums sm:text-lg"
                 style={{ color: color ?? 'var(--panel-text)' }}
               >
                 {value}

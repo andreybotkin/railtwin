@@ -84,8 +84,6 @@ def test_simulation_accelerates_and_brakes_to_stop() -> None:
 
 def test_rejects_physically_impossible_schedule() -> None:
     spec = resolve_train_physics(_train(max_speed_kmh=60))
-    track = build_track_profile(
-        [[100.0, 13.0], [100.1, 13.0]], 10_000.0, None
-    )
+    track = build_track_profile([[100.0, 13.0], [100.1, 13.0]], 10_000.0, None)
     with pytest.raises(InfeasibleLegError):
         simulate_leg(0.0, 10_000.0, 60.0, spec, track)

@@ -425,7 +425,7 @@ def resolve_trajectory(
                 lat=round(lat, 6),
                 geom_fraction=round(geom_fraction, 6),
                 head_distance_m=round(geom_fraction * route_length_m, 3),
-                rotation_deg=round(rotation % 360.0, 2),
+                rotation_deg=geo_utils.normalize_bearing(rotation),
                 speed_kmh=round(speed, 2),
                 status=status,
             )

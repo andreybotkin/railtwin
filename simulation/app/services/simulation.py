@@ -183,9 +183,8 @@ class TrainSimulationService:
                         "train_geometry_invalid",
                         train_id=train.id,
                         train_number=train.train_number,
-                        issues=route_payload.get("issues") or [
-                            {"code": "missing_train_geometry"}
-                        ],
+                        issues=route_payload.get("issues")
+                        or [{"code": "missing_train_geometry"}],
                     )
                     if index % _COOPERATIVE_YIELD_EVERY == 0:
                         await asyncio.sleep(0)

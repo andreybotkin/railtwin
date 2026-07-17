@@ -10,6 +10,8 @@ All business logic lives in app.domain.railroad.movement_plan_service.
 
 from __future__ import annotations
 
+import heapq
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -24,6 +26,7 @@ from app.domain.railroad.movement_plan_service import (
 from app.infrastructure.database.tables import (
     t_planned_movement_segments,
     t_planned_train_runs,
+    t_network_edges,
     t_route_stations,
     t_routes,
     t_schedules,
@@ -35,6 +38,46 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = get_logger(__name__)
+
+
+@dataclass(frozen=True, slots=True)
+class _GraphArc:
+    to_station_id: int
+    edge_id: int
+    length_m: float
+
+
+def _shortest_path(
+    graph: dict[int, list[_GraphArc]], start: int, end: int
+) -> list[_GraphArc] | None:
+    """Return the shortest directed station-edge path."""
+    if start == end:
+        return []
+    queue: list[tuple[float, int]] = [(0.0, start)]
+    distances = {start: 0.0}
+    previous: dict[int, tuple[int, _GraphArc]] = {}
+    while queue:
+        distance, station_id = heapq.heappop(queue)
+        if distance != distances.get(station_id):
+            continue
+        if station_id == end:
+            break
+        for arc in graph.get(station_id, []):
+            candidate = distance + arc.length_m
+            if candidate < distances.get(arc.to_station_id, float("inf")):
+                distances[arc.to_station_id] = candidate
+                previous[arc.to_station_id] = (station_id, arc)
+                heapq.heappush(queue, (candidate, arc.to_station_id))
+    if end not in previous:
+        return None
+    result: list[_GraphArc] = []
+    cursor = end
+    while cursor != start:
+        parent, arc = previous[cursor]
+        result.append(arc)
+        cursor = parent
+    result.reverse()
+    return result
 
 
 class SqlMovementPlanRepository:
@@ -92,6 +135,26 @@ class SqlMovementPlanRepository:
 
         rows = (await self._s.execute(stmt)).fetchall()
 
+        edge_rows = (
+            await self._s.execute(
+                select(
+                    t_network_edges.c.id,
+                    t_network_edges.c.from_station_id,
+                    t_network_edges.c.to_station_id,
+                    t_network_edges.c.length_m,
+                ).where(t_network_edges.c.length_m > 0)
+            )
+        ).fetchall()
+        graph: dict[int, list[_GraphArc]] = {}
+        for edge in edge_rows:
+            graph.setdefault(int(edge.from_station_id), []).append(
+                _GraphArc(
+                    to_station_id=int(edge.to_station_id),
+                    edge_id=int(edge.id),
+                    length_m=float(edge.length_m),
+                )
+            )
+
         trains: dict[int, TrainBuildInput] = {}
         for row in rows:
             train_id = row.train_id
@@ -141,6 +204,34 @@ class SqlMovementPlanRepository:
                     ),
                 )
             )
+
+        # Resolve every timetable on the same directed station graph used by
+        # runtime train geometry.  A single route_station sequence cannot
+        # represent branch-crossing services and was the source of false
+        # 200–2000 km/h plans.
+        for train in trains.values():
+            cumulative_m = 0.0
+            path_cache: dict[tuple[int, int], list[_GraphArc] | None] = {}
+            if train.stops:
+                train.stops[0].graph_distance_from_start_m = 0.0
+            for left, right in zip(train.stops, train.stops[1:], strict=False):
+                if left.station_id is None or right.station_id is None:
+                    continue
+                start, end = int(left.station_id), int(right.station_id)
+                key = (start, end)
+                if key not in path_cache:
+                    path_cache[key] = _shortest_path(graph, start, end)
+                path = path_cache[key]
+                if path is None:
+                    continue
+                if path and left.graph_edge_id is None:
+                    left.graph_edge_id = path[0].edge_id
+                cumulative_m += sum(arc.length_m for arc in path)
+                right.graph_distance_from_start_m = cumulative_m
+                if path:
+                    right.graph_edge_id = path[-1].edge_id
+            if cumulative_m > 0:
+                train.route_distance_km = cumulative_m / 1000.0
 
         return list(trains.values())
 

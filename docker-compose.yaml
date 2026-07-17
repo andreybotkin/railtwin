@@ -84,7 +84,7 @@ services:
       - .env
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@postgres:5432/railway_db}
-      KML_LOCAL_PATH: /app/railroad/20260428RailwayMapofThailand.kml
+      KML_LOCAL_PATH: /app/railroad/arc/thailand_railways_combined.kml
       STATIONS_KML_PATH: /app/railroad/20260428Thai_railway_stations.kml
       SCHEDULE_RAW_DIR: /app/schedule/raw
       SCHEDULE_SEED_PATH: /app/schedule/schedules_seed.json

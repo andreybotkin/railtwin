@@ -141,13 +141,7 @@ class SqlNetworkRepository(NetworkRepository):
             station_id = int(station.id)
             station_name = str(station.name)
             location_wkt = str(station.location_wkt)
-            source_route_type = (
-                str(station.source_route_type) if station.source_route_type else None
-            )
-
-            preferred_route = await self._find_preferred_route(
-                location_wkt, source_route_type
-            )
+            preferred_route = await self._find_preferred_route(location_wkt)
             node_location_wkt = location_wkt
             update_values: dict[str, Any] = {}
 
@@ -198,7 +192,7 @@ class SqlNetworkRepository(NetworkRepository):
     async def _find_preferred_route(
         self,
         point_wkt: str,
-        source_route_type: str | None,
+        source_route_type: str | None = None,
     ) -> Any | None:
         point = WKTElement(point_wkt, srid=4326)
         distance_expr = cast(
@@ -228,11 +222,10 @@ class SqlNetworkRepository(NetworkRepository):
                 stmt = stmt.where(t_routes.c.route_type == route_type)
             return (await self._s.execute(stmt)).first()
 
-        normalized = (source_route_type or "").strip().lower()
-        if normalized and normalized != "other":
-            preferred = await _query(normalized)
-            if preferred is not None:
-                return preferred
+        # Geometry is authoritative here.  Source route types are descriptive
+        # metadata and historically contain a number of bad classifications.
+        # Preferring a distant route with a matching label left stations that
+        # sit directly on another track unsnapped and split the graph.
         return await _query(None)
 
     async def _rebuild_routes_from_station_graph(self, snap_distance_m: float) -> None:
@@ -326,13 +319,6 @@ class SqlNetworkRepository(NetworkRepository):
             )
             .order_by(route_fraction, t_stations.c.id)
         )
-        if route_type and route_type != "other":
-            stmt = stmt.where(
-                (t_stations.c.source_route_type == route_type)
-                | (t_stations.c.source_route_type == "other")
-                | (t_stations.c.source_route_type.is_(None))
-            )
-
         rows = (await self._s.execute(stmt)).fetchall()
         station_rows: list[dict[str, Any]] = []
         seen_station_ids: set[int] = set()

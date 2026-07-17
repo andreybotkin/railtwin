@@ -191,7 +191,7 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="pointer-events-auto fixed inset-0 z-[1100] flex items-start justify-center p-3 pt-[max(4rem,env(safe-area-inset-top))] backdrop-blur-sm sm:pt-24"
+      className="pointer-events-auto fixed inset-0 z-[1100] flex items-end justify-center p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:items-start sm:p-3 sm:pt-24"
       style={{ background: 'rgba(0,0,0,0.3)' }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -201,7 +201,7 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
       aria-label={t('search.ariaLabel')}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-3xl"
+        className="max-h-[min(38rem,88dvh)] w-full max-w-lg overflow-hidden rounded-3xl"
         style={{
           background: 'var(--panel-bg-strong)',
           border: '1px solid var(--panel-border)',
@@ -238,20 +238,20 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
               }
             }}
             placeholder={t('search.placeholder')}
-            className="h-12 flex-1 bg-transparent text-sm focus:outline-none"
+            className="h-14 min-w-0 flex-1 bg-transparent text-base focus:outline-none sm:h-12 sm:text-sm"
             style={{ color: 'var(--panel-text)' }}
           />
           <button
             onClick={onClose}
             aria-label={t('search.close')}
-            className="rounded-full p-1.5 transition"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition"
             style={{ color: 'var(--panel-subtext)' }}
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <ul className="max-h-[min(28rem,70dvh)] overflow-y-auto py-1">
+        <ul className="max-h-[min(28rem,68dvh)] overflow-y-auto overscroll-contain py-1">
           {results.length === 0 ? (
             <li
               className="px-4 py-6 text-center text-xs"
@@ -270,7 +270,7 @@ function SearchPanelImpl({ onClose }: { onClose: () => void }) {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelect(r)}
                     onMouseEnter={() => setFocusIndex(idx)}
-                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition"
+                    className="flex min-h-14 w-full items-center gap-3 px-3 py-2.5 text-left transition sm:min-h-0"
                     style={{
                       background: focused
                         ? 'var(--header-logo-bg)'

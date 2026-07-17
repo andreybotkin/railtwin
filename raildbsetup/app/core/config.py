@@ -27,10 +27,18 @@ class Settings(BaseSettings):
 
     # Local data paths — overridable via env vars in Docker
     kml_local_path: Path = (
-        _DEFAULT_BASE / "railroad" / "20260428RailwayMapofThailand.kml"
+        _DEFAULT_BASE / "railroad" / "arc" / "thailand_railways_combined.kml"
+    )
+    route_extensions_kml_path: Path = (
+        _DEFAULT_BASE / "railroad" / "route_extensions.kml"
     )
     stations_kml_path: Path = (
         _DEFAULT_BASE / "railroad" / "20260428Thai_railway_stations.kml"
+    )
+    # Curated schedule-name aliases are kept separately from the station KML.
+    # The KML is the source of coordinates; this JSON is only an alias source.
+    station_aliases_path: Path = (
+        _DEFAULT_BASE / "railroad" / "arc" / "thai_railway_stations_full.json"
     )
     schedule_raw_dir: Path = _DEFAULT_BASE / "schedule" / "raw"
 

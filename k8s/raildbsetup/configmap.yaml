@@ -10,7 +10,7 @@ data:
   LOG_LEVEL: "INFO"
   ENVIRONMENT: "production"
   DEBUG: "false"
-  KML_LOCAL_PATH: "/app/railroad/20260428RailwayMapofThailand.kml"
+  KML_LOCAL_PATH: "/app/railroad/arc/thailand_railways_combined.kml"
   STATIONS_KML_PATH: "/app/railroad/20260428Thai_railway_stations.kml"
   SCHEDULE_RAW_DIR: "/app/schedule/raw"
   SCHEDULE_SEED_PATH: "/app/schedule/schedules_seed.json"

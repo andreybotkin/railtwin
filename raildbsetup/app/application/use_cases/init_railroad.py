@@ -15,6 +15,7 @@ from app.domain.railroad.repository import RailroadRepository
 from app.domain.railroad.service import RailroadDomainService
 from app.infrastructure.parsers.kml_parser import parse_kml_routes
 from app.infrastructure.parsers.kml_station_parser import parse_stations_kml
+from app.infrastructure.parsers.json_station_parser import parse_stations_json
 
 logger = get_logger(__name__)
 
@@ -46,6 +47,15 @@ class InitRailroadUseCase:
         logger.info("Loading canonical route geometry from KML", path=str(kml_path))
 
         routes = parse_kml_routes(kml_bytes)
+        extensions_path = settings.route_extensions_kml_path
+        if extensions_path.exists():
+            extensions = parse_kml_routes(extensions_path.read_bytes())
+            routes.extend(extensions)
+            logger.info(
+                "KML route extensions parsed",
+                routes=len(extensions),
+                path=str(extensions_path),
+            )
         logger.info("KML routes parsed", routes=len(routes))
 
         stations_path = settings.stations_kml_path
@@ -53,7 +63,33 @@ class InitRailroadUseCase:
             return RailroadInitResult(error=f"Stations KML not found: {stations_path}")
         parsed = parse_stations_kml(stations_path)
         stations = parsed.stations
-        aliases = parsed.aliases
+        aliases = dict(parsed.aliases)
+
+        aliases_path = settings.station_aliases_path
+        if aliases_path.exists():
+            alias_source = parse_stations_json(aliases_path).aliases
+            canonical_names = {station.name.casefold() for station in stations}
+            valid_aliases = {
+                alias: target
+                for alias, target in alias_source.items()
+                if target.casefold() in canonical_names
+            }
+            # Some historical station rows are only alternate transliterations
+            # of another row.  Remove those duplicate nodes and retain their
+            # schedule spelling as an alias to the canonical station.
+            aliased_station_names = {
+                alias.casefold()
+                for alias, target in valid_aliases.items()
+                if alias.casefold() != target.casefold()
+            }
+            stations = [
+                station
+                for station in stations
+                if station.name.casefold() not in aliased_station_names
+            ]
+            aliases.update(valid_aliases)
+        else:
+            logger.warning("Station alias source not found", path=str(aliases_path))
         logger.info(
             "Station KML parsed",
             stations=len(stations),

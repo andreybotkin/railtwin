@@ -375,9 +375,7 @@ def _serialize_train(train: Any) -> dict[str, Any]:
         "rolling_stock_mass_t": _to_float(train.rolling_stock_mass_t),
         "horsepower": _to_float(train.horsepower),
         "max_tractive_effort_kn": _to_float(train.max_tractive_effort_kn),
-        "max_brake_deceleration_mps2": _to_float(
-            train.max_brake_deceleration_mps2
-        ),
+        "max_brake_deceleration_mps2": _to_float(train.max_brake_deceleration_mps2),
         "max_speed_kmh": _to_float(train.max_speed_kmh),
         "passenger_load": train.passenger_load,
         "passenger_mass_kg": _to_float(train.passenger_mass_kg),

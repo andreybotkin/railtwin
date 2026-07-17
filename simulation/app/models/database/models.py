@@ -283,8 +283,12 @@ class Train(Base):
     train_type: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    locomotive_mass_t: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
-    rolling_stock_mass_t: Mapped[float | None] = mapped_column(Numeric(9, 2), nullable=True)
+    locomotive_mass_t: Mapped[float | None] = mapped_column(
+        Numeric(8, 2), nullable=True
+    )
+    rolling_stock_mass_t: Mapped[float | None] = mapped_column(
+        Numeric(9, 2), nullable=True
+    )
     horsepower: Mapped[float | None] = mapped_column(Numeric(8, 1), nullable=True)
     max_tractive_effort_kn: Mapped[float | None] = mapped_column(
         Numeric(8, 2), nullable=True
@@ -294,7 +298,9 @@ class Train(Base):
     )
     max_speed_kmh: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
     passenger_load: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    passenger_mass_kg: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
+    passenger_mass_kg: Mapped[float | None] = mapped_column(
+        Numeric(6, 2), nullable=True
+    )
     operator: Mapped[str] = mapped_column(
         String(100),
         nullable=False,

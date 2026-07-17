@@ -1666,9 +1666,9 @@
       "line": "Southern",
       "district": "Mueang",
       "province": "Phetchaburi",
-      "lat": 13.6967721,
-      "lon": 100.605357,
-      "coord_source": "osm_th_raw"
+      "lat": 13.16,
+      "lon": 99.8994444,
+      "coord_source": "wikidata_q25053170"
     },
     {
       "name_en": "Bang Kaeo",
@@ -4485,17 +4485,30 @@
       "coord_source": "osm_th_raw"
     },
     {
+      "name_en": "Ban Nong Sua",
+      "name_th": "บ้านหนองเสือ",
+      "code": "",
+      "class": "Halt",
+      "line": "Southern",
+      "district": "Tha Muang",
+      "province": "Kanchanaburi",
+      "lat": 13.971937,
+      "lon": 99.693045,
+      "coord_source": "osm_node_8930840500",
+      "schedule_name": "Ban Nong Sua"
+    },
+    {
       "name_en": "Nong Suea",
       "name_th": "หนองแสง",
       "code": "",
       "class": "Halt",
-      "line": "Southern",
-      "district": "",
-      "province": "",
-      "lat": 14.0521964,
-      "lon": 101.5704863,
-      "coord_source": "osm_fuzzy_en_0.84",
-      "schedule_name": "Ban Nong Sua"
+      "line": "Eastern",
+      "district": "Prachantakham",
+      "province": "Prachinburi",
+      "lat": 14.052196,
+      "lon": 101.570486,
+      "coord_source": "osm_node_8818037783",
+      "schedule_name": "Nong Suea"
     },
     {
       "name_en": "Huai Dua",
@@ -5149,7 +5162,7 @@
     },
     {
       "name_en": "Khlong Ya",
-      "name_th": "คลองยา",
+      "name_th": "คลองยัน",
       "code": "",
       "class": "Halt",
       "line": "Southern",
@@ -5167,10 +5180,10 @@
       "class": "Halt",
       "line": "Southern",
       "district": "",
-      "province": "",
-      "lat": 8.9262458,
-      "lon": 99.3012301,
-      "coord_source": "osm_fuzzy_en_0.95",
+      "province": "Surat Thani",
+      "lat": 9.05793,
+      "lon": 99.024327,
+      "coord_source": "osm_node_8838684601",
       "schedule_name": "Khlong Yan"
     },
     {
@@ -5630,15 +5643,15 @@
     },
     {
       "name_en": "Noen Sawat",
-      "name_th": "โนนสะอาด",
+      "name_th": "เนินสวัสดิ์",
       "code": "",
       "class": "Halt",
       "line": "Northeastern",
-      "district": "",
-      "province": "",
-      "lat": 16.9669984,
-      "lon": 102.8974029,
-      "coord_source": "osm_fuzzy_en_0.84",
+      "district": "Bua Yai",
+      "province": "Nakhon Ratchasima",
+      "lat": 15.62418,
+      "lon": 102.45952,
+      "coord_source": "osm_node_4919461484",
       "schedule_name": "Noen Sawat"
     },
     {
@@ -7262,7 +7275,6 @@
     "Marubo": "Maruebo",
     "Sala Ya": "Salaya",
     "Pathio": "Pathio",
-    "Padang Besar (Thai)": "Padang Besar",
     "Prachin Buri": "Prachinburi",
     "Nakhon Chaisi": "Nakhon Chai Si",
     "Nong Pla Duk Junction": "Nong Pladuk Junction",
@@ -7312,9 +7324,9 @@
     "Kaeng Sue Ten": "Kaeng Suea Ten",
     "Na Pru": "Na Prue",
     "Muang Thi": "Mueang Thi",
-    "Ban Nong Sua": "Nong Suea",
     "Nong Nam Khun": "Nong Nam Khun",
     "Nong Khai Nam": "Nong Khai Nam",
+    "Ban Tha Chang South": "Ban Tha Chang",
     "Khok Khli": "Khok Klhi",
     "Lop Buri 2 (Tha Wung)": null,
     "Talat Nam 4 Pak": "Pattaya Floating Market",

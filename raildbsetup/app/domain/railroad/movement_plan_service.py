@@ -60,6 +60,11 @@ class StopInput:
     # From schedule columns directly.
     schedule_distance_from_origin_km: float | None
     schedule_route_progress: float | None
+    # Train-specific position resolved through the station graph.  Unlike a
+    # route_station position this remains valid for services crossing branches
+    # or more than one canonical KML route.
+    graph_distance_from_start_m: float | None = None
+    graph_edge_id: int | None = None
 
 
 @dataclass(slots=True)
@@ -173,10 +178,10 @@ def _resolve_stop(
 
     if stop.station_id is None:
         warnings.append(WARN_MISSING_STATION_ID)
-    if stop.route_station_id is None:
+    if stop.route_station_id is None and stop.graph_distance_from_start_m is None:
         warnings.append(WARN_MISSING_ROUTE_STATION_ID)
 
-    edge_id = stop.route_station_edge_id
+    edge_id = stop.graph_edge_id or stop.route_station_edge_id
 
     arrival_abs = (
         _abs_minutes(stop.arrival_time_minutes, stop.arrival_day_offset)
@@ -193,18 +198,24 @@ def _resolve_stop(
     dist_m: float | None = None
     frac: float | None = None
 
-    # Priority 1: route_station.distance_from_start
-    if stop.route_station_distance_from_start_km is not None and route_total_m:
+    # Priority 1: train-specific cumulative graph distance.  This is the only
+    # reliable source for through trains spanning multiple canonical routes.
+    if stop.graph_distance_from_start_m is not None and route_total_m:
+        dist_m = float(stop.graph_distance_from_start_m)
+        frac = max(0.0, min(1.0, dist_m / route_total_m))
+
+    # Priority 2: route_station.distance_from_start
+    elif stop.route_station_distance_from_start_km is not None and route_total_m:
         dist_m = float(stop.route_station_distance_from_start_km) * 1000.0
         frac = max(0.0, min(1.0, dist_m / route_total_m))
 
-    # Priority 2: schedule.distance_from_origin_km
+    # Priority 3: schedule.distance_from_origin_km
     elif stop.schedule_distance_from_origin_km is not None and route_total_m:
         dist_m = float(stop.schedule_distance_from_origin_km) * 1000.0
         frac = max(0.0, min(1.0, dist_m / route_total_m))
         warnings.append(WARN_PROJECTION_FALLBACK)
 
-    # Priority 3: schedule.route_progress (direct fraction)
+    # Priority 4: schedule.route_progress (direct fraction)
     elif stop.schedule_route_progress is not None:
         frac = max(0.0, min(1.0, float(stop.schedule_route_progress)))
         dist_m = frac * route_total_m if route_total_m else None

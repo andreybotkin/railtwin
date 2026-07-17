@@ -285,17 +285,17 @@ def _stop_fractions(
 
     ascending = resolved[-1] >= resolved[0]
     epsilon = 1e-7
-    for index, (left, right) in enumerate(
-        zip(resolved, resolved[1:], strict=False)
-    ):
+    for index, (left, right) in enumerate(zip(resolved, resolved[1:], strict=False)):
         left_station = getattr(schedules[index], "station_id", None)
         right_station = getattr(schedules[index + 1], "station_id", None)
         same_station = left_station is not None and left_station == right_station
         delta = right - left
         if same_station:
             continue
-        if abs(delta) <= epsilon or (ascending and delta < 0) or (
-            not ascending and delta > 0
+        if (
+            abs(delta) <= epsilon
+            or (ascending and delta < 0)
+            or (not ascending and delta > 0)
         ):
             return None
 
@@ -419,7 +419,7 @@ def _compute_frame(
         lat=round(lat, 6),
         geom_fraction=round(geom_fraction, 6),
         head_distance_m=round(head_distance_m, 3),
-        rotation_deg=round(rotation % 360.0, 2),
+        rotation_deg=geo_utils.normalize_bearing(rotation),
         speed_kmh=round(
             max(
                 0.0,
@@ -530,7 +530,11 @@ def build_trajectory(
         # Preserve an optional third ordinate.  DEM importers attach elevation
         # as Z while all horizontal geometry helpers intentionally use lon/lat.
         polyline = [
-            [float(value) for value in p[:3]] if len(p) > 2 else [float(p[0]), float(p[1])]
+            (
+                [float(value) for value in p[:3]]
+                if len(p) > 2
+                else [float(p[0]), float(p[1])]
+            )
             for p in route_coords
         ]
     else:

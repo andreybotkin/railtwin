@@ -66,9 +66,8 @@ async def get_trajectory(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={
                 "message": "Train timetable does not form a connected track path",
-                "issues": geometry.get("issues") or [
-                    {"code": "missing_train_geometry"}
-                ],
+                "issues": geometry.get("issues")
+                or [{"code": "missing_train_geometry"}],
             },
         )
     route_coords = geometry.get("coords")

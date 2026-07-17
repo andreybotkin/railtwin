@@ -3837,23 +3837,23 @@
       </Placemark>
       <Placemark>
         <name>Noen Sawat</name>
-        <description>&lt;b&gt;Noen Sawat / โนนสะอาด&lt;/b&gt;&lt;br/&gt;Code: Class:Halt Line:Northeastern&lt;br/&gt;District: Province:&lt;br/&gt;Source:osm_fuzzy_en_0.84 </description>
+        <description>&lt;b&gt;Noen Sawat / เนินสวัสดิ์&lt;/b&gt;&lt;br/&gt;Code: Class:Halt Line:Northeastern&lt;br/&gt;District:Bua Yai Province:Nakhon Ratchasima&lt;br/&gt;Source:osm_node_4919461484 </description>
         <styleUrl>#style_class_Halt</styleUrl>
         <ExtendedData>
           <Data name="name_en"><value>Noen Sawat</value></Data>
-          <Data name="name_th"><value>โนนสะอาด</value></Data>
+          <Data name="name_th"><value>เนินสวัสดิ์</value></Data>
           <Data name="code"><value></value></Data>
           <Data name="class"><value>Halt</value></Data>
           <Data name="line"><value>Northeastern</value></Data>
-          <Data name="district"><value></value></Data>
-          <Data name="province"><value></value></Data>
-          <Data name="lat"><value>16.9669984</value></Data>
-          <Data name="lon"><value>102.8974029</value></Data>
-          <Data name="coord_source"><value>osm_fuzzy_en_0.84</value></Data>
+          <Data name="district"><value>Bua Yai</value></Data>
+          <Data name="province"><value>Nakhon Ratchasima</value></Data>
+          <Data name="lat"><value>15.62418</value></Data>
+          <Data name="lon"><value>102.45952</value></Data>
+          <Data name="coord_source"><value>osm_node_4919461484</value></Data>
           <Data name="ttg_url"><value></value></Data>
           <Data name="is_new"><value>False</value></Data>
         </ExtendedData>
-        <Point><coordinates>102.8974029,16.9669984,0</coordinates></Point>
+        <Point><coordinates>102.45952,15.62418,0</coordinates></Point>
       </Placemark>
       <Placemark>
         <name>Noen Thua Paep</name>
@@ -4887,13 +4887,13 @@
           <Data name="line"><value>Northeastern</value></Data>
           <Data name="district"><value></value></Data>
           <Data name="province"><value>Vientiane</value></Data>
-          <Data name="lat"><value>17.9543</value></Data>
-          <Data name="lon"><value>102.6331</value></Data>
-          <Data name="coord_source"><value>unverified</value></Data>
+          <Data name="lat"><value>17.9575</value></Data>
+          <Data name="lon"><value>102.674722</value></Data>
+          <Data name="coord_source"><value>wikidata</value></Data>
           <Data name="ttg_url"><value></value></Data>
           <Data name="is_new"><value>False</value></Data>
         </ExtendedData>
-        <Point><coordinates>102.6331,17.9543,0</coordinates></Point>
+        <Point><coordinates>102.674722,17.9575,0</coordinates></Point>
       </Placemark>
       <Placemark>
         <name>Wang Ka-am</name>
@@ -7673,13 +7673,13 @@
           <Data name="line"><value>Southern</value></Data>
           <Data name="district"><value>Mueang</value></Data>
           <Data name="province"><value>Phetchaburi</value></Data>
-          <Data name="lat"><value>13.6967721</value></Data>
-          <Data name="lon"><value>100.605357</value></Data>
-          <Data name="coord_source"><value>osm_th_raw</value></Data>
+          <Data name="lat"><value>13.16</value></Data>
+          <Data name="lon"><value>99.8994444</value></Data>
+          <Data name="coord_source"><value>wikidata_q25053170</value></Data>
           <Data name="ttg_url"><value></value></Data>
           <Data name="is_new"><value>False</value></Data>
         </ExtendedData>
-        <Point><coordinates>100.605357,13.6967721,0</coordinates></Point>
+        <Point><coordinates>99.8994444,13.16,0</coordinates></Point>
       </Placemark>
       <Placemark>
         <name>Bang Kaeo</name>
@@ -9342,11 +9342,11 @@
         <Point><coordinates>101.2184587,6.6445041,0</coordinates></Point>
       </Placemark>
       <Placemark>
-        <name>Khlong Sai</name>
-        <description>&lt;b&gt;Khlong Sai&lt;/b&gt;&lt;br/&gt;Code: Class:Unknown Line:Southern&lt;br/&gt;District: Province:&lt;br/&gt;Source:thaitrainguide &lt;a href='https://www.thaitrainguide.com/stations/southern-line/khlong-sai/'&gt;TTG&lt;/a&gt;</description>
+        <name>Khlong Sai (Surat Thani)</name>
+        <description>&lt;b&gt;Khlong Sai (Surat Thani)&lt;/b&gt;&lt;br/&gt;Code: Class:Unknown Line:Southern&lt;br/&gt;District: Province:&lt;br/&gt;Source:thaitrainguide &lt;a href='https://www.thaitrainguide.com/stations/southern-line/khlong-sai/'&gt;TTG&lt;/a&gt;</description>
         <styleUrl>#style_class_Unknown</styleUrl>
         <ExtendedData>
-          <Data name="name_en"><value>Khlong Sai</value></Data>
+          <Data name="name_en"><value>Khlong Sai (Surat Thani)</value></Data>
           <Data name="name_th"><value></value></Data>
           <Data name="code"><value></value></Data>
           <Data name="class"><value>Unknown</value></Data>
@@ -9443,23 +9443,23 @@
       </Placemark>
       <Placemark>
         <name>Khlong Yan</name>
-        <description>&lt;b&gt;Khlong Yan / คลองยา&lt;/b&gt;&lt;br/&gt;Code: Class:Halt Line:Southern&lt;br/&gt;District: Province:&lt;br/&gt;Source:osm_fuzzy_en_0.95 </description>
+        <description>&lt;b&gt;Khlong Yan / คลองยัน&lt;/b&gt;&lt;br/&gt;Code: Class:Halt Line:Southern&lt;br/&gt;District: Province:Surat Thani&lt;br/&gt;Source:osm_node_8838684601 </description>
         <styleUrl>#style_class_Halt</styleUrl>
         <ExtendedData>
           <Data name="name_en"><value>Khlong Yan</value></Data>
-          <Data name="name_th"><value>คลองยา</value></Data>
+          <Data name="name_th"><value>คลองยัน</value></Data>
           <Data name="code"><value></value></Data>
           <Data name="class"><value>Halt</value></Data>
           <Data name="line"><value>Southern</value></Data>
           <Data name="district"><value></value></Data>
-          <Data name="province"><value></value></Data>
-          <Data name="lat"><value>8.9262458</value></Data>
-          <Data name="lon"><value>99.3012301</value></Data>
-          <Data name="coord_source"><value>osm_fuzzy_en_0.95</value></Data>
+          <Data name="province"><value>Surat Thani</value></Data>
+          <Data name="lat"><value>9.05793</value></Data>
+          <Data name="lon"><value>99.024327</value></Data>
+          <Data name="coord_source"><value>osm_node_8838684601</value></Data>
           <Data name="ttg_url"><value></value></Data>
           <Data name="is_new"><value>False</value></Data>
         </ExtendedData>
-        <Point><coordinates>99.3012301,8.9262458,0</coordinates></Point>
+        <Point><coordinates>99.024327,9.05793,0</coordinates></Point>
       </Placemark>
       <Placemark>
         <name>Khok Khram</name>
@@ -10522,24 +10522,44 @@
         <Point><coordinates>99.9705603,12.9036673,0</coordinates></Point>
       </Placemark>
       <Placemark>
+        <name>Ban Nong Sua</name>
+        <description>&lt;b&gt;Ban Nong Sua / บ้านหนองเสือ&lt;/b&gt;&lt;br/&gt;Code: Class:Halt Line:Southern&lt;br/&gt;District:Tha Muang Province:Kanchanaburi&lt;br/&gt;Source:osm_node_8930840500 </description>
+        <styleUrl>#style_class_Halt</styleUrl>
+        <ExtendedData>
+          <Data name="name_en"><value>Ban Nong Sua</value></Data>
+          <Data name="name_th"><value>บ้านหนองเสือ</value></Data>
+          <Data name="code"><value></value></Data>
+          <Data name="class"><value>Halt</value></Data>
+          <Data name="line"><value>Southern</value></Data>
+          <Data name="district"><value>Tha Muang</value></Data>
+          <Data name="province"><value>Kanchanaburi</value></Data>
+          <Data name="lat"><value>13.971937</value></Data>
+          <Data name="lon"><value>99.693045</value></Data>
+          <Data name="coord_source"><value>osm_node_8930840500</value></Data>
+          <Data name="ttg_url"><value></value></Data>
+          <Data name="is_new"><value>False</value></Data>
+        </ExtendedData>
+        <Point><coordinates>99.693045,13.971937,0</coordinates></Point>
+      </Placemark>
+      <Placemark>
         <name>Nong Suea</name>
-        <description>&lt;b&gt;Nong Suea / หนองแสง&lt;/b&gt;&lt;br/&gt;Code: Class:Halt Line:Southern&lt;br/&gt;District: Province:&lt;br/&gt;Source:osm_fuzzy_en_0.84 </description>
+        <description>&lt;b&gt;Nong Suea / หนองแสง&lt;/b&gt;&lt;br/&gt;Code: Class:Halt Line:Eastern&lt;br/&gt;District:Prachantakham Province:Prachinburi&lt;br/&gt;Source:osm_node_8818037783 </description>
         <styleUrl>#style_class_Halt</styleUrl>
         <ExtendedData>
           <Data name="name_en"><value>Nong Suea</value></Data>
           <Data name="name_th"><value>หนองแสง</value></Data>
           <Data name="code"><value></value></Data>
           <Data name="class"><value>Halt</value></Data>
-          <Data name="line"><value>Southern</value></Data>
-          <Data name="district"><value></value></Data>
-          <Data name="province"><value></value></Data>
-          <Data name="lat"><value>14.0521964</value></Data>
-          <Data name="lon"><value>101.5704863</value></Data>
-          <Data name="coord_source"><value>osm_fuzzy_en_0.84</value></Data>
+          <Data name="line"><value>Eastern</value></Data>
+          <Data name="district"><value>Prachantakham</value></Data>
+          <Data name="province"><value>Prachinburi</value></Data>
+          <Data name="lat"><value>14.052196</value></Data>
+          <Data name="lon"><value>101.570486</value></Data>
+          <Data name="coord_source"><value>osm_node_8818037783</value></Data>
           <Data name="ttg_url"><value></value></Data>
           <Data name="is_new"><value>False</value></Data>
         </ExtendedData>
-        <Point><coordinates>101.5704863,14.0521964,0</coordinates></Point>
+        <Point><coordinates>101.570486,14.052196,0</coordinates></Point>
       </Placemark>
       <Placemark>
         <name>Pa Phai</name>
@@ -10593,13 +10613,13 @@
           <Data name="line"><value>Southern</value></Data>
           <Data name="district"><value>Sadao</value></Data>
           <Data name="province"><value>Songkhla</value></Data>
-          <Data name="lat"><value>6.6688351</value></Data>
-          <Data name="lon"><value>100.324497</value></Data>
-          <Data name="coord_source"><value>nominatim</value></Data>
+          <Data name="lat"><value>6.66209</value></Data>
+          <Data name="lon"><value>100.31908</value></Data>
+          <Data name="coord_source"><value>wikidata</value></Data>
           <Data name="ttg_url"><value>https://www.thaitrainguide.com/stations/southern-line/padang-besar/</value></Data>
           <Data name="is_new"><value>False</value></Data>
         </ExtendedData>
-        <Point><coordinates>100.324497,6.6688351,0</coordinates></Point>
+        <Point><coordinates>100.31908,6.66209,0</coordinates></Point>
       </Placemark>
       <Placemark>
         <name>Padang Besar (Thai)</name>

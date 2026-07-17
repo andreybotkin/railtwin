@@ -145,7 +145,7 @@ function buildIcon({
   if (showWagons) {
     for (let i = 0; i < carCount; i++) {
       const alpha = Math.max(0.42, 0.95 - i * 0.045).toFixed(2);
-      wagonsHtml += `<span data-wagon="${i}" style="position:absolute;left:${CENTER - WAGON_W / 2}px;top:${CENTER - WAGON_H / 2}px;width:${WAGON_W}px;height:${WAGON_H}px;border-radius:4px;background:${baseColor};opacity:${alpha};border:1px solid rgba(255,255,255,0.72);box-shadow:0 4px 10px rgba(15,23,42,0.18);transform:rotate(0deg);transform-origin:center center;pointer-events:auto;"></span>`;
+      wagonsHtml += `<span data-wagon="${i}" style="position:absolute;left:${CENTER - WAGON_W / 2}px;top:${CENTER - WAGON_H / 2}px;width:${WAGON_W}px;height:${WAGON_H}px;border-radius:4px;background:${baseColor};opacity:${alpha};border:1px solid rgba(255,255,255,0.72);box-shadow:0 4px 10px rgba(15,23,42,0.18);transform:rotate(0deg);transform-origin:center center;pointer-events:none;"></span>`;
     }
   }
 
@@ -160,9 +160,11 @@ function buildIcon({
   // Headlight at the right (flex-end) side = forward end after rotation.
   const headlight = `<span style="width:${headlightSize}px;height:${headlightSize}px;border-radius:999px;background:#fff7cc;box-shadow:0 0 10px rgba(255,244,180,0.9);flex-shrink:0;"></span>`;
 
+  const hitW = Math.max(44, locoW);
+  const hitH = Math.max(32, locoH);
   const locoHtml = `
-    <div data-loco style="position:absolute;left:${CENTER - locoW / 2}px;top:${CENTER - locoH / 2}px;transform:rotate(0deg);transform-origin:center center;filter:drop-shadow(0 6px 14px rgba(15,23,42,0.18));pointer-events:auto;">
-      <span style="position:relative;width:${locoW}px;height:${locoH}px;border-radius:999px;background:${baseColor};display:flex;align-items:center;justify-content:flex-end;padding-right:5px;box-shadow:${halo};border:1px solid rgba(255,255,255,0.8);pointer-events:auto;">
+    <div data-loco style="position:absolute;left:${CENTER - hitW / 2}px;top:${CENTER - hitH / 2}px;width:${hitW}px;height:${hitH}px;transform:rotate(0deg);transform-origin:center center;filter:drop-shadow(0 6px 14px rgba(15,23,42,0.18));pointer-events:auto;display:flex;align-items:center;justify-content:center;">
+      <span style="position:relative;width:${locoW}px;height:${locoH}px;border-radius:999px;background:${baseColor};display:flex;align-items:center;justify-content:flex-end;padding-right:5px;box-shadow:${halo};border:1px solid rgba(255,255,255,0.8);pointer-events:none;">
         ${shine}
         ${headlight}
       </span>
@@ -184,13 +186,13 @@ function buildIcon({
 interface LeafletTrainMarkerProps {
   trajectory: Trajectory;
   isSelected: boolean;
-  onSelect: (id: number | null) => void;
+  onSelectAt: (id: number, pointer: L.Point) => void;
 }
 
 export default function LeafletTrainMarker({
   trajectory,
   isSelected,
-  onSelect,
+  onSelectAt,
 }: LeafletTrainMarkerProps) {
   const map = useMap();
   const markerRef = useRef<L.Marker>(null);
@@ -361,9 +363,12 @@ export default function LeafletTrainMarker({
   }, [trajectory, map, carCount, showWagons]);
 
   // Click handler.
-  const handleClick = useCallback(() => {
-    onSelect(isSelected ? null : train_id);
-  }, [onSelect, isSelected, train_id]);
+  const handleClick = useCallback(
+    (event: MouseEvent) => {
+      onSelectAt(train_id, map.mouseEventToContainerPoint(event));
+    },
+    [map, onSelectAt, train_id]
+  );
 
   return (
     <Marker
@@ -373,7 +378,7 @@ export default function LeafletTrainMarker({
       eventHandlers={{
         click: (e: L.LeafletMouseEvent) => {
           L.DomEvent.stopPropagation(e.originalEvent);
-          handleClick();
+          handleClick(e.originalEvent);
         },
       }}
     />

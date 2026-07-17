@@ -46,9 +46,7 @@ def _graph(
         length_m = float(props.get("length_m") or 0.0)
         if length_m <= 0:
             continue
-        result.setdefault(int(from_id), []).append(
-            _Arc(int(to_id), length_m, feature)
-        )
+        result.setdefault(int(from_id), []).append(_Arc(int(to_id), length_m, feature))
     return result
 
 
@@ -126,9 +124,7 @@ def build_train_route_geometry(
             "departure_day_offset" if key == "departure_time" else "arrival_day_offset"
         )
         return (
-            int(parts[0]) * 60
-            + int(parts[1])
-            + int(item.get(offset_key) or 0) * 1440
+            int(parts[0]) * 60 + int(parts[1]) + int(item.get(offset_key) or 0) * 1440
         )
 
     for left, right in zip(ordered, ordered[1:], strict=False):

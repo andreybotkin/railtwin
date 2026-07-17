@@ -42,7 +42,11 @@ const HANDLE_H = 20;
 /** Extra padding below the last visible element so content isn't flush. */
 const SNAP_BOTTOM_PAD = 16;
 /** Max fraction of viewport height the sheet can occupy. */
-const MAX_RATIO = 0.9;
+const MAX_RATIO = 0.82;
+
+function viewportHeight(): number {
+  return window.visualViewport?.height ?? window.innerHeight;
+}
 
 export interface BottomSheetRefs {
   /** The scrollable inner content div. Must be `position: relative`. */
@@ -123,7 +127,7 @@ export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
     const inner = innerRef.current as HTMLElement | null;
     const s1 = snap1Ref.current as HTMLElement | null;
     const s2 = snap2Ref.current as HTMLElement | null;
-    const maxH = Math.floor(window.innerHeight * MAX_RATIO);
+    const maxH = Math.floor(viewportHeight() * MAX_RATIO);
 
     // Fallbacks when refs aren't yet mounted.
     let snap1 = HANDLE_H + 80;
@@ -196,8 +200,13 @@ export function useBottomSheetDrag(type: SheetType, refs: BottomSheetRefs) {
       snapsRef.current = snaps;
       setHeight(snaps[snapIdxRef.current]);
     };
+    const viewport = window.visualViewport;
     window.addEventListener('resize', onResize, { passive: true });
-    return () => window.removeEventListener('resize', onResize);
+    viewport?.addEventListener('resize', onResize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', onResize);
+      viewport?.removeEventListener('resize', onResize);
+    };
   }, [measureSnaps]);
 
   const onPointerDown = useCallback(

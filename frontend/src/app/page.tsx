@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import Script from 'next/script';
 import {
   Database,
   Loader2,
@@ -51,12 +52,16 @@ const THEME_TITLES = {
   satellite: 'Switch to light mode',
 } as const;
 
+const GA_MEASUREMENT_ID = 'G-M6ZWFRZ4BG';
+const COOKIE_CONSENT_KEY = 'rt-cookie-consent';
+
 export default function HomePage() {
   const t = useTranslations();
   const { theme, cycleTheme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [locateMap, setLocateMap] = useState<(() => void) | null>(null);
   const [cookiesConsentOpen, setCookiesConsentOpen] = useState(false);
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
 
   const mapSourceSummary =
     theme === 'satellite'
@@ -97,9 +102,10 @@ export default function HomePage() {
     let frameId = 0;
 
     try {
-      const nextOpen = localStorage.getItem('rt-cookie-consent') !== 'accepted';
+      const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
       frameId = window.requestAnimationFrame(() => {
-        setCookiesConsentOpen(nextOpen);
+        setAnalyticsEnabled(consent === 'accepted');
+        setCookiesConsentOpen(consent !== 'accepted' && consent !== 'declined');
       });
     } catch {
       frameId = window.requestAnimationFrame(() => {
@@ -116,10 +122,23 @@ export default function HomePage() {
 
   const acceptCookies = () => {
     try {
-      localStorage.setItem('rt-cookie-consent', 'accepted');
+      localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
     } catch {
       // Ignore storage failures; hide the banner for this session anyway.
     }
+    setAnalyticsEnabled(true);
+    setCookiesConsentOpen(false);
+  };
+
+  const declineCookies = () => {
+    try {
+      localStorage.setItem(COOKIE_CONSENT_KEY, 'declined');
+    } catch {
+      // Keep the choice for this session when storage is unavailable.
+    }
+    const flags = window as unknown as Record<string, unknown>;
+    flags[`ga-disable-${GA_MEASUREMENT_ID}`] = true;
+    setAnalyticsEnabled(false);
     setCookiesConsentOpen(false);
   };
 
@@ -128,13 +147,31 @@ export default function HomePage() {
       className="relative h-dvh overflow-hidden"
       style={{ background: 'var(--page-bg)', color: 'var(--panel-text)' }}
     >
+      {analyticsEnabled && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="ga-init" strategy="afterInteractive">
+            {`
+              window['ga-disable-${GA_MEASUREMENT_ID}'] = false;
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}');
+            `}
+          </Script>
+        </>
+      )}
+
       <div className="absolute inset-0">
         <RailMap onLocateReady={(fn) => setLocateMap(() => fn)} />
       </div>
 
-      <header className="pointer-events-none absolute inset-x-0 top-0 z-[900] p-3 sm:p-4">
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-[900] px-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:p-4">
         <div
-          className="pointer-events-auto mx-auto flex w-full max-w-5xl items-center justify-between gap-3 rounded-3xl px-3 py-2 backdrop-blur-xl"
+          className="pointer-events-auto mx-auto flex w-full max-w-5xl items-center justify-between gap-1.5 rounded-2xl px-2 py-1.5 backdrop-blur-xl sm:gap-3 sm:rounded-3xl sm:px-3 sm:py-2"
           style={{
             background: 'var(--panel-bg)',
             border:
@@ -146,7 +183,7 @@ export default function HomePage() {
         >
           <div className="flex min-w-0 items-center gap-2">
             <div
-              className="flex h-9 w-9 items-center justify-center rounded-2xl"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 sm:rounded-2xl"
               style={{
                 background: 'var(--header-logo-bg)',
                 color: 'var(--header-logo-text)',
@@ -154,7 +191,7 @@ export default function HomePage() {
             >
               <Train className="h-4 w-4" />
             </div>
-            <div className="min-w-0">
+            <div className="hidden min-w-0 min-[390px]:block">
               <h1
                 className="truncate text-sm font-semibold tracking-tight"
                 style={{ color: 'var(--panel-text)' }}
@@ -169,12 +206,14 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setSearchOpen(true)}
               title="Search (⌘K)"
               aria-label="Open search"
-              className="rounded-2xl transition-colors"
+              className="h-9 w-9 rounded-xl transition-colors sm:h-10 sm:w-10 sm:rounded-2xl"
               style={{ color: 'var(--panel-subtext)' }}
             >
               <Search className="h-4 w-4" />
@@ -185,7 +224,7 @@ export default function HomePage() {
               size="icon"
               title={t('header.openData.buttonLabel')}
               aria-label={t('header.openData.buttonLabel')}
-              className="rounded-2xl transition-colors"
+              className="h-9 w-9 rounded-xl transition-colors sm:h-10 sm:w-10 sm:rounded-2xl"
               style={{ color: 'var(--panel-subtext)' }}
             >
               <Link href="/open-data">
@@ -198,12 +237,12 @@ export default function HomePage() {
               onClick={cycleTheme}
               title={THEME_TITLES[theme]}
               aria-label={THEME_TITLES[theme]}
-              className="rounded-2xl transition-colors"
+              className="h-9 w-9 rounded-xl transition-colors sm:h-10 sm:w-10 sm:rounded-2xl"
               style={{ color: 'var(--panel-subtext)' }}
             >
               <ThemeIcon className="h-4 w-4" />
             </Button>
-            <LanguageSwitcher />
+            <LanguageSwitcher className="h-9 w-9 rounded-xl sm:h-10 sm:w-10 sm:rounded-2xl" />
             <Button
               variant="ghost"
               size="icon"
@@ -211,7 +250,7 @@ export default function HomePage() {
               disabled={!locateMap}
               title="Go to current location"
               aria-label="Go to current location"
-              className="rounded-2xl transition-colors"
+              className="h-9 w-9 rounded-xl transition-colors sm:h-10 sm:w-10 sm:rounded-2xl"
               style={{ color: 'var(--panel-subtext)' }}
             >
               <LocateFixed className="h-4 w-4" />
@@ -220,11 +259,11 @@ export default function HomePage() {
         </div>
       </header>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[880] p-2 sm:p-3">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[880] px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3">
         <div className="flex w-full flex-col items-start gap-1.5">
           {cookiesConsentOpen && (
             <div
-              className="pointer-events-auto flex w-auto max-w-[calc(100vw-1rem)] items-center gap-2 rounded-xl border px-2.5 py-1.5 text-[10px] leading-4 backdrop-blur-xl sm:max-w-[30rem]"
+              className="pointer-events-auto flex w-full flex-col items-stretch gap-2 rounded-2xl border px-3 py-2.5 text-xs leading-5 backdrop-blur-xl sm:w-auto sm:max-w-[30rem] sm:flex-row sm:items-center sm:rounded-xl sm:px-2.5 sm:py-1.5 sm:text-[10px] sm:leading-4"
               style={{
                 background: 'var(--panel-bg-strong)',
                 borderColor: 'var(--panel-border)',
@@ -232,7 +271,7 @@ export default function HomePage() {
               }}
             >
               <p
-                className="min-w-0 flex-1 truncate"
+                className="min-w-0 flex-1 sm:truncate"
                 style={{ color: 'var(--panel-subtext)' }}
                 title={t('cookiesBanner.message')}
               >
@@ -244,23 +283,34 @@ export default function HomePage() {
                 </span>{' '}
                 {t('cookiesBanner.message')}
               </p>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={acceptCookies}
-                className="h-6 shrink-0 rounded-lg px-2.5 text-[10px]"
-                style={{
-                  background: 'var(--header-logo-bg)',
-                  color: 'var(--header-logo-text)',
-                }}
-              >
-                {t('cookiesBanner.accept')}
-              </Button>
+              <div className="flex gap-1.5 self-end">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={declineCookies}
+                  className="h-8 rounded-xl px-3 text-xs sm:h-6 sm:rounded-lg sm:px-2.5 sm:text-[10px]"
+                  style={{ color: 'var(--panel-subtext)' }}
+                >
+                  {t('cookiesBanner.decline')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={acceptCookies}
+                  className="h-8 rounded-xl px-3 text-xs sm:h-6 sm:rounded-lg sm:px-2.5 sm:text-[10px]"
+                  style={{
+                    background: 'var(--header-logo-bg)',
+                    color: 'var(--header-logo-text)',
+                  }}
+                >
+                  {t('cookiesBanner.accept')}
+                </Button>
+              </div>
             </div>
           )}
 
           <footer
-            className="pointer-events-auto mr-auto flex max-w-[calc(100vw-1rem)] items-center gap-1.5 overflow-hidden px-0 py-0 text-[9px] leading-4 sm:max-w-[calc(100vw-2rem)] sm:text-[10px]"
+            className="pointer-events-auto mr-auto flex w-full max-w-[calc(100vw-1rem)] flex-col items-start gap-0.5 overflow-hidden px-0 py-0 text-[9px] leading-4 sm:max-w-[calc(100vw-2rem)] sm:flex-row sm:items-center sm:gap-1.5 sm:text-[10px]"
             style={{
               background: 'transparent',
               border: 'none',
@@ -270,17 +320,35 @@ export default function HomePage() {
             <p
               className="min-w-0 flex-1 truncate"
               style={{ color: footerMutedColor, textShadow: footerTextShadow }}
-              title={`${t('footer.mapSummaryLabel')}: ${mapSourceSummary} · ${t('footer.leafletSummary')}`}
+              title={`${t('footer.copyright')} · ${t('footer.dataSource')} · ${t('footer.mapSummaryLabel')}: ${mapSourceSummary} · ${t('footer.leafletSummary')}`}
             >
               <span
                 className="font-medium"
                 style={{ color: footerTextColor, textShadow: footerTextShadow }}
               >
-                {t('footer.mapSummaryLabel')}:
+                {t('footer.copyright')}
               </span>{' '}
+              · {t('footer.dataSource')} · {t('footer.mapSummaryLabel')}:{' '}
               {mapSourceSummary} · {t('footer.leafletSummary')}
             </p>
             <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+              <button
+                type="button"
+                onClick={() => setCookiesConsentOpen(true)}
+                className="transition-opacity hover:opacity-80"
+                style={{ color: footerTextColor, textShadow: footerTextShadow }}
+              >
+                {t('cookiesBanner.settings')}
+              </button>
+              <span
+                aria-hidden="true"
+                style={{
+                  color: footerMutedColor,
+                  textShadow: footerTextShadow,
+                }}
+              >
+                |
+              </span>
               <Link
                 href="/privacy-policy"
                 className="transition-opacity hover:opacity-80"

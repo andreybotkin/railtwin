@@ -198,7 +198,9 @@
   "cookiesBanner": {
     "label": "Cookies",
     "message": "Used for language, map state and analytics.",
-    "accept": "Accept"
+    "accept": "Accept",
+    "decline": "Decline analytics",
+    "settings": "Cookie settings"
   },
   "legal": {
     "eyebrow": "Legal",

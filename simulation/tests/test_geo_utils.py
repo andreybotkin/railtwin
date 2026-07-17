@@ -81,6 +81,25 @@ def test_great_circle_bearing_points_north_for_northbound_polyline() -> None:
     assert 0.0 <= bearing <= 30.0 or 330.0 <= bearing <= 360.0
 
 
+@pytest.mark.parametrize(
+    ("bearing", "expected"),
+    [
+        (0.0, 0.0),
+        (360.0, 0.0),
+        (359.999, 0.0),
+        (720.001, 0.0),
+        (-0.01, 359.99),
+    ],
+)
+def test_normalize_bearing_preserves_half_open_range(
+    bearing: float, expected: float
+) -> None:
+    result = geo_utils.normalize_bearing(bearing)
+
+    assert result == expected
+    assert 0.0 <= result < 360.0
+
+
 def test_project_degenerate_inputs_return_zero() -> None:
     assert geo_utils.project_onto_polyline([], 0.0, 0.0) == (0.0, 0.0)
     assert geo_utils.project_onto_polyline([[0, 0]], 1.0, 1.0) == (0.0, 0.0)
