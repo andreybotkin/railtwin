@@ -19,8 +19,8 @@
     },
     {
       "station": "Kham Kling",
-      "arrival": "06:03",
-      "departure": "06:04"
+      "arrival": "06:02",
+      "departure": "06:03"
     },
     {
       "station": "Nong Takai",
@@ -64,8 +64,8 @@
     },
     {
       "station": "Ban Wang Chai",
-      "arrival": "07:25",
-      "departure": "07:26"
+      "arrival": "07:19",
+      "departure": "07:20"
     },
     {
       "station": "Non Phayom",
@@ -114,8 +114,8 @@
     },
     {
       "station": "Sala Din",
-      "arrival": "09:16",
-      "departure": "09:17"
+      "arrival": "09:05",
+      "departure": "09:06"
     },
     {
       "station": "Nong Bua Lai",
@@ -129,8 +129,8 @@
     },
     {
       "station": "Huai Rahat",
-      "arrival": "09:41",
-      "departure": "09:42"
+      "arrival": "09:28",
+      "departure": "09:29"
     },
     {
       "station": "Non Thong Lang",
@@ -139,8 +139,8 @@
     },
     {
       "station": "Ban Rai",
-      "arrival": "09:57",
-      "departure": "09:58"
+      "arrival": "09:39",
+      "departure": "09:40"
     },
     {
       "station": "Muang Khong",
@@ -159,8 +159,8 @@
     },
     {
       "station": "Noen Thua Paep",
-      "arrival": "10:25",
-      "departure": "10:26"
+      "arrival": "10:03",
+      "departure": "10:04"
     },
     {
       "station": "Ban Makha",
@@ -189,8 +189,8 @@
     },
     {
       "station": "Nong Khai Nam",
-      "arrival": "10:34",
-      "departure": "10:35"
+      "arrival": "10:33",
+      "departure": "10:34"
     },
     {
       "station": "Ban Ko",

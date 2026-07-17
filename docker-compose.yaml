@@ -48,7 +48,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@postgres:5432/railway_db}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       CORS_ORIGINS: ${SIMULATION_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000,http://127.0.0.1:8000}
-      DEBUG: ${DEBUG:-true}
+      DEBUG: ${SIMULATION_DEBUG:-true}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
       LOG_LEVEL: ${LOG_LEVEL:-WARNING}
@@ -90,7 +90,7 @@ services:
       SCHEDULE_SEED_PATH: /app/schedule/schedules_seed.json
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       ENVIRONMENT: ${ENVIRONMENT:-development}
-      DEBUG: ${DEBUG:-false}
+      DEBUG: ${RAILDBSETUP_DEBUG:-false}
     ports:
       - "${SETUP_PORT:-8003}:8003"
     depends_on:
@@ -152,7 +152,7 @@ services:
       SCHEDULE_DATA_DIR: /app/schedule
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       ENVIRONMENT: ${ENVIRONMENT:-development}
-      DEBUG: ${DEBUG:-false}
+      DEBUG: ${RAILDATACOLLECTOR_DEBUG:-false}
     ports:
       - "${COLLECTOR_PORT:-8001}:8001"
     depends_on:
