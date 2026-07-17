@@ -283,6 +283,18 @@ class Train(Base):
     train_type: Mapped[str] = mapped_column(String(50), nullable=False)
     name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    locomotive_mass_t: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
+    rolling_stock_mass_t: Mapped[float | None] = mapped_column(Numeric(9, 2), nullable=True)
+    horsepower: Mapped[float | None] = mapped_column(Numeric(8, 1), nullable=True)
+    max_tractive_effort_kn: Mapped[float | None] = mapped_column(
+        Numeric(8, 2), nullable=True
+    )
+    max_brake_deceleration_mps2: Mapped[float | None] = mapped_column(
+        Numeric(5, 3), nullable=True
+    )
+    max_speed_kmh: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
+    passenger_load: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    passenger_mass_kg: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
     operator: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
@@ -496,6 +508,12 @@ class NetworkEdge(Base):
     route_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
     line_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     max_speed_kmh: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    elevation_profile: Mapped[list[dict[str, float]] | None] = mapped_column(
+        JSON, nullable=True
+    )
+    speed_limit_zones: Mapped[list[dict[str, float]] | None] = mapped_column(
+        JSON, nullable=True
+    )
     track_class: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

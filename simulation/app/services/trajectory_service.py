@@ -30,6 +30,15 @@ from app.domain.trajectory import (
 )
 from app.models.database.models import Schedule, Train
 from app.services import geo_utils, schedule_utils
+from app.services.train_physics import (
+    MotionState,
+    TrackProfile,
+    TrainPhysicsSpec,
+    build_track_profile,
+    resolve_train_physics,
+    simulate_leg,
+    state_at,
+)
 
 __all__ = [
     "build_trajectory",
@@ -312,6 +321,9 @@ def _compute_frame(
     step_minutes: float,
     step_unix_ms: int,
     delay: int,
+    physics: TrainPhysicsSpec,
+    track_profile: TrackProfile,
+    motion_cache: dict[tuple[int, int], list[MotionState]],
 ) -> TrajectoryFrame | None:
     """Return a single :class:`TrajectoryFrame` for ``step_minutes`` or ``None``."""
 
@@ -332,37 +344,39 @@ def _compute_frame(
     prev_mins += delay
     next_mins += delay
     duration = next_mins - prev_mins
-    progress = (
-        1.0
-        if duration <= 0
-        else max(0.0, min(1.0, (step_minutes - prev_mins) / duration))
-    )
-
     start_frac = stop_fractions[prev_index]
     end_frac = stop_fractions[next_index]
-    geom_fraction = start_frac + (end_frac - start_frac) * progress
-    geom_fraction = max(0.0, min(1.0, geom_fraction))
+    geom_fraction = start_frac
+    head_distance_m = start_frac * route_length_m
+    speed_kmh = 0.0
 
     dwelling = _is_dwell_window(next_stop, current_minutes=step_minutes, delay=delay)
 
     status: TrajectoryStatus
     if dwelling:
         geom_fraction = end_frac
-        speed_kmh = 0.0
+        head_distance_m = end_frac * route_length_m
         status = "dwelling"
     else:
-        if duration > 0:
-            segment_length_m = (
-                geo_utils.segment_distance_km(route_coords, start_frac, end_frac)
-                * 1000.0
+        if duration > 0 and prev_index != next_index:
+            cache_key = (prev_index, next_index)
+            states = motion_cache.get(cache_key)
+            if states is None:
+                states = simulate_leg(
+                    start_frac * route_length_m,
+                    end_frac * route_length_m,
+                    duration * 60.0,
+                    physics,
+                    track_profile,
+                )
+                motion_cache[cache_key] = states
+            state = state_at(
+                states,
+                max(0.0, min(duration * 60.0, (step_minutes - prev_mins) * 60.0)),
             )
-            speed_kmh = (
-                (segment_length_m / 1000.0) / (duration / 60.0)
-                if segment_length_m > 0
-                else 0.0
-            )
-        else:
-            speed_kmh = 0.0
+            head_distance_m = max(0.0, min(route_length_m, state.distance_m))
+            geom_fraction = head_distance_m / route_length_m
+            speed_kmh = state.speed_mps * 3.6
         status = "moving"
 
     lon, lat = geo_utils.interpolate_position(route_coords, geom_fraction)
@@ -373,12 +387,24 @@ def _compute_frame(
         lon=round(lon, 6),
         lat=round(lat, 6),
         geom_fraction=round(geom_fraction, 6),
-        head_distance_m=round(geom_fraction * route_length_m, 3),
+        head_distance_m=round(head_distance_m, 3),
         rotation_deg=round(rotation % 360.0, 2),
         # Thai rolling stock tops out around 160 km/h, so clamping at 200 km/h
         # leaves a small safety margin while rejecting the ~400 km/h values that
         # used to surface when a schedule's timing was too tight for the route.
         speed_kmh=round(max(0.0, min(200.0, speed_kmh)), 2),
+        elevation_m=round(track_profile.elevation_at(head_distance_m), 2),
+        grade_permille=round(
+            track_profile.grade_at(
+                head_distance_m, 1.0 if end_frac >= start_frac else -1.0
+            )
+            * 1000.0,
+            3,
+        ),
+        speed_limit_kmh=round(
+            min(physics.max_speed_kmh, track_profile.speed_limit_at(head_distance_m)),
+            2,
+        ),
         status=status,
     )
 
@@ -462,7 +488,12 @@ def build_trajectory(
     # Ensure a usable route polyline.
     polyline: list[list[float]]
     if route_coords and len(route_coords) >= 2:
-        polyline = [[float(p[0]), float(p[1])] for p in route_coords]
+        # Preserve an optional third ordinate.  DEM importers attach elevation
+        # as Z while all horizontal geometry helpers intentionally use lon/lat.
+        polyline = [
+            [float(value) for value in p[:3]] if len(p) > 2 else [float(p[0]), float(p[1])]
+            for p in route_coords
+        ]
     else:
         fallback = _fallback_route_from_stations(schedules)
         if fallback is None:
@@ -479,6 +510,9 @@ def build_trajectory(
 
     effective_distance_km = route_length_m / 1000.0
     stop_fractions = _stop_fractions(schedules, polyline, effective_distance_km)
+    physics = resolve_train_physics(train)
+    track_profile = build_track_profile(polyline, route_length_m, route_segments)
+    motion_cache: dict[tuple[int, int], list[MotionState]] = {}
 
     lookahead = settings.trajectory_lookahead_seconds
     step = settings.trajectory_step_seconds
@@ -497,6 +531,9 @@ def build_trajectory(
             step_minutes=step_minutes,
             step_unix_ms=step_unix_ms,
             delay=delay,
+            physics=physics,
+            track_profile=track_profile,
+            motion_cache=motion_cache,
         )
         if frame is None:
             if i == 0:

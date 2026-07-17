@@ -34,6 +34,9 @@ class TrajectoryFrame(BaseModel):
     head_distance_m: float = Field(..., ge=0.0)
     rotation_deg: float = Field(..., ge=0.0, lt=360.0)
     speed_kmh: float = Field(..., ge=0.0, le=400.0)
+    elevation_m: float = 0.0
+    grade_permille: float = 0.0
+    speed_limit_kmh: float = Field(200.0, gt=0.0, le=400.0)
     status: TrajectoryStatus = "moving"
 
 

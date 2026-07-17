@@ -57,6 +57,7 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
                 NetworkEdge.component_id,
                 NetworkEdge.route_type,
                 NetworkEdge.line_name,
+                NetworkEdge.max_speed_kmh,
                 ST_AsGeoJSON(NetworkEdge.geometry).label("geojson"),
             )
             .where(
@@ -84,6 +85,7 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
                         "component_id": row.component_id,
                         "route_type": row.route_type,
                         "line_name": row.line_name,
+                        "max_speed_kmh": row.max_speed_kmh,
                     },
                 }
             )
@@ -141,6 +143,7 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
             NetworkEdge.component_id,
             NetworkEdge.route_type,
             NetworkEdge.line_name,
+            NetworkEdge.max_speed_kmh,
             ST_AsGeoJSON(NetworkEdge.geometry).label("geojson"),
         ).order_by(NetworkEdge.id)
         if not include_synthetic:
@@ -163,6 +166,7 @@ class NetworkRepository(BaseRepository[NetworkEdge]):
                         "component_id": row.component_id,
                         "route_type": row.route_type,
                         "line_name": row.line_name,
+                        "max_speed_kmh": row.max_speed_kmh,
                     },
                 }
             )
