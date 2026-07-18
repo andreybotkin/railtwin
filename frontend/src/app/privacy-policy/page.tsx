@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import { Button } from '@/components/ui';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  robots: { index: false, follow: true },
+};
 
 const PRIVACY_SECTION_KEYS = [
   'overview',

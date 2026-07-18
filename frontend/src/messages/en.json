@@ -5,7 +5,7 @@
     "toggleSchedulePanel": "Toggle schedule panel",
     "toggleDarkMode": "Toggle dark mode",
     "language": "Language",
-    "subtitle": "Live open-source simulation",
+    "subtitle": "Interactive Thailand train map and timetable",
     "openData": {
       "buttonLabel": "Open data and sources",
       "buttonHint": "Maps, timetable, Thai open data and delay methodology",
@@ -192,6 +192,7 @@
       "satellite": "Esri World Imagery"
     },
     "leafletSummary": "Rendered with Leaflet",
+    "about": "About the map",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service"
   },

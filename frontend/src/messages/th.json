@@ -5,7 +5,7 @@
     "toggleSchedulePanel": "เปิด/ปิดแผงตารางเดินรถ",
     "toggleDarkMode": "เปลี่ยนโหมดมืด/สว่าง",
     "language": "ภาษา",
-    "subtitle": "การจำลองแบบเปิดสด",
+    "subtitle": "แผนที่รถไฟไทยและตารางรถไฟแบบอินเทอร์แอกทีฟ",
     "openData": {
       "buttonLabel": "ข้อมูลเปิดและแหล่งข้อมูล",
       "buttonHint": "แผนที่ ตารางเดินรถ ข้อมูลเปิดไทย และวิธีคำนวณความคลาดเคลื่อน",
@@ -192,6 +192,7 @@
       "satellite": "Esri World Imagery"
     },
     "leafletSummary": "แสดงผลด้วย Leaflet",
+    "about": "เกี่ยวกับแผนที่",
     "privacyPolicy": "นโยบายความเป็นส่วนตัว",
     "termsOfService": "ข้อกำหนดการใช้บริการ"
   },

@@ -350,6 +350,22 @@ export default function HomePage() {
                 |
               </span>
               <Link
+                href="/about"
+                className="transition-opacity hover:opacity-80"
+                style={{ color: footerTextColor, textShadow: footerTextShadow }}
+              >
+                {t('footer.about')}
+              </Link>
+              <span
+                aria-hidden="true"
+                style={{
+                  color: footerMutedColor,
+                  textShadow: footerTextShadow,
+                }}
+              >
+                |
+              </span>
+              <Link
                 href="/privacy-policy"
                 className="transition-opacity hover:opacity-80"
                 style={{ color: footerTextColor, textShadow: footerTextShadow }}

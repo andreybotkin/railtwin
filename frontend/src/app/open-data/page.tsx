@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -12,6 +13,19 @@ import {
 import { getTranslations } from 'next-intl/server';
 
 import { Button } from '@/components/ui';
+import { pageMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = pageMetadata({
+  title: 'Thailand Railway Open Data & Map Sources',
+  description:
+    'Learn which timetable, station, map and geographic sources power RailTwin, and how simulated train positions and delay estimates are calculated.',
+  path: '/open-data',
+  keywords: [
+    'Thailand railway open data',
+    'SRT timetable data',
+    'Thailand rail dataset',
+  ],
+});
 
 const DATASET_ICONS = {
   maps: MapPinned,

@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import { Button } from '@/components/ui';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  robots: { index: false, follow: true },
+};
 
 const TERMS_SECTION_KEYS = [
   'acceptanceOfTerms',
