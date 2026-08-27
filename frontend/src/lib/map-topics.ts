@@ -9,12 +9,13 @@
  */
 
 import type { MapTopic, ZoomGeneralization } from '@/types/map-topics';
+import { cartoTileUrl } from '@/lib/carto';
 
 // ── Tile URLs ──────────────────────────────────────────────────────
-const TILE_VOYAGER =
-  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-const TILE_DARK =
-  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const TILE_VOYAGER = cartoTileUrl(
+  'rastertiles/voyager/{z}/{x}/{y}{r}.png'
+);
+const TILE_DARK = cartoTileUrl('dark_all/{z}/{x}/{y}{r}.png');
 const TILE_SATELLITE =
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 

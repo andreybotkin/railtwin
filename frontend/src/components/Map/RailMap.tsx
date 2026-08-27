@@ -34,6 +34,7 @@ import { useMapTopology, useTheme, useTrajectoryStream } from '@/lib/hooks';
 import { useRailwayStore } from '@/lib/stores/railway-store';
 import { nearestTrainId } from '@/lib/train-selection';
 import { getRouteColor, getTrainTypeColor } from '@/lib/utils';
+import { cartoTileUrl } from '@/lib/carto';
 
 import LeafletStationMarker from './LeafletStationMarker';
 import LeafletTrainMarker from './LeafletTrainMarker';
@@ -104,11 +105,10 @@ function saveView(lat: number, lng: number, zoom: number): void {
 type AppTheme = 'light' | 'dark' | 'satellite';
 
 function getTileUrl(theme: AppTheme): string {
-  if (theme === 'dark')
-    return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  if (theme === 'dark') return cartoTileUrl('dark_all/{z}/{x}/{y}{r}.png');
   if (theme === 'satellite')
     return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-  return 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  return cartoTileUrl('rastertiles/voyager/{z}/{x}/{y}{r}.png');
 }
 
 function getTileAttribution(theme: AppTheme): string {

@@ -3,7 +3,7 @@
  *
  * Three themes:
  *   light     — OpenFreeMap "liberty" vector style (OSM-based, CC-BY)
- *   dark      — CARTO dark_all raster tiles (no API key needed)
+ *   dark      — CARTO dark_all raster tiles
  *   satellite — ESRI World Imagery raster tiles (no API key needed)
  *
  * Override with `NEXT_PUBLIC_MAP_STYLE_URL` (e.g. MapTiler) to replace the
@@ -11,6 +11,7 @@
  */
 
 import type { StyleSpecification } from 'maplibre-gl';
+import { cartoTileUrls } from '@/lib/carto';
 
 export type AppTheme = 'light' | 'dark' | 'satellite';
 
@@ -23,11 +24,7 @@ const DARK_STYLE: StyleSpecification = {
   sources: {
     'carto-dark': {
       type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-      ],
+      tiles: cartoTileUrls('dark_all/{z}/{x}/{y}@2x.png'),
       tileSize: 256,
       maxzoom: 19,
       attribution:

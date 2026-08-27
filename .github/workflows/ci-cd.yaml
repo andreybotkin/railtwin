@@ -475,6 +475,16 @@ jobs:
           echo "DATE_TAG=$DATE_TAG" >> "$GITHUB_OUTPUT"
           echo "SHORT_SHA=$SHORT_SHA" >> "$GITHUB_OUTPUT"
 
+      - name: Validate frontend build secrets
+        if: matrix.component == 'frontend'
+        env:
+          CARTO_API: ${{ secrets.CARTO_API }}
+        run: |
+          if [ -z "$CARTO_API" ]; then
+            echo "Required GitHub Actions secret CARTO_API is not configured"
+            exit 1
+          fi
+
       - name: Build and push ${{ matrix.component }}
         uses: docker/build-push-action@v6
         with:
@@ -487,6 +497,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=https://api.rthfi.com
             NEXT_PUBLIC_WS_URL=wss://api.rthfi.com
+            NEXT_PUBLIC_CARTO_API_KEY=${{ matrix.component == 'frontend' && secrets.CARTO_API || '' }}
           platforms: linux/amd64
           provenance: false
 
