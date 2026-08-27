@@ -570,13 +570,14 @@ jobs:
 
           kubectl -n railway rollout status deployment/postgres --timeout=10m
           kubectl -n railway rollout status deployment/redis --timeout=5m
-          kubectl -n railway rollout status deployment/raildbsetup --timeout=20m
 
-      - name: Rebuild maps and derived movement plans
+      - name: Queue maps and derived movement-plan rebuild
         if: env.RAILDBSETUP_EXISTED == 'true' && (needs.detect-changes.outputs.raildbsetup == 'true' || needs.detect-changes.outputs.k8s == 'true')
-        run: k8s/rebuild-reference-data.sh
+        run: |
+          job="$(kubectl create -f k8s/raildbsetup/rebuild-job.yaml -o name)"
+          echo "Queued $job; rebuild now runs independently inside k3s"
 
-      - name: Diagnose reference-data rebuild failure
+      - name: Diagnose deployment queueing failure
         if: failure()
         run: |
           echo "raildbsetup pod status:"
@@ -590,6 +591,8 @@ jobs:
           kubectl -n railway logs deployment/raildbsetup --previous --tail=200 || true
           echo "raildbsetup resource usage:"
           kubectl -n railway top pod -l app.kubernetes.io/name=raildbsetup --containers || true
+          echo "reference-data trigger jobs:"
+          kubectl -n railway get jobs -l app.kubernetes.io/name=raildbsetup-rebuild || true
           echo "recent namespace events:"
           kubectl -n railway get events --sort-by=.lastTimestamp | tail -50 || true
 

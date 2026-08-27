@@ -13,7 +13,7 @@ Startup sequence (lifespan):
        a. alembic upgrade head      — creates / migrates schema
        b. InitRailroadUseCase        — loads KML → routes + stations
        c. InitSchedulesUseCase       — loads JSON → trains + schedules
-  4. /ready returns 503 during init, 200 on success, 500 on failure.
+  4. /ready returns 200 while initializing/ready and 500 on failure.
 
 This service is the ONLY place where database schema and seed data are managed.
 The simulation service must declare a dependency on this service before starting.
@@ -116,20 +116,20 @@ async def health() -> dict:
 
 @app.get("/ready", tags=["ops"])
 async def ready() -> JSONResponse:
-    """Returns 200 when all initialization steps have completed, 503 otherwise."""
+    """Report setup state without removing a healthy worker from service."""
     runner: SetupRunner | None = getattr(app.state, "runner", None)
     if runner is None:
-        return JSONResponse(status_code=503, content={"status": "initializing"})
-    if runner.is_ready:
-        return JSONResponse(
-            status_code=200, content={"status": "ready", "result": runner.status}
-        )
+        return JSONResponse(status_code=200, content={"status": "initializing"})
     if runner.is_failed:
         return JSONResponse(
             status_code=500,
             content={"status": "failed", "error": runner.error},
         )
+    if runner.is_ready:
+        return JSONResponse(
+            status_code=200, content={"status": "ready", "result": runner.status}
+        )
     return JSONResponse(
-        status_code=503,
+        status_code=200,
         content={"status": "initializing", "step": runner.current_step},
     )

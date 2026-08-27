@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: raildbsetup-rebuild-
+  namespace: railway
+  labels:
+    app.kubernetes.io/name: raildbsetup-rebuild
+    app.kubernetes.io/component: setup
+spec:
+  # The Job only queues the rebuild. The work itself continues in raildbsetup.
+  ttlSecondsAfterFinished: 3600
+  activeDeadlineSeconds: 2400
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: raildbsetup-rebuild
+        app.kubernetes.io/component: setup
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: trigger
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              url="http://raildbsetup-service:8003"
+
+              # The Service only publishes ready endpoints. Waiting here keeps
+              # the GitHub runner free while the new raildbsetup pod performs
+              # its normal startup initialization.
+              attempt=0
+              until wget -qO- -T 3 "$url/health" >/dev/null; do
+                attempt=$((attempt + 1))
+                if [ "$attempt" -ge 360 ]; then
+                  echo "Timed out waiting for raildbsetup readiness" >&2
+                  exit 1
+                fi
+                sleep 5
+              done
+
+              echo "Queueing forced reference-data rebuild"
+              wget -qO- -T 30 --post-data='' \
+                "$url/api/v1/setup/all?force=true"
+              echo
+              echo "Reference-data rebuild accepted; raildbsetup continues asynchronously"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
