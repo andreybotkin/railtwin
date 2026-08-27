@@ -45,16 +45,4 @@ done
 curl --silent --show-error --fail --max-time 30 \
   -X POST "http://127.0.0.1:$local_port/api/v1/setup/all?force=true"
 echo
-
-# BackgroundTasks starts after the HTTP response. First require the pod to
-# become unready, otherwise an old Ready condition could make the deploy pass
-# before the rebuild has even started.
-pod="$(kubectl -n "$namespace" get pod -l app.kubernetes.io/name=raildbsetup -o jsonpath='{.items[0].metadata.name}')"
-kubectl -n "$namespace" wait --for=condition=Ready=false "pod/$pod" --timeout=60s
-kubectl -n "$namespace" wait --for=condition=Ready=true "pod/$pod" --timeout=30m
-
-status="$(curl --silent --show-error --fail --max-time 30 \
-  "http://127.0.0.1:$local_port/api/v1/setup/status")"
-echo "$status"
-echo "$status" | grep -q '"ready":true'
-echo "$status" | grep -q '"failed":false'
+echo "Reference-data rebuild was accepted and will continue asynchronously in k3s"

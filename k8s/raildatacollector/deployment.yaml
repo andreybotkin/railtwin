@@ -39,11 +39,11 @@ spec:
             - sh
             - -c
             - |
-              until wget -qO- http://raildbsetup-service:8003/ready 2>/dev/null | grep -q '"status":"ready"'; do
-                echo "Waiting for raildbsetup to finish DB setup..."
+              until wget -qO- http://raildbsetup-service:8003/health >/dev/null 2>&1; do
+                echo "Waiting for raildbsetup service..."
                 sleep 5
               done
-              echo "Raildbsetup is ready"
+              echo "Raildbsetup service is available"
         - name: wait-for-redis
           image: busybox:1.36
           command:

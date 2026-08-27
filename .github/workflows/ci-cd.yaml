@@ -558,13 +558,10 @@ jobs:
         run: |
           set -eu
           kubectl apply -k k8s
-          image_repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
-          image_tag="${GITHUB_SHA:0:7}"
 
-          if [ "$RAILDBSETUP_CHANGED" = "true" ]; then
-            kubectl -n railway set image deployment/raildbsetup \
-              raildbsetup="${REGISTRY}/${image_repo}/raildbsetup:${image_tag}"
-          elif [ "$K8S_CHANGED" = "true" ] && [ "$RAILDBSETUP_EXISTED" = "true" ]; then
+          # Manifests keep the canonical :latest image. A restart is required
+          # because setting the same mutable tag does not change the pod template.
+          if [ "$RAILDBSETUP_CHANGED" = "true" ] || { [ "$K8S_CHANGED" = "true" ] && [ "$RAILDBSETUP_EXISTED" = "true" ]; }; then
             kubectl -n railway rollout restart deployment/raildbsetup
           fi
 
@@ -606,16 +603,11 @@ jobs:
           REFERENCE_DATA_CHANGED: ${{ needs.detect-changes.outputs.raildbsetup }}
         run: |
           set -eu
-          image_repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
-          image_tag="${GITHUB_SHA:0:7}"
 
           deploy_component() {
             component="$1"
             changed="$2"
-            if [ "$changed" = "true" ]; then
-              kubectl -n railway set image "deployment/$component" \
-                "$component=${REGISTRY}/${image_repo}/${component}:${image_tag}"
-            elif [ "$K8S_CHANGED" = "true" ] && [ "$RAILDBSETUP_EXISTED" = "true" ]; then
+            if [ "$changed" = "true" ] || { [ "$K8S_CHANGED" = "true" ] && [ "$RAILDBSETUP_EXISTED" = "true" ]; }; then
               kubectl -n railway rollout restart "deployment/$component"
             fi
           }
