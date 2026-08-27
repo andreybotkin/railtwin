@@ -42,7 +42,7 @@ from app.domain.trajectory import (
 )
 from app.services import geo_utils
 from app.services.trajectory_service import (
-    _bearing_at_fraction,  # noqa: PLC2701 — shared internal geometry helper
+    _bearing_at_fraction,
     _station_name,
     _station_name_th,
     train_type_color,
@@ -200,7 +200,7 @@ def _build_plan_anchors(
             offset_s = (adjusted - current_minutes) * 60
             anchors.append(
                 TrajectoryAnchor(
-                    t_ms=now_unix_ms + int(round(offset_s * 1000)),
+                    t_ms=now_unix_ms + round(offset_s * 1000),
                     station_id=station_id,
                     station_name=station_name,
                     event=event,  # type: ignore[arg-type]

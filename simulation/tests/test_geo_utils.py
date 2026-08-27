@@ -10,6 +10,7 @@ the inverse: given a point, it returns the fraction that would reproduce it.
 from __future__ import annotations
 
 import math
+from itertools import pairwise
 
 import pytest
 
@@ -26,7 +27,7 @@ _POLYLINE: list[list[float]] = [
 def test_cumulative_haversine_is_monotonic_and_ends_at_total() -> None:
     cum = geo_utils.cumulative_haversine_km(_POLYLINE)
     assert cum[0] == 0.0
-    for a, b in zip(cum, cum[1:], strict=False):
+    for a, b in pairwise(cum):
         assert b >= a
     # Total route is ~118 km (≈13.7°N → 14.8°N ≈ 1.1° of lat).
     assert cum[-1] > 100.0

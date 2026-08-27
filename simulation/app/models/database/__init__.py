@@ -41,8 +41,6 @@ class Base(DeclarativeBase):
     in migrations and have access to common functionality.
     """
 
-    pass
-
 
 async def get_db() -> AsyncGenerator[AsyncSession]:
     """Dependency for getting database sessions.

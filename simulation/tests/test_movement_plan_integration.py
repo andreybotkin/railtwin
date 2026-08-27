@@ -173,7 +173,7 @@ def _patch_common(
     )
 
 
-async def _noop_load_delays(self: Any = None) -> None:  # noqa: ANN401
+async def _noop_load_delays(self: Any = None) -> None:
     if self is not None and hasattr(self, "_tts_delays"):
         self._tts_delays = {}
 
@@ -192,11 +192,11 @@ async def test_flag_off_uses_only_build_trajectory(
     resolver_called: list[bool] = []
     build_called: list[bool] = []
 
-    def _fake_resolve(**kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_resolve(**kwargs: Any) -> object:
         resolver_called.append(True)
         return _SENTINEL_TRAJECTORY
 
-    def _fake_build(*args: Any, **kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_build(*args: Any, **kwargs: Any) -> object:
         build_called.append(True)
         return _SENTINEL_TRAJECTORY
 
@@ -228,11 +228,11 @@ async def test_flag_on_valid_plan_uses_resolver(
     resolver_called: list[bool] = []
     build_called: list[bool] = []
 
-    def _fake_resolve(**kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_resolve(**kwargs: Any) -> object:
         resolver_called.append(True)
         return _SENTINEL_TRAJECTORY
 
-    def _fake_build(*args: Any, **kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_build(*args: Any, **kwargs: Any) -> object:
         build_called.append(True)
         return _SENTINEL_TRAJECTORY
 
@@ -263,7 +263,7 @@ async def test_flag_on_no_plan_falls_back(
 
     build_called: list[bool] = []
 
-    def _fake_build(*args: Any, **kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_build(*args: Any, **kwargs: Any) -> object:
         build_called.append(True)
         return _SENTINEL_TRAJECTORY
 
@@ -295,7 +295,7 @@ async def test_flag_on_resolver_none_falls_back(
     def _fake_resolve(**kwargs: Any) -> None:
         return None  # resolver yields nothing
 
-    def _fake_build(*args: Any, **kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_build(*args: Any, **kwargs: Any) -> object:
         build_called.append(True)
         return _SENTINEL_TRAJECTORY
 
@@ -328,7 +328,7 @@ async def test_strict_mode_no_fallback_skips_train_when_resolver_fails(
     def _fake_resolve(**kwargs: Any) -> None:
         return None
 
-    def _fake_build(*args: Any, **kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_build(*args: Any, **kwargs: Any) -> object:
         build_called.append(True)
         return _SENTINEL_TRAJECTORY
 
@@ -359,11 +359,11 @@ async def test_invalid_plan_falls_back(
     resolver_called: list[bool] = []
     build_called: list[bool] = []
 
-    def _fake_resolve(**kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_resolve(**kwargs: Any) -> object:
         resolver_called.append(True)
         return _SENTINEL_TRAJECTORY
 
-    def _fake_build(*args: Any, **kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_build(*args: Any, **kwargs: Any) -> object:
         build_called.append(True)
         return _SENTINEL_TRAJECTORY
 
@@ -400,7 +400,7 @@ async def test_resolver_exception_falls_back(
     def _fake_resolve(**kwargs: Any) -> None:
         raise RuntimeError("boom")
 
-    def _fake_build(*args: Any, **kwargs: Any) -> object:  # noqa: ANN401
+    def _fake_build(*args: Any, **kwargs: Any) -> object:
         build_called.append(True)
         return _SENTINEL_TRAJECTORY
 

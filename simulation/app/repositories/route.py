@@ -6,7 +6,7 @@ including geospatial queries using PostGIS.
 
 import json
 import time as _time
-from typing import Any
+from typing import Any, ClassVar
 
 from geoalchemy2.functions import ST_AsGeoJSON
 from sqlalchemy import select
@@ -25,8 +25,8 @@ class RouteRepository(BaseRepository[Route]):
 
     # Class-level geometry cache: route_id -> (coords, distance_km)
     # Shared across all RouteRepository instances; route geometry is static.
-    _geometry_cache: dict[int, tuple[list, float | None]] = {}
-    _graph_geometry_cache: dict[int, dict[str, Any]] = {}
+    _geometry_cache: ClassVar[dict[int, tuple[list, float | None]]] = {}
+    _graph_geometry_cache: ClassVar[dict[int, dict[str, Any]]] = {}
     _geometry_cache_expires: float = 0.0
     _GEOMETRY_CACHE_TTL: float = 300.0  # 5 minutes
 

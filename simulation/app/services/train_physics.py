@@ -7,8 +7,10 @@ come from a DEM-enriched 3D polyline or from per-edge elevation profiles.
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Sequence
+from itertools import pairwise
+from typing import Any
 
 from app.services import geo_utils
 
@@ -215,7 +217,7 @@ def build_track_profile(
     elevations: list[ProfilePoint] = []
     if len(coords) >= 2 and any(len(coord) > 2 for coord in coords):
         cumulative = [0.0]
-        for left, right in zip(coords, coords[1:], strict=False):
+        for left, right in pairwise(coords):
             cumulative.append(
                 cumulative[-1]
                 + geo_utils.haversine_km(left[0], left[1], right[0], right[1]) * 1000.0
@@ -357,7 +359,7 @@ def state_at(states: Sequence[MotionState], elapsed_s: float) -> MotionState:
         return states[0]
     if elapsed_s >= states[-1].elapsed_s:
         return states[-1]
-    for left, right in zip(states, states[1:], strict=False):
+    for left, right in pairwise(states):
         if elapsed_s <= right.elapsed_s:
             span = right.elapsed_s - left.elapsed_s
             ratio = 0.0 if span <= 0 else (elapsed_s - left.elapsed_s) / span

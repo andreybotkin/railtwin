@@ -65,7 +65,7 @@ class PositionCacheUpdater:
             tick_start = asyncio.get_running_loop().time()
             try:
                 await self._tick()
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - keep background loop alive
                 logger.error("PositionCacheUpdater error", error=str(exc))
 
             elapsed = asyncio.get_running_loop().time() - tick_start
@@ -102,7 +102,7 @@ class PositionCacheUpdater:
             self._static_map_topology_version = None
             logger.info("Reference data recovery completed", **metadata)
             return metadata.get("load_status") == "ready"
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.error("Reference data recovery failed", error=str(exc), exc_info=exc)
             return False
         finally:

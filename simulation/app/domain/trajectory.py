@@ -207,7 +207,7 @@ class Trajectory(BaseModel):
 
     @field_validator("valid_until_ms")
     @classmethod
-    def _valid_until_after_generated(cls, v: int, info) -> int:  # noqa: ANN001
+    def _valid_until_after_generated(cls, v: int, info) -> int:
         generated = info.data.get("generated_at_ms")
         if generated is not None and v < generated:
             raise ValueError("valid_until_ms must not precede generated_at_ms")

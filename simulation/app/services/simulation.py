@@ -306,5 +306,5 @@ class TrainSimulationService:
         if self._redis is not None:
             try:
                 self._tts_delays = await get_delays_from_redis(self._redis)
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - delay data is optional
                 logger.warning("Could not load TTS delays from Redis", error=str(exc))

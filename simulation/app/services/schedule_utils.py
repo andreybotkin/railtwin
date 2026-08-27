@@ -7,7 +7,7 @@ a service object—and easily tested without any mocking.
 
 from __future__ import annotations
 
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -15,12 +15,12 @@ if TYPE_CHECKING:
 
 __all__ = [
     "BANGKOK_OFFSET",
-    "time_to_minutes",
+    "candidate_current_minutes",
+    "get_arrival_departure_minutes",
     "get_current_time_minutes",
     "get_schedule_minutes",
-    "get_arrival_departure_minutes",
-    "candidate_current_minutes",
     "get_stop_progress",
+    "time_to_minutes",
 ]
 
 # Bangkok standard time offset (UTC+7, no DST)
@@ -37,7 +37,7 @@ def get_current_time_minutes() -> float:
 
     Uses ``now.second / 60`` so sub-minute movement is visible.
     """
-    now = datetime.now(timezone.utc) + BANGKOK_OFFSET  # noqa: UP017
+    now = datetime.now(UTC) + BANGKOK_OFFSET
     return now.hour * 60 + now.minute + now.second / 60.0
 
 
@@ -142,7 +142,7 @@ def candidate_current_minutes(
     elif delay < 0:
         first_departure += delay
 
-    now_dt = datetime.now(timezone.utc) + BANGKOK_OFFSET  # noqa: UP017
+    now_dt = datetime.now(UTC) + BANGKOK_OFFSET
     current_weekday = now_dt.weekday()
 
     overnight = any(

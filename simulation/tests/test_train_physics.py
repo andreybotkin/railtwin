@@ -13,7 +13,7 @@ from app.services.train_physics import (
 )
 
 
-def _train(**overrides):  # noqa: ANN003, ANN202
+def _train(**overrides):
     values = {
         "train_type": "ordinary",
         "capacity": 400,

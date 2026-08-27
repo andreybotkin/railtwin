@@ -4,7 +4,7 @@ This module provides JWT token handling and password hashing utilities
 for securing the application.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import bcrypt
 from jose import JWTError, jwt
@@ -76,11 +76,11 @@ def create_access_token(
         str: The encoded JWT token.
     """
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta  # noqa: UP017
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(  # noqa: UP017
+        expire = datetime.now(UTC) + timedelta(
             minutes=settings.access_token_expire_minutes
-        )  # noqa: UP017
+        )
 
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(

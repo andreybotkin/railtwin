@@ -13,6 +13,7 @@ These cover the invariants the frontend relies on:
 from __future__ import annotations
 
 from datetime import time
+from itertools import pairwise
 from types import SimpleNamespace
 from typing import Any
 
@@ -169,7 +170,7 @@ def test_build_trajectory_produces_monotonic_fractions_between_stops() -> None:
     assert len(trajectory.frames) >= 2
     # Moving frames should be monotonic non-decreasing along the polyline.
     fractions = [f.geom_fraction for f in trajectory.frames]
-    for a, b in zip(fractions, fractions[1:], strict=False):
+    for a, b in pairwise(fractions):
         assert b + 1e-9 >= a, fractions
 
     # Head frame of a moving train has speed > 0 and status="moving".

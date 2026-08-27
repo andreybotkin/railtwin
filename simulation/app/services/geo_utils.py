@@ -12,13 +12,13 @@ relies on when it converts ``geom_fraction`` into ``head_distance_m``.
 import math
 
 __all__ = [
-    "interpolate_position",
-    "great_circle_bearing",
-    "normalize_bearing",
-    "haversine_km",
-    "segment_distance_km",
     "cumulative_haversine_km",
+    "great_circle_bearing",
+    "haversine_km",
+    "interpolate_position",
+    "normalize_bearing",
     "project_onto_polyline",
+    "segment_distance_km",
 ]
 
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime, time
+from datetime import UTC, datetime, time
 from types import SimpleNamespace
 from typing import Any
 
@@ -684,7 +684,7 @@ class RedisReferenceDataLoader:
         meta = {
             "schema_version": 2,
             "load_status": "ready",
-            "loaded_at": datetime.utcnow().isoformat(),
+            "loaded_at": datetime.now(UTC).isoformat(),
             "source_topology_version": (topology or {}).get("topology_version"),
             "stations_count": len(stations),
             "routes_count": len(routes),

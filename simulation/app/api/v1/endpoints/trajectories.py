@@ -75,7 +75,7 @@ async def get_trajectory(
     route_segments = geometry.get("segments")
     route_stop_positions = geometry.get("stop_positions")
 
-    await service._load_delays()  # noqa: SLF001
+    await service._load_delays()
     trajectory = await service.get_train_trajectory(
         train,
         schedules,
@@ -113,15 +113,15 @@ async def get_stopsequence(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No schedule found for train {train_id}",
         )
-    await service._load_delays()  # noqa: SLF001
+    await service._load_delays()
     delay = (
-        service._tts_delays.get(  # noqa: SLF001
+        service._tts_delays.get(
             str(raw_schedules[train_id][0].get("train_number") or ""), 0
         )
         if raw_schedules.get(train_id)
         else 0
     )
-    current_minutes = service._get_candidate_current_minutes_with_delay(  # noqa: SLF001
+    current_minutes = service._get_candidate_current_minutes_with_delay(
         schedules, delay
     )
     if current_minutes is None:
@@ -137,4 +137,4 @@ async def get_stopsequence(
     )
 
 
-__all__ = ["router", "RedisReferenceReader"]
+__all__ = ["RedisReferenceReader", "router"]

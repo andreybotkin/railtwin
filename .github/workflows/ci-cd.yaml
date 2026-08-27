@@ -576,6 +576,23 @@ jobs:
         if: env.RAILDBSETUP_EXISTED == 'true' && (needs.detect-changes.outputs.raildbsetup == 'true' || needs.detect-changes.outputs.k8s == 'true')
         run: k8s/rebuild-reference-data.sh
 
+      - name: Diagnose reference-data rebuild failure
+        if: failure()
+        run: |
+          echo "raildbsetup pod status:"
+          kubectl -n railway get pods -l app.kubernetes.io/name=raildbsetup -o wide || true
+          echo "raildbsetup container state and restart count:"
+          kubectl -n railway get pods -l app.kubernetes.io/name=raildbsetup \
+            -o jsonpath='{range .items[*]}{.metadata.name}{" restart="}{.status.containerStatuses[0].restartCount}{" current="}{.status.containerStatuses[0].state}{" last="}{.status.containerStatuses[0].lastState}{"\n"}{end}' || true
+          echo "raildbsetup logs:"
+          kubectl -n railway logs deployment/raildbsetup --tail=200 || true
+          echo "raildbsetup previous container logs (if it restarted):"
+          kubectl -n railway logs deployment/raildbsetup --previous --tail=200 || true
+          echo "raildbsetup resource usage:"
+          kubectl -n railway top pod -l app.kubernetes.io/name=raildbsetup --containers || true
+          echo "recent namespace events:"
+          kubectl -n railway get events --sort-by=.lastTimestamp | tail -50 || true
+
       - name: Deploy application services
         env:
           SIMULATION_CHANGED: ${{ needs.detect-changes.outputs.simulation }}

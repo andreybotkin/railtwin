@@ -189,7 +189,7 @@ async def readiness_check() -> dict[str, str] | JSONResponse:
         meta = await reader.get_meta()
         if meta.get("load_status") != "ready":
             raise RuntimeError("Reference data is not ready")
-    except Exception:
+    except Exception:  # noqa: BLE001 - readiness must report dependency failures
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             content={

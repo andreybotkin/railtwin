@@ -3,7 +3,7 @@
 This module provides RESTful API endpoints for managing train schedules.
 """
 
-from datetime import datetime, time
+from datetime import UTC, datetime, time
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
@@ -17,6 +17,7 @@ from app.schemas.schedule import (
     StationScheduleResponse,
     TrainScheduleResponse,
 )
+from app.services.schedule_utils import BANGKOK_OFFSET
 
 router = APIRouter()
 
@@ -150,7 +151,7 @@ async def get_upcoming_departures(
     Returns:
         List of upcoming schedule entries.
     """
-    now = datetime.now()
+    now = datetime.now(UTC) + BANGKOK_OFFSET
     current_time = time(now.hour, now.minute)
     day_of_week = now.weekday()
 

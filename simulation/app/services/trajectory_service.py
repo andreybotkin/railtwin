@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import time as _time
 from collections.abc import Iterable
+from itertools import pairwise
 from typing import Any, cast
 
 from geoalchemy2.shape import to_shape
@@ -42,8 +43,8 @@ from app.services.train_physics import (
 )
 
 __all__ = [
-    "build_trajectory",
     "build_stop_sequence",
+    "build_trajectory",
     "train_type_color",
 ]
 
@@ -285,7 +286,7 @@ def _stop_fractions(
 
     ascending = resolved[-1] >= resolved[0]
     epsilon = 1e-7
-    for index, (left, right) in enumerate(zip(resolved, resolved[1:], strict=False)):
+    for index, (left, right) in enumerate(pairwise(resolved)):
         left_station = getattr(schedules[index], "station_id", None)
         right_station = getattr(schedules[index + 1], "station_id", None)
         same_station = left_station is not None and left_station == right_station
@@ -466,7 +467,7 @@ def _build_anchors(
             offset_seconds = (adjusted - current_minutes) * 60
             anchors.append(
                 TrajectoryAnchor(
-                    t_ms=now_unix_ms + int(round(offset_seconds * 1000)),
+                    t_ms=now_unix_ms + round(offset_seconds * 1000),
                     station_id=schedule.station.id if schedule.station else None,
                     station_name=_station_name(schedule),
                     event=event,
@@ -630,7 +631,7 @@ def build_trajectory(
         if next_mins is not None:
             offset_seconds = (next_mins + delay - current_minutes) * 60
             if offset_seconds >= 0:
-                eta_next_ms = now_ms + int(round(offset_seconds * 1000))
+                eta_next_ms = now_ms + round(offset_seconds * 1000)
 
     # Segment progress expressed per-current-segment (0..1 inside active leg).
     # Using |end - start| covers the "backwards" case where the polyline was

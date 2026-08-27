@@ -4,17 +4,15 @@ This module provides a generic base repository class that implements
 common database operations using SQLAlchemy async sessions.
 """
 
-from typing import Any, Generic, TypeVar, cast
+from typing import Any, cast
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.database import Base
 
-ModelType = TypeVar("ModelType", bound=Base)
 
-
-class BaseRepository(Generic[ModelType]):
+class BaseRepository[ModelType: Base]:
     """Generic repository with common CRUD operations.
 
     Attributes:

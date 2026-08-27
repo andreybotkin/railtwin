@@ -52,7 +52,7 @@ async def fetch_tts_delays() -> dict[str, int] | None:
                 "TTS data fetched",
                 train_count=len(result) if result else 0,
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - external Socket.IO callback boundary
             logger.warning("Failed to call ttsMain", error=str(exc))
         finally:
             done_event.set()
@@ -75,7 +75,7 @@ async def fetch_tts_delays() -> dict[str, int] | None:
         await asyncio.wait_for(done_event.wait(), timeout=40)
     except TimeoutError:
         logger.warning("TTS Socket.IO timed out")
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - external Socket.IO client boundary
         logger.warning("TTS Socket.IO error", error=str(exc))
     finally:
         with contextlib.suppress(Exception):
@@ -160,7 +160,7 @@ async def get_delays_from_redis(redis_client: Redis) -> dict[str, int]:
         if raw:
             data: dict[str, int] = json.loads(raw)
             return data
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - Redis cache failure is non-fatal
         logger.warning("Failed to read TTS delays from Redis", error=str(exc))
     return {}
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import heapq
 from dataclasses import dataclass
+from itertools import pairwise
 from typing import Any
 
 
@@ -127,7 +128,7 @@ def build_train_route_geometry(
             int(parts[0]) * 60 + int(parts[1]) + int(item.get(offset_key) or 0) * 1440
         )
 
-    for left, right in zip(ordered, ordered[1:], strict=False):
+    for left, right in pairwise(ordered):
         departure = _event_minutes(left, departure=True)
         arrival = _event_minutes(right, departure=False)
         if departure is not None and arrival is not None and arrival <= departure:

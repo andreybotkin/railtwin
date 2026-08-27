@@ -1,5 +1,6 @@
 """Test configuration and fixtures."""
 
+import contextlib
 import os
 from collections.abc import AsyncGenerator
 
@@ -27,10 +28,8 @@ async def _reset_redis_singleton() -> AsyncGenerator[None]:
     _deps._redis_client = None
     yield
     if _deps._redis_client is not None:
-        try:
+        with contextlib.suppress(Exception):
             await _deps._redis_client.aclose()
-        except Exception:
-            pass
     _deps._redis_client = None
 
 
@@ -43,7 +42,7 @@ async def test_db() -> AsyncGenerator[AsyncSession]:
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - optional test backends vary by driver
         await engine.dispose()
         pytest.skip(f"Database schema creation failed (PostGIS unavailable?): {exc}")
         return
